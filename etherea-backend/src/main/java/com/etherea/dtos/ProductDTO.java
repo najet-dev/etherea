@@ -1,31 +1,23 @@
-package com.etherea.models;
+package com.etherea.dtos;
+public class ProductDTO {
 
-import jakarta.persistence.*;
-
-import java.util.ArrayList;
-import java.util.List;
-
-@Entity
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String description;
     private double price;
     private int stockAvailable;
     private String category;
-    @OneToMany(mappedBy = "product")
-    private List<CommandItem> commandItems = new ArrayList<>();
-    public Product() {
+    public ProductDTO() {
     }
-    public Product(String name, String description, double price, int stockAvailable, String category) {
+    public ProductDTO(Long id, String name, String description, double price, int stockAvailable, String category) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.stockAvailable = stockAvailable;
         this.category = category;
     }
+
     public Long getId() {
         return id;
     }
@@ -63,3 +55,4 @@ public class Product {
         this.category = category;
     }
 }
+
