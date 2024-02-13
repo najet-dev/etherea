@@ -1,4 +1,7 @@
 package com.etherea.dtos;
+
+import jakarta.persistence.Lob;
+
 public class ProductDTO {
 
     private Long id;
@@ -7,17 +10,17 @@ public class ProductDTO {
     private double price;
     private int stockAvailable;
     private String category;
+    private byte[] image;
     public ProductDTO() {
     }
-    public ProductDTO(Long id, String name, String description, double price, int stockAvailable, String category) {
-        this.id = id;
+    public ProductDTO(String name, String description, double price, int stockAvailable, String category, byte[] image) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.stockAvailable = stockAvailable;
         this.category = category;
+        this.image = image;
     }
-
     public Long getId() {
         return id;
     }
@@ -53,6 +56,14 @@ public class ProductDTO {
     }
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
     }
 }
 

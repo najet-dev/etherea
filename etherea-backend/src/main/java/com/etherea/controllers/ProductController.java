@@ -1,5 +1,6 @@
 package com.etherea.controllers;
 
+import com.etherea.exception.ProductNotFoundException;
 import com.etherea.models.Product;
 import com.etherea.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,25 +22,27 @@ public class ProductController {
     public List<Product> getProducts() {
         return productService.getAllProducts();
     }
-
     @GetMapping("/product/{id}")
-    public ResponseEntity<?> getProduitById(@PathVariable Long id) {
-        Optional<Product> optionalProduct = productService.getProductById(id);
-
-        if (optionalProduct.isPresent()) {
-            Product product = optionalProduct.get();
-            System.out.println("Produit trouvé : " + product);
-            return ResponseEntity.ok(product);
-        } else {
-            String message = "Aucun produit trouvé avec l'ID : " + id;
-            System.out.println(message);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+    public ResponseEntity<?> getProductById(@PathVariable Long id) {
+        try {
+            return productService.getProductById(id);
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
     @PostMapping(value = "/product/add")
     @ResponseBody
     public Product addProduct(@RequestBody Product product) throws Exception {
         return this.productService.createProduct(product);
+    }
+    @PutMapping(value="product/update/{id}" )
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product updatedProduct) {
+        Product updated = productService.updateProduct(id, updatedProduct);
+        return ResponseEntity.ok(updated);
+    }
+    @DeleteMapping("/product/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
     }
 }

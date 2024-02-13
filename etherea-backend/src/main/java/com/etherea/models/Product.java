@@ -15,16 +15,19 @@ public class Product {
     private double price;
     private int stockAvailable;
     private String category;
+    @Lob
+    private byte[] image;
     @OneToMany(mappedBy = "product")
     private List<CommandItem> commandItems = new ArrayList<>();
     public Product() {
     }
-    public Product(String name, String description, double price, int stockAvailable, String category) {
+    public Product(String name, String description, double price, int stockAvailable, String category, byte[] image) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.stockAvailable = stockAvailable;
         this.category = category;
+        this.image = image;
     }
     public Long getId() {
         return id;
@@ -61,5 +64,19 @@ public class Product {
     }
     public void setCategory(String category) {
         this.category = category;
+    }
+    public byte[] getImage() {
+        return image;
+    }
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
+
+    public List<CommandItem> getCommandItems() {
+        return commandItems;
+    }
+
+    public void setCommandItems(List<CommandItem> commandItems) {
+        this.commandItems = commandItems;
     }
 }
