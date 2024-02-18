@@ -1,5 +1,6 @@
 package com.etherea.models;
 
+import com.etherea.enums.SkinType;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -14,14 +15,15 @@ public class Product {
     private String description;
     private double price;
     private int stockAvailable;
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private SkinType category;
     @Lob
     private byte[] image;
     @OneToMany(mappedBy = "product")
     private List<CommandItem> commandItems = new ArrayList<>();
     public Product() {
     }
-    public Product(String name, String description, double price, int stockAvailable, String category, byte[] image) {
+    public Product(String name, String description, double price, int stockAvailable, SkinType category, byte[] image) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -59,17 +61,20 @@ public class Product {
     public void setStockAvailable(int stockAvailable) {
         this.stockAvailable = stockAvailable;
     }
-    public String getCategory() {
-        return category;
-    }
-    public void setCategory(String category) {
-        this.category = category;
-    }
+
     public byte[] getImage() {
         return image;
     }
     public void setImage(byte[] image) {
         this.image = image;
+    }
+
+    public SkinType getCategory() {
+        return category;
+    }
+
+    public void setCategory(SkinType category) {
+        this.category = category;
     }
 
     public List<CommandItem> getCommandItems() {

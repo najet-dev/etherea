@@ -1,0 +1,83 @@
+<div class="container-fluid">
+  <!-- En-tête avec le logo et la barre de recherche -->
+  <div class="row justify-content-between align-items-center menu-container">
+    <!-- Nom du site à gauche -->
+    <div class="col-auto">
+      <a class="logo" routerLink="/">Etherea</a>
+    </div>
+
+    <!-- Bouton du menu burger -->
+    <div class="col-auto">
+      <mat-icon class="burger-menu" (click)="toggleMenu()">menu</mat-icon>
+      <mat-icon class="close-icon" (click)="toggleMenu()">close</mat-icon>
+    </div>
+
+    <!-- Input de recherche au milieu avec l'icône de loupe à droite -->
+    <div class="col-lg-6 col-md-8 col-sm-10">
+      <mat-form-field appearance="fill" class="custom-search-field">
+        <input matInput placeholder="Rechercher" class="custom-input" />
+        <mat-icon matSuffix class="icon">search</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <!-- Icônes du panier et de connexion à droite -->
+    <div class="col-auto">
+      <mat-icon class="icon">account_circle</mat-icon>
+      <mat-icon class="icon">shopping_cart</mat-icon>
+    </div>
+  </div>
+
+  <ul id="menu">
+    <li>
+      <a href="#">Crème de jour</a>
+      <ul>
+        <li><a routerLink="/day-cream/normal-skin">peau normale</a></li>
+        <li><a routerLink="/day-cream/sensitive-skin">peau sensible</a></li>
+        <li><a routerLink="/day-cream/combination-skin">peau mixte</a></li>
+        <li><a routerLink="/day-cream/dry-skin">peau séche</a></li>
+        <li>
+          <a routerLink="/day-cream/blemished-skin">peau à imperfection</a>
+        </li>
+        <li><a routerLink="/day-cream/mature-skin">peau mature</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#">Crème de nuit</a>
+      <ul>
+        <li><a routerLink="/night-cream/night-normal">peau normale</a></li>
+        <li><a routerLink="/night-cream/night-sensitive">peau sensible</a></li>
+        <li><a routerLink="/night-cream/night-combination">peau mixte</a></li>
+        <li><a routerLink="/night-cream/night-dry">peau séche</a></li>
+        <li>
+          <a routerLink="/night-cream/night-blemished">peau à imperfection</a>
+        </li>
+        <li><a routerLink="/night-cream/night-mature">peau mature</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#">Crème de yeux</a>
+      <ul>
+        <li><a href="#">peau normale</a></li>
+        <li><a href="#">peau sensible</a></li>
+        <li><a href="#">peau mixte</a></li>
+        <li><a href="#">peau séche</a></li>
+        <li><a href="#">peau à imperfection</a></li>
+        <li><a href="#">peau mature</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#">Crème solaire</a>
+    </li>
+    <li>
+      <a href="#">Nouveauté</a>
+      <ul>
+        <li><a href="#">peau normale</a></li>
+        <li><a href="#">peau sensible</a></li>
+        <li><a href="#">peau mixte</a></li>
+        <li><a href="#">peau séche</a></li>
+        <li><a href="#">peau à imperfection</a></li>
+        <li><a href="#">peau mature</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
