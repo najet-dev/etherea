@@ -1,7 +1,6 @@
-/* Styles par défaut pour les grands écrans */
 .menu-container {
-  padding: 10px 50px;
-  background-color: #71536d;
+  padding: 10px 20px; /* Adjust padding for smaller screens */
+  background-color: #eccbe7;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -10,22 +9,22 @@
 .logo {
   font-size: 20px;
   margin-right: 20px;
-}
-
-.menu-container a {
   text-decoration: none;
-  color: #151515;
+  color: #0a0a0a;
 }
 
 .custom-search-field {
   width: 100%;
-  border-radius: 25px;
+  border-radius: 15px;
 }
 
 .custom-input {
   border: none;
   border-bottom: 2px solid #0a0a0a;
   font-size: 16px;
+  border-radius: 15px;
+  padding: 8px;
+  width: 100%;
 }
 
 .icon {
@@ -33,132 +32,46 @@
   cursor: pointer;
 }
 
-.burger-menu,
-.close-icon {
-  display: none;
-}
-#menu-demo2,
-#menu-demo2 ul {
-  padding: 0;
-  margin: 0;
+#menu {
   list-style: none;
   text-align: center;
-}
-
-#menu-demo2 li {
-  display: inline-block;
-  position: relative;
-  border-radius: 8px 8px 0 0;
-}
-
-#menu-demo2 ul li {
-  display: inherit;
-}
-
-#menu-demo2 ul li:hover {
-  border-radius: 0;
-}
-
-#menu-demo2 ul li:last-child {
-  border-radius: 0 0 8px 8px;
-}
-
-#menu,
-#menu ul {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  text-align: center;
+  padding: 10px;
 }
 
 #menu li {
   display: inline-block;
-  position: relative;
-  border-radius: 8px 8px 0 0;
+  margin: 0 20px; /* Adjust margin for smaller screens */
 }
 
-#menu ul li {
-  display: inherit;
-  border-radius: 0;
-}
-
-#menu ul li:hover {
-  border-radius: 0;
-}
-
-#menu ul li:last-child {
-  border-radius: 0 0 8px 8px;
-}
-
-#menu ul {
-  position: absolute;
-  z-index: 1000;
-  max-height: 0;
-  left: 0;
-  right: 0;
-  overflow: hidden;
-  transition: 0.8s all 0.3s;
-}
-
-#menu li:hover ul {
-  max-height: 15em;
-}
-
-#menu a {
+#menu li a {
   text-decoration: none;
-  display: block;
-  padding: 8px 70px;
-  color: #0e0e0e;
-  font-family: Arial;
 }
 
-#menu ul a {
-  padding: 8px 0;
+#menu li.active a {
+  color: red;
 }
 
-#menu li:hover li a {
-  color: #0d0d0d;
-  text-transform: inherit;
-}
-
-#menu li:hover a,
-#menu li li:hover a {
-  color: #16ed07;
-}
-
-/* Styles pour les écrans de 768px et moins (Menu burger) */
-@media only screen and (max-width: 768px) {
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
   .menu-container {
-    padding: 10px;
     flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .col-auto {
-    width: 100%;
     text-align: center;
-    margin-bottom: 10px;
   }
 
-  .burger-menu {
-    display: block; /* Afficher le bouton du menu burger */
-    font-size: 24px;
-    margin-right: 20px;
-    cursor: pointer;
+  .col-md-auto {
+    margin-top: 10px;
   }
 
-  .close-icon {
-    display: none; /* Masquer l'icône de fermeture initialement */
-    font-size: 24px;
-    margin-right: 20px;
-    cursor: pointer;
+  .col-lg-6 {
+    margin-top: 10px;
   }
 
-  #categoriesMenu {
-    display: none; /* Masquer le menu de catégories par défaut */
+  .icon {
+    margin-left: 0;
+    margin-top: 10px;
   }
 
-  #categoriesMenu.open {
-    display: block; /* Afficher le menu de catégories lorsque ouvert */
+  #menu li {
+    margin: 10px 0;
   }
 }

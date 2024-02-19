@@ -1,14 +1,10 @@
 package com.etherea.services;
 
-import com.etherea.enums.SkinType;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.models.Product;
 import com.etherea.repositories.ProductRepository;
 import org.springframework.cache.annotation.Cacheable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +12,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -48,7 +43,6 @@ public class ProductService {
                     existingProduct.setDescription(updatedProduct.getDescription());
                     existingProduct.setPrice(updatedProduct.getPrice());
                     existingProduct.setStockAvailable(updatedProduct.getStockAvailable());
-                    existingProduct.setCategory(updatedProduct.getCategory());
                     return productRepository.save(existingProduct);
                 })
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + id));
@@ -56,14 +50,6 @@ public class ProductService {
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
-    @Cacheable(value = "CategoryList")
-    public List<SkinType> getCategories() {
-        try {
-            List<SkinType> categories = Arrays.asList(SkinType.values());
-            return Collections.unmodifiableList(categories);
-        } catch (Exception e) {
-            throw new RuntimeException("Error retrieving categories.", e);
-        }
-    }
+
 }
 

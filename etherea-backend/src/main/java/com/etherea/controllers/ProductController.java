@@ -1,6 +1,5 @@
 package com.etherea.controllers;
 
-import com.etherea.enums.SkinType;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.models.Product;
 import com.etherea.services.ProductService;
@@ -10,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @CrossOrigin()
 @RestController
@@ -47,10 +44,6 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/categories")
-    public ResponseEntity<List<SkinType>> getCategories() {
-        List<SkinType> categories = productService.getCategories();
-        return new ResponseEntity<>(categories, HttpStatus.OK);
-    }
+
 
 }

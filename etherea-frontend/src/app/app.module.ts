@@ -1,4 +1,3 @@
-// app.module.ts
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
@@ -11,17 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { RouterModule } from '@angular/router';
-import { DayCreamComponent } from './components/day-cream/day-cream.component';
-import { NightCreamComponent } from './components/night-cream/night-cream.component';
+import { CreamComponent } from './components/cream/cream.component';
+import { NewComponent } from './components/new/new.component';
+import { HairComponent } from './components/hair/hair.component';
+import { ContactComponent } from './components/contact/contact.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    MenuComponent,
-    DayCreamComponent,
-    NightCreamComponent,
-  ],
+  declarations: [AppComponent, HomeComponent, MenuComponent, CreamComponent, NewComponent, HairComponent, ContactComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

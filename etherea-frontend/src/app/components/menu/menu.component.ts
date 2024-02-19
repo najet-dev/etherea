@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-menu',
@@ -6,20 +7,14 @@ import { Component } from '@angular/core';
   styleUrls: ['./menu.component.css'],
 })
 export class MenuComponent {
-  isMenuOpen: boolean = false;
-  categories: string[] = [
-    'Crème de jour',
-    'Crème de nuit',
-    'Crème pour les yeux',
-    'Crème solaire',
-    'Nouveauté',
-  ];
+  isBurgerMenuOpen = false;
 
-  toggleMenu() {
-    this.isMenuOpen = !this.isMenuOpen;
+  toggleBurgerMenu() {
+    this.isBurgerMenuOpen = !this.isBurgerMenuOpen;
   }
+  constructor(private router: Router) {}
 
-  closeMenu() {
-    this.isMenuOpen = false;
+  isCurrentRoute(route: string): boolean {
+    return this.router.url === route;
   }
 }
