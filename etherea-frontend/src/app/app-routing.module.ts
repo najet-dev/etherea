@@ -1,24 +1,30 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
-import { DayCreamComponent } from './components/day-cream/day-cream.component';
-import { NightCreamComponent } from './components/night-cream/night-cream.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
 
   {
-    path: 'day-cream',
+    path: 'cream',
     loadChildren: () =>
-      import('./components/day-cream/day-cream.module').then(
-        (m) => m.DayCreamModule
-      ),
+      import('./components/cream/cream.module').then((m) => m.CreamModule),
   },
   {
-    path: 'night-cream',
+    path: 'hair',
     loadChildren: () =>
-      import('./components/night-cream/night-cream.module').then(
-        (m) => m.NightCreamModule
+      import('./components/hair/hair.module').then((m) => m.HairModule),
+  },
+  {
+    path: 'new',
+    loadChildren: () =>
+      import('./components/new/new.module').then((m) => m.NewModule),
+  },
+  {
+    path: 'contact',
+    loadChildren: () =>
+      import('./components/contact/contact.module').then(
+        (m) => m.ContactModule
       ),
   },
 ];
