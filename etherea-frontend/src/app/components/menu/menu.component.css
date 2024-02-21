@@ -3,131 +3,164 @@
   cursor: pointer;
 }
 
-.menu-container {
-  padding: 30px 80px 20px;
-  background-color: #eccbe7;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  z-index: 1;
-}
-.logo {
-  font-size: 20px;
-  margin-right: 20px;
-  text-decoration: none;
-  color: #0a0a0a;
+.btn .bx {
+  vertical-align: inherit;
+  margin-top: -3px;
+  font-size: 1.15rem;
 }
 
-.custom-search-field {
-  position: relative;
-  width: 100%;
-  border-radius: 15px;
+.form-control {
+  height: calc(2.5rem + 2px);
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.3rem;
 }
 
-.custom-input {
-  border: none;
-  border-bottom: 2px solid #0a0a0a;
-  font-size: 16px;
-  border-radius: 15px;
-  padding: 12px;
-  width: 100%;
+.btn {
+  font-size: 1rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
 }
 
-.search {
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  transform: translateY(-50%);
+.bx.icon-single {
+  font-size: 1.5rem;
 }
 
-.icon {
-  cursor: pointer;
-  margin-left: 20px;
-  cursor: pointer;
+.form-inline .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
-#menu {
-  list-style: none;
-  text-align: center;
-  padding: 10px;
-  position: fixed;
-  top: 60px;
-  left: 0;
-  background-color: #f5f5f5;
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 19px;
-  z-index: 1000;
+.form-inline .btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
-
-#menu li {
-  display: inline-block;
-  margin: 0 20px;
+.sub-menu.navbar-light .navbar-nav .nav-link {
+  color: var(--bg-color);
 }
-
-#menu li a {
-  text-decoration: none;
-}
-
-#menu li.active a {
+.sub-menu.navbar-light .navbar-nav .active > .nav-link,
+.sub-menu.navbar-light .navbar-nav .nav-link.active,
+.sub-menu.navbar-light .navbar-nav .nav-link.show,
+.sub-menu.navbar-light .navbar-nav .show > .nav-link {
   color: var(--main-color);
 }
-
+.icons-container {
+  display: flex;
+}
+.icon {
+  margin-right: 2rem;
+}
 .close-icon {
   display: none;
   position: absolute;
   top: 10px;
   right: 10px;
   cursor: pointer;
-  z-index: 1001; /* Ajuster le z-index pour placer la croix au-dessus du menu */
+}
+.custom-search-form {
+  width: 60%;
+  position: relative;
 }
 
-/* Media Queries for Responsive Design */
-@media (max-width: 899px) {
-  #menu {
-    display: none;
-    top: -15px;
-    background-color: #f5f5f5;
-    z-index: 1000;
-  }
+.input-group {
+  width: 100%; /* Utilisez la largeur maximale disponible */
+}
 
+.input-group-text {
+  background-color: transparent;
+  border: none;
+  color: black;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.rounded-search-input {
+  padding-right: 30px;
+}
+
+.rounded-search-input:focus {
+  border: 3px solid var(--main-color);
+}
+
+/* Ajouter cette règle pour supprimer la couleur verte */
+.rounded-search-button {
+  background-color: transparent;
+  border: none;
+  color: black; /* Couleur du texte dans le bouton de recherche */
+}
+
+.rounded-search-button:hover {
+  background-color: transparent; /* Ajoutez cette règle si nécessaire pour gérer le survol */
+}
+
+/* Ajouter ces styles pour la version mobile */
+@media (max-width: 767px) {
   .burger-menu {
+    position: relative;
+    z-index: 1001;
     display: flex;
     align-items: center;
     cursor: pointer;
+    font-size: 1.5rem;
+  }
+
+  #navbar,
+  .sub-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: white;
+    transform: translateY(0);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .burger-menu.open #navbar,
+  .burger-menu.open .sub-menu {
+    transform: translateY(
+      56px
+    ); /* Ajustez cette valeur selon la hauteur de votre menu principal */
   }
 
   .burger-icon {
     margin-right: 10px;
   }
 
-  .menu-container {
+  .navbar-nav {
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
   }
 
-  .custom-search-field {
-    margin-top: 10px;
-    width: 100%;
-    text-align: center;
+  .navbar-nav li {
+    margin-right: 0;
+    margin-bottom: 10px;
   }
 
-  #menu.active {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  .search-bar {
+    display: block;
   }
 
-  #menu li {
-    margin: 10px 0;
+  .main-menu .form-inline {
+    display: none;
+  }
+
+  .navbar-nav .nav-item {
+    margin-bottom: 0;
+  }
+
+  .navbar-nav .nav-item .icon {
+    font-size: 24px;
+    margin-right: 10px;
   }
 
   .close-icon {
     display: block;
-    margin-top: 10px; /* Ajout d'une marge pour séparer la croix du reste du contenu */
+    margin-top: 1px;
     cursor: pointer;
   }
 }
