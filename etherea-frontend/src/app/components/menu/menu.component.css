@@ -1,72 +1,20 @@
+.logo {
+  width: 80%;
+}
+
 .burger-menu {
   display: none;
   cursor: pointer;
 }
 
-.btn .bx {
-  vertical-align: inherit;
-  margin-top: -3px;
-  font-size: 1.15rem;
-}
-
-.form-control {
-  height: calc(2.5rem + 2px);
-  padding: 0.5rem 1.5rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.3rem;
-}
-
-.btn {
-  font-size: 1rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-}
-
-.bx.icon-single {
-  font-size: 1.5rem;
-}
-
-.form-inline .form-control {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.form-inline .btn {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-}
-.sub-menu.navbar-light .navbar-nav .nav-link {
-  color: var(--bg-color);
-}
-.sub-menu.navbar-light .navbar-nav .active > .nav-link,
-.sub-menu.navbar-light .navbar-nav .nav-link.active,
-.sub-menu.navbar-light .navbar-nav .nav-link.show,
-.sub-menu.navbar-light .navbar-nav .show > .nav-link {
-  color: var(--main-color);
-}
-.icons-container {
-  display: flex;
-}
-.icon {
-  margin-right: 2rem;
-}
-.close-icon {
-  display: none;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-}
+/* Search Form Styles */
 .custom-search-form {
   width: 60%;
   position: relative;
 }
 
 .input-group {
-  width: 100%; /* Utilisez la largeur maximale disponible */
+  width: 100%;
 }
 
 .input-group-text {
@@ -87,18 +35,38 @@
   border: 3px solid var(--main-color);
 }
 
-/* Ajouter cette règle pour supprimer la couleur verte */
-.rounded-search-button {
-  background-color: transparent;
-  border: none;
-  color: black; /* Couleur du texte dans le bouton de recherche */
+.sub-menu {
+  font-size: 1.1rem;
 }
 
-.rounded-search-button:hover {
-  background-color: transparent; /* Ajoutez cette règle si nécessaire pour gérer le survol */
+.sub-menu.navbar-light .navbar-nav .nav-link {
+  color: var(--bg-color);
 }
 
-/* Ajouter ces styles pour la version mobile */
+.sub-menu.navbar-light .navbar-nav .active > .nav-link,
+.sub-menu.navbar-light .navbar-nav .nav-link.active,
+.sub-menu.navbar-light .navbar-nav .nav-link.show,
+.sub-menu.navbar-light .navbar-nav .show > .nav-link {
+  color: var(--main-color);
+}
+
+.icons-container {
+  display: flex;
+}
+
+.icon {
+  margin-right: 2rem;
+}
+
+.close-icon {
+  display: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+/* Mobile Styles */
 @media (max-width: 767px) {
   .burger-menu {
     position: relative;
@@ -123,9 +91,7 @@
 
   .burger-menu.open #navbar,
   .burger-menu.open .sub-menu {
-    transform: translateY(
-      56px
-    ); /* Ajustez cette valeur selon la hauteur de votre menu principal */
+    transform: translateY(56px);
   }
 
   .burger-icon {
