@@ -52,11 +52,11 @@ public class ProductController {
             return ResponseEntity.ok("Product saved successfully");
 
         } catch (JsonProcessingException e) {
-            logger.error("Erreur lors de la désérialisation du JSON", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de la désérialisation du JSON: " + e.getMessage());
+            logger.error("JSON deserialization error", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("JSON deserialization error: " + e.getMessage());
         } catch (IOException e) {
-            logger.error("Erreur lors de la lecture du fichier", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de la lecture du fichier: " + e.getMessage());
+            logger.error("Error reading file", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error reading file: " + e.getMessage());
         }
     }
 
@@ -73,11 +73,11 @@ public class ProductController {
 
             return ResponseEntity.ok("Product updated successfully");
         } catch (JsonProcessingException e) {
-            logger.error("Erreur lors de la désérialisation du JSON", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de la désérialisation du JSON: " + e.getMessage());
+            logger.error("JSON deserialization error", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("JSON deserialization error: " + e.getMessage());
         } catch (IOException e) {
-            logger.error("Erreur lors de la lecture du fichier", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur lors de la lecture du fichier: " + e.getMessage());
+            logger.error("Error reading file", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error reading file: " + e.getMessage());
         }
     }
     @DeleteMapping("/product/{id}")

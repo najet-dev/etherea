@@ -130,7 +130,6 @@ public class ProductService {
             Logger logger = LoggerFactory.getLogger(getClass());
             logger.warn("Product with id {} not found", id);
 
-            // Utilisez une exception plus appropriée, comme ResourceNotFoundException
             throw new ProductNotFoundException("Product with id " + id + " not found");
         }
     }
