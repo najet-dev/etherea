@@ -1,7 +1,9 @@
 package com.etherea.models;
 
 import jakarta.persistence.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,13 +16,12 @@ public class Product {
     private String description;
     private double price;
     private int stockAvailable;
-    @Lob
-    private byte[] image;
+    private String image;
     @OneToMany(mappedBy = "product")
     private List<CommandItem> commandItems = new ArrayList<>();
     public Product() {
     }
-    public Product(String name, String description, double price, int stockAvailable, byte[] image) {
+    public Product(String name, String description, double price, int stockAvailable, String image) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -57,17 +58,15 @@ public class Product {
     public void setStockAvailable(int stockAvailable) {
         this.stockAvailable = stockAvailable;
     }
-
-    public byte[] getImage() {
+    public String getImage() {
         return image;
     }
-    public void setImage(byte[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
     public List<CommandItem> getCommandItems() {
         return commandItems;
     }
-
     public void setCommandItems(List<CommandItem> commandItems) {
         this.commandItems = commandItems;
     }

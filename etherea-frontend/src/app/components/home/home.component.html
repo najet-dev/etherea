@@ -6,7 +6,6 @@
     style="width: 100%"
   />
 </div>
-
 <div class="container mt-5">
   <div class="row">
     <div class="col-md-12 text-center">
@@ -14,86 +13,19 @@
     </div>
   </div>
   <div class="row">
-    <!-- Produit 1 -->
-    <div class="col-md-4">
+    <!-- Produits -->
+    <div *ngFor="let product of products" class="col-md-4">
       <div class="card mb-4">
         <img
-          src="/assets/creamRetinol.png"
+          [src]="product.image"
           class="product-image card-img-top mx-auto"
-          alt="Nom du Produit 1"
+          alt="{{ product.name }}"
         />
-        <div class="card-body">
-          <h5 class="card-title">Crème nourrissante</h5>
-          <p class="card-text">Rétinol et vitamin E</p>
-          <p class="card-text">Prix : 19.99 €</p>
-          <button class="btn btn-primary">Ajouter au Panier</button>
-        </div>
-      </div>
-    </div>
 
-    <!-- Produit 2 -->
-    <div class="col-md-4">
-      <div class="card mb-4">
-        <img
-          src="/assets/creamVitamin.png"
-          class="product-image card-img-top mx-auto"
-          alt="Nom du Produit 2"
-        />
         <div class="card-body">
-          <h5 class="card-title">Crème réparatrice anti-âge</h5>
-          <p class="card-text">Acide hyaluronique et vitamine C</p>
-          <p class="card-text">Prix : $24.99</p>
-          <button class="btn btn-primary">Ajouter au Panier</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Produit 3 -->
-    <div class="col-md-4">
-      <div class="card mb-4">
-        <img
-          class="product-image card-img-top mx-auto"
-          src="/assets/serumAcid.png"
-          alt="Nom du Produit 3"
-        />
-        <div class="card-body">
-          <h5 class="card-title">Serum</h5>
-          <p class="card-text">Rose musquée et acide hyaluronique</p>
-          <p class="card-text">Prix : 24.99€</p>
-          <button class="btn btn-primary">Ajouter au Panier</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Produit 4 -->
-    <div class="col-md-4">
-      <div class="card mb-4">
-        <img
-          class="product-image card-img-top mx-auto"
-          src="/assets/serumKarite.png"
-          alt="Nom du Produit 3"
-        />
-        <div class="card-body">
-          <h5 class="card-title">Serum</h5>
-          <p class="card-text">Beurre de karite et vitamine E</p>
-          <p class="card-text">Prix : 24.99€</p>
-          <button class="btn btn-primary">Ajouter au Panier</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Produit 5 -->
-    <div class="col-md-4">
-      <div class="card mb-4">
-        <img
-          class="product-image card-img-top mx-auto"
-          src="/assets/creamQ.png"
-          alt="Nom du Produit 3"
-        />
-        <div class="card-body">
-          <h5 class="card-title">Crème anti-âge</h5>
-          <p class="card-text">Rétinol et coenzyme Q10</p>
-          <p class="card-text">Prix : $24.99</p>
+          <h5 class="card-title">{{ product.name }}</h5>
+          <p class="card-text">{{ product.description }}</p>
+          <p class="card-text">{{ product.price }} €</p>
           <button class="btn btn-primary">Ajouter au Panier</button>
         </div>
       </div>
