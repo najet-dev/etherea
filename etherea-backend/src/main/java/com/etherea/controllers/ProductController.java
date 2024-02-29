@@ -27,10 +27,12 @@ public class ProductController {
     ProductService productService;
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
-    @GetMapping(value = "/products")
-    public List<Product> getProducts() {
-        return productService.getAllProducts();
+    @GetMapping("/products")
+    public List<Product> getProducts(@RequestParam(defaultValue = "6") int limit) {
+        // Appeler la méthode pour obtenir un nombre spécifique de produits de manière aléatoire
+        return productService.getProducts(limit);
     }
+
     @GetMapping("/product/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
         try {

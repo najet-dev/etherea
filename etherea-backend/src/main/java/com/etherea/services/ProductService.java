@@ -8,6 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -31,10 +34,16 @@ public class ProductService {
     private ProductRepository productRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<Product> getProducts(int limit) {
+        if (limit > 0) {
+            // Récupérer un nombre spécifique de produits de manière aléatoire
+            Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "id"));
+            return productRepository.findAll(pageable).getContent();
+        } else {
+            // Récupérer tous les produits
+            return productRepository.findAll();
+        }
     }
-
     public ResponseEntity<?> getProductById(Long id) {
         return productRepository.findById(id)
                 .map(product -> {

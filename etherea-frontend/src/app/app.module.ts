@@ -14,9 +14,19 @@ import { CreamComponent } from './components/cream/cream.component';
 import { NewComponent } from './components/new/new.component';
 import { HairComponent } from './components/hair/hair.component';
 import { ContactComponent } from './components/contact/contact.component';
+import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, MenuComponent, CreamComponent, NewComponent, HairComponent, ContactComponent],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    MenuComponent,
+    CreamComponent,
+    NewComponent,
+    HairComponent,
+    ContactComponent,
+    ProductDetailsComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,

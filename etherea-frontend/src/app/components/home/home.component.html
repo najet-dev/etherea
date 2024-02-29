@@ -14,21 +14,23 @@
   </div>
   <div class="row">
     <!-- Produits -->
-    <div *ngFor="let product of products" class="col-md-4">
-      <div class="card mb-4">
-        <img
-          [src]="product.image"
-          class="product-image card-img-top mx-auto"
-          alt="{{ product.name }}"
-        />
+    <div *ngFor="let product of products$ | async" class="col-md-4">
+      <a class="productDetails" [routerLink]="['/productDetails', product.id]">
+        <div class="card mb-4">
+          <img
+            [src]="product.image"
+            class="product-image card-img-top mx-auto"
+            alt="{{ product.name }}"
+          />
 
-        <div class="card-body">
-          <h5 class="card-title">{{ product.name }}</h5>
-          <p class="card-text">{{ product.description }}</p>
-          <p class="card-text">{{ product.price }} €</p>
-          <button class="btn btn-primary">Ajouter au Panier</button>
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">{{ product.description }}</p>
+            <p class="card-text">{{ product.price }} €</p>
+            <button class="btn btn-primary">Ajouter au Panier</button>
+          </div>
         </div>
-      </div>
+      </a>
     </div>
   </div>
 </div>

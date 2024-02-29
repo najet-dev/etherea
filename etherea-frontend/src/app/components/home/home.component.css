@@ -13,10 +13,19 @@ img {
   display: block;
   margin: 50px;
 }
-
-.product-image:hover {
-  transform: scale(1.2) translateY(-20%);
+.productDetails {
+  text-decoration: none;
 }
+.card {
+  border: 1px solid black;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Ajout de la transition pour l'ombre */
+}
+
+.card:hover {
+  border-color: green;
+  box-shadow: 0 0 30px rgba(0, 128, 0, 0.5); /* Ajout de l'ombre au survol */
+}
+
 .btn-primary {
   background-color: #4caf50;
   color: white;
@@ -27,5 +36,5 @@ img {
 }
 
 .btn-primary:hover {
-  background-color: #45a049;
+  background-color: #63f349;
 }
