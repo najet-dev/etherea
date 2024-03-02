@@ -3,10 +3,9 @@ package com.etherea.services;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.models.Product;
 import com.etherea.repositories.ProductRepository;
-import jakarta.servlet.http.HttpServletRequest;
+import com.etherea.dtos.ProductDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,17 +14,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.util.FileSystemUtils;
-
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-
+import org.modelmapper.ModelMapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -33,34 +34,38 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
+    private static final String UPLOAD_DIR = "assets";
 
-    public List<Product> getProducts(int limit) {
+    public List<ProductDTO> getProducts(int limit) {
+        List<Product> products;
+
         if (limit > 0) {
             // Récupérer un nombre spécifique de produits de manière aléatoire
             Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "id"));
-            return productRepository.findAll(pageable).getContent();
+            products = productRepository.findAll(pageable).getContent();
         } else {
             // Récupérer tous les produits
-            return productRepository.findAll();
+            products = productRepository.findAll();
         }
+
+        // Convertir les entités Product en DTOs ProductDTO
+        return products.stream()
+                .map(ProductDTO::fromProduct)
+                .collect(Collectors.toList());
     }
-    public ResponseEntity<?> getProductById(Long id) {
+    public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
-                .map(product -> {
-                    logger.info("Product found: {}", product);
-                    return ResponseEntity.ok(product);
-                })
+                .map(ProductDTO::fromProduct)
                 .orElseThrow(() -> {
-                    logger.error("No products found with ID: {}", id);
-                    return new ProductNotFoundException("No products found with ID: " + id);
+                    logger.error("No product found with ID: {}", id);
+                    return new ProductNotFoundException("No product found with ID: " + id);
                 });
     }
-
-    public void saveProduct(Product product, MultipartFile file) {
+    public void saveProduct(ProductDTO productDTO, MultipartFile file) {
         createUploadDirectory();
 
-        if (product == null || file == null) {
-            throw new IllegalArgumentException("Product and file cannot be null");
+        if (productDTO == null || file == null) {
+            throw new IllegalArgumentException("ProductDTO and file cannot be null");
         }
 
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -70,43 +75,70 @@ public class ProductService {
         }
 
         try {
-            String uploadDir = "assets"; // Répertoire d'enregistrement des images
-            String filePath = Paths.get(uploadDir, fileName).toString();
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            Files.createDirectories(uploadPath);
+
+            String filePath = uploadPath.resolve(fileName).toString();
 
             // Enregistrez le fichier sur le serveur
             try (InputStream fileInputStream = file.getInputStream()) {
                 Files.copy(fileInputStream, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
             }
 
-            product.setImage(filePath);
+            productDTO.setImage(filePath);
+
+            // Convert ProductDTO to Product
+            Product product = convertToProduct(productDTO);
+
             productRepository.save(product);
         } catch (IOException e) {
-            e.printStackTrace();
+            // Gérer l'exception de manière appropriée, par exemple, en lançant une nouvelle exception ou en journalisant l'erreur
+            logger.error("Error saving product: {}", e.getMessage());
+            throw new RuntimeException("Error saving product", e);
         }
     }
-
+    private Product convertToProduct(ProductDTO productDTO) {
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(productDTO, Product.class);
+    }
     private void createUploadDirectory() {
-        String uploadDir = "assets";
-        File uploadDirFile = new File(uploadDir);
+        File uploadDirFile = new File(UPLOAD_DIR);
 
         // Créez le dossier s'il n'existe pas
         if (!uploadDirFile.exists()) {
             uploadDirFile.mkdirs();
         }
     }
-
-    public void updateProduct(Long productId, Product updatedProduct, MultipartFile file) {
-        if (productId == null || updatedProduct == null || file == null) {
-            throw new IllegalArgumentException("Product ID, product and file cannot be null");
+    public void updateProduct(Long productId, ProductDTO updatedProductDTO, MultipartFile file) {
+        if (productId == null || updatedProductDTO == null || file == null) {
+            throw new IllegalArgumentException("Product ID, ProductDTO, and file cannot be null");
         }
 
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("No products found with ID: " + productId));
+                .orElseThrow(() -> new ProductNotFoundException("No product found with ID: " + productId));
 
-        existingProduct.setName(updatedProduct.getName());
-        existingProduct.setDescription(updatedProduct.getDescription());
-        existingProduct.setPrice(updatedProduct.getPrice());
-        existingProduct.setStockAvailable(updatedProduct.getStockAvailable());
+        // Update product properties from DTO
+        updateProductFromDTO(existingProduct, updatedProductDTO);
+
+        // Update product image
+        updateProductImage(existingProduct, file);
+    }
+    private void updateProductFromDTO(Product existingProduct, ProductDTO updatedProductDTO) {
+        existingProduct.setName(updatedProductDTO.getName());
+        existingProduct.setDescription(updatedProductDTO.getDescription());
+        existingProduct.setQuantity(updatedProductDTO.getQuantity());
+        existingProduct.setPrice(updatedProductDTO.getPrice());
+        existingProduct.setStockAvailable(updatedProductDTO.getStockAvailable());
+        existingProduct.setBenefits(updatedProductDTO.getBenefits());
+        existingProduct.setUsageTips(updatedProductDTO.getUsageTips());
+        existingProduct.setIngredients(updatedProductDTO.getIngredients());
+        existingProduct.setCharacteristics(updatedProductDTO.getCharacteristics());
+    }
+    private void updateProductImage(Product existingProduct, MultipartFile file) {
+        if (file.isEmpty()) {
+            // Handle empty file case if needed
+            return;
+        }
 
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
@@ -115,8 +147,7 @@ public class ProductService {
         }
 
         try {
-            String uploadDir = "assets"; // Répertoire d'enregistrement des images
-            String filePath = Paths.get(uploadDir, fileName).toString();
+            String filePath = Paths.get(UPLOAD_DIR, fileName).toString();
 
             // Enregistrez le fichier sur le serveur
             try (InputStream fileInputStream = file.getInputStream()) {
@@ -126,7 +157,9 @@ public class ProductService {
             existingProduct.setImage(filePath);
             productRepository.save(existingProduct);
         } catch (IOException e) {
-            e.printStackTrace();
+            // Gérer l'exception de manière appropriée, par exemple, en lançant une nouvelle exception ou en journalisant l'erreur
+            logger.error("Error updating product image: {}", e.getMessage());
+            throw new RuntimeException("Error updating product image", e);
         }
     }
     public void deleteProduct(Long id) {
@@ -135,14 +168,9 @@ public class ProductService {
         if (existingProduct.isPresent()) {
             productRepository.deleteById(id);
         } else {
-            // Utilisez un Logger au lieu de System.out.println pour des logs plus flexibles
-            Logger logger = LoggerFactory.getLogger(getClass());
             logger.warn("Product with id {} not found", id);
-
             throw new ProductNotFoundException("Product with id " + id + " not found");
         }
     }
 
-
 }
-

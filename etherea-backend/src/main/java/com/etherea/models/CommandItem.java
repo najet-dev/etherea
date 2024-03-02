@@ -7,7 +7,7 @@ public class CommandItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int quantity;
+    private int quantity;  //Quantité de produits dans la commande
     private double unitPrice;
     @ManyToOne
     @JoinColumn(name = "productId", referencedColumnName = "id")
