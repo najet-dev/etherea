@@ -38,20 +38,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         this.product = product;
       });
   }
-
-  // Fonction pour incrémenter la quantité
-  incrementQuantity() {
-    if (this.product) {
-      this.product.quantity++;
-    }
-  }
-
-  // Fonction pour décrémenter la quantité (avec une vérification pour ne pas descendre en dessous de 1)
-  decrementQuantity() {
-    if (this.product && this.product.quantity > 1) {
-      this.product.quantity--;
-    }
-  }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

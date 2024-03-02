@@ -14,20 +14,31 @@ public class Product {
     private Long id;
     private String name;
     private String description;
+    private int quantity;
     private double price;
     private int stockAvailable;
+    private String benefits;
+    private String usageTips;
+    private String ingredients;
+    private String characteristics;
     private String image;
     @OneToMany(mappedBy = "product")
     private List<CommandItem> commandItems = new ArrayList<>();
     public Product() {
     }
-    public Product(String name, String description, double price, int stockAvailable, String image) {
+
+    public Product(String name, String description, int quantity, double price, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.stockAvailable = stockAvailable;
+        this.benefits = benefits;
+        this.usageTips = usageTips;
+        this.ingredients = ingredients;
+        this.characteristics = characteristics;
         this.image = image;
     }
+
     public Long getId() {
         return id;
     }
@@ -46,17 +57,49 @@ public class Product {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public int getQuantity() {
+        return quantity;
+    }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
     public double getPrice() {
         return price;
     }
     public void setPrice(double price) {
         this.price = price;
     }
+
     public int getStockAvailable() {
         return stockAvailable;
     }
     public void setStockAvailable(int stockAvailable) {
         this.stockAvailable = stockAvailable;
+    }
+    public String getBenefits() {
+        return benefits;
+    }
+    public void setBenefits(String benefits) {
+        this.benefits = benefits;
+    }
+    public String getUsageTips() {
+        return usageTips;
+    }
+    public void setUsageTips(String usageTips) {
+        this.usageTips = usageTips;
+    }
+    public String getIngredients() {
+        return ingredients;
+    }
+    public void setIngredients(String ingredients) {
+        this.ingredients = ingredients;
+    }
+    public String getCharacteristics() {
+        return characteristics;
+    }
+    public void setCharacteristics(String characteristics) {
+        this.characteristics = characteristics;
     }
     public String getImage() {
         return image;
