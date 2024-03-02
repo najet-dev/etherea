@@ -26,7 +26,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         switchMap((params) => {
           this.id = params['id'];
-          return this.productService.getProduitById(this.id);
+          return this.productService.getProductById(this.id);
         }),
         catchError((error) => {
           console.error('Error fetching product:', error);
@@ -37,6 +37,20 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       .subscribe((product) => {
         this.product = product;
       });
+  }
+
+  // Fonction pour incrémenter la quantité
+  incrementQuantity() {
+    if (this.product) {
+      this.product.quantity++;
+    }
+  }
+
+  // Fonction pour décrémenter la quantité (avec une vérification pour ne pas descendre en dessous de 1)
+  decrementQuantity() {
+    if (this.product && this.product.quantity > 1) {
+      this.product.quantity--;
+    }
   }
   ngOnDestroy(): void {
     this.destroy$.next();

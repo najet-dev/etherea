@@ -14,7 +14,7 @@
   </div>
   <div class="row">
     <!-- Produits -->
-    <div *ngFor="let product of products$ | async" class="col-md-4">
+    <div *ngFor="let product of products$ | async" class="col-md-3">
       <a class="productDetails" [routerLink]="['/productDetails', product.id]">
         <div class="card mb-4">
           <img
@@ -24,6 +24,7 @@
           />
 
           <div class="card-body">
+            <span class="heart-icon">&#x2764;</span>
             <h5 class="card-title">{{ product.name }}</h5>
             <p class="card-text">{{ product.description }}</p>
             <p class="card-text">{{ product.price }} €</p>
