@@ -21,7 +21,7 @@ public class CartItem {
     public CartItem(Product product, Cart cart, int quantity) {
         this.product = product;
         this.cart = cart;
-        this.quantity = quantity;
+        this.quantity = quantity; // Quantité de produits dans le panier
     }
     public Product getProduct() {
         return product;

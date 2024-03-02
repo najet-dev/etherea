@@ -9,7 +9,6 @@ import { MenuComponent } from './components/menu/menu.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
-import { RouterModule } from '@angular/router';
 import { CreamComponent } from './components/cream/cream.component';
 import { NewComponent } from './components/new/new.component';
 import { HairComponent } from './components/hair/hair.component';
@@ -35,7 +34,6 @@ import { ProductDetailsComponent } from './components/productDetails/productDeta
     MatInputModule,
     MatListModule,
     HttpClientModule,
-    RouterModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

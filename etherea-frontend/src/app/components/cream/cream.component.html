@@ -1,1 +1,37 @@
-<p>cream works!</p>
+<div>
+  <img
+    src="/assets/bannerHome.png"
+    alt="Description de l'image"
+    class="img-fluid"
+    style="width: 100%"
+  />
+</div>
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <h2>Nos Crèmes Naturelles</h2>
+    </div>
+  </div>
+  <div class="row">
+    <!-- Produits -->
+    <div *ngFor="let product of products$ | async" class="col-md-3">
+      <a class="productDetails" [routerLink]="['/productDetails', product.id]">
+        <div class="card mb-4">
+          <img
+            [src]="product.image"
+            class="product-image card-img-top mx-auto"
+            alt="{{ product.name }}"
+          />
+
+          <div class="card-body">
+            <span class="heart-icon">&#x2764;</span>
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">{{ product.description }}</p>
+            <p class="card-text">{{ product.price }} €</p>
+            <button class="btn btn-primary">Ajouter au Panier</button>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

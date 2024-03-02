@@ -1,0 +1,47 @@
+html {
+  font-size: 62.5%;
+}
+
+img {
+  width: 100%;
+}
+.product-image {
+  width: 60%;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.3s;
+  display: block;
+  margin: 50px;
+}
+.productDetails {
+  text-decoration: none;
+}
+.card {
+  border: 1px solid black;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Ajout de la transition pour l'ombre */
+}
+
+.card:hover {
+  border-color: green;
+  box-shadow: 0 0 30px rgba(0, 128, 0, 0.5); /* Ajout de l'ombre au survol */
+}
+.heart-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  color: red;
+  cursor: pointer;
+}
+.btn-primary {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #63f349;
+}
