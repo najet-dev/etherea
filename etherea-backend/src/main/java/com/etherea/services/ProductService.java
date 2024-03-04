@@ -72,9 +72,7 @@ public class ProductService {
             productRepository.save(product);
             return ProductDTO.fromProduct(product);
         } else {
-            // Gérer la situation où la limite de quantité est atteinte
-            // Vous pouvez lever une exception, afficher un message, etc.
-            return ProductDTO.fromProduct(product); // Ou retournez null ou un objet indiquant que la limite a été atteinte
+            return ProductDTO.fromProduct(product);
         }
     }
     public ProductDTO decrementProductQuantity(Long productId) {
@@ -87,11 +85,9 @@ public class ProductService {
             productRepository.save(updatedProduct);
             return ProductDTO.fromProduct(updatedProduct);
         } else {
-            // Gérer la situation où la quantité est déjà 1
-            // Vous pouvez choisir de supprimer le produit du panier ou effectuer une autre logique
-            // Dans cet exemple, supprimons simplement le produit du panier
+            // Si la quantité est déjà à 1, le produit est supprimé
             deleteProduct(productId);
-            return null; // Indiquez que le produit a été supprimé
+            return null; // produit a été supprimé
         }
     }
 
@@ -126,7 +122,6 @@ public class ProductService {
 
             productRepository.save(product);
         } catch (IOException e) {
-            // Gérer l'exception de manière appropriée, par exemple, en lançant une nouvelle exception ou en journalisant l'erreur
             logger.error("Error saving product: {}", e.getMessage());
             throw new RuntimeException("Error saving product", e);
         }
