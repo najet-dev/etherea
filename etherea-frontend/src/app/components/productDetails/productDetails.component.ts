@@ -3,20 +3,20 @@ import { Subject } from 'rxjs';
 import { takeUntil, switchMap, catchError } from 'rxjs/operators';
 import { IProduct } from '../models/i-product';
 import { ProductService } from 'src/app/services/product.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-product-details',
   templateUrl: './productDetails.component.html',
   styleUrls: ['./productDetails.component.css'],
 })
-
 export class ProductDetailsComponent implements OnInit, OnDestroy {
   id: number = 0;
   product: IProduct = {
     id: 0,
     name: '',
     description: '',
-    quantity: 1,
+    quantity: 0,
     price: 0,
     stockAvailable: 0,
     benefits: '',
@@ -60,7 +60,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
 
     // Réinitialiser la quantité à 0 lors de la destruction du composant (quand on quitte la page)
-    this.product.quantity = 1;
+    this.product.quantity = 0;
   }
 
   incrementQuantity(): void {
@@ -95,6 +95,3 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
   }
 }
-
-export class ProductDetailsComponent {}
-
