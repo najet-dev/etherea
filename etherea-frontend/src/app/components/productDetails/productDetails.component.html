@@ -8,9 +8,23 @@
     <div class="col-md-6">
       <h2>{{ product.name }}</h2>
       <p>Description : {{ product.description }}</p>
-      <p>Quantité : {{ product.quantity }}</p>
       <p>Prix : {{ product.price }} €</p>
       <p>Stock disponible : {{ product.stockAvailable }}</p>
+
+      <label for="quantityInput">Quantité :</label>
+      <div *ngIf="limitReached" class="alert alert-warning">
+        La limite de 10 produits a été atteinte.
+      </div>
+      <div class="quantity-selector">
+        <button class="quantity-btn" (click)="decrementQuantity()">-</button>
+        <span class="selected-quantity">{{ product.quantity }}</span>
+        <button class="quantity-btn" (click)="incrementQuantity()">+</button>
+      </div>
+
+      <!-- Add to cart button -->
+      <button class="btn btn-primary" (click)="addToCart()">
+        Ajouter au panier
+      </button>
     </div>
   </div>
   <!-- Additional product details below the image and text -->

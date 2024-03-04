@@ -12,8 +12,22 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ProductDetailsComponent implements OnInit, OnDestroy {
   id: number = 0;
-  product: IProduct | undefined;
+  product: IProduct = {
+    id: 0,
+    name: '',
+    description: '',
+    quantity: 0,
+    price: 0,
+    stockAvailable: 0,
+    benefits: '',
+    usageTips: '',
+    ingredients: '',
+    characteristics: '',
+    image: '',
+  };
+
   private destroy$ = new Subject<void>();
+  limitReached: boolean = false;
 
   constructor(
     private productService: ProductService,
@@ -31,15 +45,54 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         catchError((error) => {
           console.error('Error fetching product:', error);
           console.error('Failed to load product. Please try again later.');
-          throw error; // Rethrow the error to be caught by the next error handler
+          throw error;
         })
       )
       .subscribe((product) => {
         this.product = product;
+        // Réinitialiser la quantité à 1 chaque fois que les détails du produit sont chargés
+        this.product.quantity = 1;
       });
   }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+
+    // Réinitialiser la quantité à 0 lors de la destruction du composant (quand on quitte la page)
+    this.product.quantity = 0;
+  }
+
+  incrementQuantity(): void {
+    if (this.product && this.product.quantity < 10) {
+      this.productService
+        .incrementProductQuantity(this.product.id)
+        .subscribe((updatedProduct) => {
+          this.product = updatedProduct;
+          this.limitReached = false; // Réinitialiser la variable après l'incrémentation
+        });
+    } else {
+      this.limitReached = true;
+    }
+  }
+
+  decrementQuantity(): void {
+    if (this.product && this.product.quantity > 1) {
+      this.productService
+        .decrementProductQuantity(this.product.id)
+        .subscribe((updatedProduct) => {
+          this.product = updatedProduct;
+          this.limitReached = false; // Réinitialiser la variable après la décrémentation
+        });
+    }
+  }
+
+  addToCart(): void {
+    if (this.product) {
+      console.log(
+        `Added ${this.product.quantity} ${this.product.name}(s) to the cart`
+      );
+      // Ajoutez ici votre logique pour ajouter au panier en utilisant this.product et this.product.quantity
+    }
   }
 }

@@ -39,6 +39,25 @@ public class ProductController {
                     .body("Product not found with ID: " + id);
         }
     }
+    @PostMapping("/{productId}/increment")
+    public ResponseEntity<ProductDTO> incrementProductQuantity(@PathVariable Long productId) {
+        try {
+            ProductDTO updatedProduct = productService.incrementProductQuantity(productId);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+
+    @PostMapping("/{productId}/decrement")
+    public ResponseEntity<ProductDTO> decrementProductQuantity(@PathVariable Long productId) {
+        try {
+            ProductDTO updatedProduct = productService.decrementProductQuantity(productId);
+            return ResponseEntity.ok(updatedProduct);
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<String> saveProduct(@RequestParam("image") MultipartFile file,
                                               @RequestParam("product") String productJson) {

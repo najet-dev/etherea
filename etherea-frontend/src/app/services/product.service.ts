@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -28,5 +28,15 @@ export class ProductService {
 
   getProductById(id: number): Observable<IProduct> {
     return this.httpClient.get<IProduct>(`${this.apiUrl}/products/${id}`);
+  }
+
+  incrementProductQuantity(productId: number): Observable<IProduct> {
+    const url = `${this.apiUrl}/products/${productId}/increment`;
+    return this.httpClient.post<IProduct>(url, null);
+  }
+
+  decrementProductQuantity(productId: number): Observable<IProduct> {
+    const url = `${this.apiUrl}/products/${productId}/decrement`;
+    return this.httpClient.post<IProduct>(url, null);
   }
 }

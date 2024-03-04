@@ -16,6 +16,7 @@ import { NewComponent } from './components/new/new.component';
 import { HairComponent } from './components/hair/hair.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
+import { CartComponent } from './components/cart/cart.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { ProductDetailsComponent } from './components/productDetails/productDeta
     HairComponent,
     ContactComponent,
     ProductDetailsComponent,
+    CartComponent,
   ],
   imports: [
     BrowserModule,

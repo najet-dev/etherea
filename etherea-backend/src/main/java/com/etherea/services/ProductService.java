@@ -61,6 +61,40 @@ public class ProductService {
                     return new ProductNotFoundException("No product found with ID: " + id);
                 });
     }
+    public ProductDTO incrementProductQuantity(Long productId) {
+        Product product = getProductById(productId).toProduct(); // Conversion de ProductDTO à Product
+        int currentQuantity = product.getQuantity();
+
+        // Vérification de la limite de quantité
+        int maxQuantity = 10;
+        if (currentQuantity < maxQuantity) {
+            product.setQuantity(currentQuantity + 1);
+            productRepository.save(product);
+            return ProductDTO.fromProduct(product);
+        } else {
+            // Gérer la situation où la limite de quantité est atteinte
+            // Vous pouvez lever une exception, afficher un message, etc.
+            return ProductDTO.fromProduct(product); // Ou retournez null ou un objet indiquant que la limite a été atteinte
+        }
+    }
+    public ProductDTO decrementProductQuantity(Long productId) {
+        ProductDTO productDTO = getProductById(productId);
+        int currentQuantity = productDTO.getQuantity();
+
+        if (currentQuantity > 1) {
+            productDTO.setQuantity(currentQuantity - 1);
+            Product updatedProduct = productDTO.toProduct();
+            productRepository.save(updatedProduct);
+            return ProductDTO.fromProduct(updatedProduct);
+        } else {
+            // Gérer la situation où la quantité est déjà 1
+            // Vous pouvez choisir de supprimer le produit du panier ou effectuer une autre logique
+            // Dans cet exemple, supprimons simplement le produit du panier
+            deleteProduct(productId);
+            return null; // Indiquez que le produit a été supprimé
+        }
+    }
+
     public void saveProduct(ProductDTO productDTO, MultipartFile file) {
         createUploadDirectory();
 
