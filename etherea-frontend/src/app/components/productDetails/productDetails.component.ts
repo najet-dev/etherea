@@ -92,7 +92,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       console.log(
         `Added ${this.product.quantity} ${this.product.name}(s) to the cart`
       );
-      // Ajoutez ici votre logique pour ajouter au panier en utilisant this.product et this.product.quantity
     }
   }
 }
