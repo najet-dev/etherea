@@ -130,4 +130,19 @@ public class ProductDTO {
         productDTO.setImage(product.getImage());
         return productDTO;
     }
+    public Product toProduct() {
+        Product product = new Product();
+        product.setId(this.id);
+        product.setName(this.name);
+        product.setDescription(this.description);
+        product.setQuantity(this.quantity);
+        product.setPrice(this.price);
+        product.setStockAvailable(this.stockAvailable);
+        product.setBenefits(this.benefits);
+        product.setUsageTips(this.usageTips);
+        product.setIngredients(this.ingredients);
+        product.setCharacteristics(this.characteristics);
+        product.setImage(this.image);
+        return product;
+    }
 }

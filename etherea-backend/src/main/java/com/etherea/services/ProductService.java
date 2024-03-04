@@ -61,6 +61,36 @@ public class ProductService {
                     return new ProductNotFoundException("No product found with ID: " + id);
                 });
     }
+    public ProductDTO incrementProductQuantity(Long productId) {
+        Product product = getProductById(productId).toProduct(); // Conversion de ProductDTO à Product
+        int currentQuantity = product.getQuantity();
+
+        // Vérification de la limite de quantité
+        int maxQuantity = 10;
+        if (currentQuantity < maxQuantity) {
+            product.setQuantity(currentQuantity + 1);
+            productRepository.save(product);
+            return ProductDTO.fromProduct(product);
+        } else {
+            return ProductDTO.fromProduct(product);
+        }
+    }
+    public ProductDTO decrementProductQuantity(Long productId) {
+        ProductDTO productDTO = getProductById(productId);
+        int currentQuantity = productDTO.getQuantity();
+
+        if (currentQuantity > 1) {
+            productDTO.setQuantity(currentQuantity - 1);
+            Product updatedProduct = productDTO.toProduct();
+            productRepository.save(updatedProduct);
+            return ProductDTO.fromProduct(updatedProduct);
+        } else {
+            // Si la quantité est déjà à 1, le produit est supprimé
+            deleteProduct(productId);
+            return null; // produit a été supprimé
+        }
+    }
+
     public void saveProduct(ProductDTO productDTO, MultipartFile file) {
         createUploadDirectory();
 
@@ -92,7 +122,6 @@ public class ProductService {
 
             productRepository.save(product);
         } catch (IOException e) {
-            // Gérer l'exception de manière appropriée, par exemple, en lançant une nouvelle exception ou en journalisant l'erreur
             logger.error("Error saving product: {}", e.getMessage());
             throw new RuntimeException("Error saving product", e);
         }

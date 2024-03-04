@@ -1,0 +1,39 @@
+<div class="container mt-5" *ngIf="product">
+  <div class="row">
+    <!-- Image on the left -->
+    <div class="col-md-6">
+      <img [src]="product.image" class="img-fluid image" [alt]="product.name" />
+    </div>
+    <!-- Product details on the right -->
+    <div class="col-md-6">
+      <h2>{{ product.name }}</h2>
+      <p>Description : {{ product.description }}</p>
+      <p>Prix : {{ product.price }} €</p>
+      <p>Stock disponible : {{ product.stockAvailable }}</p>
+
+      <label for="quantityInput">Quantité :</label>
+      <div *ngIf="limitReached" class="alert alert-warning">
+        La limite de 10 produits a été atteinte.
+      </div>
+      <div class="quantity-selector">
+        <button class="quantity-btn" (click)="decrementQuantity()">-</button>
+        <span class="selected-quantity">{{ product.quantity }}</span>
+        <button class="quantity-btn" (click)="incrementQuantity()">+</button>
+      </div>
+
+      <!-- Add to cart button -->
+      <button class="btn btn-primary" (click)="addToCart()">
+        Ajouter au panier
+      </button>
+    </div>
+  </div>
+  <!-- Additional product details below the image and text -->
+  <div class="row">
+    <div class="col-md-12">
+      <p>Bénéfices : {{ product.benefits }}</p>
+      <p>Conseil d'utilisation : {{ product.usageTips }}</p>
+      <p>Ingredients : {{ product.ingredients }}</p>
+      <p>Caractéristiques : {{ product.characteristics }}</p>
+    </div>
+  </div>
+</div>
