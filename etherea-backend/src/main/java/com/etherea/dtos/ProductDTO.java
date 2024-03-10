@@ -15,10 +15,12 @@ public class ProductDTO {
     private String ingredients;
     private String characteristics;
     private String image;
+    private int lastModifiedQuantity;
+
 
     public ProductDTO() {
     }
-    public ProductDTO(Long id, String name, String description,int quantity, double price, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public ProductDTO(Long id, String name, String description,int quantity, double price, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image, int lastModifiedQuantity) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -29,6 +31,7 @@ public class ProductDTO {
         this.ingredients = ingredients;
         this.characteristics = characteristics;
         this.image = image;
+        this.lastModifiedQuantity = lastModifiedQuantity;
     }
     public Long getId() {
         return id;
@@ -115,6 +118,7 @@ public class ProductDTO {
     public void setImage(String image) {
         this.image = image;
     }
+
     public static ProductDTO fromProduct(Product product) {
         ProductDTO productDTO = new ProductDTO();
         productDTO.setId(product.getId());

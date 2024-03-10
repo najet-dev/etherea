@@ -107,6 +107,7 @@ public class Product {
     public void setImage(String image) {
         this.image = image;
     }
+
     public List<CommandItem> getCommandItems() {
         return commandItems;
     }

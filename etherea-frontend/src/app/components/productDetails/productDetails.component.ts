@@ -60,7 +60,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
 
     // Réinitialiser la quantité à 0 lors de la destruction du composant (quand on quitte la page)
-    this.product.quantity = 0;
+    this.product.quantity = 1;
   }
 
   incrementQuantity(): void {
@@ -68,6 +68,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       this.productService
         .incrementProductQuantity(this.product.id)
         .subscribe((updatedProduct) => {
+          console.log('Updated Quantity:', updatedProduct.quantity);
           this.product = updatedProduct;
           this.limitReached = false; // Réinitialiser la variable après l'incrémentation
         });
