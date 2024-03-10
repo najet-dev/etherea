@@ -22,7 +22,11 @@
       </div>
 
       <!-- Add to cart button -->
-      <button class="btn btn-primary" (click)="addToCart()">
+      <button
+        class="btn btn-primary"
+        [routerLink]="'/cart'"
+        (click)="addToCart()"
+      >
         Ajouter au panier
       </button>
     </div>
