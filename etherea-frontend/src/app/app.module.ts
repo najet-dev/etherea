@@ -15,6 +15,8 @@ import { HairComponent } from './components/hair/hair.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
+import { SignupComponent } from './components/signup/signup.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -27,6 +29,7 @@ import { CartComponent } from './components/cart/cart.component';
     ContactComponent,
     ProductDetailsComponent,
     CartComponent,
+    SignupComponent,
   ],
   imports: [
     BrowserModule,
@@ -36,6 +39,7 @@ import { CartComponent } from './components/cart/cart.component';
     MatInputModule,
     MatListModule,
     HttpClientModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
