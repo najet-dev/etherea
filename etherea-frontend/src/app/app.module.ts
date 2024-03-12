@@ -17,6 +17,7 @@ import { ProductDetailsComponent } from './components/productDetails/productDeta
 import { CartComponent } from './components/cart/cart.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { FormsModule } from '@angular/forms';
+import { SigninComponent } from './components/signin/signin.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { FormsModule } from '@angular/forms';
     ProductDetailsComponent,
     CartComponent,
     SignupComponent,
+    SigninComponent,
   ],
   imports: [
     BrowserModule,

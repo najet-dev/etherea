@@ -1,0 +1,57 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title">Connexion</h4>
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            <p>{{ errorMessage }}</p>
+          </div>
+          <form #formLogin="ngForm" (ngSubmit)="onSubmitLogin(formLogin)">
+            <div class="mb-3">
+              <label for="username" class="form-label">Nom d'utilisateur</label>
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                placeholder="Nom d'utilisateur"
+                [(ngModel)]="signinRequest.username"
+                name="username"
+                required
+              />
+              <div
+                *ngIf="
+                  formLogin.submitted && formLogin.controls['username'].invalid
+                "
+                class="text-danger"
+              >
+                Nom d'utilisateur requis!
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Mot de passe</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                placeholder="Mot de passe"
+                [(ngModel)]="signinRequest.password"
+                name="password"
+                required
+              />
+              <div
+                *ngIf="
+                  formLogin.submitted && formLogin.controls['password'].invalid
+                "
+                class="text-danger"
+              >
+                Mot de passe requis!
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Connexion</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
