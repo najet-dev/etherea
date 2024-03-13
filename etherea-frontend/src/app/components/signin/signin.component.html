@@ -1,56 +1,77 @@
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title">Connexion</h4>
-          <div class="alert alert-danger" *ngIf="errorMessage">
-            <p>{{ errorMessage }}</p>
-          </div>
-          <form #formLogin="ngForm" (ngSubmit)="onSubmitLogin(formLogin)">
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <h2 class="text-center text-dark mt-5">Connexion</h2>
+      <div class="card my-5 rounded">
+        <ng-container *ngIf="loginForm">
+          <form
+            [formGroup]="loginForm"
+            class="card-body cardbody-color p-lg-5"
+            (ngSubmit)="onSubmit()"
+          >
+            <div class="text-center"></div>
             <div class="mb-3">
-              <label for="username" class="form-label">Nom d'utilisateur</label>
-              <input
-                type="text"
-                class="form-control"
-                id="username"
-                placeholder="Nom d'utilisateur"
-                [(ngModel)]="signinRequest.username"
-                name="username"
-                required
-              />
-              <div
-                *ngIf="
-                  formLogin.submitted && formLogin.controls['username'].invalid
-                "
-                class="text-danger"
-              >
-                Nom d'utilisateur requis!
+              <ng-container *ngIf="username">
+                <input
+                  type="text"
+                  formControlName="username"
+                  class="form-control"
+                  id="Username"
+                  aria-describedby="emailHelp"
+                  placeholder="Email"
+                />
+              </ng-container>
+              <div *ngFor="let error of errorMessages.username">
+                <ng-container
+                  *ngIf="
+                    loginForm.get('username')?.hasError(error.type) &&
+                    (loginForm.get('username')?.dirty ||
+                      loginForm.get('username')?.touched)
+                  "
+                >
+                  <small class="error-message">{{ error.message }}</small>
+                </ng-container>
               </div>
             </div>
-            <div class="mb-3">
-              <label for="password" class="form-label">Mot de passe</label>
-              <input
-                type="password"
-                class="form-control"
-                id="password"
-                placeholder="Mot de passe"
-                [(ngModel)]="signinRequest.password"
-                name="password"
-                required
-              />
-              <div
-                *ngIf="
-                  formLogin.submitted && formLogin.controls['password'].invalid
-                "
-                class="text-danger"
-              >
-                Mot de passe requis!
+            <div class="mb-5">
+              <ng-container *ngIf="password">
+                <input
+                  type="password"
+                  formControlName="password"
+                  class="form-control"
+                  id="password"
+                  placeholder="Mot de passe"
+                />
+              </ng-container>
+              <div *ngFor="let error of errorMessages.password">
+                <ng-container
+                  *ngIf="
+                    loginForm.get('password')?.hasError(error.type) &&
+                    (loginForm.get('password')?.dirty ||
+                      loginForm.get('password')?.touched)
+                  "
+                >
+                  <small class="error-message">{{ error.message }}</small>
+                </ng-container>
               </div>
             </div>
-            <button type="submit" class="btn btn-primary">Connexion</button>
+            <div class="text-center">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="!loginForm.valid"
+              >
+                Connexion
+              </button>
+            </div>
+            <div class="connect">
+              <h5>
+                Vous n'avez pas encore de compte?
+                <a [routerLink]="'/signup'">Inscrivez-vous ici</a>
+              </h5>
+            </div>
           </form>
-        </div>
+        </ng-container>
       </div>
     </div>
   </div>

@@ -16,8 +16,9 @@ import { ContactComponent } from './components/contact/contact.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
 import { SignupComponent } from './components/signup/signup.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SigninComponent } from './components/signin/signin.component';
+import { AdminComponent } from './components/admin/admin.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { SigninComponent } from './components/signin/signin.component';
     CartComponent,
     SignupComponent,
     SigninComponent,
+    AdminComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,6 +44,7 @@ import { SigninComponent } from './components/signin/signin.component';
     MatListModule,
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

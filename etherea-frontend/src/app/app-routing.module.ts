@@ -5,9 +5,16 @@ import { ProductDetailsComponent } from './components/productDetails/productDeta
 import { CartComponent } from './components/cart/cart.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { SigninComponent } from './components/signin/signin.component';
+import { authGuard } from './components/helpers/auth.guard';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent },
+  {
+    path: '',
+    component: HomeComponent,
+    canActivate: [authGuard],
+    data: { roles: ['ROLE_ADMIN', 'ROLE_USER'] },
+  },
+
   { path: 'productDetails/:id', component: ProductDetailsComponent },
   { path: 'cart', component: CartComponent },
   { path: 'signup', component: SignupComponent },
@@ -24,8 +31,11 @@ const routes: Routes = [
   },
   {
     path: 'new',
+
     loadChildren: () =>
       import('./components/new/new.module').then((m) => m.NewModule),
+    canActivate: [authGuard],
+    data: { roles: ['ROLE_ADMIN'] },
   },
   {
     path: 'contact',
@@ -33,6 +43,11 @@ const routes: Routes = [
       import('./components/contact/contact.module').then(
         (m) => m.ContactModule
       ),
+  },
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./components/admin/admin.module').then((m) => m.AdminModule),
   },
 ];
 

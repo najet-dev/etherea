@@ -19,18 +19,19 @@ export const authGuard: CanActivateFn = (
 
   return authService.AuthenticatedUser$.pipe(
     take(1),
-    map((user) => {
+    map((signin) => {
       const { roles } = route.data;
 
-      if (user && user.roles && roles && roles.includes(user.roles[0].name)) {
+      if (
+        signin &&
+        signin.roles &&
+        roles &&
+        roles.includes(signin.roles[0].name)
+      ) {
         return true;
       }
 
-      if (user) {
-        return router.createUrlTree(['/forbidden']);
-      }
-
-      return router.createUrlTree(['/login']);
+      return router.createUrlTree(['/signin']);
     })
   );
 };
