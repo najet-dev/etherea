@@ -3,11 +3,24 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
+import { SignupComponent } from './components/signup/signup.component';
+import { SigninComponent } from './components/signin/signin.component';
+import { authGuard } from './components/helpers/auth.guard';
+import { AccesComponent } from './components/acces/access.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 const routes: Routes = [
-  { path: '', component: HomeComponent },
+  {
+    path: '',
+    component: HomeComponent,
+  },
+
   { path: 'productDetails/:id', component: ProductDetailsComponent },
   { path: 'cart', component: CartComponent },
+  { path: 'signup', component: SignupComponent },
+  { path: 'signin', component: SigninComponent },
+  { path: 'profile', component: ProfileComponent },
+  { path: 'forbidden', component: AccesComponent },
   {
     path: 'cream',
     loadChildren: () =>
@@ -20,6 +33,7 @@ const routes: Routes = [
   },
   {
     path: 'new',
+
     loadChildren: () =>
       import('./components/new/new.module').then((m) => m.NewModule),
   },
@@ -29,6 +43,11 @@ const routes: Routes = [
       import('./components/contact/contact.module').then(
         (m) => m.ContactModule
       ),
+  },
+  {
+    path: 'admin',
+    loadChildren: () =>
+      import('./components/admin/admin.module').then((m) => m.AdminModule),
   },
 ];
 
