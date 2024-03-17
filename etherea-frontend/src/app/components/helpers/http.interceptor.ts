@@ -25,15 +25,29 @@ export class HttpInterceptorService implements HttpInterceptor {
         if (!signin) {
           return next.handle(request);
         }
-        return next.handle(request).pipe(
+
+        // Cloner la requête et ajouter le jeton d'authentification dans l'en-tête Authorization
+        const modifiedRequest = request.clone({
+          setHeaders: {
+            Authorization: `Bearer ${signin.accessToken}`,
+          },
+        });
+
+        return next.handle(modifiedRequest).pipe(
           catchError((err) => {
             if (err instanceof HttpErrorResponse) {
+              console.error('HTTP Interceptor: HTTP error occurred', err);
+
               switch (err.status) {
                 case 403:
-                  this.router.navigate(['forbidden']);
+                  console.error('HTTP Interceptor: 403 Forbidden Error');
+
+                  this.router.navigate(['/forbidden']);
+
                   break;
               }
             }
+
             return throwError(() => err);
           })
         );

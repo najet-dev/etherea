@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -17,8 +17,11 @@ import { ProductDetailsComponent } from './components/productDetails/productDeta
 import { CartComponent } from './components/cart/cart.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HttpInterceptorService } from './components/helpers/http.interceptor';
 import { SigninComponent } from './components/signin/signin.component';
 import { AdminComponent } from './components/admin/admin.component';
+import { AccesComponent } from './components/acces/access.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +37,8 @@ import { AdminComponent } from './components/admin/admin.component';
     SignupComponent,
     SigninComponent,
     AdminComponent,
+    AccesComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,7 +51,13 @@ import { AdminComponent } from './components/admin/admin.component';
     FormsModule,
     ReactiveFormsModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HttpInterceptorService,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

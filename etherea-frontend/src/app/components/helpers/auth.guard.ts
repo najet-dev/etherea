@@ -20,16 +20,22 @@ export const authGuard: CanActivateFn = (
   return authService.AuthenticatedUser$.pipe(
     take(1),
     map((signin) => {
-      const { roles } = route.data;
+      console.log('Auth Guard: Checking authentication');
+
+      const roles = route.data['roles'] as string[]; // Assuming roles are string[]
 
       if (
         signin &&
         signin.roles &&
         roles &&
-        roles.includes(signin.roles[0].name)
+        signin.roles.some((userRole) => roles.includes(userRole.name))
       ) {
         return true;
       }
+
+      console.error(
+        'Auth Guard: User not authenticated, redirecting to signin page'
+      );
 
       return router.createUrlTree(['/signin']);
     })

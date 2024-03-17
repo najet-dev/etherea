@@ -3,7 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
-import { SigninRequest } from '../models/signinRequest.moodel';
+import { SignupRequest } from '../models/SignupRequest.model';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-signin',
@@ -12,34 +13,21 @@ import { SigninRequest } from '../models/signinRequest.moodel';
 })
 export class SigninComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
-  signinRequest: SigninRequest = { username: '', password: '' };
   loginForm!: FormGroup;
   submitted = false;
   AuthUserSub?: Subscription;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private formBuilder: FormBuilder
-  ) {}
-  get username() {
-    return this.loginForm.get('username');
-  }
-
-  get password() {
-    return this.loginForm.get('password');
-  }
   public errorMessages = {
     username: [
-      { type: 'required', message: ' Email requis' },
+      { type: 'required', message: 'Email requis' },
       { type: 'email', message: 'Email doit être valide' },
     ],
     password: [
       {
         type: 'minlength',
-        message: ' Le mot de passe doit contenir au minimum 8 caractères',
+        message: 'Le mot de passe doit contenir au minimum 8 caractères',
       },
-      { type: 'required', message: ' Le mot de passe est requis' },
+      { type: 'required', message: 'Le mot de passe est requis' },
       {
         type: 'pattern',
         message:
@@ -47,6 +35,21 @@ export class SigninComponent implements OnInit, OnDestroy {
       },
     ],
   };
+
+  constructor(
+    private authService: AuthService,
+    private storageService: StorageService,
+    private router: Router,
+    private formBuilder: FormBuilder
+  ) {}
+
+  get username() {
+    return this.loginForm.get('username');
+  }
+
+  get password() {
+    return this.loginForm.get('password');
+  }
 
   ngOnInit() {
     this.AuthUserSub = this.authService.AuthenticatedUser$.subscribe({
@@ -73,6 +76,9 @@ export class SigninComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    console.log('SigninComponent: Submitting signin form');
+    console.log('Username:', this.loginForm.value.username);
+    console.log('Password:', this.loginForm.value.password);
     this.submitted = true;
 
     if (this.loginForm.invalid) {
