@@ -1,22 +1,23 @@
 package com.etherea.dtos;
 
-import com.etherea.models.CartItem;
-
 public class CartItemDTO {
-
     private Long id;
+    private int quantity;
     private int subTotal;
     private int total;
-    private ProductDTO productDTO;
+    private Long productId;
+    private Long userId;
 
     public CartItemDTO() {
     }
 
-    public CartItemDTO(Long id, int subTotal, int total, ProductDTO productDTO) {
+    public CartItemDTO(Long id, int quantity, int subTotal, int total, Long productId, Long userId) {
         this.id = id;
+        this.quantity = quantity;
         this.subTotal = subTotal;
         this.total = total;
-        this.productDTO = productDTO;
+        this.productId = productId;
+        this.userId = userId;
     }
 
     public Long getId() {
@@ -25,6 +26,14 @@ public class CartItemDTO {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public int getSubTotal() {
@@ -43,37 +52,19 @@ public class CartItemDTO {
         this.total = total;
     }
 
-    public ProductDTO getProductDTO() {
-        return productDTO;
+    public Long getProductId() {
+        return productId;
     }
-    public void setProductDTO(ProductDTO productDTO) {
-        this.productDTO = productDTO;
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
-    public String getDescription() {
-        return productDTO.getDescription();
+
+    public Long getUserId() {
+        return userId;
     }
-    public double getPrice() {
-        return productDTO.getPrice();
-    }
-    public int getQuantity() {
-        // Récupérer la quantité directement depuis l'objet ProductDTO
-        return productDTO.getQuantity();
-    }
-    public String getImage() {
-        return productDTO.getImage();
-    }
-    public static CartItemDTO fromCartItem(CartItem cartItem) {
-        ProductDTO productDTO = ProductDTO.fromProduct(cartItem.getProduct());
-        CartItemDTO cartItemDTO = new CartItemDTO();
-        cartItemDTO.setId(cartItem.getId());
-        cartItemDTO.setSubTotal(cartItem.getSubTotal());
-        cartItemDTO.setTotal(cartItem.getTotal());
-        cartItemDTO.setProductDTO(productDTO);
-        String description = cartItemDTO.getDescription();
-        double price = cartItemDTO.getPrice();
-        int productQuantity = productDTO.getQuantity();
-        String image = cartItemDTO.getImage();
-        
-        return cartItemDTO;
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

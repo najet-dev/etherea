@@ -6,6 +6,7 @@ import { CartComponent } from './components/cart/cart.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { SigninComponent } from './components/signin/signin.component';
 import { authGuard } from './components/helpers/auth.guard';
+
 import { AccesComponent } from './components/acces/access.component';
 import { ProfileComponent } from './components/profile/profile.component';
 
@@ -16,7 +17,11 @@ const routes: Routes = [
   },
 
   { path: 'productDetails/:id', component: ProductDetailsComponent },
-  { path: 'cart', component: CartComponent },
+  {
+    path: 'cart',
+    component: CartComponent,
+  },
+
   { path: 'signup', component: SignupComponent },
   { path: 'signin', component: SigninComponent },
   { path: 'profile', component: ProfileComponent },
@@ -48,6 +53,8 @@ const routes: Routes = [
     path: 'admin',
     loadChildren: () =>
       import('./components/admin/admin.module').then((m) => m.AdminModule),
+    canActivate: [authGuard],
+    data: { roles: ['admin'] },
   },
 ];
 
