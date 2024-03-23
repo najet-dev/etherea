@@ -85,6 +85,8 @@ public class AuthController {
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
+            System.out.println("Roles retrieved: " + roles);
+
 
             // Crée la réponse avec les informations de l'utilisateur et le token JWT
             JwtResponse jwtResponse = new JwtResponse(
