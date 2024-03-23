@@ -28,11 +28,11 @@ export class StorageService {
     return !!this.getToken();
   }
 
-  logout(): void {
-    window.localStorage.removeItem(TOKEN_KEY);
-    this.isLoggedInSubject.next(false);
-    this.router.navigate(['/signin']);
-  }
+  // logout(): void {
+  //   window.localStorage.removeItem(TOKEN_KEY);
+  //   this.isLoggedInSubject.next(false);
+  //   this.router.navigate(['/signin']);
+  // }
 
   isLoggedInObservable(): Observable<boolean> {
     return this.isLoggedInSubject.asObservable();

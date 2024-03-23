@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
-import { SignupRequest } from '../models/SignupRequest.model';
 import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
@@ -76,9 +75,6 @@ export class SigninComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    console.log('SigninComponent: Submitting signin form');
-    console.log('Username:', this.loginForm.value.username);
-    console.log('Password:', this.loginForm.value.password);
     this.submitted = true;
 
     if (this.loginForm.invalid) {
@@ -87,12 +83,18 @@ export class SigninComponent implements OnInit, OnDestroy {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (userData) => {
-        // Redirection vers la page d'accueil après une connexion réussie
-        this.router.navigate(['/']); // Chemin vers la page d'accueil
+        this.router.navigate(['/']);
+        this.loginForm.reset();
       },
       error: (err) => {
-        this.errorMessage = err;
-        console.log(err);
+        if (err.status === 401) {
+          // Le statut 401 indique une authentification invalide
+          this.errorMessage = "L'email ou le mot de passe est invalide.";
+        } else {
+          // Pour toutes les autres erreurs, afficher un message générique
+          this.errorMessage =
+            'Une erreur est survenue. Veuillez réessayer plus tard.';
+        }
       },
     });
   }
@@ -102,6 +104,4 @@ export class SigninComponent implements OnInit, OnDestroy {
       this.AuthUserSub.unsubscribe();
     }
   }
-
-  protected readonly console = console;
 }
