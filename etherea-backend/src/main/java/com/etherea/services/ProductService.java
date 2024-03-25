@@ -30,15 +30,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
-
     @Autowired
     private ProductRepository productRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private static final String UPLOAD_DIR = "assets";
-
     public List<ProductDTO> getProducts(int limit) {
         List<Product> products;
-
         if (limit > 0) {
             // Récupérer un nombre spécifique de produits de manière aléatoire
             Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "id"));
@@ -47,7 +44,6 @@ public class ProductService {
             // Récupérer tous les produits
             products = productRepository.findAll();
         }
-
         // Convertir les entités Product en DTOs ProductDTO
         return products.stream()
                 .map(ProductDTO::fromProduct)
@@ -61,36 +57,6 @@ public class ProductService {
                     return new ProductNotFoundException("No product found with ID: " + id);
                 });
     }
-    public ProductDTO incrementProductQuantity(Long productId) {
-        Product product = getProductById(productId).toProduct(); // Conversion de ProductDTO à Product
-        int currentQuantity = product.getQuantity();
-
-        // Vérification de la limite de quantité
-        int maxQuantity = 10;
-        if (currentQuantity < maxQuantity) {
-            product.setQuantity(currentQuantity + 1);
-            productRepository.save(product);
-            return ProductDTO.fromProduct(product);
-        } else {
-            return ProductDTO.fromProduct(product);
-        }
-    }
-    public ProductDTO decrementProductQuantity(Long productId) {
-        ProductDTO productDTO = getProductById(productId);
-        int currentQuantity = productDTO.getQuantity();
-
-        if (currentQuantity > 1) {
-            productDTO.setQuantity(currentQuantity - 1);
-            Product updatedProduct = productDTO.toProduct();
-            productRepository.save(updatedProduct);
-            return ProductDTO.fromProduct(updatedProduct);
-        } else {
-            // Si la quantité est déjà à 1, le produit est supprimé
-            deleteProduct(productId);
-            return null; // produit a été supprimé
-        }
-    }
-
     public void saveProduct(ProductDTO productDTO, MultipartFile file) {
         createUploadDirectory();
 
@@ -155,7 +121,6 @@ public class ProductService {
     private void updateProductFromDTO(Product existingProduct, ProductDTO updatedProductDTO) {
         existingProduct.setName(updatedProductDTO.getName());
         existingProduct.setDescription(updatedProductDTO.getDescription());
-        existingProduct.setQuantity(updatedProductDTO.getQuantity());
         existingProduct.setPrice(updatedProductDTO.getPrice());
         existingProduct.setStockAvailable(updatedProductDTO.getStockAvailable());
         existingProduct.setBenefits(updatedProductDTO.getBenefits());

@@ -20,12 +20,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
-
     @Autowired
     private ProductService productService;
-
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
-
     @GetMapping
     public List<ProductDTO> getProducts(@RequestParam(defaultValue = "0") int limit) {
         return productService.getProducts(limit);
@@ -37,25 +34,6 @@ public class ProductController {
         } catch (ProductNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Product not found with ID: " + id);
-        }
-    }
-    @PostMapping("/{productId}/increment")
-    public ResponseEntity<ProductDTO> incrementProductQuantity(@PathVariable Long productId) {
-        try {
-            ProductDTO updatedProduct = productService.incrementProductQuantity(productId);
-            return ResponseEntity.ok(updatedProduct);
-        } catch (ProductNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-
-    @PostMapping("/{productId}/decrement")
-    public ResponseEntity<ProductDTO> decrementProductQuantity(@PathVariable Long productId) {
-        try {
-            ProductDTO updatedProduct = productService.decrementProductQuantity(productId);
-            return ResponseEntity.ok(updatedProduct);
-        } catch (ProductNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
     @PostMapping(value = "/add", consumes = "multipart/form-data")

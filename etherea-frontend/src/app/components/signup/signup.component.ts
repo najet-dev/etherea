@@ -97,7 +97,7 @@ export class SignupComponent implements OnInit, OnDestroy {
     this.authService.signup(this.signupForm.value).subscribe({
       next: (userData) => {
         this.router.navigate(['/signin']);
-        this.signupForm.reset(); // Réinitialiser le formulaire après une soumission réussie
+        this.signupForm.reset();
       },
     });
   }

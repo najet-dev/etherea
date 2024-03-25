@@ -2,6 +2,7 @@ package com.etherea.models;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -12,9 +13,11 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int quantity;
-    private int subTotal;
-    private int total;
+    private double subTotal;
+    private double total;
     @ManyToOne
+    @JoinColumn(name = "userId")
+    @JsonIgnore // Ignorer la sérialisation de cette propriété pour éviter la récursion infinie
     private User user;
     @ManyToOne
     @JoinColumn(name = "productId")
@@ -25,7 +28,7 @@ public class CartItem {
 
     public CartItem() {
     }
-    public CartItem(Long id,int quantity, int subTotal, int total, Product product, Cart cart) {
+    public CartItem(Long id,int quantity, double subTotal, double total, Product product, Cart cart) {
         this.id = id;
         this.quantity = quantity;
         this.subTotal = subTotal;
@@ -41,14 +44,17 @@ public class CartItem {
     }
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+        // Recalculer le sous-total et le total après la mise à jour de la quantité
+        this.subTotal = calculateSubtotal();
+        this.total = calculateTotal();
     }
-    public int getSubTotal() {
+    public double getSubTotal() {
         return subTotal;
     }
-    public void setSubTotal(int subTotal) {
+    public void setSubTotal(double subTotal) {
         this.subTotal = subTotal;
     }
-    public int getTotal() {
+    public double getTotal() {
         return total;
     }
     public User getUser() {
@@ -57,8 +63,7 @@ public class CartItem {
     public void setUser(User user) {
         this.user = user;
     }
-
-    public void setTotal(int total) {
+    public void setTotal(double total) {
         this.total = total;
     }
     public Product getProduct() {
@@ -68,7 +73,7 @@ public class CartItem {
         this.product = product;
     }
     public int getQuantity() {
-        return getProduct().getQuantity();
+        return this.quantity;
     }
     public Cart getCart() {
         return cart;
@@ -79,14 +84,14 @@ public class CartItem {
 
     // Méthode pour calculer le sous-total (prix * quantité) d'un produit
     public double calculateSubtotal() {
-        return getProduct().getPrice() * getQuantity();
+        double subtotal = getProduct().getPrice() * getQuantity();
+        return subtotal;
     }
-
-    // Méthode pour calculer le total (prix total pour ce produit dans le panier)
+    // Méthode pour calculer le total (prix total pour tous les produits dans le panier)
     public double calculateTotal() {
-        return calculateSubtotal();
+        double total = calculateSubtotal(); // appel à la méthode calculateSubtotal pour obtenir le sous-total
+        return total;
     }
-
     // Méthode pour calculer le prix total de tous les produits dans le panier
     public static double calculateTotalPrice(List<CartItem> items) {
         double totalPrice = 0.0;
