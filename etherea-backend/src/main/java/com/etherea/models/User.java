@@ -1,7 +1,6 @@
 package com.etherea.models;
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,13 +20,14 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
-    @OneToOne(mappedBy = "user")
-    private Cart cart;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<CartItem> cartItems = new ArrayList<>();
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Command> commands = new ArrayList<>();
+
     public User() {
     }
-    public User( String firstName, String lastName, String username, String password) {
+    public User(String firstName, String lastName, String username, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
@@ -51,7 +51,6 @@ public class User {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-
     public String getUsername() {
         return username;
     }
@@ -69,6 +68,12 @@ public class User {
     }
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+    public List<CartItem> getCartItems() {
+        return cartItems;
+    }
+    public void setCartItems(List<CartItem> cartItems) {
+        this.cartItems = cartItems;
     }
     public List<Command> getCommands() {
         return commands;

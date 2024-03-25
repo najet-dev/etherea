@@ -8,6 +8,7 @@ import { SigninRequest } from '../components/models/signinRequest.model';
 import { Role, ERole } from '../components/models/role.model';
 
 import { Router } from '@angular/router';
+import { SignupRequest } from '../components/models/SignupRequest.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,12 +24,11 @@ export class AuthService {
     private router: Router
   ) {}
 
-  signup(signupData: SigninRequest): Observable<any> {
+  signup(signupData: SignupRequest): Observable<SignupRequest> {
     return this.httpClient
       .post<any>(`${this.apiUrl}/api/auth/signup`, signupData)
       .pipe(
         catchError((error) => {
-          // Gérer les erreurs lors de l'inscription
           console.error('An error occurred during signup:', error);
           return throwError(() => error);
         })
@@ -84,5 +84,8 @@ export class AuthService {
         })
       )
       .subscribe();
+  }
+  getCurrentUser(): Observable<SigninRequest | null> {
+    return this.AuthenticatedUser$.asObservable();
   }
 }

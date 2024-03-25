@@ -52,12 +52,11 @@ public class WebSecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/api/test/**").permitAll()
                                 .requestMatchers("/products/**").permitAll()
-
+                                .requestMatchers("/api/**").permitAll()
+                                .requestMatchers("/users/**").permitAll()
                                 .anyRequest().authenticated()
                 );
-
         http.authenticationProvider(authenticationProvider());
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

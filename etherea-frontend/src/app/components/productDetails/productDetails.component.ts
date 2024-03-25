@@ -16,7 +16,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     id: 0,
     name: '',
     description: '',
-    quantity: 0,
     price: 0,
     stockAvailable: 0,
     benefits: '',
@@ -50,49 +49,11 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       )
       .subscribe((product) => {
         this.product = product;
-        // Réinitialiser la quantité à 1 chaque fois que les détails du produit sont chargés
-        this.product.quantity = 1;
       });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-
-    // Réinitialiser la quantité à 0 lors de la destruction du composant (quand on quitte la page)
-    this.product.quantity = 1;
-  }
-
-  incrementQuantity(): void {
-    if (this.product && this.product.quantity < 10) {
-      this.productService
-        .incrementProductQuantity(this.product.id)
-        .subscribe((updatedProduct) => {
-          console.log('Updated Quantity:', updatedProduct.quantity);
-          this.product = updatedProduct;
-          this.limitReached = false; // Réinitialiser la variable après l'incrémentation
-        });
-    } else {
-      this.limitReached = true;
-    }
-  }
-
-  decrementQuantity(): void {
-    if (this.product && this.product.quantity > 1) {
-      this.productService
-        .decrementProductQuantity(this.product.id)
-        .subscribe((updatedProduct) => {
-          this.product = updatedProduct;
-          this.limitReached = false; // Réinitialiser la variable après la décrémentation
-        });
-    }
-  }
-
-  addToCart(): void {
-    if (this.product) {
-      console.log(
-        `Added ${this.product.quantity} ${this.product.name}(s) to the cart`
-      );
-    }
   }
 }
