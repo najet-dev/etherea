@@ -14,7 +14,6 @@ public class Product {
     private Long id;
     private String name;
     private String description;
-    private int quantity;
     private double price;
     private int stockAvailable;
     private String benefits;
@@ -26,8 +25,7 @@ public class Product {
     private List<CommandItem> commandItems = new ArrayList<>();
     public Product() {
     }
-
-    public Product(String name, String description, int quantity, double price, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public Product(String name, String description, double price, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -38,7 +36,6 @@ public class Product {
         this.characteristics = characteristics;
         this.image = image;
     }
-
     public Long getId() {
         return id;
     }
@@ -57,20 +54,12 @@ public class Product {
     public void setDescription(String description) {
         this.description = description;
     }
-
-    public int getQuantity() {
-        return quantity;
-    }
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
     public double getPrice() {
         return price;
     }
     public void setPrice(double price) {
         this.price = price;
     }
-
     public int getStockAvailable() {
         return stockAvailable;
     }
@@ -107,7 +96,6 @@ public class Product {
     public void setImage(String image) {
         this.image = image;
     }
-
     public List<CommandItem> getCommandItems() {
         return commandItems;
     }

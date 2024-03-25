@@ -91,7 +91,19 @@
 			<version>11.0.0-M1</version>
 			<scope>provided</scope>
 		</dependency>
+		<!-- Swagger 2 pour la documentation de l'API -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.10.5</version>
+		</dependency>
 
+		<!-- Swagger UI pour la visualisation de l'API -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.10.4</version>
+		</dependency>
 
 	</dependencies>
 

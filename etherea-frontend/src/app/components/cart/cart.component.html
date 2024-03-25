@@ -11,24 +11,31 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Produit 1</td>
-        <td>10.00</td>
-        <td>2</td>
-        <td>20.00</td>
+      <tr *ngFor="let item of cartItems">
+        <td>
+          <!-- Afficher les détails du produit -->
+          <img
+            *ngIf="item.product"
+            [src]="item.product.image"
+            alt="Product Image"
+            width="60px"
+          />
+          <h2 *ngIf="item.product">{{ item.product.name }}</h2>
+          <p *ngIf="item.product">
+            Description: {{ item.product.description }}
+          </p>
+        </td>
+        <td>{{ item.product.price }}</td>
+        <!-- Afficher le prix de l'article -->
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.subTotal }}</td>
       </tr>
-      <tr>
-        <td>Produit 2</td>
-        <td>15.00</td>
-        <td>1</td>
-        <td>15.00</td>
-      </tr>
-      <!-- Ajoutez d'autres lignes selon vos besoins -->
     </tbody>
     <tfoot>
       <tr>
         <td colspan="3">Total</td>
-        <td>35.00</td>
+        <!-- Afficher le total du panier -->
+        <!-- <td>{{ getTotal() }}</td> -->
       </tr>
     </tfoot>
   </table>

@@ -2,7 +2,6 @@ export interface IProduct {
   id: number;
   name: string;
   description: string;
-  quantity: number;
   price: number;
   stockAvailable: number;
   benefits: String;
@@ -10,5 +9,4 @@ export interface IProduct {
   ingredients: String;
   characteristics: String;
   image: string;
-  imageBlob?: Blob;
 }

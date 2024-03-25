@@ -21,18 +21,13 @@ export class StorageService {
   }
 
   getToken(): string | null {
-    return window.localStorage.getItem(TOKEN_KEY);
+    const token = window.localStorage.getItem(TOKEN_KEY);
+    return token;
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
-
-  // logout(): void {
-  //   window.localStorage.removeItem(TOKEN_KEY);
-  //   this.isLoggedInSubject.next(false);
-  //   this.router.navigate(['/signin']);
-  // }
 
   isLoggedInObservable(): Observable<boolean> {
     return this.isLoggedInSubject.asObservable();
