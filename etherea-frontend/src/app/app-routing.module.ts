@@ -3,12 +3,10 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
-import { SignupComponent } from './components/signup/signup.component';
-import { SigninComponent } from './components/signin/signin.component';
-import { authGuard } from './components/helpers/auth.guard';
-
 import { AccesComponent } from './components/acces/access.component';
 import { ProfileComponent } from './components/profile/profile.component';
+import { SignupComponent } from './components/signup/signup.component';
+import { SigninComponent } from './components/signin/signin.component';
 
 const routes: Routes = [
   {
@@ -22,10 +20,10 @@ const routes: Routes = [
     component: CartComponent,
   },
 
-  { path: 'signup', component: SignupComponent },
-  { path: 'signin', component: SigninComponent },
   { path: 'profile', component: ProfileComponent },
   { path: 'forbidden', component: AccesComponent },
+  { path: 'signup', component: SignupComponent },
+  { path: 'signin', component: SigninComponent },
   {
     path: 'cream',
     loadChildren: () =>
@@ -53,8 +51,6 @@ const routes: Routes = [
     path: 'admin',
     loadChildren: () =>
       import('./components/admin/admin.module').then((m) => m.AdminModule),
-    canActivate: [authGuard],
-    data: { roles: ['admin'] },
   },
 ];
 

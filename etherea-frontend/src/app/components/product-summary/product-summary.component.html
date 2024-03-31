@@ -1,0 +1,27 @@
+<div class="modal-header">
+  <button mat-icon-button mat-dialog-close>
+    <mat-icon aria-label="Close dialog">close</mat-icon>
+  </button>
+</div>
+
+<div>
+  <img
+    *ngIf="data.product && data.product.image"
+    [src]="data.product.image"
+    alt="Product Image"
+    width="60px"
+  />
+  <h2>{{ data.product.name }}</h2>
+  <p>Description: {{ data.product.description }}</p>
+</div>
+<div>
+  <p>Prix: {{ data.product.price | number : ".2-2" }}</p>
+  <p>Quantité: {{ data.quantity }}</p>
+  <p>Sous-total: {{ data.subTotal | number : ".2-2" }} €</p>
+</div>
+<div class="modal-buttons">
+  <button mat-button (click)="goToShopping(data.product.id)">
+    Continuer les achats
+  </button>
+  <button mat-button (click)="goToCart()">Voir le panier</button>
+</div>

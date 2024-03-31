@@ -1,86 +1,104 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CartService } from 'src/app/services/cart.service';
-import { ProductService } from 'src/app/services/product.service';
 import { Cart } from 'src/app/components/models/cart.model';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { UserService } from 'src/app/services/user.service'; // Importez le service UserService
+import { ProductService } from 'src/app/services/product.service';
 
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css'],
 })
-export class CartComponent implements OnInit, OnDestroy {
-  userId: number | null = null;
+export class CartComponent implements OnInit {
+  userId: number = 1;
   cartItems: Cart[] = [];
-  private unsubscribe$ = new Subject<void>();
+  cartTotal: number = 0; // Ajouter la propriété pour stocker le total du panier
 
   constructor(
     private cartService: CartService,
-    private productService: ProductService,
-    private userService: UserService // Injectez le service UserService
-  ) {}
-
+    private productService: ProductService
+  ) {
+    // Écouter l'événement de mise à jour du panier
+    this.cartService.cartUpdated.subscribe(() => {
+      // Recharger les données du panier
+      this.loadCartItems();
+    });
+  }
   ngOnInit(): void {
-    this.loadUserIdAndUserCart();
+    this.loadCartItems();
   }
 
-  loadUserIdAndUserCart() {
-    this.userService
-      .getCurrentUserId()
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe({
-        next: (userId) => {
-          this.userId = userId;
-          if (this.userId !== null) {
-            this.loadUserCart();
-          }
-        },
-        error: (error) => {
-          console.log('Error fetching current user ID:', error);
-        },
-      });
-  }
-
-  loadUserCart() {
-    if (this.userId === null) {
-      console.log('User ID is not available.');
-      return;
-    }
-
-    this.cartService
-      .getUserCart(this.userId)
-      .pipe(takeUntil(this.unsubscribe$))
-      .subscribe({
-        next: (response) => {
-          this.cartItems = response;
-          this.loadProductsDetails();
-        },
-        error: (error) => {
-          console.log('Error fetching user cart:', error);
-        },
-      });
-  }
-
-  loadProductsDetails() {
-    this.cartItems.forEach((item) => {
-      this.productService
-        .getProductById(item.productId)
-        .pipe(takeUntil(this.unsubscribe$))
-        .subscribe({
-          next: (product) => {
-            item.product = product;
-          },
-          error: (error) => {
-            console.log('Error fetching product details:', error);
-          },
+  loadCartItems() {
+    this.cartService.getCartItems(this.userId).subscribe({
+      next: (cartItems) => {
+        this.cartItems = cartItems;
+        // Récupérer les détails du produit pour chaque élément du panier
+        this.cartItems.forEach((item) => {
+          this.productService.getProductById(item.productId).subscribe({
+            next: (product) => {
+              item.product = product; // Ajouter les détails du produit à l'élément du panier
+            },
+            error: (error) => {
+              console.log('Erreur lors de la récupération du produit :', error);
+            },
+          });
         });
+        // Recalculer le total du panier à chaque chargement des éléments du panier
+        this.calculateCartTotal();
+      },
+      error: (error) => {
+        console.log(
+          'Erreur lors de la récupération des éléments du panier :',
+          error
+        );
+      },
     });
   }
 
-  ngOnDestroy() {
-    this.unsubscribe$.next();
-    this.unsubscribe$.complete();
+  incrementQuantity(item: Cart): void {
+    item.quantity++;
+    this.updateCartItem(item);
+  }
+
+  decrementQuantity(item: Cart): void {
+    if (item.quantity > 1) {
+      item.quantity--;
+      this.updateCartItem(item);
+    }
+  }
+
+  updateCartItem(item: Cart): void {
+    this.cartService
+      .updateToCart(this.userId, item.productId, item.quantity)
+      .subscribe({
+        next: (updatedItem) => {
+          console.log('Élément du panier mis à jour avec succès');
+          // Mettre à jour l'élément du panier dans votre liste cartItems avec les données mises à jour
+          const index = this.cartItems.findIndex(
+            (cartItem) => cartItem.productId === updatedItem.productId
+          );
+          if (index !== -1) {
+            this.cartItems[index] = updatedItem;
+            // Recalculer le total du panier après avoir mis à jour l'élément du panier
+            this.calculateCartTotal();
+          }
+        },
+        error: (error) => {
+          console.error(
+            "Erreur lors de la mise à jour de l'élément du panier :",
+            error
+          );
+        },
+      });
+  }
+
+  calculateCartTotal(): void {
+    this.cartTotal = 0; // Réinitialiser le total du panier
+    for (const item of this.cartItems) {
+      if (item.subTotal !== undefined) {
+        this.cartTotal += item.subTotal; // Ajouter le sous-total de chaque article au total du panier
+      }
+    }
+    // Formater le total du panier avec deux chiffres après la virgule
+    this.cartTotal = parseFloat(this.cartTotal.toFixed(2));
   }
 }

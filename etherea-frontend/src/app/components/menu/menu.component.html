@@ -35,18 +35,12 @@
     </form>
 
     <div class="icons-container">
-      <mat-icon *ngIf="!isLoggedIn" class="icon" [routerLink]="'/signin'"
-        >account_circle</mat-icon
-      >
-      <mat-icon *ngIf="isLoggedIn" class="icon" [routerLink]="'/profile'"
-        >person</mat-icon
-      >
+      <mat-icon class="icon" routerLink="/signin">account_circle</mat-icon>
+      <!-- <mat-icon class="icon" [routerLink]="'/profile'">person</mat-icon> -->
 
       <mat-icon class="icon">favorite</mat-icon>
       <mat-icon class="icon" [routerLink]="'/cart'">shopping_cart</mat-icon>
-      <mat-icon *ngIf="isLoggedIn" class="icon" (click)="logout()"
-        >exit_to_app</mat-icon
-      >
+      <!-- <mat-icon class="icon">exit_to_app</mat-icon> -->
     </div>
   </div>
 </nav>

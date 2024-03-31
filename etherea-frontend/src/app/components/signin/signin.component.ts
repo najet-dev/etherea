@@ -1,9 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { AuthService } from 'src/app/services/auth.service';
-import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-signin',
@@ -14,7 +11,6 @@ export class SigninComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   loginForm!: FormGroup;
   submitted = false;
-  AuthUserSub?: Subscription;
 
   public errorMessages = {
     username: [
@@ -35,12 +31,7 @@ export class SigninComponent implements OnInit, OnDestroy {
     ],
   };
 
-  constructor(
-    private authService: AuthService,
-    private storageService: StorageService,
-    private router: Router,
-    private formBuilder: FormBuilder
-  ) {}
+  constructor(private router: Router, private formBuilder: FormBuilder) {}
 
   get username() {
     return this.loginForm.get('username');
@@ -51,14 +42,6 @@ export class SigninComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.AuthUserSub = this.authService.AuthenticatedUser$.subscribe({
-      next: (user) => {
-        if (user) {
-          this.router.navigate(['/']);
-        }
-      },
-    });
-
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.email]],
       password: [
@@ -81,27 +64,10 @@ export class SigninComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (userData) => {
-        this.router.navigate(['/']);
-        this.loginForm.reset();
-      },
-      error: (err) => {
-        if (err.status === 401) {
-          // Le statut 401 indique une authentification invalide
-          this.errorMessage = "L'email ou le mot de passe est invalide.";
-        } else {
-          // Pour toutes les autres erreurs, afficher un message générique
-          this.errorMessage =
-            'Une erreur est survenue. Veuillez réessayer plus tard.';
-        }
-      },
-    });
+    // Traitement du formulaire soumis, par exemple redirection vers une autre page
+    this.router.navigate(['/']);
+    this.loginForm.reset();
   }
 
-  ngOnDestroy() {
-    if (this.AuthUserSub) {
-      this.AuthUserSub.unsubscribe();
-    }
-  }
+  ngOnDestroy() {}
 }

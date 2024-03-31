@@ -15,27 +15,44 @@
         <td>
           <!-- Afficher les détails du produit -->
           <img
-            *ngIf="item.product"
+            *ngIf="item.product && item.product.image"
             [src]="item.product.image"
             alt="Product Image"
             width="60px"
+            [routerLink]="['/productDetails', item.product.id]"
           />
-          <h2 *ngIf="item.product">{{ item.product.name }}</h2>
-          <p *ngIf="item.product">
+          <h2
+            *ngIf="item.product"
+            [routerLink]="['/productDetails', item.product.id]"
+          >
+            {{ item.product.name }}
+          </h2>
+          <p
+            *ngIf="item.product"
+            [routerLink]="['/productDetails', item.product.id]"
+          >
             Description: {{ item.product.description }}
           </p>
         </td>
-        <td>{{ item.product.price }}</td>
+        <td>{{ item.product && item.product.price | number : ".2-2" }}</td>
         <!-- Afficher le prix de l'article -->
-        <td>{{ item.quantity }}</td>
-        <td>{{ item.subTotal }}</td>
+        <td>
+          <button class="quantity-btn" (click)="decrementQuantity(item)">
+            -
+          </button>
+          <span>{{ item.quantity }}</span>
+          <button class="quantity-btn" (click)="incrementQuantity(item)">
+            +
+          </button>
+        </td>
+        <td>{{ item.subTotal | number : ".2-2" }}</td>
       </tr>
     </tbody>
     <tfoot>
       <tr>
-        <td colspan="3">Total</td>
-        <!-- Afficher le total du panier -->
-        <!-- <td>{{ getTotal() }}</td> -->
+        <td colspan="2"></td>
+        <td colspan="1"><strong>Total</strong></td>
+        <td>{{ cartTotal }} €</td>
       </tr>
     </tfoot>
   </table>

@@ -16,12 +16,13 @@
         La limite de 10 produits a été atteinte.
       </div>
       <div class="quantity-selector">
-        <button class="quantity-btn">-</button>
-        <button class="quantity-btn">+</button>
+        <button class="quantity-btn" (click)="decrementQuantity()">-</button>
+        <span>{{ cartItem.quantity }}</span>
+        <button class="quantity-btn" (click)="incrementQuantity()">+</button>
       </div>
 
       <!-- Add to cart button -->
-      <button class="btn btn-primary" [routerLink]="'/cart'">
+      <button class="btn btn-primary" (click)="addToCart()">
         Ajouter au panier
       </button>
     </div>
