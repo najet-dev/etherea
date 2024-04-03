@@ -81,7 +81,7 @@ export class SigninComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.authService.login(this.loginForm.value).subscribe({
+    this.authService.signin(this.loginForm.value).subscribe({
       next: (userData) => {
         this.router.navigate(['/']);
         this.loginForm.reset();
