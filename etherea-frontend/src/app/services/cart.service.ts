@@ -11,28 +11,13 @@ import { StorageService } from './storage.service';
 })
 export class CartService {
   private apiUrl = environment.apiUrl;
-  private cartKey = 'cartItems';
+  private cartKey = 'cartItems'; // Clé pour stocker le panier dans le stockage local
   cartUpdated: EventEmitter<void> = new EventEmitter<void>(); // Événement pour indiquer la mise à jour du panier
 
   constructor(
     private httpClient: HttpClient,
     private storageService: StorageService
   ) {}
-
-  // Méthodes pour gérer le panier côté frontend
-  getLocalCartItems(): Cart[] {
-    return this.storageService.get(this.cartKey) || [];
-  }
-
-  addToLocalCart(cart: Cart): void {
-    let cartItems = this.getLocalCartItems();
-    cartItems.push(cart);
-    this.storageService.set(this.cartKey, cartItems);
-  }
-
-  clearLocalCart(): void {
-    this.storageService.remove(this.cartKey);
-  }
 
   // Méthodes pour interagir avec le backend
   getCartItems(userId: number): Observable<Cart[]> {
@@ -82,5 +67,38 @@ export class CartService {
           this.cartUpdated.emit();
         })
       );
+  }
+  loadLocalCart(): Cart[] {
+    try {
+      return this.storageService.get(this.cartKey) || [];
+    } catch (error) {
+      console.error(
+        'An error occurred while loading cart data from local storage:',
+        error
+      );
+      return [];
+    }
+  }
+
+  saveLocalCart(cart: Cart[]): void {
+    try {
+      this.storageService.set(this.cartKey, cart);
+    } catch (error) {
+      console.error(
+        'An error occurred while saving cart data to local storage:',
+        error
+      );
+    }
+  }
+
+  clearLocalCart(): void {
+    try {
+      this.storageService.remove(this.cartKey);
+    } catch (error) {
+      console.error(
+        'An error occurred while clearing cart data from local storage:',
+        error
+      );
+    }
   }
 }

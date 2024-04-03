@@ -117,18 +117,6 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     );
   }
 
-  // openProductSummaryModal(cartItem: Cart): void {
-  //   const dialogRef = this.dialog.open(ProductSummaryComponent, {
-  //     width: '400px',
-  //     data: {
-  //       product: cartItem.product,
-  //       quantity: cartItem.quantity,
-  //       price: cartItem.product.price,
-  //       subtotal: cartItem.quantity * cartItem.product.price,
-  //     },
-  //   });
-  // }
-
   resetCartItem(): void {
     this.cartItem = {
       userId: 1,

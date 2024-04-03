@@ -23,6 +23,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { SigninComponent } from './components/signin/signin.component';
 import { ProductSummaryComponent } from './components/product-summary/product-summary.component';
+import { AuthInterceptor } from './components/helpers/authInterceptor';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,9 @@ import { ProductSummaryComponent } from './components/product-summary/product-su
     ReactiveFormsModule,
     MatDialogModule,
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
