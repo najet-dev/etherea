@@ -23,7 +23,7 @@ export class MenuComponent implements OnInit {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => {
-        // console.log('Navigation event:', event); // Ajout d'un console.log pour vérifier les événements de navigation
+        console.log('Navigation event:', event); // Ajout d'un console.log pour vérifier les événements de navigation
         this.closeBurgerMenu();
       });
   }
@@ -33,7 +33,7 @@ export class MenuComponent implements OnInit {
     this.storageService
       .isLoggedInObservable()
       .subscribe((loggedIn: boolean) => {
-        //console.log('Is logged in:', loggedIn); // Ajout d'un console.log pour vérifier l'état de connexion
+        console.log('Is logged in:', loggedIn); // Ajout d'un console.log pour vérifier l'état de connexion
         this.isLoggedIn = loggedIn;
       });
   }
@@ -53,7 +53,7 @@ export class MenuComponent implements OnInit {
   }
 
   logout() {
-    //console.log('Logging out'); // Ajout d'un message de log pour vérifier que la fonction est appelée
+    console.log('Logging out'); // Ajout d'un message de log pour vérifier que la fonction est appelée
 
     // Appel à la méthode logout() du service AuthService
     this.authService.logout();

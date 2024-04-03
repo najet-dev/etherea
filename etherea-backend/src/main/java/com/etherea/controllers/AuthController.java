@@ -42,7 +42,6 @@ import com.etherea.repositories.UserRepository;
 import com.etherea.jwt.JwtUtils;
 import com.etherea.services.UserDetailsImpl;
 
-
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
@@ -147,8 +146,13 @@ public class AuthController {
     @PostMapping("/logout")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> logoutUser(HttpServletRequest request) {
-        SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
-        securityContextLogoutHandler.logout(request, null, null);
-        return ResponseEntity.ok(new MessageResponse("User logged out successfully!"));
+        // Vérifie si l'utilisateur est authentifié avant de le déconnecter
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
+            securityContextLogoutHandler.logout(request, null, null);
+            return ResponseEntity.ok(new MessageResponse("User logged out successfully!"));
+        } else {
+            return ResponseEntity.badRequest().body(new MessageResponse("User is not logged in!"));
+        }
     }
 }

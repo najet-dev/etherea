@@ -9,6 +9,7 @@ import { Role, ERole } from '../components/models/role.model';
 
 import { Router } from '@angular/router';
 import { SignupRequest } from '../components/models/SignupRequest.model';
+import { CartService } from './cart.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,8 @@ export class AuthService {
   constructor(
     private httpClient: HttpClient,
     private storageService: StorageService,
-    private router: Router
+    private router: Router,
+    private cartService: CartService
   ) {}
 
   signup(signupData: SignupRequest): Observable<SignupRequest> {
@@ -35,32 +37,36 @@ export class AuthService {
       );
   }
 
-  login(signinData: SigninRequest): Observable<SigninRequest> {
-    //console.log('AuthService: Connexion en cours', signinData);
+  signin(signinData: SigninRequest): Observable<SigninRequest> {
     return this.httpClient
       .post<SigninRequest>(`${this.apiUrl}/api/auth/signin`, signinData, {
         withCredentials: true,
       })
       .pipe(
-        catchError((err) => {
-          // console.log(err);
+        catchError((error) => {
           let errorMessage =
             "Une erreur inconnue s'est produite lors de la connexion !";
-          // Gérer des erreurs de connexion spécifiques si nécessaire
+          if (error.status === 401) {
+            errorMessage = 'Identifiants invalides. Veuillez réessayer.';
+          } else if (error.status === 403) {
+            errorMessage = "Vous n'avez pas les autorisations nécessaires.";
+          }
+          console.error('Signin error:', error);
           return throwError(() => new Error(errorMessage));
         }),
         tap((signin) => {
-          //console.log('Réponse du serveur:', signin); // Journaliser l'objet de réponse entier
-          //console.log('Rôles récupérés:', signin.roles); // Vérifiez le nom de la propriété pour les rôles
           this.storageService.saveToken(signin.accessToken);
           this.AuthenticatedUser$.next(signin);
+          console.log('User signed in successfully:', signin);
+          // Vider et sauvegarder le panier local lorsque l'utilisateur se connecte
+          this.cartService.clearLocalCart();
+          console.log('Local cart cleared.');
         })
       );
   }
 
   logout(): void {
     // console.log('AuthService: Logging out');
-
     const token = this.storageService.getToken(); // Récupérer le token JWT depuis le stockage local
 
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`); // Ajouter le token JWT aux en-têtes

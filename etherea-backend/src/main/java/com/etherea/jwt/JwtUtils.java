@@ -1,8 +1,8 @@
 package com.etherea.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,15 +12,14 @@ import java.util.Date;
 
 @Component
 public class JwtUtils {
-    @Value("${etherea.app.jwtSecret}")
-    private String jwtSecret;
-
     @Value("${etherea.app.jwtExpirationMs}")
-    private int jwtExpirationMs;
+    private long jwtExpirationMs;
+
     private final SecretKey secretKey;
-    public JwtUtils(@Value("${etherea.app.jwtSecret}") String jwtSecret) {
+
+    public JwtUtils() {
         // Utilisez la méthode Keys.secretKeyFor pour générer une clé HMAC-SHA sécurisée
-        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        this.secretKey = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
     }
     public String generateJwtToken(String username) {
         return Jwts.builder()
@@ -31,17 +30,20 @@ public class JwtUtils {
                 .compact();
     }
     public String getUserNameFromJwtToken(String token) {
-        Claims claims = Jwts.parserBuilder()
+        return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getSubject();
+                .getBody()
+                .getSubject();
     }
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(secretKey).build().parse(authToken);
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(authToken);
+
             return true;
         } catch (Exception e) {
             // Handle exception, log or ignore based on your requirements

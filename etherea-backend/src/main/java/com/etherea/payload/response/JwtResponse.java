@@ -1,5 +1,4 @@
 package com.etherea.payload.response;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -10,9 +9,7 @@ public class JwtResponse {
     private final Long id;
     private final String username;
     private final List<String> roles;
-
     public JwtResponse(String accessToken, Long id, String username, List<String> roles) {
-        // Validate parameters
         Objects.requireNonNull(accessToken, "Access token cannot be null");
         Objects.requireNonNull(id, "User ID cannot be null");
         Objects.requireNonNull(username, "Username cannot be null");
@@ -30,11 +27,9 @@ public class JwtResponse {
     public String getTokenType() {
         return type;
     }
-
     public Long getId() {
         return id;
     }
-
     public String getUsername() {
         return username;
     }
