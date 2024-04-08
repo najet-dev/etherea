@@ -17,16 +17,21 @@ export class CreamComponent implements OnDestroy {
   }
 
   private loadProducts(): void {
-    // Ajouter le paramètre limit pour spécifier le nombre de produits
-    this.products$ = this.productService.getProducts().pipe(
-      catchError((error) => {
-        console.error('Error fetching products:', error);
-
-        console.error('Failed to load products. Please try again later.');
-        return [];
-      }),
-      takeUntil(this.destroy$)
-    );
+    const productType = 'FACE'; // Type de produit pour le visage
+    const page = 0; // Numéro de la page
+    const size = 10; // Taille de la page
+    this.products$ = this.productService
+      .getProducts(productType, page, size)
+      .pipe(
+        catchError((error) => {
+          console.error('Erreur lors de la récupération des produits :', error);
+          console.error(
+            'Échec du chargement des produits. Veuillez réessayer plus tard.'
+          );
+          return [];
+        }),
+        takeUntil(this.destroy$)
+      );
   }
 
   ngOnDestroy(): void {

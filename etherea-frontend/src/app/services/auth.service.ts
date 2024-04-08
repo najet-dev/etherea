@@ -5,8 +5,6 @@ import { catchError, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { environment } from 'src/environments/environment';
 import { SigninRequest } from '../components/models/signinRequest.model';
-import { Role, ERole } from '../components/models/role.model';
-
 import { Router } from '@angular/router';
 import { SignupRequest } from '../components/models/SignupRequest.model';
 import { CartService } from './cart.service';
@@ -66,23 +64,19 @@ export class AuthService {
   }
 
   logout(): void {
-    // console.log('AuthService: Logging out');
-    const token = this.storageService.getToken(); // Récupérer le token JWT depuis le stockage local
+    const token = this.storageService.getToken();
 
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`); // Ajouter le token JWT aux en-têtes
+    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.httpClient
-      .post(`${this.apiUrl}/api/auth/logout`, {}, { headers }) // Envoyer la demande de déconnexion avec les en-têtes contenant le token JWT
+      .post(`${this.apiUrl}/api/auth/logout`, {}, { headers })
       .pipe(
         tap(() => {
-          // console.log('User logged out successfully!');
           this.storageService.clean();
           this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
         }),
         catchError((error) => {
-          //console.error('An error occurred during logout:', error);
-          // Même s'il y a une erreur lors de la déconnexion, nettoyez le stockage local et redirigez vers la page de connexion
           this.storageService.clean();
           this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
@@ -91,6 +85,7 @@ export class AuthService {
       )
       .subscribe();
   }
+
   getCurrentUser(): Observable<SigninRequest | null> {
     return this.AuthenticatedUser$.asObservable();
   }

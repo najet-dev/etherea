@@ -1,6 +1,7 @@
 package com.etherea.controllers;
 
 import com.etherea.dtos.ProductDTO;
+import com.etherea.enums.ProductType;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.services.ProductService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -8,6 +9,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -23,9 +28,13 @@ public class ProductController {
     @Autowired
     private ProductService productService;
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
+
     @GetMapping
-    public List<ProductDTO> getProducts(@RequestParam(defaultValue = "0") int limit) {
-        return productService.getProducts(limit);
+    public List<ProductDTO> getProductsByTypeAndPagination(@RequestParam(defaultValue = "0") int page,
+                                                           @RequestParam(defaultValue = "10") int size,
+                                                           @RequestParam ProductType type) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productService.getProducts(pageable, type);
     }
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {

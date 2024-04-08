@@ -1,5 +1,6 @@
 package com.etherea.dtos;
 
+import com.etherea.enums.ProductType;
 import com.etherea.models.Product;
 
 public class ProductDTO {
@@ -7,6 +8,8 @@ public class ProductDTO {
     private String name;
     private String description;
     private double price;
+    private ProductType type;
+
     private int stockAvailable;
     private String benefits;
     private String usageTips;
@@ -17,11 +20,12 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
-    public ProductDTO(Long id, String name, String description, double price, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public ProductDTO(Long id, String name, String description, double price, ProductType type, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
+        this.type = type;
         this.stockAvailable = stockAvailable;
         this.benefits = benefits;
         this.usageTips = usageTips;
@@ -52,6 +56,13 @@ public class ProductDTO {
     }
     public void setPrice(double price) {
         this.price = price;
+    }
+    public ProductType getType() {
+        return type;
+    }
+
+    public void setType(ProductType type) {
+        this.type = type;
     }
     public int getStockAvailable() {
         return stockAvailable;
@@ -90,7 +101,7 @@ public class ProductDTO {
         this.image = image;
     }
     public static ProductDTO fromProduct(Product product) {
-        return new ProductDTO(product.getId(), product.getName(), product.getDescription(), product.getPrice(), product.getStockAvailable(), product.getBenefits(), product.getUsageTips(), product.getIngredients(), product.getCharacteristics(), product.getImage());
+        return new ProductDTO(product.getId(), product.getName(), product.getDescription(), product.getPrice(),product.getType(), product.getStockAvailable(), product.getBenefits(), product.getUsageTips(), product.getIngredients(), product.getCharacteristics(), product.getImage());
     }
     public Product toProduct() {
         Product product = new Product();

@@ -91,6 +91,9 @@
 			<version>11.0.0-M1</version>
 			<scope>provided</scope>
 		</dependency>
+
+
+
 		<!-- Swagger 2 pour la documentation de l'API -->
 		<dependency>
 			<groupId>io.springfox</groupId>
