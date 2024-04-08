@@ -1,5 +1,6 @@
 package com.etherea.services;
 
+import com.etherea.enums.ProductType;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.models.Product;
 import com.etherea.repositories.ProductRepository;
@@ -7,6 +8,7 @@ import com.etherea.dtos.ProductDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,18 +36,9 @@ public class ProductService {
     private ProductRepository productRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private static final String UPLOAD_DIR = "assets";
-    public List<ProductDTO> getProducts(int limit) {
-        List<Product> products;
-        if (limit > 0) {
-            // Récupérer un nombre spécifique de produits de manière aléatoire
-            Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "id"));
-            products = productRepository.findAll(pageable).getContent();
-        } else {
-            // Récupérer tous les produits
-            products = productRepository.findAll();
-        }
-        // Convertir les entités Product en DTOs ProductDTO
-        return products.stream()
+    public List<ProductDTO> getProducts(Pageable pageable, ProductType type) {
+        Page<Product> productPage = productRepository.findByType(type, pageable);
+        return productPage.getContent().stream()
                 .map(ProductDTO::fromProduct)
                 .collect(Collectors.toList());
     }
@@ -122,6 +115,7 @@ public class ProductService {
         existingProduct.setName(updatedProductDTO.getName());
         existingProduct.setDescription(updatedProductDTO.getDescription());
         existingProduct.setPrice(updatedProductDTO.getPrice());
+        existingProduct.setType(updatedProductDTO.getType());
         existingProduct.setStockAvailable(updatedProductDTO.getStockAvailable());
         existingProduct.setBenefits(updatedProductDTO.getBenefits());
         existingProduct.setUsageTips(updatedProductDTO.getUsageTips());
