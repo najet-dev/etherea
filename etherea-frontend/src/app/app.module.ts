@@ -24,6 +24,7 @@ import { SignupComponent } from './components/signup/signup.component';
 import { SigninComponent } from './components/signin/signin.component';
 import { ProductSummaryComponent } from './components/product-summary/product-summary.component';
 import { AuthInterceptor } from './components/helpers/authInterceptor';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { AuthInterceptor } from './components/helpers/authInterceptor';
     FormsModule,
     ReactiveFormsModule,
     MatDialogModule,
+    MatPaginatorModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

@@ -16,3 +16,15 @@
   --text-color: #ededed;
   --main-color: #e6007e;
 }
+.btn-primary {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #63f349;
+}

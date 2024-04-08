@@ -6,34 +6,47 @@
     </div>
     <!-- Product details on the right -->
     <div class="col-md-6">
-      <h2>{{ product.name }}</h2>
-      <p>Description : {{ product.description }}</p>
-      <p>Prix : {{ product.price }} €</p>
-      <p>Stock disponible : {{ product.stockAvailable }}</p>
+      <img class="logo" src="/assets/logo.png" alt="banner" />
+      <p class="detail description">{{ product.description }}</p>
+      <p class="detail">Prix : {{ product.price }} €</p>
+      <p class="detail">Stock disponible : {{ product.stockAvailable }}</p>
 
-      <label for="quantityInput">Quantité :</label>
+      <label class="detail" for="quantityInput">Quantité :</label>
       <div *ngIf="limitReached" class="alert alert-warning">
         La limite de 10 produits a été atteinte.
       </div>
-      <div class="quantity-selector">
+      <div class="quantity-selector" style="display: inline-flex">
         <button class="quantity-btn" (click)="decrementQuantity()">-</button>
         <span>{{ cartItem.quantity }}</span>
         <button class="quantity-btn" (click)="incrementQuantity()">+</button>
       </div>
 
       <!-- Add to cart button -->
-      <button class="btn btn-primary" (click)="addToCart()">
+      <button class="btn-primary" (click)="addToCart()">
         Ajouter au panier
       </button>
     </div>
-  </div>
-  <!-- Additional product details below the image and text -->
-  <div class="row">
-    <div class="col-md-12">
-      <p>Bénéfices : {{ product.benefits }}</p>
-      <p>Conseil d'utilisation : {{ product.usageTips }}</p>
-      <p>Ingredients : {{ product.ingredients }}</p>
-      <p>Caractéristiques : {{ product.characteristics }}</p>
+
+    <!-- Additional product details below the image and text -->
+    <div class="row">
+      <div class="col-md-12">
+        <details>
+          <summary>Bénéfices</summary>
+          <p class="product">{{ product.benefits }}</p>
+        </details>
+        <details>
+          <summary>Conseil d'utilisation</summary>
+          <p class="product">{{ product.usageTips }}</p>
+        </details>
+        <details>
+          <summary>Ingrédients principaux</summary>
+          <p class="product ingredients">{{ product.ingredients }}</p>
+        </details>
+        <details>
+          <summary class="characteristics">Caractéristiques</summary>
+          <p>{{ product.characteristics }}</p>
+        </details>
+      </div>
     </div>
   </div>
 </div>

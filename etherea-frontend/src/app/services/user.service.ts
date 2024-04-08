@@ -16,9 +16,6 @@ export class UserService {
     private authService: AuthService
   ) {}
 
-  // getUserId(id: number): Observable<SigninRequest> {
-  //   return this.httpClient.get<SigninRequest>(`${this.apiUrl}/users/${id}`);
-  // }
   getCurrentUserId(): Observable<number | null> {
     return this.authService.getCurrentUser().pipe(
       map((user) => (user ? user.id : null)),

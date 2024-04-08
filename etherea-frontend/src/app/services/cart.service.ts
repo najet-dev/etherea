@@ -46,7 +46,8 @@ export class CartService {
         })
       );
   }
-  updateToCart(
+
+  updateCartItem(
     userId: number,
     productId: number,
     newQuantity: number
@@ -68,37 +69,20 @@ export class CartService {
         })
       );
   }
-  loadLocalCart(): Cart[] {
-    try {
-      return this.storageService.get(this.cartKey) || [];
-    } catch (error) {
-      console.error(
-        'An error occurred while loading cart data from local storage:',
-        error
-      );
-      return [];
-    }
+
+  getLocalCart(): Cart[] | null {
+    return this.storageService.get(this.cartKey);
   }
 
   saveLocalCart(cart: Cart[]): void {
-    try {
-      this.storageService.set(this.cartKey, cart);
-    } catch (error) {
-      console.error(
-        'An error occurred while saving cart data to local storage:',
-        error
-      );
-    }
+    this.storageService.set(this.cartKey, cart);
+  }
+
+  loadLocalCart(): Cart[] {
+    return this.storageService.get(this.cartKey) || [];
   }
 
   clearLocalCart(): void {
-    try {
-      this.storageService.remove(this.cartKey);
-    } catch (error) {
-      console.error(
-        'An error occurred while clearing cart data from local storage:',
-        error
-      );
-    }
+    this.storageService.remove(this.cartKey);
   }
 }

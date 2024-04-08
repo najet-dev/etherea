@@ -1,5 +1,6 @@
 package com.etherea.models;
 
+import com.etherea.enums.ProductType;
 import jakarta.persistence.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +16,8 @@ public class Product {
     private String name;
     private String description;
     private double price;
+    @Enumerated(EnumType.STRING)
+    private ProductType type;
     private int stockAvailable;
     private String benefits;
     private String usageTips;
@@ -25,10 +28,11 @@ public class Product {
     private List<CommandItem> commandItems = new ArrayList<>();
     public Product() {
     }
-    public Product(String name, String description, double price, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public Product(String name, String description, double price, ProductType type, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.type = type;
         this.stockAvailable = stockAvailable;
         this.benefits = benefits;
         this.usageTips = usageTips;
@@ -59,6 +63,13 @@ public class Product {
     }
     public void setPrice(double price) {
         this.price = price;
+    }
+    public ProductType getType() {
+        return type;
+    }
+
+    public void setType(ProductType type) {
+        this.type = type;
     }
     public int getStockAvailable() {
         return stockAvailable;

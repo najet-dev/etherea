@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, catchError, switchMap } from 'rxjs/operators';
-import { IProduct } from '../models/i-product';
+import { IProduct, ProductType } from '../models/i-product';
 import { ProductService } from 'src/app/services/product.service';
 import { ActivatedRoute } from '@angular/router';
 import { CartService } from 'src/app/services/cart.service'; // Importez le service de panier
@@ -26,6 +26,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       name: '',
       description: '',
       price: 0,
+      type: '',
       stockAvailable: 0,
       benefits: '',
       usageTips: '',
@@ -127,6 +128,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         name: '',
         description: '',
         price: 0,
+        type: '',
         stockAvailable: 0,
         benefits: '',
         usageTips: '',
