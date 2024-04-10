@@ -12,12 +12,26 @@ export class ProductService {
 
   constructor(private httpClient: HttpClient) {}
 
-  getProducts(
+  getProducts(limit: number = 0): Observable<IProduct[]> {
+    const url =
+      limit > 0
+        ? `${this.apiUrl}/products?limit=${limit}`
+        : `${this.apiUrl}/products`;
+    return this.httpClient.get<IProduct[]>(url).pipe(
+      catchError((error) => {
+        console.error('Error fetching products:', error);
+        console.error('Failed to load products. Please try again later.');
+        return [];
+      })
+    );
+  }
+
+  getProductsByType(
     type: string,
     page: number,
     size: number
   ): Observable<IProduct[]> {
-    const url = `${this.apiUrl}/products`;
+    const url = `${this.apiUrl}/products/type`;
     let params = new HttpParams();
     params = params.append('type', type);
     params = params.append('page', page.toString());

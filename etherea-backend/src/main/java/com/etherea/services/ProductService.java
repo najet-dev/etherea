@@ -26,6 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,7 +38,24 @@ public class ProductService {
     private ProductRepository productRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private static final String UPLOAD_DIR = "assets";
-    public List<ProductDTO> getProducts(Pageable pageable, ProductType type) {
+
+    public List<ProductDTO> getProducts(int limit) {
+        List<Product> facialProducts = productRepository.findByType(ProductType.FACE, PageRequest.of(0, limit / 2, Sort.by(Sort.Direction.ASC, "id"))).getContent();
+        List<Product> hairProducts = productRepository.findByType(ProductType.HAIR, PageRequest.of(0, limit / 2, Sort.by(Sort.Direction.ASC, "id"))).getContent();
+
+        List<Product> allProducts = new ArrayList<>();
+        allProducts.addAll(facialProducts);
+        allProducts.addAll(hairProducts);
+
+        // Mélanger la liste de tous les produits
+        Collections.shuffle(allProducts);
+
+        return allProducts.stream()
+                .map(ProductDTO::fromProduct)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
         Page<Product> productPage = productRepository.findByType(type, pageable);
         return productPage.getContent().stream()
                 .map(ProductDTO::fromProduct)
@@ -62,7 +81,6 @@ public class ProductService {
         if (fileName.contains("..")) {
             throw new IllegalArgumentException("Invalid file name");
         }
-
         try {
             Path uploadPath = Paths.get(UPLOAD_DIR);
             Files.createDirectories(uploadPath);
