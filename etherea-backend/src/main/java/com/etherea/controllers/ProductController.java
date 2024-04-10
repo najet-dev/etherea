@@ -29,12 +29,19 @@ public class ProductController {
     private ProductService productService;
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
+
     @GetMapping
+    public List<ProductDTO> getProducts() {
+        int limit = 10; // Limite de produits à récupérer pour chaque type
+        return productService.getProducts(limit);
+    }
+
+    @GetMapping("/type")
     public List<ProductDTO> getProductsByTypeAndPagination(@RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "10") int size,
                                                            @RequestParam ProductType type) {
         Pageable pageable = PageRequest.of(page, size);
-        return productService.getProducts(pageable, type);
+        return productService.getProductsByType(pageable, type);
     }
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {

@@ -20,7 +20,7 @@ export class HairComponent implements OnDestroy {
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
     this.products$ = this.productService
-      .getProducts('HAIR', page, size) // Utilisez 'hair' comme type pour les produits des cheveux
+      .getProductsByType('HAIR', page, size) // Utilisez 'hair' comme type pour les produits des cheveux
       .pipe(
         catchError((error) => {
           console.error('Error fetching hair products:', error);

@@ -21,7 +21,7 @@ export class CreamComponent implements OnDestroy {
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
     this.products$ = this.productService
-      .getProducts(productType, page, size)
+      .getProductsByType(productType, page, size)
       .pipe(
         catchError((error) => {
           console.error('Erreur lors de la récupération des produits :', error);
