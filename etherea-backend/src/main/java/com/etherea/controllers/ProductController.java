@@ -6,6 +6,7 @@ import com.etherea.exception.ProductNotFoundException;
 import com.etherea.services.ProductService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +29,10 @@ public class ProductController {
     @Autowired
     private ProductService productService;
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
-
-
     @GetMapping
-    public List<ProductDTO> getProducts() {
-        int limit = 10; // Limite de produits à récupérer pour chaque type
+    public List<ProductDTO> getProducts(@RequestParam(defaultValue = "10") int limit) {
         return productService.getProducts(limit);
     }
-
     @GetMapping("/type")
     public List<ProductDTO> getProductsByTypeAndPagination(@RequestParam(defaultValue = "0") int page,
                                                            @RequestParam(defaultValue = "10") int size,
@@ -56,6 +53,11 @@ public class ProductController {
     public ResponseEntity<String> saveProduct(@RequestParam("image") MultipartFile file,
                                               @RequestParam("product") String productJson) {
         try {
+            // Check if required parameters are present
+            if (file.isEmpty() || StringUtils.isBlank(productJson)) {
+                return ResponseEntity.badRequest().body("Required parameters are missing");
+            }
+
             logger.info("Request Body: {}", productJson);
 
             ObjectMapper objectMapper = new ObjectMapper();
@@ -72,6 +74,10 @@ public class ProductController {
             logger.error("Error reading file", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error reading file: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("An unexpected error occurred", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + e.getMessage());
         }
     }
     @PutMapping(value = "/update/{productId}", consumes = "multipart/form-data")

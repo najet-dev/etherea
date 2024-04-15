@@ -1,6 +1,7 @@
 package com.etherea.models;
 
 import com.etherea.enums.ProductType;
+import com.etherea.enums.StockStatus;
 import jakarta.persistence.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +19,8 @@ public class Product {
     private double price;
     @Enumerated(EnumType.STRING)
     private ProductType type;
-    private int stockAvailable;
+    @Enumerated(EnumType.STRING)
+    private StockStatus stockStatus;
     private String benefits;
     private String usageTips;
     private String ingredients;
@@ -28,12 +30,12 @@ public class Product {
     private List<CommandItem> commandItems = new ArrayList<>();
     public Product() {
     }
-    public Product(String name, String description, double price, ProductType type, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public Product(String name, String description, double price, ProductType type, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.type = type;
-        this.stockAvailable = stockAvailable;
+        this.stockStatus = stockStatus;
         this.benefits = benefits;
         this.usageTips = usageTips;
         this.ingredients = ingredients;
@@ -71,12 +73,13 @@ public class Product {
     public void setType(ProductType type) {
         this.type = type;
     }
-    public int getStockAvailable() {
-        return stockAvailable;
+    public StockStatus getStockStatus() {
+        return stockStatus;
     }
-    public void setStockAvailable(int stockAvailable) {
-        this.stockAvailable = stockAvailable;
+    public void setStockStatus(StockStatus stockStatus) {
+        this.stockStatus = stockStatus;
     }
+
     public String getBenefits() {
         return benefits;
     }

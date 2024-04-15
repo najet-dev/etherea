@@ -1,6 +1,7 @@
 package com.etherea.services;
 
 import com.etherea.enums.ProductType;
+import com.etherea.enums.StockStatus;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.models.Product;
 import com.etherea.repositories.ProductRepository;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -54,7 +56,6 @@ public class ProductService {
                 .map(ProductDTO::fromProduct)
                 .collect(Collectors.toList());
     }
-
     public List<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
         Page<Product> productPage = productRepository.findByType(type, pageable);
         return productPage.getContent().stream()
@@ -69,17 +70,16 @@ public class ProductService {
                     return new ProductNotFoundException("No product found with ID: " + id);
                 });
     }
-    public void saveProduct(ProductDTO productDTO, MultipartFile file) {
+    public ResponseEntity<String> saveProduct(ProductDTO productDTO, MultipartFile file) {
         createUploadDirectory();
 
         if (productDTO == null || file == null) {
-            throw new IllegalArgumentException("ProductDTO and file cannot be null");
+            return ResponseEntity.badRequest().body("ProductDTO and file cannot be null");
         }
-
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
         if (fileName.contains("..")) {
-            throw new IllegalArgumentException("Invalid file name");
+            return ResponseEntity.badRequest().body("Invalid file name");
         }
         try {
             Path uploadPath = Paths.get(UPLOAD_DIR);
@@ -91,16 +91,29 @@ public class ProductService {
             try (InputStream fileInputStream = file.getInputStream()) {
                 Files.copy(fileInputStream, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
             }
-
             productDTO.setImage(filePath);
 
             // Convert ProductDTO to Product
             Product product = convertToProduct(productDTO);
 
+            String message;
+            if (product.getStockStatus() == StockStatus.AVAILABLE) {
+                // Le produit est disponible
+                message = "Le produit " + product.getName() + " est disponible.";
+            } else if (product.getStockStatus() == StockStatus.OUT_OF_STOCK) {
+                // Le produit est en rupture de stock
+                message = "Le produit " + product.getName() + " est actuellement en rupture de stock.";
+            } else {
+                message = "Le statut du stock du produit est inconnu.";
+            }
+
             productRepository.save(product);
+
+            return ResponseEntity.ok(message);
         } catch (IOException e) {
             logger.error("Error saving product: {}", e.getMessage());
-            throw new RuntimeException("Error saving product", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error saving product: " + e.getMessage());
         }
     }
     private Product convertToProduct(ProductDTO productDTO) {
@@ -134,7 +147,7 @@ public class ProductService {
         existingProduct.setDescription(updatedProductDTO.getDescription());
         existingProduct.setPrice(updatedProductDTO.getPrice());
         existingProduct.setType(updatedProductDTO.getType());
-        existingProduct.setStockAvailable(updatedProductDTO.getStockAvailable());
+        existingProduct.setStockStatus(updatedProductDTO.getStockStatus());
         existingProduct.setBenefits(updatedProductDTO.getBenefits());
         existingProduct.setUsageTips(updatedProductDTO.getUsageTips());
         existingProduct.setIngredients(updatedProductDTO.getIngredients());
@@ -159,7 +172,6 @@ public class ProductService {
             try (InputStream fileInputStream = file.getInputStream()) {
                 Files.copy(fileInputStream, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
             }
-
             existingProduct.setImage(filePath);
             productRepository.save(existingProduct);
         } catch (IOException e) {
@@ -178,5 +190,6 @@ public class ProductService {
             throw new ProductNotFoundException("Product with id " + id + " not found");
         }
     }
-
 }
+
+

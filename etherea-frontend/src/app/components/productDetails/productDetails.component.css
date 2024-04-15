@@ -58,7 +58,9 @@ details {
   margin-top: 15px;
   white-space: pre-line; /* Permet d'afficher les sauts de ligne */
 }
-.characteristics::first-word,
-.ingredients::first-word {
-  font-weight: bold;
+.stock-available {
+  color: green;
+}
+.stock-out-of-stock {
+  color: red;
 }
