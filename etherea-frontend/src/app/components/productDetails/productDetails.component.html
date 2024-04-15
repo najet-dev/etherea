@@ -9,7 +9,15 @@
       <img class="logo" src="/assets/logo.png" alt="banner" />
       <p class="detail description">{{ product.description }}</p>
       <p class="detail">Prix : {{ product.price }} €</p>
-      <p class="detail">Stock disponible : {{ product.stockAvailable }}</p>
+      <p
+        class="detail"
+        [ngClass]="{
+          'stock-available': product.stockStatus === 'AVAILABLE',
+          'stock-out-of-stock': product.stockStatus === 'OUT_OF_STOCK'
+        }"
+      >
+        {{ stockMessage }}
+      </p>
 
       <label class="detail" for="quantityInput">Quantité :</label>
       <div *ngIf="limitReached" class="alert alert-warning">
