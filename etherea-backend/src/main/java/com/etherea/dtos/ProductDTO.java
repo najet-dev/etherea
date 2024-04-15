@@ -1,6 +1,7 @@
 package com.etherea.dtos;
 
 import com.etherea.enums.ProductType;
+import com.etherea.enums.StockStatus;
 import com.etherea.models.Product;
 
 public class ProductDTO {
@@ -9,8 +10,7 @@ public class ProductDTO {
     private String description;
     private double price;
     private ProductType type;
-
-    private int stockAvailable;
+    private StockStatus stockStatus;
     private String benefits;
     private String usageTips;
     private String ingredients;
@@ -20,13 +20,13 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
-    public ProductDTO(Long id, String name, String description, double price, ProductType type, int stockAvailable, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public ProductDTO(Long id, String name, String description, double price, ProductType type, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.price = price;
         this.type = type;
-        this.stockAvailable = stockAvailable;
+        this.stockStatus = stockStatus;
         this.benefits = benefits;
         this.usageTips = usageTips;
         this.ingredients = ingredients;
@@ -64,11 +64,11 @@ public class ProductDTO {
     public void setType(ProductType type) {
         this.type = type;
     }
-    public int getStockAvailable() {
-        return stockAvailable;
+    public StockStatus getStockStatus() {
+        return stockStatus;
     }
-    public void setStockAvailable(int stockAvailable) {
-        this.stockAvailable = stockAvailable;
+    public void setStockStatus(StockStatus stockStatus) {
+        this.stockStatus = stockStatus;
     }
     public String getBenefits() {
         return benefits;
@@ -101,7 +101,7 @@ public class ProductDTO {
         this.image = image;
     }
     public static ProductDTO fromProduct(Product product) {
-        return new ProductDTO(product.getId(), product.getName(), product.getDescription(), product.getPrice(),product.getType(), product.getStockAvailable(), product.getBenefits(), product.getUsageTips(), product.getIngredients(), product.getCharacteristics(), product.getImage());
+        return new ProductDTO(product.getId(), product.getName(), product.getDescription(), product.getPrice(),product.getType(), product.getStockStatus(), product.getBenefits(), product.getUsageTips(), product.getIngredients(), product.getCharacteristics(), product.getImage());
     }
     public Product toProduct() {
         Product product = new Product();
@@ -109,7 +109,7 @@ public class ProductDTO {
         product.setName(this.name);
         product.setDescription(this.description);
         product.setPrice(this.price);
-        product.setStockAvailable(this.stockAvailable);
+        product.setStockStatus(this.stockStatus);
         product.setBenefits(this.benefits);
         product.setUsageTips(this.usageTips);
         product.setIngredients(this.ingredients);

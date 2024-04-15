@@ -4,7 +4,7 @@ import { takeUntil, catchError, switchMap } from 'rxjs/operators';
 import { IProduct, ProductType } from '../models/i-product';
 import { ProductService } from 'src/app/services/product.service';
 import { ActivatedRoute } from '@angular/router';
-import { CartService } from 'src/app/services/cart.service'; // Importez le service de panier
+import { CartService } from 'src/app/services/cart.service';
 import { Cart } from '../models/cart.model';
 import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -27,7 +27,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       description: '',
       price: 0,
       type: '',
-      stockAvailable: 0,
+      stockStatus: '',
       benefits: '',
       usageTips: '',
       ingredients: '',
@@ -36,6 +36,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     },
   };
   limitReached = false;
+
+  stockMessage: string = ''; // Ajoutez cette variable pour stocker le message d'état du stock
 
   private destroy$ = new Subject<void>();
 
@@ -64,6 +66,15 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         this.product = product;
         this.cartItem.productId = product.id;
         this.cartItem.product = { ...product }; // Copiez les propriétés du produit dans cartItem.product
+
+        // Déterminez le message d'état du stock
+        if (product.stockStatus === 'AVAILABLE') {
+          this.stockMessage = `Le produit est disponible.`;
+        } else if (product.stockStatus === 'OUT_OF_STOCK') {
+          this.stockMessage = `Le produit est actuellement en rupture de stock.`;
+        } else {
+          this.stockMessage = 'Le statut du stock du produit est inconnu.';
+        }
       });
   }
 
@@ -83,6 +94,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       this.cartItem.quantity--;
     }
   }
+
   addToCart(): void {
     // Calcul de la quantité et du sous-total
     const subTotal = this.cartItem.quantity * this.cartItem.product.price;
@@ -129,7 +141,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         description: '',
         price: 0,
         type: '',
-        stockAvailable: 0,
+        stockStatus: '',
         benefits: '',
         usageTips: '',
         ingredients: '',

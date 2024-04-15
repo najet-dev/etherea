@@ -4,7 +4,7 @@ export interface IProduct {
   description: string;
   price: number;
   type: string;
-  stockAvailable: number;
+  stockStatus: string;
   benefits: String;
   usageTips: String;
   ingredients: String;
