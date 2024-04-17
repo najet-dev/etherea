@@ -1,27 +1,35 @@
-<div class="modal-header">
-  <button mat-icon-button mat-dialog-close>
-    <mat-icon aria-label="Close dialog">close</mat-icon>
-  </button>
-</div>
+<div class="modal-container">
+  <div class="modal-header">
+    <button mat-icon-button mat-dialog-close class="close-button">
+      <mat-icon aria-label="Close dialog">close</mat-icon>
+    </button>
+  </div>
 
-<div>
-  <img
-    *ngIf="data.product && data.product.image"
-    [src]="data.product.image"
-    alt="Product Image"
-    width="60px"
-  />
-  <h2>{{ data.product.name }}</h2>
-  <p>Description: {{ data.product.description }}</p>
-</div>
-<div>
-  <p>Prix: {{ data.product.price | number : ".2-2" }}</p>
-  <p>Quantité: {{ data.quantity }}</p>
-  <p>Sous-total: {{ data.subTotal | number : ".2-2" }} €</p>
-</div>
-<div class="modal-buttons">
-  <button mat-button (click)="goToShopping(data.product.id)">
-    Continuer les achats
-  </button>
-  <button mat-button (click)="goToCart()">Voir le panier</button>
+  <div class="modal-content">
+    <div class="image-container">
+      <img
+        *ngIf="data.product && data.product.image"
+        [src]="data.product.image"
+        alt="Product Image"
+        class="product-image"
+      />
+    </div>
+
+    <div class="text-and-buttons-container">
+      <div class="text-container">
+        <h2>{{ data.product.name }}</h2>
+        <p>{{ data.product.description }}</p>
+        <p>Prix: {{ data.product.price | number : ".2-2" }}</p>
+        <p>Quantité: {{ data.quantity }}</p>
+        <p>Sous-total: {{ data.subTotal | number : ".2-2" }} €</p>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="btn-primary" (click)="goToShopping(data.product.id)">
+          Continuer les achats
+        </button>
+        <button class="btn-primary" (click)="goToCart()">Voir le panier</button>
+      </div>
+    </div>
+  </div>
 </div>

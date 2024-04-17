@@ -2,17 +2,17 @@ package com.etherea.services;
 
 import com.etherea.dtos.CartItemDTO;
 import com.etherea.exception.CartItemNotFoundException;
-import com.etherea.models.CartItem;
+import com.etherea.models.*;
 import com.etherea.dtos.ProductDTO;
 import com.etherea.dtos.UserDTO;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.models.CartItem;
-import com.etherea.models.Product;
-import com.etherea.models.User;
 import com.etherea.repositories.CartItemRepository;
 import com.etherea.repositories.ProductRepository;
 import com.etherea.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +29,8 @@ public class CartItemService {
     private UserRepository userRepository;
     @Autowired
     private ProductRepository productRepository;
+    private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
+
 
     public List<CartItemDTO> getCartItemsByUserId(Long userId) {
         User user = userRepository.findById(userId)
@@ -122,6 +124,16 @@ public class CartItemService {
             }
         } else {
             throw new CartItemNotFoundException("Élément de panier non trouvé pour l'utilisateur avec l'ID " + userId + " et le produit avec l'ID " + productId);
+        }
+    }
+    public void deleteCartItem(Long id) {
+        Optional<CartItem> existingCart = cartItemRepository.findById(id);
+
+        if (existingCart.isPresent()) {
+            cartItemRepository.deleteById(id);
+        } else {
+            logger.warn("Cart with id {} not found", id);
+            throw new ProductNotFoundException("Cart with id " + id + " not found");
         }
     }
 }
