@@ -1,5 +1,9 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogConfig,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { IProduct } from '../models/i-product';
 import { Cart } from '../models/cart.model';
@@ -23,10 +27,12 @@ export class ProductSummaryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('Quantity:', this.data.quantity);
-    console.log('Subtotal:', this.data.subTotal);
+    // Définir la configuration de la modal
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.width = '60%'; // 50% de la largeur de la fenêtre
+    dialogConfig.height = '80%'; // 70% de la hauteur de la fenêtre
+    this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height);
   }
-
   continueShopping(): void {
     this.dialogRef.close();
   }

@@ -1,0 +1,23 @@
+.product-image {
+  width: 60%;
+  height: 60%; /* Hauteur fixe pour toutes les images */
+  object-fit: cover; /* Ajuster l'image pour couvrir le conteneur */
+  cursor: pointer;
+  margin-top: 30px;
+  transition: transform 0.3s;
+}
+
+.card-body {
+  margin-bottom: 35px;
+}
+.card {
+  width: 100%;
+  border: 1px solid black;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Ajout de la transition pour l'ombre */
+  height: 100%; /* Ajustement de la hauteur pour correspondre à celle de l'image */
+}
+
+.card:hover {
+  border-color: green;
+  box-shadow: 0 0 30px rgba(0, 128, 0, 0.5); /* Ajout de l'ombre au survol */
+}

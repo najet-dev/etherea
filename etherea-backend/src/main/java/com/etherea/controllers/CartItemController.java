@@ -64,4 +64,13 @@ public class CartItemController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {
+        try {
+            cartItemService.deleteCartItem(id);
+            return ResponseEntity.noContent().build();
+        } catch (CartItemNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
