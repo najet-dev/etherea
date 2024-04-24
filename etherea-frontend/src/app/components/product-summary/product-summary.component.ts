@@ -29,8 +29,8 @@ export class ProductSummaryComponent implements OnInit {
   ngOnInit(): void {
     // Définir la configuration de la modal
     const dialogConfig = new MatDialogConfig();
-    dialogConfig.width = '60%'; // 50% de la largeur de la fenêtre
-    dialogConfig.height = '80%'; // 70% de la hauteur de la fenêtre
+    dialogConfig.width = '60%'; // 60% de la largeur de la fenêtre
+    dialogConfig.height = '80%'; // 80% de la hauteur de la fenêtre
     this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height);
   }
   continueShopping(): void {

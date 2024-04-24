@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
+import { Cart } from '../components/models/cart.model';
 
 const TOKEN_KEY = 'auth-token'; // Utilisez TOKEN_KEY pour stocker le token JWT
 const cartKey = 'cartItems'; // Clé pour stocker le panier dans le stockage local
@@ -48,7 +49,7 @@ export class StorageService {
     return value ? JSON.parse(value) : null;
   }
 
-  set(key: string, value: any): void {
+  set(key: string, value: Cart): void {
     localStorage.setItem(key, JSON.stringify(value));
   }
 
@@ -56,11 +57,19 @@ export class StorageService {
     localStorage.removeItem(key);
   }
 
-  saveLocalCart(cart: any): void {
+  saveLocalCart(cart: Cart): void {
     this.set(cartKey, cart);
   }
 
-  loadLocalCart(): any {
+  loadLocalCart(): Cart[] {
     return this.get(cartKey);
+  }
+
+  getItem(key: string): string | null {
+    return localStorage.getItem(key);
+  }
+
+  setItem(key: string, value: string): void {
+    localStorage.setItem(key, value);
   }
 }

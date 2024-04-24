@@ -126,6 +126,37 @@ public class CartItemService {
             throw new CartItemNotFoundException("Élément de panier non trouvé pour l'utilisateur avec l'ID " + userId + " et le produit avec l'ID " + productId);
         }
     }
+    public void associateLocalCartWithUser(Long userId, List<CartItemDTO> localCartItems) {
+        // Recherche de l'utilisateur dans la base de données
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'ID : " + userId));
+
+        for (CartItemDTO cartItemDTO : localCartItems) {
+            // Recherche du produit dans la base de données à partir de l'ID du produit
+            Product product = productRepository.findById(cartItemDTO.getProductId())
+                    .orElseThrow(() -> new ProductNotFoundException("Produit non trouvé avec l'ID : " + cartItemDTO.getProductId()));
+
+            // Vérifiez si le produit est déjà dans le panier de l'utilisateur
+            CartItem existingCartItem = cartItemRepository.findByUserAndProduct(user, product);
+
+            if (existingCartItem != null) {
+                // Si le produit est déjà dans le panier, mettre à jour la quantité
+                int newQuantity = existingCartItem.getQuantity() + cartItemDTO.getQuantity();
+                existingCartItem.setQuantity(newQuantity);
+            } else {
+                // Si le produit n'est pas dans le panier, créer un nouvel élément de panier
+                CartItem newCartItem = new CartItem();
+                newCartItem.setUser(user);
+                newCartItem.setProduct(product);
+                newCartItem.setQuantity(cartItemDTO.getQuantity());
+                existingCartItem = newCartItem; // Mis à jour pour éviter les confusions
+            }
+
+            // Sauvegarde ou mise à jour de l'élément de panier dans la base de données
+            cartItemRepository.save(existingCartItem);
+        }
+    }
+
     public void deleteCartItem(Long id) {
         Optional<CartItem> existingCart = cartItemRepository.findById(id);
 

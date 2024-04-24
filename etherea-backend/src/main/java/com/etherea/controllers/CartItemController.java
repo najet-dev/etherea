@@ -64,6 +64,16 @@ public class CartItemController {
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
     }
+    // Endpoint pour associer le panier local à un utilisateur
+    @PostMapping("/associate/{userId}")
+    public ResponseEntity<String> associateLocalCartWithUser(@PathVariable Long userId, @RequestBody List<CartItemDTO> localCartItems) {
+        try {
+            cartItemService.associateLocalCartWithUser(userId, localCartItems);
+            return new ResponseEntity<>("Panier associé avec succès à l'utilisateur", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {
         try {

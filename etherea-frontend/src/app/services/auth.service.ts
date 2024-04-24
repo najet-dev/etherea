@@ -57,7 +57,6 @@ export class AuthService {
           this.AuthenticatedUser$.next(signin);
           console.log('User signed in successfully:', signin);
           // Vider et sauvegarder le panier local lorsque l'utilisateur se connecte
-          this.cartService.clearLocalCart();
           console.log('Local cart cleared.');
         })
       );
@@ -72,12 +71,10 @@ export class AuthService {
       .post(`${this.apiUrl}/api/auth/logout`, {}, { headers })
       .pipe(
         tap(() => {
-          this.storageService.clean();
           this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
         }),
         catchError((error) => {
-          this.storageService.clean();
           this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
           return throwError(() => error);
@@ -87,6 +84,8 @@ export class AuthService {
   }
 
   getCurrentUser(): Observable<SigninRequest | null> {
-    return this.AuthenticatedUser$.asObservable();
+    return this.AuthenticatedUser$.asObservable().pipe(
+      tap((user) => console.log('Current user:', user))
+    );
   }
 }

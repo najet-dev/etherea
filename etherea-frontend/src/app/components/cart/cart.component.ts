@@ -13,6 +13,7 @@ export class CartComponent implements OnInit {
   cartItems: Cart[] = [];
   cartTotal: number = 0; // Ajouter la propriété pour stocker le total du panier
   userId!: number; // Déclaration de l'ID de l'utilisateur
+  isCartEmpty: boolean = true;
 
   constructor(
     private cartService: CartService,
@@ -39,18 +40,22 @@ export class CartComponent implements OnInit {
       }
     });
   }
-
   loadCartItems() {
+    console.log(
+      "Chargement des éléments du panier pour l'utilisateur avec l'ID :",
+      this.userId
+    );
     this.cartService.getCartItems(this.userId).subscribe({
       next: (cartItems) => {
+        console.log('Cart items received in component:', cartItems);
         this.cartItems = cartItems;
-        // Récupérer les détails du produit pour chaque élément du panier
+        this.isCartEmpty = this.cartItems.length === 0;
         for (let i = 0; i < this.cartItems.length; i++) {
           const item = this.cartItems[i];
           this.productService.getProductById(item.productId).subscribe({
             next: (product) => {
-              item.product = product; // Ajouter les détails du produit à l'élément du panier
-              this.calculateCartTotal(); // Recalculer le total du panier à chaque chargement des éléments du panier
+              item.product = product;
+              this.calculateCartTotal();
             },
             error: (error) => {
               console.log('Erreur lors de la récupération du produit :', error);
@@ -91,8 +96,9 @@ export class CartComponent implements OnInit {
           );
           if (index !== -1) {
             this.cartItems[index] = updatedItem;
-            this.calculateCartTotal(); // Recalculer le total du panier après avoir mis à jour l'élément du panier
           }
+          // Recalculer les sous-totaux et le total du panier
+          this.calculateCartTotal();
         },
         error: (error) => {
           console.error(
@@ -112,5 +118,11 @@ export class CartComponent implements OnInit {
     }
     // Formater le total du panier avec deux chiffres après la virgule
     this.cartTotal = parseFloat(this.cartTotal.toFixed(2));
+  }
+  deleteCartItem(item: Cart): void {
+    this.cartService.deleteCartItem(item.id).subscribe(() => {
+      // Envoyer une requête pour supprimer l'élément du panier
+      this.loadCartItems(); // Recharger les éléments du panier après la suppression
+    });
   }
 }

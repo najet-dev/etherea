@@ -1,7 +1,12 @@
-<div class="container mt-5">
-  <h2 class="mb-4">Panier</h2>
+<div *ngIf="isCartEmpty" class="container mt-5">
+  <h2 class="mb-4">Votre Panier</h2>
+  <p>Votre panier ne contient actuellement aucun article.</p>
+</div>
 
+<div *ngIf="!isCartEmpty" class="container mt-5">
+  <!-- Tableau pour afficher les articles dans le panier -->
   <table class="table">
+    <!-- Header du tableau -->
     <thead>
       <tr>
         <th scope="col">Description</th>
@@ -10,8 +15,11 @@
         <th scope="col">Sous-Total</th>
       </tr>
     </thead>
+    <!-- Corps du tableau -->
     <tbody>
+      <!-- Boucle sur les articles du panier -->
       <tr *ngFor="let item of cartItems">
+        <!-- Colonne de la description -->
         <td>
           <!-- Afficher les détails du produit -->
           <img
@@ -31,11 +39,12 @@
             *ngIf="item.product"
             [routerLink]="['/productDetails', item.product.id]"
           >
-            Description: {{ item.product.description }}
+            {{ item.product.description }}
           </p>
         </td>
-        <td>{{ item.product && item.product.price | number : ".2-2" }}</td>
-        <!-- Afficher le prix de l'article -->
+        <!-- Colonne du prix -->
+        <td>{{ item.product && item.product.price | number : ".2-2" }} €</td>
+        <!-- Colonne de la quantité -->
         <td>
           <button class="quantity-btn" (click)="decrementQuantity(item)">
             -
@@ -45,9 +54,20 @@
             +
           </button>
         </td>
+        <!-- Colonne du sous-total -->
         <td>{{ item.subTotal | number : ".2-2" }}</td>
+        <!-- Colonne pour supprimer l'article -->
+        <td>
+          <button
+            class="delete-btn close-button"
+            (click)="deleteCartItem(item)"
+          >
+            &#10006;
+          </button>
+        </td>
       </tr>
     </tbody>
+    <!-- Footer du tableau -->
     <tfoot>
       <tr>
         <td colspan="2"></td>

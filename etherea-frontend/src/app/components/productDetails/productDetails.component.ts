@@ -18,6 +18,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   product: IProduct | null = null;
 
   cartItem: Cart = {
+    id: 1,
     userId: 1,
     productId: 1,
     quantity: 1,
@@ -132,6 +133,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   resetCartItem(): void {
     this.cartItem = {
+      id: 1,
       userId: 1,
       productId: 1,
       quantity: 1,
