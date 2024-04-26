@@ -35,7 +35,7 @@ export class CartComponent implements OnInit {
         this.loadCartItems();
       } else {
         // Si l'utilisateur n'est pas connecté, utilisez une valeur par défaut pour l'ID de l'utilisateur
-        this.userId = 1; // ou toute autre valeur par défaut
+        this.userId = 1; // valeur par défaut
         this.loadCartItems();
       }
     });

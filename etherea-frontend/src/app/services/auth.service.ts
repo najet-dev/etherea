@@ -20,8 +20,7 @@ export class AuthService {
   constructor(
     private httpClient: HttpClient,
     private storageService: StorageService,
-    private router: Router,
-    private cartService: CartService
+    private router: Router
   ) {}
 
   signup(signupData: SignupRequest): Observable<SignupRequest> {
