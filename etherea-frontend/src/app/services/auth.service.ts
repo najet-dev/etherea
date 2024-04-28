@@ -62,24 +62,33 @@ export class AuthService {
   }
 
   logout(): void {
+    console.log('Logging out from AuthService'); // Vérifiez si la méthode est appelée
     const token = this.storageService.getToken();
 
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    if (token) {
+      const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.httpClient
-      .post(`${this.apiUrl}/api/auth/logout`, {}, { headers })
-      .pipe(
-        tap(() => {
-          this.AuthenticatedUser$.next(null);
-          this.router.navigate(['/signin']);
-        }),
-        catchError((error) => {
-          this.AuthenticatedUser$.next(null);
-          this.router.navigate(['/signin']);
-          return throwError(() => error);
-        })
-      )
-      .subscribe();
+      this.httpClient
+        .post(`${this.apiUrl}/api/auth/logout`, {}, { headers })
+        .pipe(
+          tap(() => {
+            this.storageService.removeToken();
+            this.storageService.setLoggedIn(false); // Mise à jour correcte de l'état de connexion
+            console.log('Reloading the page'); // Confirmation
+            window.location.reload(); // Actualiser la page
+          }),
+          catchError((error) => {
+            this.storageService.removeToken();
+            this.storageService.setLoggedIn(false); // Mise à jour correcte de l'état de connexion
+            return throwError(() => error);
+          })
+        )
+        .subscribe();
+    } else {
+      this.storageService.setLoggedIn(false); // Mise à jour correcte de l'état de connexion
+      console.log('Reloading the page'); // Confirmation
+      window.location.reload(); // Actualiser la page
+    }
   }
 
   getCurrentUser(): Observable<SigninRequest | null> {

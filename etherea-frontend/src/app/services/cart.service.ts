@@ -29,10 +29,8 @@ export class CartService {
 
   // Méthodes pour interagir avec le backend
   getCartItems(userId: number): Observable<Cart[]> {
-    // Obtenir les éléments du panier du stockage local
-    const localCartItems = this.storageService.loadLocalCart() || [];
+    const localCartItems = this.loadLocalCart() || [];
 
-    // Si l'utilisateur est connecté, obtenir les éléments du panier depuis le backend
     if (userId) {
       return this.httpClient.get<Cart[]>(`${this.apiUrl}/cart/${userId}`).pipe(
         catchError((error) => {
@@ -40,12 +38,41 @@ export class CartService {
           return throwError(() => error);
         }),
         map((backendCartItems: Cart[]) => {
-          // Fusionner les éléments du panier du backend avec ceux du stockage local
-          return [...localCartItems, ...backendCartItems];
+          // Fusion correcte des éléments du panier
+          const mergedCart: Cart[] = [];
+
+          // Créer une carte pour suivre les quantités
+          const quantityMap = new Map<number, number>();
+
+          // Ajouter les éléments du backend au panier fusionné
+          backendCartItems.forEach((item) => {
+            mergedCart.push(item);
+            quantityMap.set(item.productId, item.quantity);
+          });
+
+          // Ajouter les éléments du panier local
+          localCartItems.forEach((item) => {
+            if (quantityMap.has(item.productId)) {
+              // Si le produit existe déjà, mettre à jour la quantité
+              const updatedQuantity =
+                (quantityMap.get(item.productId) || 0) + item.quantity;
+              const index = mergedCart.findIndex(
+                (cartItem) => cartItem.productId === item.productId
+              );
+              if (index !== -1) {
+                mergedCart[index].quantity = updatedQuantity;
+              }
+            } else {
+              // Sinon, ajouter le produit
+              mergedCart.push(item);
+              quantityMap.set(item.productId, item.quantity);
+            }
+          });
+
+          return mergedCart;
         })
       );
     } else {
-      // Si l'utilisateur n'est pas connecté, renvoyer simplement les éléments du panier du stockage local
       return of(localCartItems);
     }
   }
@@ -66,11 +93,25 @@ export class CartService {
           })
         );
     } else {
+      // Charger le panier local
       let localCart = this.loadLocalCart();
-      localCart.push(cart);
+
+      // Vérifier si le produit existe déjà
+      const existingProductIndex = localCart.findIndex(
+        (item) => item.productId === cart.productId
+      );
+
+      if (existingProductIndex !== -1) {
+        // Si le produit existe, mettre à jour la quantité
+        localCart[existingProductIndex].quantity += cart.quantity;
+      } else {
+        // Sinon, ajouter le produit
+        localCart.push(cart);
+      }
+
       this.saveLocalCart(localCart);
-      // Emit an event to indicate that the cart has been updated
       this.cartUpdated.next();
+
       return new Observable<Cart>((observer) => {
         observer.next(cart);
         observer.complete();
@@ -78,29 +119,91 @@ export class CartService {
     }
   }
 
-  updateCartItem(
-    userId: number,
-    productId: number,
-    newQuantity: number
-  ): Observable<Cart> {
-    const params = new HttpParams().set('newQuantity', newQuantity.toString());
+  saveLocalCartToBackend(userId: number): void {
+    const localCart = this.loadLocalCart();
+    const uniqueProducts = new Set<number>();
 
-    return this.httpClient
-      .put<Cart>(`${this.apiUrl}/cart/${userId}/products/${productId}`, null, {
-        params,
-      })
-      .pipe(
-        catchError((error) => {
-          console.error('Error updating cart item quantity:', error);
-          return throwError(() => error);
-        }),
-        tap(() => {
-          // Émettre l'événement une fois que la mise à jour du panier est effectuée avec succès
-          this.cartUpdated.emit();
-        })
-      );
+    localCart.forEach((cartItem) => {
+      if (!uniqueProducts.has(cartItem.productId)) {
+        const params = new HttpParams()
+          .set('userId', userId.toString())
+          .set('productId', cartItem.productId.toString())
+          .set('quantity', cartItem.quantity.toString());
+
+        this.httpClient
+          .post(`${this.apiUrl}/cart/addToCart`, null, { params })
+          .pipe(
+            catchError((error) => {
+              console.error('Error adding product to cart:', error);
+              return throwError(() => error);
+            })
+          )
+          .subscribe(() => {
+            console.log('Cart item added to backend successfully.');
+          });
+
+        uniqueProducts.add(cartItem.productId); // Éviter les doublons
+      }
+    });
   }
 
+  updateCartItem(productId: number, newQuantity: number): Observable<void> {
+    if (this.userId !== null) {
+      // Si l'utilisateur est connecté, mettre à jour le panier du backend
+      const params = new HttpParams().set(
+        'newQuantity',
+        newQuantity.toString()
+      );
+
+      return this.httpClient
+        .put<void>(
+          `${this.apiUrl}/cart/${this.userId}/products/${productId}`,
+          null,
+          {
+            params,
+          }
+        )
+        .pipe(
+          catchError((error) => {
+            console.error(
+              'Erreur lors de la mise à jour du panier dans le backend:',
+              error
+            );
+            return throwError(() => error);
+          }),
+          tap(() => {
+            console.log('Mise à jour du panier du backend réussie');
+            this.cartUpdated.emit(); // Émettre l'événement de mise à jour
+          })
+        );
+    } else {
+      // Si l'utilisateur n'est pas connecté, mettre à jour le panier local
+      let localCart = this.loadLocalCart(); // Charger le panier local
+
+      const itemIndex = localCart.findIndex(
+        (item) => item.productId === productId
+      );
+
+      if (itemIndex !== -1) {
+        // Mettre à jour la quantité du produit dans le panier local
+        localCart[itemIndex].quantity = newQuantity;
+
+        // Sauvegarder le panier local
+        this.saveLocalCart(localCart);
+
+        this.cartUpdated.emit(); // Émettre l'événement de mise à jour
+      } else {
+        console.warn('Produit non trouvé dans le panier local.');
+      }
+
+      return of();
+    }
+  }
+
+  // Event for cart updates
+  getCartUpdatedEvent(): Observable<void> {
+    return this.cartUpdated.asObservable();
+  }
   // Delete cart item
   deleteCartItem(id: number): Observable<Cart | null> {
     // Modifier le type de retour pour inclure null
@@ -140,26 +243,6 @@ export class CartService {
     const cart: Cart[] = cartJson ? JSON.parse(cartJson) : [];
     return cart;
   }
-  // Lorsque l'utilisateur se connecte
-
-  // Synchronisation du panier local avec le panier du serveur
-  private syncCartWithServer(
-    localCart: Cart[],
-    userId: number
-  ): Observable<void> {
-    return this.httpClient
-      .put<void>(`${this.apiUrl}/cart/${userId}`, localCart)
-      .pipe(
-        catchError((error) => {
-          console.error('Error syncing cart with server:', error);
-          throw error;
-        }),
-        tap(() => {
-          console.log('Cart synchronized with server successfully');
-        })
-      );
-  }
-
   // Méthode pour vider le panier local
   private clearLocalCart(): void {
     this.storageService.clean();

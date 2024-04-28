@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
-import { SigninRequest } from '../models/signinRequest.model';
 
 @Component({
   selector: 'app-signup',

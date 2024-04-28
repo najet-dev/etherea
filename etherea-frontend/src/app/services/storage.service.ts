@@ -24,9 +24,15 @@ export class StorageService {
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }
+  removeToken(): void {
+    localStorage.removeItem(TOKEN_KEY);
+  }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+  setLoggedIn(isLoggedIn: boolean): void {
+    this.isLoggedInSubject.next(isLoggedIn); // mettre à jour l'état
   }
 
   isLoggedInObservable(): Observable<boolean> {
@@ -36,7 +42,7 @@ export class StorageService {
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     this.isLoggedInSubject.next(false);
-    this.router.navigate(['/signin']); // Rediriger vers la page de connexion après la déconnexion
+    this.router.navigate(['/signin']); // Redirection vers la page de connexion
   }
 
   clean(): void {
@@ -57,12 +63,20 @@ export class StorageService {
     localStorage.removeItem(key);
   }
 
-  saveLocalCart(cart: Cart): void {
-    this.set(cartKey, cart);
+  // saveLocalCart(cart: Cart): void {
+  //   this.set(cartKey, cart);
+  // }
+  saveLocalCart(cart: Cart[]): void {
+    const cartJson = JSON.stringify(cart);
+    this.setItem(cartKey, cartJson);
   }
 
+  // loadLocalCart(): Cart[] {
+  //   return this.get(cartKey);
+  // }
   loadLocalCart(): Cart[] {
-    return this.get(cartKey);
+    const cartJson = this.getItem(cartKey);
+    return cartJson ? JSON.parse(cartJson) : [];
   }
 
   getItem(key: string): string | null {

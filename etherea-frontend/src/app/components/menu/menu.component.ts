@@ -23,23 +23,21 @@ export class MenuComponent implements OnInit {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => {
-        console.log('Navigation event:', event); // Ajout d'un console.log pour vérifier les événements de navigation
-        this.closeBurgerMenu();
+        console.log('Navigation event:', event); // Pour voir si la navigation se fait
       });
   }
 
   ngOnInit(): void {
-    this.isLoggedIn = this.storageService.isLoggedIn();
-    this.storageService
-      .isLoggedInObservable()
-      .subscribe((loggedIn: boolean) => {
-        console.log('Is logged in:', loggedIn); // Ajout d'un console.log pour vérifier l'état de connexion
-        this.isLoggedIn = loggedIn;
-      });
+    console.log('MenuComponent initialized'); // Confirmation de l'initialisation
+
+    this.storageService.isLoggedInObservable().subscribe((isLoggedIn) => {
+      console.log('Login status:', isLoggedIn); // Vérifiez l'état de connexion
+      this.isLoggedIn = isLoggedIn; // Mettre à jour le statut de connexion
+    });
   }
 
   isCurrentRoute(route: string): boolean {
-    return this.router.url === route || this.router.url === '/'; // Ajout de la vérification pour la route '/'
+    return this.router.url === route && route !== '/';
   }
 
   toggleBurgerMenu() {
@@ -51,11 +49,10 @@ export class MenuComponent implements OnInit {
     this.isBurgerMenuOpen = false;
     this.isBurgerIconVisible = true; // Rétablir la visibilité de l'icône du menu burger
   }
-
   logout() {
-    console.log('Logging out'); // Ajout d'un message de log pour vérifier que la fonction est appelée
-
-    // Appel à la méthode logout() du service AuthService
-    this.authService.logout();
+    console.log('Logging out'); // Confirmation que la méthode est appelée
+    this.authService.logout(); // Appel à la méthode de déconnexion
+    this.router.navigate(['/signin']); // Redirection vers la page de connexion
+    console.log('Redirecting to /signin'); // Confirmez la redirection
   }
 }

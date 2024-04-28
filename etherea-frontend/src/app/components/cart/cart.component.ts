@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CartService } from 'src/app/services/cart.service';
 import { Cart } from 'src/app/components/models/cart.model';
 import { ProductService } from 'src/app/services/product.service';
-import { AuthService } from 'src/app/services/auth.service'; // Ajout du service AuthService
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-cart',
@@ -11,63 +11,63 @@ import { AuthService } from 'src/app/services/auth.service'; // Ajout du service
 })
 export class CartComponent implements OnInit {
   cartItems: Cart[] = [];
-  cartTotal: number = 0; // Ajouter la propriété pour stocker le total du panier
-  userId!: number; // Déclaration de l'ID de l'utilisateur
+  cartTotal: number = 0;
+  userId!: number;
   isCartEmpty: boolean = true;
 
   constructor(
     private cartService: CartService,
     private productService: ProductService,
-    private authService: AuthService // Injection du service AuthService
+    private authService: AuthService
   ) {
-    // Écouter l'événement de mise à jour du panier
+    // Écoute l'événement de mise à jour du panier
     this.cartService.cartUpdated.subscribe(() => {
-      // Recharger les données du panier
       this.loadCartItems();
     });
   }
 
   ngOnInit(): void {
-    // Récupérer l'ID de l'utilisateur actuel, s'il est connecté
+    // Récupérer l'ID de l'utilisateur actuel
     this.authService.getCurrentUser().subscribe((user) => {
       if (user) {
         this.userId = user.id;
+
+        // Sauvegarder le panier local dans la base de données
+        this.cartService.saveLocalCartToBackend(this.userId);
+
+        // Charger les éléments du panier
         this.loadCartItems();
       } else {
-        // Si l'utilisateur n'est pas connecté, utilisez une valeur par défaut pour l'ID de l'utilisateur
-        this.userId = 1; // valeur par défaut
+        // Si non connecté, charger le panier local
         this.loadCartItems();
       }
     });
   }
+
   loadCartItems() {
-    console.log(
-      "Chargement des éléments du panier pour l'utilisateur avec l'ID :",
-      this.userId
-    );
     this.cartService.getCartItems(this.userId).subscribe({
       next: (cartItems) => {
-        console.log('Cart items received in component:', cartItems);
         this.cartItems = cartItems;
         this.isCartEmpty = this.cartItems.length === 0;
-        for (let i = 0; i < this.cartItems.length; i++) {
-          const item = this.cartItems[i];
+
+        // Charger les produits associés
+        for (const item of this.cartItems) {
           this.productService.getProductById(item.productId).subscribe({
             next: (product) => {
               item.product = product;
               this.calculateCartTotal();
             },
             error: (error) => {
-              console.log('Erreur lors de la récupération du produit :', error);
+              console.error(
+                'Erreur lors de la récupération du produit :',
+                error
+              );
             },
           });
         }
       },
       error: (error) => {
-        console.log(
-          'Erreur lors de la récupération des éléments du panier :',
-          error
-        );
+        console.error('Erreur lors de la récupération du panier :', error);
       },
     });
   }
@@ -85,44 +85,52 @@ export class CartComponent implements OnInit {
   }
 
   updateCartItem(item: Cart): void {
-    this.cartService
-      .updateCartItem(this.userId, item.productId, item.quantity)
-      .subscribe({
-        next: (updatedItem) => {
-          console.log('Élément du panier mis à jour avec succès');
-          // Mettre à jour l'élément du panier dans votre liste cartItems avec les données mises à jour
-          const index = this.cartItems.findIndex(
-            (cartItem) => cartItem.productId === updatedItem.productId
-          );
-          if (index !== -1) {
-            this.cartItems[index] = updatedItem;
-          }
-          // Recalculer les sous-totaux et le total du panier
-          this.calculateCartTotal();
-        },
-        error: (error) => {
-          console.error(
-            "Erreur lors de la mise à jour de l'élément du panier :",
-            error
-          );
-        },
-      });
+    this.cartService.updateCartItem(item.productId, item.quantity).subscribe({
+      next: () => {
+        const index = this.cartItems.findIndex(
+          (cartItem) => cartItem.productId === item.productId
+        );
+
+        if (index !== -1) {
+          // Mettre à jour la quantité et recalculer le sous-total
+          this.cartItems[index].quantity = item.quantity;
+          this.cartItems[index].subTotal =
+            (item.product?.price ?? 0) * item.quantity; // Recalculer le sous-total
+        }
+
+        this.calculateCartTotal(); // Recalculer le total du panier
+      },
+      error: (error) => {
+        console.error(
+          "Erreur lors de la mise à jour de l'élément du panier :",
+          error
+        );
+      },
+    });
   }
 
   calculateCartTotal(): void {
-    this.cartTotal = 0; // Réinitialiser le total du panier
+    this.cartTotal = 0;
     for (const item of this.cartItems) {
-      if (item.subTotal !== undefined) {
-        this.cartTotal += item.subTotal; // Ajouter le sous-total de chaque article au total du panier
-      }
+      const price = item.product?.price ?? 0; // Récupérer le prix du produit
+      item.subTotal = price * item.quantity; // Recalculer le sous-total pour chaque produit
+      this.cartTotal += item.subTotal; // Ajouter le sous-total au total du panier
     }
-    // Formater le total du panier avec deux chiffres après la virgule
-    this.cartTotal = parseFloat(this.cartTotal.toFixed(2));
+
+    this.cartTotal = parseFloat(this.cartTotal.toFixed(2)); // Fixer à deux décimales
   }
+
   deleteCartItem(item: Cart): void {
-    this.cartService.deleteCartItem(item.id).subscribe(() => {
-      // Envoyer une requête pour supprimer l'élément du panier
-      this.loadCartItems(); // Recharger les éléments du panier après la suppression
+    this.cartService.deleteCartItem(item.id).subscribe({
+      next: () => {
+        this.loadCartItems(); // Recharger le panier après suppression
+      },
+      error: (error) => {
+        console.error(
+          "Erreur lors de la suppression de l'élément du panier :",
+          error
+        );
+      },
     });
   }
 }

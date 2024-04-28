@@ -29,6 +29,8 @@ public class CartItemController {
     private CartItemService cartItemService;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CartItemRepository cartItemRepository;
     @GetMapping("/{userId}")
     public ResponseEntity<List<CartItemDTO>> getUserCart(@PathVariable Long userId) {
         List<CartItemDTO> cartItemDTOs = cartItemService.getCartItemsByUserId(userId);
@@ -65,15 +67,7 @@ public class CartItemController {
         }
     }
     // Endpoint pour associer le panier local à un utilisateur
-    @PostMapping("/associate/{userId}")
-    public ResponseEntity<String> associateLocalCartWithUser(@PathVariable Long userId, @RequestBody List<CartItemDTO> localCartItems) {
-        try {
-            cartItemService.associateLocalCartWithUser(userId, localCartItems);
-            return new ResponseEntity<>("Panier associé avec succès à l'utilisateur", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {
         try {
