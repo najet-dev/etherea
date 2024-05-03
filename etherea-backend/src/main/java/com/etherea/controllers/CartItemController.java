@@ -67,6 +67,19 @@ public class CartItemController {
         }
     }
     // Endpoint pour associer le panier local à un utilisateur
+    @PostMapping("/sync/{userId}")
+    public ResponseEntity<String> syncCartWithDatabase(@PathVariable Long userId, @RequestBody List<CartItemDTO> cartItemDTOs) {
+        try {
+            cartItemService.syncCartItems(userId, cartItemDTOs);
+            return ResponseEntity.ok("Panier synchronisé avec succès.");
+        } catch (UserNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur non trouvé avec l'ID : " + userId);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Produit non trouvé avec l'ID fourni.");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur est survenue lors de la synchronisation du panier.");
+        }
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCartItem(@PathVariable Long id) {

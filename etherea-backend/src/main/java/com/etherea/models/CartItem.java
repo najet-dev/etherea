@@ -45,7 +45,7 @@ public class CartItem {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
         // Recalculer le sous-total et le total après la mise à jour de la quantité
-        this.subTotal = calculateSubtotal();
+        this.subTotal = calculateSubTotal();
         this.total = calculateTotal();
     }
     public double getSubTotal() {
@@ -83,13 +83,18 @@ public class CartItem {
     }
 
     // Méthode pour calculer le sous-total (prix * quantité) d'un produit
-    public double calculateSubtotal() {
-        double subtotal = getProduct().getPrice() * getQuantity();
-        return subtotal;
+    public double calculateSubTotal() {
+        if (getProduct() == null) {
+            throw new IllegalArgumentException("Produit est null, impossible de calculer le sous-total");
+        }
+        double subTotal = getProduct().getPrice() * getQuantity();
+        System.out.println("Calcul du sous-total: Prix x Quantité = " + subTotal); // Journaliser le calcul
+        return subTotal;
     }
+
     // Méthode pour calculer le total (prix total pour tous les produits dans le panier)
     public double calculateTotal() {
-        double total = calculateSubtotal(); // appel à la méthode calculateSubtotal pour obtenir le sous-total
+        double total = calculateSubTotal(); // appel à la méthode calculateSubtotal pour obtenir le sous-total
         return total;
     }
     // Méthode pour calculer le prix total de tous les produits dans le panier
@@ -97,7 +102,7 @@ public class CartItem {
         double totalPrice = 0.0;
 
         for (CartItem cartItem : items) {
-            totalPrice += cartItem.calculateSubtotal();
+            totalPrice += cartItem.calculateSubTotal();
         }
         return totalPrice;
     }

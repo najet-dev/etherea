@@ -3,8 +3,8 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { Cart } from '../components/models/cart.model';
 
-const TOKEN_KEY = 'auth-token'; // Utilisez TOKEN_KEY pour stocker le token JWT
-const cartKey = 'cartItems'; // Clé pour stocker le panier dans le stockage local
+const TOKEN_KEY = 'auth-token';
+const CART_KEY = 'cartItems'; // Clé pour stocker le panier dans le stockage local
 
 @Injectable({
   providedIn: 'root',
@@ -17,22 +17,25 @@ export class StorageService {
   }
 
   saveToken(token: string): void {
-    localStorage.setItem(TOKEN_KEY, token);
-    this.isLoggedInSubject.next(true);
+    this.setItem(TOKEN_KEY, token);
+    this.setLoggedIn(true);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.getItem(TOKEN_KEY);
   }
+
   removeToken(): void {
-    localStorage.removeItem(TOKEN_KEY);
+    this.removeItem(TOKEN_KEY);
+    this.setLoggedIn(false);
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
+
   setLoggedIn(isLoggedIn: boolean): void {
-    this.isLoggedInSubject.next(isLoggedIn); // mettre à jour l'état
+    this.isLoggedInSubject.next(isLoggedIn);
   }
 
   isLoggedInObservable(): Observable<boolean> {
@@ -40,50 +43,39 @@ export class StorageService {
   }
 
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    this.isLoggedInSubject.next(false);
+    this.removeToken(); // Supprime le token JWT
     this.router.navigate(['/signin']); // Redirection vers la page de connexion
   }
 
   clean(): void {
-    localStorage.removeItem(cartKey); // Supprimer uniquement le panier local
-    this.isLoggedInSubject.next(false);
-  }
-
-  get(key: string): any {
-    const value = localStorage.getItem(key);
-    return value ? JSON.parse(value) : null;
-  }
-
-  set(key: string, value: Cart): void {
-    localStorage.setItem(key, JSON.stringify(value));
-  }
-
-  remove(key: string): void {
-    localStorage.removeItem(key);
-  }
-
-  // saveLocalCart(cart: Cart): void {
-  //   this.set(cartKey, cart);
-  // }
-  saveLocalCart(cart: Cart[]): void {
-    const cartJson = JSON.stringify(cart);
-    this.setItem(cartKey, cartJson);
-  }
-
-  // loadLocalCart(): Cart[] {
-  //   return this.get(cartKey);
-  // }
-  loadLocalCart(): Cart[] {
-    const cartJson = this.getItem(cartKey);
-    return cartJson ? JSON.parse(cartJson) : [];
+    this.removeItem(CART_KEY); // Supprimer uniquement le panier local
+    this.setLoggedIn(false);
   }
 
   getItem(key: string): string | null {
-    return localStorage.getItem(key);
+    return localStorage.getItem(key); // Utilise la clé passée en paramètre
   }
 
   setItem(key: string, value: string): void {
-    localStorage.setItem(key, value);
+    localStorage.setItem(key, value); // Utilise la clé passée en paramètre
+  }
+
+  removeItem(key: string): void {
+    localStorage.removeItem(key); // Utilise la clé passée en paramètre
+  }
+
+  getLocalCart(): Cart[] {
+    const cartJson = localStorage.getItem(CART_KEY); // Utilise la clé CART_KEY
+    return cartJson ? JSON.parse(cartJson) : [];
+  }
+
+  saveLocalCart(cart: Cart[]): void {
+    const cartJson = JSON.stringify(cart);
+    this.setItem(CART_KEY, cartJson);
+  }
+
+  loadLocalCart(): Cart[] {
+    const cartJson = this.getItem(CART_KEY); // Utilise la clé CART_KEY
+    return cartJson ? JSON.parse(cartJson) : [];
   }
 }

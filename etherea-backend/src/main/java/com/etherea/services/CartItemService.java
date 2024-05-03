@@ -3,8 +3,6 @@ package com.etherea.services;
 import com.etherea.dtos.CartItemDTO;
 import com.etherea.exception.CartItemNotFoundException;
 import com.etherea.models.*;
-import com.etherea.dtos.ProductDTO;
-import com.etherea.dtos.UserDTO;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.models.CartItem;
@@ -58,34 +56,94 @@ public class CartItemService {
         if (existingCartItem != null) {
             // Si le produit est déjà dans le panier, mettre à jour la quantité
             int newQuantity = existingCartItem.getQuantity() + quantity;
-            existingCartItem.setQuantity(newQuantity);
+            if (newQuantity <= 0) {
+                cartItemRepository.delete(existingCartItem); // Supprimer l'élément si la quantité est nulle ou négative
+            } else {
+                existingCartItem.setQuantity(newQuantity);
+                cartItemRepository.save(existingCartItem);
+            }
         } else {
             // Si le produit n'est pas dans le panier, créer un nouvel élément de panier
-            CartItem newCartItem = new CartItem();
-            newCartItem.setUser(user);
-            newCartItem.setProduct(product);
-            newCartItem.setQuantity(quantity);
-            existingCartItem = newCartItem; // Mis à jour pour éviter les confusions
+            if (quantity > 0) { // Ajouter l'élément de panier uniquement si la quantité est positive
+                CartItem newCartItem = new CartItem();
+                newCartItem.setUser(user);
+                newCartItem.setProduct(product);
+                newCartItem.setQuantity(quantity);
+                cartItemRepository.save(newCartItem);
+            }
         }
-
-        // Sauvegarde ou mise à jour de l'élément de panier dans la base de données
-        cartItemRepository.save(existingCartItem);
-
-        // Mettre à jour le total dans chaque élément de panier de l'utilisateur
+        // Calculer le total du panier
         List<CartItem> userCartItems = cartItemRepository.findByUserId(userId);
         double cartTotal = 0.0;
         for (CartItem cartItem : userCartItems) {
-            double subtotal = cartItem.calculateSubtotal();
-            cartItem.setSubTotal(subtotal);
-            cartItemRepository.save(cartItem); // Sauvegarde du cartItem avec le sous-total mis à jour
-            cartTotal += subtotal;
+            cartTotal += cartItem.calculateSubTotal();
         }
-        // Mettre à jour le champ total de tous les produits du panier avec le total calculé
+        // Mettre à jour le total dans tous les éléments de panier de l'utilisateur
         for (CartItem cartItem : userCartItems) {
             cartItem.setTotal(cartTotal);
-            cartItemRepository.save(cartItem); // Sauvegarde du cartItem avec le total mis à jour
+            cartItemRepository.save(cartItem);
         }
     }
+    public void syncCartItems(Long userId, List<CartItemDTO> cartItemDTOs) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec l'ID : " + userId));
+
+        List<CartItem> existingCartItems = cartItemRepository.findByUserId(userId);
+
+        double cartTotal = 0.0; // Initialiser le total du panier à 0
+
+        for (CartItemDTO dto : cartItemDTOs) {
+            Long productId = dto.getProductId();
+
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new IllegalArgumentException("Produit non trouvé avec l'ID : " + productId));
+
+            CartItem existingCartItem = existingCartItems.stream()
+                    .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
+                    .findFirst()
+                    .orElse(null);
+
+            if (existingCartItem != null) {
+                // Mettre à jour la quantité de l'élément de panier existant
+                existingCartItem.setQuantity(dto.getQuantity());
+                // Recalculer le sous-total
+                double subtotal = product.getPrice() * dto.getQuantity();
+                existingCartItem.setSubTotal(subtotal);
+                // Sauvegarde de l'élément de panier mis à jour dans la base de données
+                cartItemRepository.save(existingCartItem);
+            } else {
+                // Créer un nouvel élément de panier pour les produits non présents dans le panier existant
+                if (dto.getQuantity() > 0) { // Ajouter l'élément de panier uniquement si la quantité est positive
+                    CartItem newCartItem = new CartItem();
+                    newCartItem.setUser(user);
+                    newCartItem.setProduct(product);
+                    newCartItem.setQuantity(dto.getQuantity());
+                    double subtotal = product.getPrice() * dto.getQuantity();
+                    newCartItem.setSubTotal(subtotal);
+                    cartItemRepository.save(newCartItem);
+                    existingCartItems.add(newCartItem); // Ajouter le nouvel élément de panier à la liste existante
+                }
+            }
+        }
+
+        // Supprimer les éléments de panier existants qui ne sont pas dans la liste reçue depuis le frontend
+        existingCartItems.removeIf(cartItem -> !cartItemDTOs.stream()
+                .anyMatch(dto -> dto.getProductId().equals(cartItem.getProduct().getId())));
+        cartItemRepository.deleteAll(existingCartItems);
+
+        // Recalculer le total du panier après avoir mis à jour les éléments de panier
+        cartTotal = existingCartItems.stream()
+                .mapToDouble(CartItem::getSubTotal)
+                .sum();
+
+        // Mettre à jour le total du panier pour tous les éléments de panier
+        for (CartItem cartItem : existingCartItems) {
+            cartItem.setTotal(cartTotal);
+            cartItemRepository.save(cartItem);
+        }
+    }
+
+
     public void updateCartItemQuantity(Long userId, Long productId, int newQuantity) {
         // Recherche de l'utilisateur dans la base de données
         User user = userRepository.findById(userId)
@@ -99,18 +157,23 @@ public class CartItemService {
         CartItem existingCartItem = cartItemRepository.findByUserAndProduct(user, product);
 
         if (existingCartItem != null) {
-            // Mise à jour de la quantité de l'élément de panier
-            existingCartItem.setQuantity(newQuantity);
+            // Vérifier si la nouvelle quantité est valide
+            if (newQuantity <= 0) {
+                cartItemRepository.delete(existingCartItem); // Supprimer l'élément si la quantité est nulle ou négative
+            } else {
+                // Mise à jour de la quantité de l'élément de panier
+                existingCartItem.setQuantity(newQuantity);
 
-            // Recalcul du sous-total et du total
-            double subtotal = existingCartItem.calculateSubtotal();
-            existingCartItem.setSubTotal(subtotal);
-            existingCartItem.setTotal(subtotal); // Total égal au sous-total car un seul article
+                // Recalcul du sous-total et du total
+                double subtotal = existingCartItem.calculateSubTotal();
+                existingCartItem.setSubTotal(subtotal);
+                existingCartItem.setTotal(subtotal); // Total égal au sous-total car un seul article
 
-            // Sauvegarde de l'élément de panier mis à jour dans la base de données
-            cartItemRepository.save(existingCartItem);
+                // Sauvegarde de l'élément de panier mis à jour dans la base de données
+                cartItemRepository.save(existingCartItem);
+            }
 
-            // Mettre à jour le champ total de tous les produits du panier avec le total recalculé
+            // Calculer et mettre à jour le total du panier
             List<CartItem> userCartItems = cartItemRepository.findByUserId(userId);
             double cartTotal = 0.0;
             for (CartItem cartItem : userCartItems) {
@@ -124,7 +187,6 @@ public class CartItemService {
             throw new CartItemNotFoundException("Élément de panier non trouvé pour l'utilisateur avec l'ID " + userId + " et le produit avec l'ID " + productId);
         }
     }
-
     public void deleteCartItem(Long id) {
         Optional<CartItem> existingCart = cartItemRepository.findById(id);
 

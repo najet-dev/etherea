@@ -7,8 +7,10 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
-import { Observable, catchError, switchMap, take, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError, switchMap, take } from 'rxjs/operators';
 import { Router } from '@angular/router';
+
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   constructor(private authService: AuthService, private router: Router) {}
@@ -24,7 +26,6 @@ export class AuthInterceptor implements HttpInterceptor {
           return next.handle(request);
         }
 
-        // Cloner la requête et ajouter le jeton d'authentification dans l'en-tête Authorization
         const modifiedRequest = request.clone({
           setHeaders: {
             Authorization: `Bearer ${signin.accessToken}`,
@@ -34,14 +35,16 @@ export class AuthInterceptor implements HttpInterceptor {
         return next.handle(modifiedRequest).pipe(
           catchError((err) => {
             if (err instanceof HttpErrorResponse) {
-              console.error('HTTP Interceptor: HTTP error occurred', err);
+              console.error('HTTP Interceptor: HTTP error occurred', err); // Ajout du log ici
 
               switch (err.status) {
+                case 401:
+                  console.error('HTTP Interceptor: 401 Unauthorized Error');
+                  // Rediriger vers la page de connexion, par exemple
+                  break;
                 case 403:
                   console.error('HTTP Interceptor: 403 Forbidden Error');
-
                   this.router.navigate(['/forbidden']);
-
                   break;
               }
             }
