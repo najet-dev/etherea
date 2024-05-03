@@ -88,59 +88,55 @@ public class CartItemService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé avec l'ID : " + userId));
 
+        // Récupérer les éléments de panier à la fois du backend et du stockage local
         List<CartItem> existingCartItems = cartItemRepository.findByUserId(userId);
 
         double cartTotal = 0.0; // Initialiser le total du panier à 0
 
+        // Synchroniser le panier du backend avec le panier local
         for (CartItemDTO dto : cartItemDTOs) {
             Long productId = dto.getProductId();
 
             Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new IllegalArgumentException("Produit non trouvé avec l'ID : " + productId));
 
+            // Vérifier si le produit est déjà présent dans le panier du backend
             CartItem existingCartItem = existingCartItems.stream()
                     .filter(cartItem -> cartItem.getProduct().getId().equals(productId))
                     .findFirst()
                     .orElse(null);
 
             if (existingCartItem != null) {
-                // Mettre à jour la quantité de l'élément de panier existant
+                // Mettre à jour la quantité de l'élément de panier existant dans le backend
                 existingCartItem.setQuantity(dto.getQuantity());
-                // Recalculer le sous-total
                 double subtotal = product.getPrice() * dto.getQuantity();
                 existingCartItem.setSubTotal(subtotal);
-                // Sauvegarde de l'élément de panier mis à jour dans la base de données
-                cartItemRepository.save(existingCartItem);
             } else {
                 // Créer un nouvel élément de panier pour les produits non présents dans le panier existant
-                if (dto.getQuantity() > 0) { // Ajouter l'élément de panier uniquement si la quantité est positive
-                    CartItem newCartItem = new CartItem();
-                    newCartItem.setUser(user);
-                    newCartItem.setProduct(product);
-                    newCartItem.setQuantity(dto.getQuantity());
-                    double subtotal = product.getPrice() * dto.getQuantity();
-                    newCartItem.setSubTotal(subtotal);
-                    cartItemRepository.save(newCartItem);
-                    existingCartItems.add(newCartItem); // Ajouter le nouvel élément de panier à la liste existante
-                }
+                CartItem newCartItem = new CartItem();
+                newCartItem.setUser(user);
+                newCartItem.setProduct(product);
+                newCartItem.setQuantity(dto.getQuantity());
+                double subtotal = product.getPrice() * dto.getQuantity();
+                newCartItem.setSubTotal(subtotal);
+                existingCartItems.add(newCartItem);
             }
         }
 
-        // Supprimer les éléments de panier existants qui ne sont pas dans la liste reçue depuis le frontend
+        // Supprimer les éléments de panier obsolètes qui ne sont plus présents dans le panier local
         existingCartItems.removeIf(cartItem -> !cartItemDTOs.stream()
                 .anyMatch(dto -> dto.getProductId().equals(cartItem.getProduct().getId())));
-        cartItemRepository.deleteAll(existingCartItems);
 
-        // Recalculer le total du panier après avoir mis à jour les éléments de panier
+        // Mettre à jour le total du panier dans le backend
         cartTotal = existingCartItems.stream()
                 .mapToDouble(CartItem::getSubTotal)
                 .sum();
-
-        // Mettre à jour le total du panier pour tous les éléments de panier
         for (CartItem cartItem : existingCartItems) {
             cartItem.setTotal(cartTotal);
-            cartItemRepository.save(cartItem);
         }
+
+        // Sauvegarder les modifications dans le backend
+        cartItemRepository.saveAll(existingCartItems);
     }
 
 

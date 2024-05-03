@@ -133,7 +133,7 @@ export class CartService {
         }),
         catchError((error: HttpErrorResponse) => {
           console.error('Erreur lors de la synchronisation du panier :', error);
-          return throwError(error);
+          return throwError(() => error);
         })
       );
   }
