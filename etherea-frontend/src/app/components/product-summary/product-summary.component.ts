@@ -15,8 +15,8 @@ import { Cart } from '../models/cart.model';
 })
 export class ProductSummaryComponent implements OnInit {
   constructor(
-    private dialogRef: MatDialogRef<ProductSummaryComponent>,
-    @Inject(MAT_DIALOG_DATA)
+    private dialogRef: MatDialogRef<ProductSummaryComponent>, // Référence à la boîte de dialogue actuelle
+    @Inject(MAT_DIALOG_DATA) // Injection des données passées à la boîte de dialogue
     public data: {
       product: IProduct;
       cart: Cart;
@@ -27,22 +27,27 @@ export class ProductSummaryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Définir la configuration de la modal
+    // Définition de la configuration de la boîte de dialogue
     const dialogConfig = new MatDialogConfig();
-    dialogConfig.width = '60%'; // 50% de la largeur de la fenêtre
-    dialogConfig.height = '80%'; // 70% de la hauteur de la fenêtre
-    this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height);
+    dialogConfig.width = '60%'; // 60% de la largeur de la fenêtre
+    dialogConfig.height = '80%'; // 80% de la hauteur de la fenêtre
+    this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height); // Mise à jour de la taille de la boîte de dialogue
   }
+
+  // Fonction pour continuer les achats (ferme la boîte de dialogue)
   continueShopping(): void {
     this.dialogRef.close();
   }
 
+  // Fonction pour aller au panier
   goToCart(): void {
-    this.dialogRef.close();
-    this.router.navigateByUrl('/cart');
+    this.dialogRef.close(); // Ferme la boîte de dialogue
+    this.router.navigateByUrl('/cart'); // Navigue vers la page du panier
   }
+
+  // Fonction pour aller à la page d'accueil
   goToShopping(productId: number): void {
-    this.dialogRef.close();
-    this.router.navigateByUrl('/productDetails/' + productId);
+    this.dialogRef.close(); // Ferme la boîte de dialogue
+    this.router.navigateByUrl('/'); // Navigue vers la page d'accueil
   }
 }

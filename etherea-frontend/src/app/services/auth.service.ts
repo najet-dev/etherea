@@ -7,7 +7,6 @@ import { environment } from 'src/environments/environment';
 import { SigninRequest } from '../components/models/signinRequest.model';
 import { Router } from '@angular/router';
 import { SignupRequest } from '../components/models/SignupRequest.model';
-import { CartService } from './cart.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,8 +19,7 @@ export class AuthService {
   constructor(
     private httpClient: HttpClient,
     private storageService: StorageService,
-    private router: Router,
-    private cartService: CartService
+    private router: Router
   ) {}
 
   signup(signupData: SignupRequest): Observable<SignupRequest> {
@@ -56,9 +54,6 @@ export class AuthService {
           this.storageService.saveToken(signin.accessToken);
           this.AuthenticatedUser$.next(signin);
           console.log('User signed in successfully:', signin);
-          // Vider et sauvegarder le panier local lorsque l'utilisateur se connecte
-          this.cartService.clearLocalCart();
-          console.log('Local cart cleared.');
         })
       );
   }
@@ -72,7 +67,7 @@ export class AuthService {
       .post(`${this.apiUrl}/api/auth/logout`, {}, { headers })
       .pipe(
         tap(() => {
-          this.storageService.clean();
+          this.storageService.removeToken(); // Supprime le token lors de la déconnexion
           this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
         }),

@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Cart } from '../components/models/cart.model';
@@ -11,7 +11,6 @@ import { StorageService } from './storage.service';
 })
 export class CartService {
   private apiUrl = environment.apiUrl;
-  private cartKey = 'cartItems'; // Clé pour stocker le panier dans le stockage local
   cartUpdated: EventEmitter<void> = new EventEmitter<void>(); // Événement pour indiquer la mise à jour du panier
 
   constructor(
@@ -24,7 +23,7 @@ export class CartService {
     return this.httpClient.get<Cart[]>(`${this.apiUrl}/cart/${userId}`).pipe(
       catchError((error) => {
         console.error('Error fetching cart items:', error);
-        return throwError(error);
+        return throwError(() => error);
       })
     );
   }
@@ -42,7 +41,7 @@ export class CartService {
       .pipe(
         catchError((error) => {
           console.error('Error adding product to cart:', error);
-          return throwError(() => error); // Utilisation recommandée d'une fonction factory
+          return throwError(() => error);
         })
       );
   }
@@ -69,20 +68,16 @@ export class CartService {
         })
       );
   }
-
-  getLocalCart(): Cart[] | null {
-    return this.storageService.get(this.cartKey);
-  }
-
-  saveLocalCart(cart: Cart[]): void {
-    this.storageService.set(this.cartKey, cart);
-  }
-
-  loadLocalCart(): Cart[] {
-    return this.storageService.get(this.cartKey) || [];
-  }
-
-  clearLocalCart(): void {
-    this.storageService.remove(this.cartKey);
+  deleteCartItem(id: number): Observable<void> {
+    return this.httpClient.delete<void>(`${this.apiUrl}/cart/${id}`).pipe(
+      catchError((error) => {
+        console.error('Error deleting cart item:', error);
+        return throwError(() => error);
+      }),
+      tap(() => {
+        // Émettre l'événement une fois que la suppression du produit du panier est effectuée avec succès
+        this.cartUpdated.emit();
+      })
+    );
   }
 }
