@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
-import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-signin',
@@ -37,7 +36,6 @@ export class SigninComponent implements OnInit, OnDestroy {
 
   constructor(
     private authService: AuthService,
-    private storageService: StorageService,
     private router: Router,
     private formBuilder: FormBuilder
   ) {}

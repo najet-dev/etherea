@@ -18,8 +18,11 @@ export class UserService {
 
   getCurrentUserId(): Observable<number | null> {
     return this.authService.getCurrentUser().pipe(
-      map((user) => (user ? user.id : null)),
-      catchError(() => of(null)) // Gérer les erreurs en renvoyant null si aucun utilisateur n'est connecté
+      map((user) => (user ? user.id : null)), // Retourner l'id ou null
+      catchError((error) => {
+        console.error("Erreur lors de l'obtention de l'utilisateur:", error);
+        return of(null); // En cas d'erreur, renvoyer null pour éviter des exceptions
+      })
     );
   }
 }
