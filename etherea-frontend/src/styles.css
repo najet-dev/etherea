@@ -28,8 +28,13 @@
   top: 10px;
   right: 10px;
   font-size: 24px;
-  color: red;
+  color: grey;
   cursor: pointer;
+  transition: color 0.5s ease; /* Ajout de transition */
+}
+
+.heart-icon:hover {
+  color: red;
 }
 
 .btn-primary {

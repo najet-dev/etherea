@@ -105,13 +105,13 @@ export class CartComponent implements OnInit {
   }
 
   deleteItemFromCart(id: number): void {
-    this.cartService.deleteCartItem(id).subscribe(
-      () => {
+    this.cartService.deleteCartItem(id).subscribe({
+      next: () => {
         console.log('Product deleted from cart successfully');
       },
-      (error) => {
+      error: (error) => {
         console.error('Failed to delete product from cart:', error);
-      }
-    );
+      },
+    });
   }
 }
