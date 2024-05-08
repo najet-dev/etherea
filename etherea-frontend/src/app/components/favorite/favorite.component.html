@@ -1,0 +1,28 @@
+<app-sidebar></app-sidebar>
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <h2>Produits Favoris</h2>
+    </div>
+  </div>
+  <div class="row">
+    <!-- Produits en favoris -->
+    <div *ngFor="let favorite of favorites" class="col-md-3">
+      <div class="card mb-4">
+        <img
+          [src]="favorite.product.image"
+          class="product-image card-img-top mx-auto"
+          alt="{{ favorite.product.name }}"
+        />
+        <div class="card-body">
+          <span class="heart-icon" (click)="removeFavorite(favorite.productId)">
+            &#x2764;
+          </span>
+          <h5 class="card-title">{{ favorite.product.name }}</h5>
+          <p class="card-text">{{ favorite.product.description }}</p>
+          <p class="card-text">{{ favorite.product.price }} €</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

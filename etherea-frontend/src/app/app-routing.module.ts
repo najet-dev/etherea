@@ -7,6 +7,7 @@ import { AccesComponent } from './components/acces/access.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { SignupComponent } from './components/signup/signup.component';
 import { SigninComponent } from './components/signin/signin.component';
+import { FavoriteComponent } from './components/favorite/favorite.component';
 
 const routes: Routes = [
   {
@@ -24,6 +25,8 @@ const routes: Routes = [
   { path: 'forbidden', component: AccesComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'signin', component: SigninComponent },
+  { path: 'favorites', component: FavoriteComponent },
+
   {
     path: 'cream',
     loadChildren: () =>
