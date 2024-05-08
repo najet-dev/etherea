@@ -25,6 +25,9 @@ import { SigninComponent } from './components/signin/signin.component';
 import { ProductSummaryComponent } from './components/product-summary/product-summary.component';
 import { AuthInterceptor } from './components/helpers/authInterceptor';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { FavoriteComponent } from './components/favorite/favorite.component';
+import { FavoriteService } from './services/favorite.service';
 
 @NgModule({
   declarations: [
@@ -43,6 +46,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     SignupComponent,
     SigninComponent,
     ProductSummaryComponent,
+    SidebarComponent,
+    FavoriteComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,6 +64,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    FavoriteService,
   ],
   bootstrap: [AppComponent],
 })
