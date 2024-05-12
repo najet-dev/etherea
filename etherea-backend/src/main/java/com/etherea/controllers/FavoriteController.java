@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/favorites")
@@ -17,32 +19,57 @@ public class FavoriteController {
     private FavoriteService favoriteService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<List<FavoriteDTO>> getUserFavorites(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserFavorites(@PathVariable Long userId) {
         try {
             List<FavoriteDTO> userFavorites = favoriteService.getUserFavorites(userId);
             return ResponseEntity.ok(userFavorites);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
     @PostMapping("/{userId}/{productId}")
-    public ResponseEntity<String> addFavorite(@PathVariable Long userId, @PathVariable Long productId) {
+    public ResponseEntity<?> addFavorite(@PathVariable Long userId, @PathVariable Long productId) {
         try {
             favoriteService.addFavorite(userId, productId);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Product added to favorites successfully");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Product added to favorites successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User or product not found");
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "User or product not found");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product already in favorites");
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Product already in favorites");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> updateFavorites(@PathVariable Long userId, @RequestBody List<Long> updatedProductIds) {
+        try {
+            favoriteService.updateFavorites(userId, updatedProductIds);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Favorites updated successfully");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
     @DeleteMapping("/{userId}/{productId}")
-    public ResponseEntity<String> removeFavorite(@PathVariable Long userId, @PathVariable Long productId) {
+    public ResponseEntity<?> removeFavorite(@PathVariable Long userId, @PathVariable Long productId) {
         try {
             favoriteService.removeFavorite(userId, productId);
-            return ResponseEntity.ok("Product removed from favorites successfully");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Product removed from favorites successfully");
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User or product not found");
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "User or product not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
 }
