@@ -10,7 +10,9 @@ export interface IProduct {
   ingredients: String;
   characteristics: String;
   image: string;
+  isFavorite?: boolean;
 }
+
 export enum ProductType {
   FACE = 'FACE',
   HAIR = 'HAIR',

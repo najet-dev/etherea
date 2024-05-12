@@ -23,7 +23,11 @@
             alt="{{ product.name }}"
           />
           <div class="card-body">
-            <span class="heart-icon" (click)="addToFavorites(product.id)">
+            <span
+              class="heart-icon"
+              [class.favorite]="product.isFavorite"
+              (click)="toggleFavorite(product)"
+            >
               &#x2764;
             </span>
             <h5 class="card-title">{{ product.name }}</h5>
