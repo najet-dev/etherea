@@ -32,9 +32,8 @@
   cursor: pointer;
   transition: color 0.5s ease; /* Ajout de transition */
 }
-
-.heart-icon:hover {
-  color: red;
+.favorite {
+  color: red !important;
 }
 
 .btn-primary {

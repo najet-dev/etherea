@@ -2,8 +2,16 @@ import { Component, OnDestroy } from '@angular/core';
 import { ProductService } from 'src/app/services/product.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { IProduct } from '../models/i-product';
-import { Favorite } from '../models/favorite.model';
-import { Observable, Subject, catchError, takeUntil } from 'rxjs';
+import {
+  Observable,
+  Subject,
+  catchError,
+  takeUntil,
+  switchMap,
+  map,
+  tap,
+  of,
+} from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -14,7 +22,7 @@ import { AuthService } from 'src/app/services/auth.service';
 export class HomeComponent implements OnDestroy {
   products$: Observable<IProduct[]> = new Observable<IProduct[]>();
   private destroy$ = new Subject<void>();
-  userId!: number;
+  userId: number | null = null;
 
   constructor(
     private productService: ProductService,
@@ -22,15 +30,30 @@ export class HomeComponent implements OnDestroy {
     private authService: AuthService
   ) {
     this.loadProducts();
-    this.authService.getCurrentUser().subscribe((user) => {
-      if (user && user.id) {
-        this.userId = user.id;
-      }
-    });
+    this.authService
+      .getCurrentUser()
+      .pipe(tap((user) => (this.userId = user ? user.id : null)))
+      .subscribe();
   }
 
-  private loadProducts(): void {
+  loadProducts(): void {
     this.products$ = this.productService.getProducts(12).pipe(
+      switchMap((products) => {
+        if (this.userId) {
+          return this.favoriteService.getUserFavorites(this.userId).pipe(
+            map((favorites) => {
+              return products.map((product) => {
+                product.isFavorite = favorites.some(
+                  (fav) => fav.productId === product.id
+                );
+                return product;
+              });
+            })
+          );
+        } else {
+          return of(products);
+        }
+      }),
       catchError((error) => {
         console.error('Error fetching products:', error);
         console.error('Failed to load products. Please try again later.');
@@ -39,23 +62,12 @@ export class HomeComponent implements OnDestroy {
       takeUntil(this.destroy$)
     );
   }
+  toggleFavorite(product: IProduct): void {
+    this.favoriteService.toggleFavorite(product);
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  addToFavorites(productId: number): void {
-    this.favoriteService.addFavorite(this.userId, productId).subscribe({
-      next: (response: any) => {
-        console.log(response);
-        if (response && response.message) {
-          console.log(response.message);
-        }
-      },
-      error: (error) => {
-        console.error('Error adding favorite:', error);
-      },
-    });
   }
 }
