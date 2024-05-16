@@ -38,26 +38,11 @@ export class HomeComponent implements OnDestroy {
 
   loadProducts(): void {
     this.products$ = this.productService.getProducts(12).pipe(
-      switchMap((products) => {
-        if (this.userId) {
-          return this.favoriteService.getUserFavorites(this.userId).pipe(
-            map((favorites) => {
-              return products.map((product) => {
-                product.isFavorite = favorites.some(
-                  (fav) => fav.productId === product.id
-                );
-                return product;
-              });
-            })
-          );
-        } else {
-          return of(products);
-        }
-      }),
+      switchMap((products) => this.favoriteService.productsFavorites(products)),
       catchError((error) => {
         console.error('Error fetching products:', error);
         console.error('Failed to load products. Please try again later.');
-        return [];
+        return of([]);
       }),
       takeUntil(this.destroy$)
     );

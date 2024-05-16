@@ -5,7 +5,7 @@ import {
   Observable,
   Subject,
   catchError,
-  map,
+  of,
   switchMap,
   takeUntil,
   tap,
@@ -30,47 +30,36 @@ export class HairComponent implements OnDestroy {
   ) {
     this.authService
       .getCurrentUser()
-      .pipe(tap((user) => (this.userId = user ? user.id : null)))
+      .pipe(
+        tap((user) => (this.userId = user ? user.id : null)),
+        tap(() => this.loadProducts()) // Load products after determining user ID
+      )
       .subscribe();
-    this.loadProducts();
   }
 
   private loadProducts(): void {
     const productType = 'HAIR';
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
-    if (this.userId !== null) {
-      this.products$ = this.productService
-        .getProductsByType(productType, page, size)
-        .pipe(
-          switchMap((products) =>
-            this.favoriteService.getUserFavorites(this.userId!).pipe(
-              map((favorites) =>
-                products.map((product) => ({
-                  ...product,
-                  isFavorite: favorites.some(
-                    (fav) => fav.productId === product.id
-                  ),
-                }))
-              )
-            )
-          ),
-          catchError((error) => {
-            console.error(
-              'Erreur lors de la récupération des produits :',
-              error
-            );
-            console.error(
-              'Échec du chargement des produits. Veuillez réessayer plus tard.'
-            );
-            return [];
-          }),
-          takeUntil(this.destroy$)
-        );
-    } else {
-      console.error('UserId est null');
-    }
+
+    this.products$ = this.productService
+      .getProductsByType(productType, page, size)
+      .pipe(
+        switchMap((products) => {
+          if (this.userId !== null) {
+            return this.favoriteService.productsFavorites(products);
+          }
+          return of(products);
+        }),
+        catchError((error) => {
+          console.error('Error fetching products:', error);
+          console.error('Failed to load products. Please try again later.');
+          return of([]);
+        }),
+        takeUntil(this.destroy$)
+      );
   }
+
   toggleFavorite(product: IProduct): void {
     this.favoriteService.toggleFavorite(product);
   }
