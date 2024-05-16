@@ -21,7 +21,20 @@ export class FavoriteService {
   constructor(
     private httpClient: HttpClient,
     private authService: AuthService
-  ) {}
+  ) {
+    this.authService.getCurrentUser().subscribe((user) => {
+      this.userId = user ? user.id : null;
+      if (this.userId) {
+        this.loadUserFavorites(this.userId);
+      }
+    });
+  }
+
+  loadUserFavorites(userId: number): void {
+    this.getUserFavorites(userId).subscribe((favorites) => {
+      this.favoritesSubject.next(favorites.map((fav) => fav.productId));
+    });
+  }
 
   getUserFavorites(userId: number): Observable<Favorite[]> {
     return this.httpClient
@@ -35,15 +48,13 @@ export class FavoriteService {
   }
 
   addFavorite(userId: number, productId: number): Observable<Favorite> {
-    const params = new HttpParams()
-      .set('userId', userId.toString())
-      .set('productId', productId.toString());
-
     return this.httpClient
-      .post<Favorite>(`${this.apiUrl}/favorites/${userId}/${productId}`, null, {
-        params,
-      })
+      .post<Favorite>(`${this.apiUrl}/favorites/${userId}/${productId}`, null)
       .pipe(
+        tap(() => {
+          const currentFavorites = this.favoritesSubject.value;
+          this.favoritesSubject.next([...currentFavorites, productId]);
+        }),
         catchError((error: HttpErrorResponse) => {
           console.error('Error adding product to favorites:', error);
           return throwError(() => error);
@@ -51,33 +62,25 @@ export class FavoriteService {
       );
   }
 
-  updateFavorites(userId: number): Observable<Favorite[]> {
+  removeFavorite(userId: number, productId: number): Observable<void> {
     return this.httpClient
-      .put<Favorite[]>(`${this.apiUrl}/favorites/${userId}`, {})
+      .delete<void>(`${this.apiUrl}/favorites/${userId}/${productId}`)
       .pipe(
-        catchError((error: HttpErrorResponse) => {
-          console.error('Error updating favorites:', error);
-          return throwError(() => error);
-        })
-      );
-  }
-
-  removeFavorite(userId: number, productId: number): Observable<string> {
-    return this.httpClient
-      .delete<string>(`${this.apiUrl}/favorites/${userId}/${productId}`)
-      .pipe(
+        tap(() => {
+          const currentFavorites = this.favoritesSubject.value;
+          this.favoritesSubject.next(
+            currentFavorites.filter((id) => id !== productId)
+          );
+        }),
         catchError((error: HttpErrorResponse) => {
           console.error('Error removing favorite:', error);
           return throwError(() => error);
         })
       );
   }
+
   toggleFavorite(product: IProduct): void {
     if (this.userId) {
-      this.authService
-        .getCurrentUser()
-        .pipe(tap((user) => (this.userId = user ? user.id : null)))
-        .subscribe();
       if (product.isFavorite) {
         this.removeFavorite(this.userId, product.id).subscribe(() => {
           product.isFavorite = false;
@@ -89,23 +92,15 @@ export class FavoriteService {
       }
     }
   }
-  productsToFavorites(products: IProduct[]): Observable<IProduct[]> {
-    if (this.userId) {
-      return this.getUserFavorites(this.userId).pipe(
-        map((favorites: Favorite[]) => {
-          return products.map((product: IProduct) => ({
-            ...product,
-            isFavorite: favorites.some((fav) => fav.productId === product.id),
-          }));
-        }),
-        catchError((error) => {
-          console.error('Error fetching products:', error);
-          console.error('Failed to load products. Please try again later.');
-          return of([]);
-        })
-      );
-    } else {
-      return of(products);
-    }
+
+  productsFavorites(products: IProduct[]): Observable<IProduct[]> {
+    return this.favorites$.pipe(
+      map((favoriteIds) => {
+        return products.map((product) => {
+          product.isFavorite = favoriteIds.includes(product.id);
+          return product;
+        });
+      })
+    );
   }
 }
