@@ -41,7 +41,7 @@
         >person</mat-icon
       >
 
-      <mat-icon class="icon">favorite</mat-icon>
+      <mat-icon class="icon" (click)="favorite()">favorite</mat-icon>
       <mat-icon class="icon" [routerLink]="'/cart'">shopping_cart</mat-icon>
       <mat-icon *ngIf="isLoggedIn" class="icon" (click)="logout()"
         >exit_to_app</mat-icon

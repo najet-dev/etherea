@@ -5,6 +5,11 @@ import { Favorite } from '../models/favorite.model';
 import { ProductService } from 'src/app/services/product.service';
 import { IProduct } from '../models/i-product';
 import { forkJoin, map, switchMap } from 'rxjs';
+import { Cart } from '../models/cart.model';
+import { CartService } from 'src/app/services/cart.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ProductSummaryComponent } from '../product-summary/product-summary.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-favorite',
@@ -15,11 +20,16 @@ export class FavoriteComponent implements OnInit {
   favorites: Favorite[] = [];
   userId!: number;
   product: IProduct | null = null;
+  showModal = false;
+  confirmedProductId!: number;
 
   constructor(
     private favoriteService: FavoriteService,
     private authService: AuthService,
-    private productService: ProductService
+    private productService: ProductService,
+    private cartService: CartService,
+    private dialog: MatDialog,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -60,18 +70,62 @@ export class FavoriteComponent implements OnInit {
       });
   }
 
+  confirmRemoveFavorite(productId: number): void {
+    this.confirmedProductId = productId;
+    this.showModal = true;
+  }
+
   removeFavorite(productId: number): void {
-    this.favoriteService.removeFavorite(this.userId, productId).subscribe(
-      (response) => {
+    this.favoriteService.removeFavorite(this.userId, productId).subscribe({
+      next: (response) => {
         console.log(response);
         // Mettez à jour la liste des favoris après la suppression
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
+        this.hideModal();
       },
-      (error) => {
+      error: (error) => {
         console.error('Error removing favorite:', error);
-      }
-    );
+      },
+    });
+  }
+
+  hideModal(): void {
+    this.showModal = false;
+  }
+  openProductPopup(product: IProduct): void {
+    const cartItem: Cart = {
+      id: 0,
+      userId: this.userId,
+      productId: product.id,
+      quantity: 1,
+      product: product,
+    };
+
+    this.cartService.addToCart(cartItem).subscribe({
+      next: () => {
+        const dialogRef = this.dialog.open(ProductSummaryComponent, {
+          width: '60%',
+          height: '80%',
+          data: {
+            product: product,
+            quantity: cartItem.quantity,
+            subTotal: cartItem.quantity * product.price,
+          },
+        });
+
+        dialogRef.afterClosed().subscribe({
+          next: (result) => {
+            if (result === 'goToCart') {
+              this.router.navigateByUrl('/cart');
+            }
+          },
+        });
+      },
+      error: (error) => {
+        console.error("Erreur lors de l'ajout du produit au panier :", error);
+      },
+    });
   }
 }

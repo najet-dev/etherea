@@ -1,0 +1,13 @@
+.sidebar {
+  margin-top: 40px;
+}
+.container-fluid {
+  padding-top: 10px;
+}
+.nav-link {
+  margin-top: 60px;
+}
+.nav-link.active {
+  background-color: rgb(202, 245, 202);
+  border-color: rgb(202, 245, 202);
+}

@@ -38,18 +38,18 @@
 .text-and-buttons-container {
   flex: 2;
   display: flex;
-  flex-direction: column; /* Aligner les éléments en colonne */
+  flex-direction: column;
   margin: 75px;
 }
 
 .modal-buttons {
   display: flex;
-  flex-direction: column; /* Aligner les boutons en colonne */
-  align-items: flex-start; /* Aligner les boutons à gauche */
-  margin-top: 20px; /* Espacement entre les boutons */
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 20px;
 }
 
 .modal-buttons button {
-  width: 200px; /* Réinitialiser la largeur à automatique */
-  margin-bottom: 10px; /* Espacement vertical entre les boutons */
+  width: 200px;
+  margin-bottom: 10px;
 }

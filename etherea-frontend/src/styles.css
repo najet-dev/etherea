@@ -14,7 +14,7 @@
   --bg-color: #081b29;
   --second-bg-color: #372937;
   --text-color: #ededed;
-  --main-color: #e6007e;
+  --main-color: #4caf50;
 }
 .col-md-3 {
   margin-bottom: 50px;
@@ -35,16 +35,49 @@
 .favorite {
   color: red !important;
 }
-
 .btn-primary {
-  background-color: #4caf50;
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 190px;
+  height: 40px;
+  background: var(--main-color);
+  border: 0.1rem solid var(--main-color);
+  font-size: 18px;
   color: white;
-  padding: 10px 20px;
-  border: none;
+  z-index: 1;
+  overflow: hidden;
   border-radius: 5px;
-  cursor: pointer;
+  transition: 0.5s;
 }
 
 .btn-primary:hover {
-  background-color: #63f349;
+  color: var(--main-color);
+  background: white;
+}
+
+.btn-primary:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+  z-index: -1;
+  transition: 0.5s;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.btn-primary:hover::before {
+  transform: scaleX(1);
+}
+
+.btn-box {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
 }

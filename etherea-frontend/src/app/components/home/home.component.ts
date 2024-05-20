@@ -13,6 +13,7 @@ import {
   of,
 } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -27,7 +28,8 @@ export class HomeComponent implements OnDestroy {
   constructor(
     private productService: ProductService,
     private favoriteService: FavoriteService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     this.loadProducts();
     this.authService
@@ -47,6 +49,15 @@ export class HomeComponent implements OnDestroy {
       takeUntil(this.destroy$)
     );
   }
+
+  handleFavoriteClick(product: IProduct): void {
+    if (this.userId === null) {
+      this.router.navigate(['/signin']);
+    } else {
+      this.toggleFavorite(product);
+    }
+  }
+
   toggleFavorite(product: IProduct): void {
     this.favoriteService.toggleFavorite(product);
   }
