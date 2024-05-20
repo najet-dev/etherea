@@ -28,6 +28,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { FavoriteComponent } from './components/favorite/favorite.component';
 import { FavoriteService } from './services/favorite.service';
+import { OrderComponent } from './components/order/order.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { FavoriteService } from './services/favorite.service';
     ProductSummaryComponent,
     SidebarComponent,
     FavoriteComponent,
+    OrderComponent,
   ],
   imports: [
     BrowserModule,

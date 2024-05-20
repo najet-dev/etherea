@@ -13,6 +13,7 @@ export class MenuComponent implements OnInit {
   isBurgerMenuOpen = false;
   isBurgerIconVisible = true;
   isLoggedIn: boolean = false;
+  userId: number | null = null;
 
   constructor(
     private router: Router,
@@ -50,6 +51,13 @@ export class MenuComponent implements OnInit {
   closeBurgerMenu() {
     this.isBurgerMenuOpen = false;
     this.isBurgerIconVisible = true; // Rétablir la visibilité de l'icône du menu burger
+  }
+  favorite(): void {
+    if (!this.isLoggedIn) {
+      this.router.navigate(['/signin']);
+    } else {
+      this.router.navigate(['/favorites']);
+    }
   }
 
   logout() {

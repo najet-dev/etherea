@@ -6,20 +6,7 @@
   border-color: green;
   box-shadow: 0 0 30px rgba(0, 128, 0, 0.5);
 }
-.btn-primary {
-  background-color: #4caf50;
-  color: white;
-  width: 60%;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 15px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-.btn-primary:hover {
-  background-color: #63f349;
-  color: white;
-}
+
 .connect {
   text-align: center;
   margin-top: 50px;

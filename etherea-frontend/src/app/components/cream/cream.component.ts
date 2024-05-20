@@ -12,6 +12,7 @@ import {
 import { ProductService } from 'src/app/services/product.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-day-cream',
@@ -26,7 +27,8 @@ export class CreamComponent implements OnDestroy {
   constructor(
     private productService: ProductService,
     private authService: AuthService,
-    private favoriteService: FavoriteService
+    private favoriteService: FavoriteService,
+    private router: Router
   ) {
     this.authService
       .getCurrentUser()
@@ -60,6 +62,13 @@ export class CreamComponent implements OnDestroy {
         }),
         takeUntil(this.destroy$)
       );
+  }
+  handleFavoriteClick(product: IProduct): void {
+    if (this.userId === null) {
+      this.router.navigate(['/signin']);
+    } else {
+      this.toggleFavorite(product);
+    }
   }
 
   toggleFavorite(product: IProduct): void {
