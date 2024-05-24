@@ -9,7 +9,9 @@
         >
           <i class="fas fa-shopping-cart mr-2"></i>
           Mes commandes
+          <span class="greater-symbol">&gt;</span>
         </a>
+        <hr class="category-divider" />
       </li>
       <li class="nav-item">
         <a
@@ -19,7 +21,9 @@
         >
           <i class="fas fa-info-circle mr-2"></i>
           Mes informations
+          <span class="greater-symbol">&gt;</span>
         </a>
+        <hr class="category-divider" />
       </li>
       <li class="nav-item">
         <a
@@ -29,13 +33,17 @@
         >
           <i class="fas fa-heart mr-2"></i>
           Mes favoris
+          <span class="greater-symbol">&gt;</span>
         </a>
+        <hr class="category-divider" />
       </li>
       <li class="nav-item">
-        <a class="nav-link text-dark" (click)="logout()">
+        <a class="nav-link text-dark logout-link" (click)="logout()">
           <i class="fas fa-sign-out-alt mr-2"></i>
           Me déconnecter
+          <span class="greater-symbol">&gt;</span>
         </a>
+        <hr class="category-divider" />
       </li>
     </ul>
   </div>
