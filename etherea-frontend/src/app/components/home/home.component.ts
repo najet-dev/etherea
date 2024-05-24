@@ -1,29 +1,23 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ProductService } from 'src/app/services/product.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { IProduct } from '../models/i-product';
-import {
-  Observable,
-  Subject,
-  catchError,
-  takeUntil,
-  switchMap,
-  map,
-  tap,
-  of,
-} from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
 })
-export class HomeComponent implements OnDestroy {
+export class HomeComponent implements OnInit {
   products$: Observable<IProduct[]> = new Observable<IProduct[]>();
-  private destroy$ = new Subject<void>();
   userId: number | null = null;
+  private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(
     private productService: ProductService,
@@ -34,8 +28,14 @@ export class HomeComponent implements OnDestroy {
     this.loadProducts();
     this.authService
       .getCurrentUser()
-      .pipe(tap((user) => (this.userId = user ? user.id : null)))
+      .pipe(
+        tap((user) => (this.userId = user ? user.id : null)),
+        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+      )
       .subscribe();
+  }
+  ngOnInit(): void {
+    throw new Error('Method not implemented.');
   }
 
   loadProducts(): void {
@@ -46,7 +46,7 @@ export class HomeComponent implements OnDestroy {
         console.error('Failed to load products. Please try again later.');
         return of([]);
       }),
-      takeUntil(this.destroy$)
+      takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
     );
   }
 
@@ -60,10 +60,5 @@ export class HomeComponent implements OnDestroy {
 
   toggleFavorite(product: IProduct): void {
     this.favoriteService.toggleFavorite(product);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

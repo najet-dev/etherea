@@ -1,15 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { Favorite } from '../models/favorite.model';
 import { ProductService } from 'src/app/services/product.service';
 import { IProduct } from '../models/i-product';
-import { forkJoin, map, switchMap } from 'rxjs';
+import { forkJoin } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 import { Cart } from '../models/cart.model';
 import { CartService } from 'src/app/services/cart.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { Router } from '@angular/router';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-favorite',
@@ -22,6 +25,7 @@ export class FavoriteComponent implements OnInit {
   product: IProduct | null = null;
   showModal = false;
   confirmedProductId!: number;
+  private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(
     private favoriteService: FavoriteService,
@@ -33,12 +37,15 @@ export class FavoriteComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.authService.getCurrentUser().subscribe((user) => {
-      if (user && user.id) {
-        this.userId = user.id;
-        this.loadFavorites();
-      }
-    });
+    this.authService
+      .getCurrentUser()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((user) => {
+        if (user && user.id) {
+          this.userId = user.id;
+          this.loadFavorites();
+        }
+      });
   }
 
   loadFavorites(): void {
@@ -79,7 +86,7 @@ export class FavoriteComponent implements OnInit {
     this.favoriteService.removeFavorite(this.userId, productId).subscribe({
       next: (response) => {
         console.log(response);
-        // Mettez à jour la liste des favoris après la suppression
+        // Update the favorites list after removal
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
@@ -94,6 +101,7 @@ export class FavoriteComponent implements OnInit {
   hideModal(): void {
     this.showModal = false;
   }
+
   openProductPopup(product: IProduct): void {
     const cartItem: Cart = {
       id: 0,
@@ -124,7 +132,7 @@ export class FavoriteComponent implements OnInit {
         });
       },
       error: (error) => {
-        console.error("Erreur lors de l'ajout du produit au panier :", error);
+        console.error('Error adding product to cart:', error);
       },
     });
   }
