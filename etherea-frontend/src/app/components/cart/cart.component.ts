@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CartService } from 'src/app/services/cart.service';
 import { Cart } from 'src/app/components/models/cart.model';
 import { ProductService } from 'src/app/services/product.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-cart',
@@ -15,6 +17,10 @@ export class CartComponent implements OnInit {
   cartTotal: number = 0;
   userId!: number;
   isCartEmpty: boolean = true;
+  showConfirmDelete: boolean = false;
+  itemIdToDelete!: number;
+  showModal = false;
+  private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(
     private cartService: CartService,
@@ -28,12 +34,15 @@ export class CartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.authService.getCurrentUser().subscribe((user) => {
-      if (user && user.id) {
-        this.userId = user.id;
-        this.loadCartItems();
-      }
-    });
+    this.authService
+      .getCurrentUser()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((user) => {
+        if (user && user.id) {
+          this.userId = user.id;
+          this.loadCartItems();
+        }
+      });
   }
 
   loadCartItems() {
@@ -75,12 +84,12 @@ export class CartComponent implements OnInit {
 
   updateCartItem(item: Cart): void {
     this.cartService
-      .updateCartItem(this.userId, item.productId, item.quantity) // Utilisez item.productId comme productId
+      .updateCartItem(this.userId, item.productId, item.quantity)
       .subscribe({
         next: (updatedItem) => {
           console.log('Cart item updated successfully');
           const index = this.cartItems.findIndex(
-            (cartItem) => cartItem.productId === updatedItem.productId // Utilisez cartItem.productId pour comparer les produits
+            (cartItem) => cartItem.productId === updatedItem.productId
           );
           if (index !== -1) {
             this.cartItems[index] = updatedItem;
@@ -104,14 +113,29 @@ export class CartComponent implements OnInit {
     this.cartTotal = parseFloat(this.cartTotal.toFixed(2));
   }
 
-  deleteItemFromCart(id: number): void {
-    this.cartService.deleteCartItem(id).subscribe({
+  confirmDeleteItem(id: number): void {
+    this.itemIdToDelete = id;
+    this.showConfirmDelete = true;
+  }
+
+  deleteItem(): void {
+    this.cartService.deleteCartItem(this.itemIdToDelete).subscribe({
       next: () => {
         console.log('Product deleted from cart successfully');
+        this.showConfirmDelete = false;
+        this.loadCartItems();
       },
       error: (error) => {
         console.error('Failed to delete product from cart:', error);
+        this.showConfirmDelete = false;
       },
     });
+  }
+
+  cancelDelete(): void {
+    this.showConfirmDelete = false;
+  }
+  hideModal(): void {
+    this.showModal = false;
   }
 }

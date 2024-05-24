@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ProductService } from 'src/app/services/product.service';
 import { IProduct } from '../models/i-product';
 import {
@@ -19,7 +19,7 @@ import { Router } from '@angular/router';
   templateUrl: './hair.component.html',
   styleUrls: ['./hair.component.css'],
 })
-export class HairComponent implements OnDestroy {
+export class HairComponent implements OnInit {
   products$: Observable<IProduct[]> = new Observable<IProduct[]>();
   private destroy$ = new Subject<void>();
   userId: number | null = null;
@@ -37,6 +37,9 @@ export class HairComponent implements OnDestroy {
         tap(() => this.loadProducts()) // Load products after determining user ID
       )
       .subscribe();
+  }
+  ngOnInit(): void {
+    throw new Error('Method not implemented.');
   }
 
   private loadProducts(): void {

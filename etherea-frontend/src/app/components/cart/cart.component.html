@@ -62,7 +62,7 @@
         <td>
           <button
             class="delete-btn close-button"
-            (click)="deleteItemFromCart(item.id)"
+            (click)="confirmDeleteItem(item.id)"
           >
             &#10006;
           </button>
@@ -79,4 +79,27 @@
       </tr>
     </tfoot>
   </table>
+</div>
+
+<!-- Pop-up de confirmation -->
+<div *ngIf="showConfirmDelete" class="popup">
+  <div class="popup-content">
+    <button class="close-button" (click)="cancelDelete()">
+      <div class="modal-header justify-content-end">
+        <button
+          mat-icon-button
+          mat-dialog-close
+          class="close-button"
+          (click)="hideModal()"
+        >
+          <mat-icon aria-label="Close dialog">close</mat-icon>
+        </button>
+      </div>
+    </button>
+    <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+    <div class="btn-box">
+      <button class="btn-primary" (click)="deleteItem()">Supprimer</button>
+      <button class="btn-primary" (click)="cancelDelete()">Annuler</button>
+    </div>
+  </div>
 </div>

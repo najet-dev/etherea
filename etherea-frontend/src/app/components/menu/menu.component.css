@@ -1,5 +1,6 @@
 .logo {
   width: 80%;
+  cursor: pointer;
 }
 
 .burger-menu {
@@ -56,6 +57,7 @@
 
 .icon {
   margin-right: 2rem;
+  cursor: pointer;
 }
 
 .close-icon {

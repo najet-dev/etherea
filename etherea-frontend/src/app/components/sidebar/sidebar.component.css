@@ -1,13 +1,50 @@
 .sidebar {
-  margin-top: 40px;
+  margin-top: 77px;
 }
+
 .container-fluid {
   padding-top: 10px;
 }
+
 .nav-link {
-  margin-top: 60px;
+  margin-top: 20px; /* Ajusté pour un meilleur espacement */
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Aligne le contenu à gauche */
+  padding-right: 30px; /* Plus d'espace à droite pour le symbole */
+  transition: color 0.3s ease; /* Transition pour l'effet hover */
 }
+
+.nav-link i {
+  margin-right: 10px; /* Espace entre l'icône et le texte */
+}
+
+.nav-link span.greater-symbol {
+  margin-left: auto; /* Place le symbole à l'extrémité droite */
+  font-size: 1.4em; /* Ajustez la taille selon vos besoins */
+  padding-left: 100px; /* Espace supplémentaire pour éloigner le symbole du texte */
+}
+
+.nav-link:hover {
+  color: var(--main-color) !important; /* Couleur de texte au survol */
+}
+
 .nav-link.active {
   background-color: rgb(202, 245, 202);
   border-color: rgb(202, 245, 202);
+}
+
+.category-divider {
+  border: 0;
+  border-top: 2px solid #ccc; /* Un trait plus épais */
+  margin: 10px 0; /* Plus d'espace autour du trait */
+  width: calc(
+    100% - 40px
+  ); /* Un trait plus long, ajusté pour s'adapter aux marges */
+  margin-left: auto;
+  margin-right: auto;
+}
+.logout-link {
+  cursor: pointer;
 }
