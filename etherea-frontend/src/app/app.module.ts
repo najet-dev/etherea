@@ -27,6 +27,8 @@ import { AuthInterceptor } from './components/helpers/authInterceptor';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { FavoriteComponent } from './components/favorite/favorite.component';
+import { AppFacade } from 'src/app/services/appFacade.service';
+
 import { FavoriteService } from './services/favorite.service';
 import { OrderComponent } from './components/order/order.component';
 
@@ -67,6 +69,7 @@ import { OrderComponent } from './components/order/order.component';
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     FavoriteService,
+    AppFacade,
   ],
   bootstrap: [AppComponent],
 })

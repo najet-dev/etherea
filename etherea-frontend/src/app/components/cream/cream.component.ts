@@ -1,33 +1,30 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IProduct } from '../models/i-product';
-import {
-  Observable,
-  Subject,
-  catchError,
-  of,
-  switchMap,
-  takeUntil,
-  tap,
-} from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import { ProductService } from 'src/app/services/product.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
+import { DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-day-cream',
   templateUrl: './cream.component.html',
   styleUrls: ['./cream.component.css'],
 })
-export class CreamComponent implements OnDestroy {
+export class CreamComponent implements OnInit {
   products$: Observable<IProduct[]> = new Observable<IProduct[]>();
-  private destroy$ = new Subject<void>();
   userId: number | null = null;
+  private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(
     private productService: ProductService,
     private authService: AuthService,
     private favoriteService: FavoriteService,
+    private appFacade: AppFacade,
     private router: Router
   ) {
     this.authService
@@ -36,9 +33,13 @@ export class CreamComponent implements OnDestroy {
         tap((user) => {
           this.userId = user ? user.id : null;
           this.loadProducts(); // Load products after determining user ID
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
       )
       .subscribe();
+  }
+  ngOnInit(): void {
+    throw new Error('Method not implemented.');
   }
 
   loadProducts(): void {
@@ -46,7 +47,7 @@ export class CreamComponent implements OnDestroy {
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
 
-    this.products$ = this.productService
+    this.products$ = this.appFacade
       .getProductsByType(productType, page, size)
       .pipe(
         switchMap((products) => {
@@ -60,9 +61,10 @@ export class CreamComponent implements OnDestroy {
           console.error('Failed to load products. Please try again later.');
           return of([]);
         }),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
       );
   }
+
   handleFavoriteClick(product: IProduct): void {
     if (this.userId === null) {
       this.router.navigate(['/signin']);
@@ -72,11 +74,6 @@ export class CreamComponent implements OnDestroy {
   }
 
   toggleFavorite(product: IProduct): void {
-    this.favoriteService.toggleFavorite(product);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.appFacade.toggleFavorite(product);
   }
 }

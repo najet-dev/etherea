@@ -6,6 +6,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-cart',
@@ -22,13 +23,8 @@ export class CartComponent implements OnInit {
   showModal = false;
   private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
-  constructor(
-    private cartService: CartService,
-    private productService: ProductService,
-    private authService: AuthService,
-    private storageService: StorageService
-  ) {
-    this.cartService.cartUpdated.subscribe(() => {
+  constructor(private authService: AuthService, private appFacade: AppFacade) {
+    this.appFacade.cartService.cartUpdated.subscribe(() => {
       this.loadCartItems();
     });
   }
@@ -46,14 +42,14 @@ export class CartComponent implements OnInit {
   }
 
   loadCartItems() {
-    this.cartService.getCartItems(this.userId).subscribe({
+    this.appFacade.getCartItems(this.userId).subscribe({
       next: (cartItems) => {
         this.cartItems = cartItems;
         this.isCartEmpty = this.cartItems.length === 0;
 
         for (let i = 0; i < this.cartItems.length; i++) {
           const item = this.cartItems[i];
-          this.productService.getProductById(item.productId).subscribe({
+          this.appFacade.getProductById(item.productId).subscribe({
             next: (product) => {
               item.product = product;
               this.calculateCartTotal();
@@ -83,7 +79,7 @@ export class CartComponent implements OnInit {
   }
 
   updateCartItem(item: Cart): void {
-    this.cartService
+    this.appFacade.cartService
       .updateCartItem(this.userId, item.productId, item.quantity)
       .subscribe({
         next: (updatedItem) => {
@@ -119,7 +115,7 @@ export class CartComponent implements OnInit {
   }
 
   deleteItem(): void {
-    this.cartService.deleteCartItem(this.itemIdToDelete).subscribe({
+    this.appFacade.cartService.deleteCartItem(this.itemIdToDelete).subscribe({
       next: () => {
         console.log('Product deleted from cart successfully');
         this.showConfirmDelete = false;
