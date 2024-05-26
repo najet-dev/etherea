@@ -1,18 +1,14 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProductService } from 'src/app/services/product.service';
 import { IProduct } from '../models/i-product';
-import {
-  Observable,
-  Subject,
-  catchError,
-  of,
-  switchMap,
-  takeUntil,
-  tap,
-} from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { Router } from '@angular/router';
+import { DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-hair',
@@ -21,25 +17,24 @@ import { Router } from '@angular/router';
 })
 export class HairComponent implements OnInit {
   products$: Observable<IProduct[]> = new Observable<IProduct[]>();
-  private destroy$ = new Subject<void>();
   userId: number | null = null;
+  private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(
-    private productService: ProductService,
     private authService: AuthService,
-    private favoriteService: FavoriteService,
+    private appFacade: AppFacade,
     private router: Router
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     this.authService
       .getCurrentUser()
       .pipe(
         tap((user) => (this.userId = user ? user.id : null)),
-        tap(() => this.loadProducts()) // Load products after determining user ID
+        tap(() => this.loadProducts()),
+        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
       )
       .subscribe();
-  }
-  ngOnInit(): void {
-    throw new Error('Method not implemented.');
   }
 
   private loadProducts(): void {
@@ -47,12 +42,12 @@ export class HairComponent implements OnInit {
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
 
-    this.products$ = this.productService
+    this.products$ = this.appFacade
       .getProductsByType(productType, page, size)
       .pipe(
         switchMap((products) => {
           if (this.userId !== null) {
-            return this.favoriteService.productsFavorites(products);
+            return this.appFacade.productsFavorites(products);
           }
           return of(products);
         }),
@@ -61,9 +56,10 @@ export class HairComponent implements OnInit {
           console.error('Failed to load products. Please try again later.');
           return of([]);
         }),
-        takeUntil(this.destroy$)
+        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
       );
   }
+
   handleFavoriteClick(product: IProduct): void {
     if (this.userId === null) {
       this.router.navigate(['/signin']);
@@ -73,11 +69,6 @@ export class HairComponent implements OnInit {
   }
 
   toggleFavorite(product: IProduct): void {
-    this.favoriteService.toggleFavorite(product);
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.appFacade.toggleFavorite(product);
   }
 }

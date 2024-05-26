@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface ProductRepository  extends JpaRepository<Product, Long> {
     Page<Product> findByType(ProductType type, Pageable pageable);
+    List<Product> findByName(String name);
+
     //Page<Product> findByTypeAndIsNew(ProductType type, boolean NEW, Pageable pageable);
 
 
