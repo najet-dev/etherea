@@ -13,6 +13,7 @@ import { ProductSummaryComponent } from '../product-summary/product-summary.comp
 import { Router } from '@angular/router';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-favorite',
@@ -28,10 +29,8 @@ export class FavoriteComponent implements OnInit {
   private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(
-    private favoriteService: FavoriteService,
     private authService: AuthService,
-    private productService: ProductService,
-    private cartService: CartService,
+    private appFacade: AppFacade,
     private dialog: MatDialog,
     private router: Router
   ) {}
@@ -49,12 +48,12 @@ export class FavoriteComponent implements OnInit {
   }
 
   loadFavorites(): void {
-    this.favoriteService
+    this.appFacade
       .getUserFavorites(this.userId)
       .pipe(
         switchMap((favorites) => {
           const productObservables = favorites.map((favorite) =>
-            this.productService.getProductById(favorite.productId)
+            this.appFacade.getProductById(favorite.productId)
           );
           return forkJoin(productObservables).pipe(
             map((products) => {
@@ -83,7 +82,7 @@ export class FavoriteComponent implements OnInit {
   }
 
   removeFavorite(productId: number): void {
-    this.favoriteService.removeFavorite(this.userId, productId).subscribe({
+    this.appFacade.removeFavorite(this.userId, productId).subscribe({
       next: (response) => {
         console.log(response);
         // Update the favorites list after removal
@@ -111,7 +110,7 @@ export class FavoriteComponent implements OnInit {
       product: product,
     };
 
-    this.cartService.addToCart(cartItem).subscribe({
+    this.appFacade.cartService.addToCart(cartItem).subscribe({
       next: () => {
         const dialogRef = this.dialog.open(ProductSummaryComponent, {
           width: '60%',
