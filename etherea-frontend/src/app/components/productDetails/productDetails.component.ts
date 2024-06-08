@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { switchMap, catchError, tap } from 'rxjs/operators';
 import { IProduct } from '../models/i-product';
 import { ProductService } from 'src/app/services/product.service';
@@ -9,10 +9,9 @@ import { ProductSummaryComponent } from '../product-summary/product-summary.comp
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from 'src/app/services/auth.service';
 import { SigninRequest } from '../models/signinRequest.model';
-import { DestroyRef, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-product-details',
@@ -27,6 +26,8 @@ export class ProductDetailsComponent implements OnInit {
     userId: 0,
     productId: 1,
     quantity: 1,
+    volume: 30,
+    subTotal: 0, // Ajout du subTotal
     product: {
       id: 1,
       name: '',
@@ -41,6 +42,7 @@ export class ProductDetailsComponent implements OnInit {
       image: '',
     },
   };
+  volumes: number[] = [30, 50, 100, 150, 200]; // Volumes disponibles
   limitReached = false;
   stockMessage: string = '';
   private destroyRef = inject(DestroyRef);
@@ -108,21 +110,24 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   incrementQuantity(): void {
-    if (this.cartItem.quantity < 8) {
+    if (this.cartItem.quantity < 10) {
       this.cartItem.quantity++;
+    } else {
+      this.limitReached = true;
     }
   }
 
   decrementQuantity(): void {
     if (this.cartItem.quantity > 1) {
       this.cartItem.quantity--;
+      this.limitReached = false;
     }
   }
 
   addToCart(): void {
     if (this.userId !== null) {
       const subTotal = this.cartItem.quantity * this.cartItem.product.price;
-      this.cartItem.subTotal = subTotal;
+      this.cartItem.subTotal = subTotal; // Calcul du subTotal
       this.cartItem.userId = this.userId;
 
       this.appFacade.cartService
@@ -166,6 +171,8 @@ export class ProductDetailsComponent implements OnInit {
       userId: 0,
       productId: 1,
       quantity: 1,
+      volume: 30,
+      subTotal: 0, // Réinitialisation du subTotal
       product: {
         id: 0,
         name: '',

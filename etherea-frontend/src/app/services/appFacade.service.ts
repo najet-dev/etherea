@@ -1,16 +1,11 @@
-import { EventEmitter, Injectable } from '@angular/core';
-import { Observable, catchError, tap, throwError } from 'rxjs';
-import { AuthService } from './auth.service';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { CartService } from './cart.service';
 import { FavoriteService } from './favorite.service';
 import { ProductService } from './product.service';
-import { CartService } from './cart.service';
-import { SigninRequest } from '../components/models/signinRequest.model';
-import { SignupRequest } from '../components/models/SignupRequest.model';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
 import { IProduct } from '../components/models/i-product';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -34,10 +29,17 @@ export class AppFacade {
   updateCartItem(
     userId: number,
     productId: number,
-    newQuantity: number
+    newQuantity: number,
+    volume: number // Ajout du paramètre volume
   ): Observable<Cart> {
-    return this.cartService.updateCartItem(userId, productId, newQuantity);
+    return this.cartService.updateCartItem(
+      userId,
+      productId,
+      newQuantity,
+      volume
+    );
   }
+
   deleteCartItem(id: number): Observable<void> {
     return this.cartService.deleteCartItem(id);
   }

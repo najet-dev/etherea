@@ -80,7 +80,7 @@ export class CartComponent implements OnInit {
 
   updateCartItem(item: Cart): void {
     this.appFacade.cartService
-      .updateCartItem(this.userId, item.productId, item.quantity)
+      .updateCartItem(this.userId, item.productId, item.quantity, item.volume)
       .subscribe({
         next: (updatedItem) => {
           console.log('Cart item updated successfully');

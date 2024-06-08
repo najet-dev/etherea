@@ -1,10 +1,7 @@
 package com.etherea.models;
 
-
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.List;
 
 @Entity
@@ -16,25 +13,26 @@ public class CartItem {
     private double subTotal;
     private double total;
     @ManyToOne
+    @JoinColumn(name = "productVolumeId", nullable = false)
+    private ProductVolume productVolume;
+    @ManyToOne
     @JoinColumn(name = "userId")
-    @JsonIgnore // Ignorer la sérialisation de cette propriété pour éviter la récursion infinie
+    @JsonIgnore // Ignore serialization to avoid infinite recursion
     private User user;
     @ManyToOne
     @JoinColumn(name = "productId")
     private Product product;
     @ManyToOne
-    @JoinColumn(name = "cartId")
+    @JoinColumn(name = "cartId", nullable = false)
     private Cart cart;
-
-    public CartItem() {
-    }
-    public CartItem(Long id,int quantity, double subTotal, double total, Product product, Cart cart) {
-        this.id = id;
+    public CartItem() {}
+    public CartItem(int quantity, ProductVolume productVolume, Product product, Cart cart) {
         this.quantity = quantity;
-        this.subTotal = subTotal;
-        this.total = total;
+        this.productVolume = productVolume;
         this.product = product;
         this.cart = cart;
+        this.subTotal = calculateSubtotal();
+        this.total = calculateTotal();
     }
     public Long getId() {
         return id;
@@ -42,11 +40,29 @@ public class CartItem {
     public void setId(Long id) {
         this.id = id;
     }
+    public int getQuantity() {
+        return quantity;
+    }
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-        // Recalculer le sous-total et le total après la mise à jour de la quantité
+        // Recalculate subtotal and total after updating quantity
         this.subTotal = calculateSubtotal();
         this.total = calculateTotal();
+    }
+    public ProductVolume getProductVolume() {
+        return productVolume;
+    }
+    public void setProductVolume(ProductVolume productVolume) {
+        this.productVolume = productVolume;
+        // Recalculate subtotal and total after updating product volume
+        this.subTotal = calculateSubtotal();
+        this.total = calculateTotal();
+    }
+    public Product getProduct() {
+        return product;
+    }
+    public void setProduct(Product product) {
+        this.product = product;
     }
     public double getSubTotal() {
         return subTotal;
@@ -57,23 +73,14 @@ public class CartItem {
     public double getTotal() {
         return total;
     }
+    public void setTotal(double total) {
+        this.total = total;
+    }
     public User getUser() {
         return user;
     }
     public void setUser(User user) {
         this.user = user;
-    }
-    public void setTotal(double total) {
-        this.total = total;
-    }
-    public Product getProduct() {
-        return product;
-    }
-    public void setProduct(Product product) {
-        this.product = product;
-    }
-    public int getQuantity() {
-        return this.quantity;
     }
     public Cart getCart() {
         return cart;
@@ -81,25 +88,18 @@ public class CartItem {
     public void setCart(Cart cart) {
         this.cart = cart;
     }
-
-    // Méthode pour calculer le sous-total (prix * quantité) d'un produit
+    // Method to calculate subtotal (price * quantity) of a product
     public double calculateSubtotal() {
-        double subtotal = getProduct().getPrice() * getQuantity();
-        return subtotal;
+        return getProductVolume().getPrice() * getQuantity();
     }
-    // Méthode pour calculer le total (prix total pour tous les produits dans le panier)
+    // Method to calculate total (currently identical to subtotal)
     public double calculateTotal() {
-        double total = calculateSubtotal(); // appel à la méthode calculateSubtotal pour obtenir le sous-total
-        return total;
+        return calculateSubtotal();
     }
-    // Méthode pour calculer le prix total de tous les produits dans le panier
+    // Method to calculate the total price of all products in the cart
     public static double calculateTotalPrice(List<CartItem> items) {
-        double totalPrice = 0.0;
-
-        for (CartItem cartItem : items) {
-            totalPrice += cartItem.calculateSubtotal();
-        }
-        return totalPrice;
+        return items.stream()
+                .mapToDouble(CartItem::calculateSubtotal)
+                .sum();
     }
-
 }

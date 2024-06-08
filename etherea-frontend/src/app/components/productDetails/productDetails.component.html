@@ -23,6 +23,15 @@
       <div *ngIf="limitReached" class="alert alert-warning">
         La limite de 10 produits a été atteinte.
       </div>
+      <select
+        id="volumeSelect"
+        [(ngModel)]="cartItem.volume"
+        class="form-control"
+      >
+        <option *ngFor="let volume of volumes" [value]="volume">
+          {{ volume }} ml
+        </option>
+      </select>
       <div class="quantity-selector" style="display: inline-flex">
         <button class="quantity-btn" (click)="decrementQuantity()">-</button>
         <span>{{ cartItem.quantity }}</span>

@@ -1,6 +1,6 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Cart } from '../components/models/cart.model';
@@ -32,7 +32,8 @@ export class CartService {
     const params = new HttpParams()
       .set('userId', cart.userId.toString())
       .set('productId', cart.productId.toString())
-      .set('quantity', cart.quantity.toString());
+      .set('quantity', cart.quantity.toString())
+      .set('volume', cart.volume.toString()); // Ajout du paramètre volume
 
     return this.httpClient
       .post<Cart>(`${this.apiUrl}/cart/addToCart`, null, {
@@ -49,9 +50,12 @@ export class CartService {
   updateCartItem(
     userId: number,
     productId: number,
-    newQuantity: number
+    newQuantity: number,
+    volume: number // Ajout du paramètre volume
   ): Observable<Cart> {
-    const params = new HttpParams().set('newQuantity', newQuantity.toString());
+    const params = new HttpParams()
+      .set('newQuantity', newQuantity.toString())
+      .set('volume', volume.toString()); // Ajout du paramètre volume
 
     return this.httpClient
       .put<Cart>(`${this.apiUrl}/cart/${userId}/products/${productId}`, null, {
@@ -68,6 +72,7 @@ export class CartService {
         })
       );
   }
+
   deleteCartItem(id: number): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiUrl}/cart/${id}`).pipe(
       catchError((error) => {

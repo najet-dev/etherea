@@ -1,6 +1,8 @@
 package com.etherea.dtos;
 
 import com.etherea.models.CartItem;
+import com.etherea.models.Product;
+import com.etherea.models.ProductVolume;
 
 public class CartItemDTO {
     private Long id;
@@ -9,16 +11,18 @@ public class CartItemDTO {
     private double total;
     private Long productId;
     private Long userId;
-    public CartItemDTO() {
-    }
-    public CartItemDTO(Long id, int quantity, double subTotal, double total, Long productId, Long userId) {
+    private Long productVolumeId;
+    public CartItemDTO() {}
+    public CartItemDTO(Long id, int quantity, double subTotal, double total, Long productId, Long userId, Long productVolumeId) {
         this.id = id;
         this.quantity = quantity;
         this.subTotal = subTotal;
         this.total = total;
         this.productId = productId;
         this.userId = userId;
+        this.productVolumeId = productVolumeId;
     }
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -55,9 +59,31 @@ public class CartItemDTO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+    public Long getProductVolumeId() {
+        return productVolumeId;
+    }
+    public void setProductVolumeId(Long productVolumeId) {
+        this.productVolumeId = productVolumeId;
+    }
     public static CartItemDTO fromCartItem(CartItem cartItem) {
-        ProductDTO productDTO = ProductDTO.fromProduct(cartItem.getProduct());
-        UserDTO userDTO = UserDTO.fromUser(cartItem.getUser());
-        return new CartItemDTO(cartItem.getId(), cartItem.getQuantity(), cartItem.getSubTotal(), cartItem.getTotal(), productDTO.getId(), userDTO.getId());
+        return new CartItemDTO(
+                cartItem.getId(),
+                cartItem.getQuantity(),
+                cartItem.getSubTotal(),
+                cartItem.getTotal(),
+                cartItem.getProduct() != null ? cartItem.getProduct().getId() : null,
+                cartItem.getUser() != null ? cartItem.getUser().getId() : null,
+                cartItem.getProductVolume() != null ? cartItem.getProductVolume().getId() : null
+        );
+    }
+    public CartItem toCartItem(Product product, ProductVolume productVolume) {
+        CartItem cartItem = new CartItem();
+        cartItem.setId(this.id);
+        cartItem.setQuantity(this.quantity);
+        cartItem.setProduct(product);
+        cartItem.setProductVolume(productVolume);
+        cartItem.setSubTotal(this.subTotal);
+        cartItem.setTotal(this.total);
+        return cartItem;
     }
 }

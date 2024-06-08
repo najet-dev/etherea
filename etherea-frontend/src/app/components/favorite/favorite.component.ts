@@ -107,6 +107,7 @@ export class FavoriteComponent implements OnInit {
       userId: this.userId,
       productId: product.id,
       quantity: 1,
+      volume: 0,
       product: product,
     };
 
