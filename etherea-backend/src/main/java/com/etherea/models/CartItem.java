@@ -36,6 +36,10 @@ public class CartItem {
         this.product = product;
         this.cart = cart;
     }
+
+    public CartItem(long l, int i, double v, double v1, Product product, Volume volume, Cart cart) {
+    }
+
     public Long getId() {
         return id;
     }
