@@ -1,18 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { switchMap, catchError, tap } from 'rxjs/operators';
-import { IProduct } from '../models/i-product';
-import { ProductService } from 'src/app/services/product.service';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
+import { switchMap, catchError, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { CartService } from 'src/app/services/cart.service';
-import { Cart } from '../models/cart.model';
-import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { MatDialog } from '@angular/material/dialog';
+import { IProduct } from '../models/i-product';
+import { Volume } from '../models/volume.model';
+import { Cart } from '../models/cart.model';
+import { AppFacade } from 'src/app/services/appFacade.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { SigninRequest } from '../models/signinRequest.model';
-import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { of } from 'rxjs';
-import { AppFacade } from 'src/app/services/appFacade.service';
+import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 
 @Component({
   selector: 'app-product-details',
@@ -22,11 +19,13 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 export class ProductDetailsComponent implements OnInit {
   product: IProduct | null = null;
   userId: number | null = null;
+  selectedVolume: Volume | null = null;
   cartItem: Cart = {
     id: 0,
     userId: 0,
     productId: 1,
     quantity: 1,
+    subTotal: 0,
     product: {
       id: 1,
       name: '',
@@ -39,6 +38,7 @@ export class ProductDetailsComponent implements OnInit {
       ingredients: '',
       characteristics: '',
       image: '',
+      volumes: [],
     },
   };
   limitReached = false;
@@ -62,6 +62,7 @@ export class ProductDetailsComponent implements OnInit {
       .pipe(
         switchMap((params) => {
           const id = params['id'];
+          // Replace this with the actual API call to get product details
           return this.appFacade.getProductById(id);
         }),
         catchError((error) => {
@@ -75,7 +76,18 @@ export class ProductDetailsComponent implements OnInit {
           this.product = product;
           this.cartItem.productId = product.id;
           this.cartItem.product = { ...product };
-          this.updateStockMessage(product.stockStatus);
+
+          // Simulate volumes for the product
+          this.product.volumes = [
+            { volume: '50ml', price: 15 },
+            { volume: '100ml', price: 30 },
+            { volume: '200ml', price: 60 },
+          ];
+
+          this.selectedVolume = this.product.volumes[0]; // Default to the first volume
+          this.cartItem.product.price = this.selectedVolume.price; // Set initial price
+          this.updateStockMessage(this.product.stockStatus);
+          this.updateSubTotal();
         }
       });
   }
@@ -108,22 +120,33 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   incrementQuantity(): void {
-    if (this.cartItem.quantity < 8) {
+    if (this.cartItem.quantity < 10) {
       this.cartItem.quantity++;
+      this.updateSubTotal();
+    } else {
+      this.limitReached = true;
     }
   }
 
   decrementQuantity(): void {
     if (this.cartItem.quantity > 1) {
       this.cartItem.quantity--;
+      this.limitReached = false;
+      this.updateSubTotal();
+    }
+  }
+
+  updateSubTotal(): void {
+    if (this.selectedVolume) {
+      this.cartItem.subTotal =
+        this.cartItem.quantity * this.selectedVolume.price;
     }
   }
 
   addToCart(): void {
-    if (this.userId !== null) {
-      const subTotal = this.cartItem.quantity * this.cartItem.product.price;
-      this.cartItem.subTotal = subTotal;
+    if (this.userId !== null && this.selectedVolume) {
       this.cartItem.userId = this.userId;
+      this.cartItem.product.price = this.selectedVolume.price; // Update cart item price
 
       this.appFacade.cartService
         .addToCart(this.cartItem)
@@ -139,7 +162,7 @@ export class ProductDetailsComponent implements OnInit {
           },
         });
     } else {
-      console.error('User ID is not available.');
+      console.error('User ID or selected volume is not available.');
     }
   }
 
@@ -166,6 +189,7 @@ export class ProductDetailsComponent implements OnInit {
       userId: 0,
       productId: 1,
       quantity: 1,
+      subTotal: 0,
       product: {
         id: 0,
         name: '',
@@ -178,6 +202,7 @@ export class ProductDetailsComponent implements OnInit {
         ingredients: '',
         characteristics: '',
         image: '',
+        volumes: [],
       },
     };
   }

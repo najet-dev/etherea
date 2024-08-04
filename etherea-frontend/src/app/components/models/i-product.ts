@@ -1,3 +1,5 @@
+import { Volume } from './volume.model';
+
 export interface IProduct {
   id: number;
   name: string;
@@ -11,6 +13,7 @@ export interface IProduct {
   characteristics: String;
   image: string;
   isFavorite?: boolean;
+  volumes: Volume[];
 }
 
 export enum ProductType {
