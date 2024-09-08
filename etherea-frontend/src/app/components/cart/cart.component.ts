@@ -97,12 +97,11 @@ export class CartComponent implements OnInit {
         },
       });
   }
-
   calculateCartTotal(): void {
     this.cartTotal = 0;
     for (const item of this.cartItems) {
-      if (item.product && item.product.price) {
-        item.subTotal = item.product.price * item.quantity;
+      if (item.product && item.selectedVolume.price) {
+        item.subTotal = item.selectedVolume.price * item.quantity;
         this.cartTotal += item.subTotal;
       }
     }

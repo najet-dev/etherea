@@ -5,20 +5,21 @@ import com.etherea.models.CartItem;
 public class CartItemDTO {
     private Long id;
     private int quantity;
-    private double subTotal;
-    private double total;
     private Long productId;
+    private Long volumeId;  // Ajout du champ volumeId
     private Long userId;
+
+    // Constructeurs
     public CartItemDTO() {
     }
-    public CartItemDTO(Long id, int quantity, double subTotal, double total, Long productId, Long userId) {
+    public CartItemDTO(Long id, int quantity, Long productId, Long volumeId, Long userId) {
         this.id = id;
         this.quantity = quantity;
-        this.subTotal = subTotal;
-        this.total = total;
         this.productId = productId;
+        this.volumeId = volumeId;
         this.userId = userId;
     }
+    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -31,23 +32,17 @@ public class CartItemDTO {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-    public double getSubTotal() {
-        return subTotal;
-    }
-    public void setSubTotal(double subTotal) {
-        this.subTotal = subTotal;
-    }
-    public double getTotal() {
-        return total;
-    }
-    public void setTotal(double total) {
-        this.total = total;
-    }
     public Long getProductId() {
         return productId;
     }
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+    public Long getVolumeId() {
+        return volumeId;
+    }
+    public void setVolumeId(Long volumeId) {
+        this.volumeId = volumeId;
     }
     public Long getUserId() {
         return userId;
@@ -55,9 +50,17 @@ public class CartItemDTO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+    // Méthode de conversion de CartItem à CartItemDTO
     public static CartItemDTO fromCartItem(CartItem cartItem) {
-        ProductDTO productDTO = ProductDTO.fromProduct(cartItem.getProduct());
-        UserDTO userDTO = UserDTO.fromUser(cartItem.getUser());
-        return new CartItemDTO(cartItem.getId(), cartItem.getQuantity(), cartItem.getSubTotal(), cartItem.getTotal(), productDTO.getId(), userDTO.getId());
+        if (cartItem == null) {
+            return null;
+        }
+        return new CartItemDTO(
+                cartItem.getId(),
+                cartItem.getQuantity(),
+                cartItem.getProduct() != null ? cartItem.getProduct().getId() : null,
+                cartItem.getVolume() != null ? cartItem.getVolume().getId() : null,
+                cartItem.getUser() != null ? cartItem.getUser().getId() : null
+        );
     }
 }

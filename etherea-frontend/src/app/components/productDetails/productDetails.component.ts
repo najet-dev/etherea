@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { switchMap, catchError, tap } from 'rxjs/operators';
-import { IProduct } from '../models/i-product';
+import { IProduct } from '../models/i-product.model';
 import { ProductService } from 'src/app/services/product.service';
 import { ActivatedRoute } from '@angular/router';
 import { CartService } from 'src/app/services/cart.service';
@@ -13,6 +13,7 @@ import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { IProductVolume } from '../models/IProductVolume.model';
 
 @Component({
   selector: 'app-product-details',
@@ -21,6 +22,7 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 })
 export class ProductDetailsComponent implements OnInit {
   product: IProduct | null = null;
+  selectedVolume: IProductVolume | null = null;
   userId: number | null = null;
   cartItem: Cart = {
     id: 0,
@@ -31,7 +33,6 @@ export class ProductDetailsComponent implements OnInit {
       id: 1,
       name: '',
       description: '',
-      price: 0,
       type: '',
       stockStatus: '',
       benefits: '',
@@ -39,6 +40,11 @@ export class ProductDetailsComponent implements OnInit {
       ingredients: '',
       characteristics: '',
       image: '',
+      volumes: [],
+    },
+    selectedVolume: {
+      volume: 0,
+      price: 0,
     },
   };
   limitReached = false;
@@ -74,7 +80,7 @@ export class ProductDetailsComponent implements OnInit {
         if (product) {
           this.product = product;
           this.cartItem.productId = product.id;
-          this.cartItem.product = { ...product };
+          this.cartItem.product = { ...product }; // Remove price assignment
           this.updateStockMessage(product.stockStatus);
         }
       });
@@ -106,6 +112,32 @@ export class ProductDetailsComponent implements OnInit {
         this.stockMessage = 'Le statut du stock du produit est inconnu.';
     }
   }
+  onVolumeChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    const selectedValue = target?.value;
+
+    if (selectedValue && this.product?.volumes) {
+      const volume = this.product.volumes.find(
+        (vol) => vol.volume.toString() === selectedValue
+      );
+
+      if (volume) {
+        this.selectedVolume = volume;
+        console.log('Volume selected:', this.selectedVolume);
+      } else {
+        console.error('Selected volume not found in product volumes.');
+      }
+    } else {
+      console.error(
+        'Invalid volume selection or product volumes not available.'
+      );
+    }
+  }
+
+  selectVolume(volume: IProductVolume): void {
+    this.selectedVolume = volume;
+    // Adjust the cart item here if needed
+  }
 
   incrementQuantity(): void {
     if (this.cartItem.quantity < 8) {
@@ -120,27 +152,37 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   addToCart(): void {
-    if (this.userId !== null) {
-      const subTotal = this.cartItem.quantity * this.cartItem.product.price;
-      this.cartItem.subTotal = subTotal;
-      this.cartItem.userId = this.userId;
-
-      this.appFacade.cartService
-        .addToCart(this.cartItem)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            console.log('Product added to cart');
-            this.openProductSummaryDialog();
-            this.resetCartItem();
-          },
-          error: (error) => {
-            console.error('Error adding product to cart:', error);
-          },
-        });
-    } else {
+    if (!this.userId) {
       console.error('User ID is not available.');
+      alert('Vous devez être connecté pour ajouter des articles au panier.');
+      return;
     }
+
+    if (!this.selectedVolume) {
+      console.error('No volume selected.');
+      alert("Veuillez sélectionner un volume avant d'ajouter au panier.");
+      return;
+    }
+
+    // Proceed with adding to cart
+    const subTotal = this.cartItem.quantity * this.selectedVolume.price;
+    this.cartItem.subTotal = subTotal;
+    this.cartItem.userId = this.userId;
+    this.cartItem.selectedVolume = { ...this.selectedVolume };
+
+    this.appFacade
+      .addToCart(this.cartItem)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          console.log('Product added to cart');
+          this.openProductSummaryDialog();
+          this.resetCartItem();
+        },
+        error: (error) => {
+          console.error('Error adding product to cart:', error);
+        },
+      });
   }
 
   openProductSummaryDialog(): void {
@@ -170,7 +212,6 @@ export class ProductDetailsComponent implements OnInit {
         id: 0,
         name: '',
         description: '',
-        price: 0,
         type: '',
         stockStatus: '',
         benefits: '',
@@ -178,7 +219,13 @@ export class ProductDetailsComponent implements OnInit {
         ingredients: '',
         characteristics: '',
         image: '',
+        volumes: [],
+      },
+      selectedVolume: {
+        volume: 0,
+        price: 0,
       },
     };
+    this.selectedVolume = null;
   }
 }

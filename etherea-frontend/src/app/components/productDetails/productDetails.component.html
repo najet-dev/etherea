@@ -8,7 +8,29 @@
     <div class="col-md-6">
       <img class="logo" src="/assets/logo.png" alt="banner" />
       <p class="detail description">{{ product.description }}</p>
-      <p class="detail">Prix : {{ product.price }} €</p>
+
+      <!-- Volume selection -->
+      <div *ngIf="product.volumes">
+        <label for="volumeSelect">Volume :</label>
+        <select
+          id="volumeSelect"
+          (change)="onVolumeChange($event)"
+          class="form-control"
+        >
+          <option
+            *ngFor="let vol of product.volumes"
+            [value]="vol.volume.toString()"
+          >
+            {{ vol.volume }} ml - {{ vol.price }} €
+          </option>
+        </select>
+      </div>
+
+      <!-- Price Display -->
+      <p *ngIf="selectedVolume" class="detail">
+        Prix : {{ selectedVolume.price }} €
+      </p>
+
       <p
         class="detail"
         [ngClass]="{

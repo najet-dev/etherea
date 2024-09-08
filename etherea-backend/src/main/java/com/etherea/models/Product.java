@@ -3,9 +3,7 @@ package com.etherea.models;
 import com.etherea.enums.ProductType;
 import com.etherea.enums.StockStatus;
 import jakarta.persistence.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +14,6 @@ public class Product {
     private Long id;
     private String name;
     private String description;
-    private double price;
     @Enumerated(EnumType.STRING)
     private ProductType type;
     @Enumerated(EnumType.STRING)
@@ -26,14 +23,16 @@ public class Product {
     private String ingredients;
     private String characteristics;
     private String image;
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Volume> volumes = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<CommandItem> commandItems = new ArrayList<>();
+
     public Product() {
     }
-    public Product(String name, String description, double price, ProductType type, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public Product(String name, String description, ProductType type, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
         this.name = name;
         this.description = description;
-        this.price = price;
         this.type = type;
         this.stockStatus = stockStatus;
         this.benefits = benefits;
@@ -42,6 +41,7 @@ public class Product {
         this.characteristics = characteristics;
         this.image = image;
     }
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -60,16 +60,9 @@ public class Product {
     public void setDescription(String description) {
         this.description = description;
     }
-    public double getPrice() {
-        return price;
-    }
-    public void setPrice(double price) {
-        this.price = price;
-    }
     public ProductType getType() {
         return type;
     }
-
     public void setType(ProductType type) {
         this.type = type;
     }
@@ -79,7 +72,6 @@ public class Product {
     public void setStockStatus(StockStatus stockStatus) {
         this.stockStatus = stockStatus;
     }
-
     public String getBenefits() {
         return benefits;
     }
@@ -110,10 +102,32 @@ public class Product {
     public void setImage(String image) {
         this.image = image;
     }
+    public List<Volume> getVolumes() {
+        return volumes;
+    }
+    public void setVolumes(List<Volume> volumes) {
+        this.volumes = volumes;
+    }
     public List<CommandItem> getCommandItems() {
         return commandItems;
     }
     public void setCommandItems(List<CommandItem> commandItems) {
         this.commandItems = commandItems;
+    }
+    public void addVolume(Volume volume) {
+        volumes.add(volume);
+        volume.setProduct(this);  // Associe le produit au volume
+    }
+    public void removeVolume(Volume volume) {
+        volumes.remove(volume);
+        volume.setProduct(null);  // Désassocie le produit du volume
+    }
+    // Nouvelle méthode pour remplacer les volumes existants par une nouvelle liste
+    public void updateVolumes(List<Volume> newVolumes) {
+        this.volumes.clear(); // Vide la liste actuelle
+
+        for (Volume volume : newVolumes) {
+            addVolume(volume); // Utilise la méthode addVolume pour s'assurer que le produit est correctement associé
+        }
     }
 }

@@ -45,7 +45,9 @@
           </p>
         </td>
         <!-- Colonne du prix -->
-        <td>{{ item.product && item.product.price | number : ".2-2" }} €</td>
+        <td>
+          {{ item.product && item.selectedVolume.price | number : ".2-2" }} €
+        </td>
         <!-- Colonne de la quantité -->
         <td>
           <button class="quantity-btn" (click)="decrementQuantity(item)">

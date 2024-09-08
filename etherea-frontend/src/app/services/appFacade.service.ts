@@ -8,7 +8,7 @@ import { SigninRequest } from '../components/models/signinRequest.model';
 import { SignupRequest } from '../components/models/SignupRequest.model';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
-import { IProduct } from '../components/models/i-product';
+import { IProduct } from '../components/models/i-product.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 

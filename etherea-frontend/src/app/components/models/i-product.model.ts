@@ -1,8 +1,9 @@
+import { IProductVolume } from './IProductVolume.model';
+
 export interface IProduct {
   id: number;
   name: string;
   description: string;
-  price: number;
   type: string;
   stockStatus: string;
   benefits: String;
@@ -10,6 +11,7 @@ export interface IProduct {
   ingredients: String;
   characteristics: String;
   image: string;
+  volumes: IProductVolume[];
   isFavorite?: boolean;
 }
 

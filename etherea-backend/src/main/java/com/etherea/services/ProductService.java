@@ -1,11 +1,16 @@
 package com.etherea.services;
 
+import com.etherea.dtos.VolumeDTO;
 import com.etherea.enums.ProductType;
 import com.etherea.enums.StockStatus;
 import com.etherea.exception.ProductNotFoundException;
+import com.etherea.exception.VolumeNotFoundException;
 import com.etherea.models.Product;
+import com.etherea.models.Volume;
 import com.etherea.repositories.ProductRepository;
 import com.etherea.dtos.ProductDTO;
+import com.etherea.repositories.VolumeRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +33,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private VolumeRepository volumeRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private static final String UPLOAD_DIR = "assets";
 
@@ -56,12 +61,14 @@ public class ProductService {
                 .map(ProductDTO::fromProduct)
                 .collect(Collectors.toList());
     }
+
     public List<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
         Page<Product> productPage = productRepository.findByType(type, pageable);
         return productPage.getContent().stream()
                 .map(ProductDTO::fromProduct)
                 .collect(Collectors.toList());
     }
+
     public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
                 .map(ProductDTO::fromProduct)
@@ -71,94 +78,152 @@ public class ProductService {
                 });
     }
     public ResponseEntity<String> saveProduct(ProductDTO productDTO, MultipartFile file) {
-        createUploadDirectory();
-
-        if (productDTO == null || file == null) {
-            return ResponseEntity.badRequest().body("ProductDTO and file cannot be null");
+        if (productDTO == null) {
+            return ResponseEntity.badRequest().body("ProductDTO cannot be null");
         }
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
-        if (fileName.contains("..")) {
-            return ResponseEntity.badRequest().body("Invalid file name");
-        }
-        try {
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            Files.createDirectories(uploadPath);
-
-            String filePath = uploadPath.resolve(fileName).toString();
-
-            // Enregistrez le fichier sur le serveur
-            try (InputStream fileInputStream = file.getInputStream()) {
-                Files.copy(fileInputStream, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+        // Upload de l'image
+        if (file != null && !file.isEmpty()) {
+            createUploadDirectory();
+            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            if (fileName.contains("..")) {
+                return ResponseEntity.badRequest().body("Invalid file name");
             }
-            productDTO.setImage(filePath);
-
-            // Convert ProductDTO to Product
-            Product product = convertToProduct(productDTO);
-
-            String message;
-            if (product.getStockStatus() == StockStatus.AVAILABLE) {
-                // Le produit est disponible
-                message = "Le produit " + product.getName() + " est disponible.";
-            } else if (product.getStockStatus() == StockStatus.OUT_OF_STOCK) {
-                // Le produit est en rupture de stock
-                message = "Le produit " + product.getName() + " est actuellement en rupture de stock.";
-            } else {
-                message = "Le statut du stock du produit est inconnu.";
+            try {
+                Path uploadPath = Paths.get(UPLOAD_DIR);
+                String filePath = uploadPath.resolve(fileName).toString();
+                try (InputStream fileInputStream = file.getInputStream()) {
+                    Files.copy(fileInputStream, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+                }
+                productDTO.setImage(filePath);
+            } catch (IOException e) {
+                logger.error("Error saving file: {}", e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Error saving file: " + e.getMessage());
             }
-
-            productRepository.save(product);
-
-            return ResponseEntity.ok(message);
-        } catch (IOException e) {
-            logger.error("Error saving product: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error saving product: " + e.getMessage());
         }
+
+        // Convertir ProductDTO en Product
+        Product product = convertToProduct(productDTO);
+
+        // Ajouter les volumes
+        if (productDTO.getVolumes() != null && !productDTO.getVolumes().isEmpty()) {
+            List<Volume> volumes = productDTO.getVolumes().stream()
+                    .map(volumeDTO -> {
+                        Volume volume = new Volume();
+                        volume.setVolume(volumeDTO.getVolume());
+                        volume.setPrice(volumeDTO.getPrice());
+                        volume.setProduct(product); // Associer le volume au produit
+                        return volume;
+                    }).collect(Collectors.toList());
+            product.setVolumes(volumes);
+        }
+
+        // Sauvegarder le produit (cela sauvegardera également les volumes associés grâce au cascade = CascadeType.ALL)
+        productRepository.save(product);
+
+        return ResponseEntity.ok("Product saved successfully");
     }
     private Product convertToProduct(ProductDTO productDTO) {
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(productDTO, Product.class);
     }
+
     private void createUploadDirectory() {
         File uploadDirFile = new File(UPLOAD_DIR);
-
-        // Créez le dossier s'il n'existe pas
         if (!uploadDirFile.exists()) {
             uploadDirFile.mkdirs();
         }
     }
+    @Transactional
     public void updateProduct(Long productId, ProductDTO updatedProductDTO, MultipartFile file) {
-        if (productId == null || updatedProductDTO == null || file == null) {
-            throw new IllegalArgumentException("Product ID, ProductDTO, and file cannot be null");
+        logger.info("Starting updateProduct for product ID: {}", productId);
+
+        if (productId == null || updatedProductDTO == null) {
+            throw new IllegalArgumentException("Product ID and ProductDTO cannot be null");
         }
 
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("No product found with ID: " + productId));
+                .orElseThrow(() -> new RuntimeException("No product found with ID: " + productId));
 
-        // Update product properties from DTO
+        logger.debug("Retrieved existing product: {}", existingProduct);
+
         updateProductFromDTO(existingProduct, updatedProductDTO);
 
-        // Update product image
-        updateProductImage(existingProduct, file);
-    }
-    private void updateProductFromDTO(Product existingProduct, ProductDTO updatedProductDTO) {
-        existingProduct.setName(updatedProductDTO.getName());
-        existingProduct.setDescription(updatedProductDTO.getDescription());
-        existingProduct.setPrice(updatedProductDTO.getPrice());
-        existingProduct.setType(updatedProductDTO.getType());
-        existingProduct.setStockStatus(updatedProductDTO.getStockStatus());
-        existingProduct.setBenefits(updatedProductDTO.getBenefits());
-        existingProduct.setUsageTips(updatedProductDTO.getUsageTips());
-        existingProduct.setIngredients(updatedProductDTO.getIngredients());
-        existingProduct.setCharacteristics(updatedProductDTO.getCharacteristics());
-    }
-    private void updateProductImage(Product existingProduct, MultipartFile file) {
-        if (file.isEmpty()) {
-            // Handle empty file case if needed
-            return;
+        updateProductVolumes(existingProduct, updatedProductDTO.getVolumes());
+
+        if (file != null && !file.isEmpty()) {
+            updateProductImage(existingProduct, file);
+            logger.debug("Updated product image for product ID: {}", productId);
         }
 
+        productRepository.save(existingProduct);
+        logger.info("Finished updateProduct for product ID: {}", productId);
+    }
+
+    @Transactional
+    public void updateProductVolumes(Product existingProduct, List<VolumeDTO> updatedVolumes) {
+        logger.info("Starting updateProductVolumes for product ID: {}", existingProduct.getId());
+
+        // Récupérer les volumes existants du produit
+        List<Volume> existingVolumes = new ArrayList<>(existingProduct.getVolumes());
+        Map<Long, Volume> existingVolumeMap = existingVolumes.stream()
+                .collect(Collectors.toMap(Volume::getId, v -> v));
+
+        Set<Long> updatedVolumeIds = updatedVolumes.stream()
+                .filter(volumeDTO -> volumeDTO.getId() != null)
+                .map(VolumeDTO::getId)
+                .collect(Collectors.toSet());
+
+        // Mettre à jour les volumes existants ou ajouter les nouveaux
+        for (VolumeDTO volumeDTO : updatedVolumes) {
+            if (volumeDTO.getId() != null && existingVolumeMap.containsKey(volumeDTO.getId())) {
+                // Mise à jour du volume existant
+                Volume existingVolume = existingVolumeMap.get(volumeDTO.getId());
+                existingVolume.setVolume(volumeDTO.getVolume());
+                existingVolume.setPrice(volumeDTO.getPrice());
+                volumeRepository.save(existingVolume); // Assurez-vous de sauvegarder les modifications
+                logger.debug("Updated existing volume: {}", existingVolume);
+            } else if (volumeDTO.getId() == null) {
+                // Ajout d'un nouveau volume
+                Volume newVolume = new Volume();
+                newVolume.setVolume(volumeDTO.getVolume());
+                newVolume.setPrice(volumeDTO.getPrice());
+                newVolume.setProduct(existingProduct);
+                existingProduct.getVolumes().add(newVolume);
+                volumeRepository.save(newVolume); // Assurez-vous de sauvegarder le nouveau volume
+                logger.debug("Added new volume: {}", newVolume);
+            }
+        }
+
+        // Supprimer les volumes qui ne sont plus présents
+        for (Volume existingVolume : existingVolumes) {
+            if (!updatedVolumeIds.contains(existingVolume.getId())) {
+                existingProduct.getVolumes().remove(existingVolume);
+                volumeRepository.delete(existingVolume); // Assurez-vous de supprimer le volume
+                logger.debug("Removed volume: {}", existingVolume);
+            }
+        }
+
+        logger.info("Finished updateProductVolumes for product ID: {}", existingProduct.getId());
+    }
+    @Transactional
+    public void updateProductFromDTO(Product existingProduct, ProductDTO productDTO) {
+        logger.info("Updating product with ID: {}", existingProduct.getId());
+
+        existingProduct.setName(productDTO.getName());
+        existingProduct.setDescription(productDTO.getDescription());
+        existingProduct.setType(productDTO.getType());
+        existingProduct.setStockStatus(productDTO.getStockStatus());
+        existingProduct.setBenefits(productDTO.getBenefits());
+        existingProduct.setUsageTips(productDTO.getUsageTips());
+        existingProduct.setIngredients(productDTO.getIngredients());
+        existingProduct.setCharacteristics(productDTO.getCharacteristics());
+
+        logger.debug("Updated product details: {}", existingProduct);
+    }
+
+    private void updateProductImage(Product existingProduct, MultipartFile file) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
         if (fileName.contains("..")) {
@@ -166,24 +231,22 @@ public class ProductService {
         }
 
         try {
-            String filePath = Paths.get(UPLOAD_DIR, fileName).toString();
+            createUploadDirectory();
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            String filePath = uploadPath.resolve(fileName).toString();
 
-            // Enregistrez le fichier sur le serveur
             try (InputStream fileInputStream = file.getInputStream()) {
                 Files.copy(fileInputStream, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
             }
+
             existingProduct.setImage(filePath);
-            productRepository.save(existingProduct);
         } catch (IOException e) {
-            // Gérer l'exception de manière appropriée, par exemple, en lançant une nouvelle exception ou en journalisant l'erreur
             logger.error("Error updating product image: {}", e.getMessage());
             throw new RuntimeException("Error updating product image", e);
         }
     }
     public void deleteProduct(Long id) {
-        Optional<Product> existingProduct = productRepository.findById(id);
-
-        if (existingProduct.isPresent()) {
+        if (productRepository.existsById(id)) {
             productRepository.deleteById(id);
         } else {
             logger.warn("Product with id {} not found", id);
@@ -191,5 +254,3 @@ public class ProductService {
         }
     }
 }
-
-

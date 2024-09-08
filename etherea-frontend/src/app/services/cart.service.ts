@@ -32,6 +32,7 @@ export class CartService {
     const params = new HttpParams()
       .set('userId', cart.userId.toString())
       .set('productId', cart.productId.toString())
+      .set('productId', cart.selectedVolume.toString())
       .set('quantity', cart.quantity.toString());
 
     return this.httpClient

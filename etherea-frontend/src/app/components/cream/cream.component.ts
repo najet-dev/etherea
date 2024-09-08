@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IProduct } from '../models/i-product';
+import { IProduct } from '../models/i-product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { ProductService } from 'src/app/services/product.service';
@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { IProductVolume } from '../models/IProductVolume.model';
 
 @Component({
   selector: 'app-day-cream',
@@ -18,6 +19,7 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 export class CreamComponent implements OnInit {
   products$: Observable<IProduct[]> = new Observable<IProduct[]>();
   userId: number | null = null;
+  selectedVolume: IProductVolume | null = null;
   private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(

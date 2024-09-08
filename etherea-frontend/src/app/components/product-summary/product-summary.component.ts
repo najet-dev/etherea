@@ -5,7 +5,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { IProduct } from '../models/i-product';
+import { IProduct } from '../models/i-product.model';
 import { Cart } from '../models/cart.model';
 
 @Component({

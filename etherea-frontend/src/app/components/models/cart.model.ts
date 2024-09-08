@@ -1,4 +1,5 @@
-import { IProduct } from './i-product';
+import { IProduct } from './i-product.model';
+import { IProductVolume } from './IProductVolume.model';
 
 export interface Cart {
   id: number;
@@ -8,4 +9,5 @@ export interface Cart {
   quantity: number;
   subTotal?: number;
   total?: number;
+  selectedVolume: IProductVolume; // Correction pour une seule volume sélectionnée
 }

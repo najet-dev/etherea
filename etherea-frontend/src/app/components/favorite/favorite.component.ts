@@ -3,7 +3,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { Favorite } from '../models/favorite.model';
 import { ProductService } from 'src/app/services/product.service';
-import { IProduct } from '../models/i-product';
+import { IProduct } from '../models/i-product.model';
 import { forkJoin } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 import { Cart } from '../models/cart.model';
@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { IProductVolume } from '../models/IProductVolume.model';
 
 @Component({
   selector: 'app-favorite',
@@ -24,9 +25,10 @@ export class FavoriteComponent implements OnInit {
   favorites: Favorite[] = [];
   userId!: number;
   product: IProduct | null = null;
+  selectedVolume: IProductVolume | null = null;
   showModal = false;
   confirmedProductId!: number;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,
@@ -67,7 +69,6 @@ export class FavoriteComponent implements OnInit {
       )
       .subscribe({
         next: (favorites) => {
-          // Once all product details are loaded, assign the favorites
           this.favorites = favorites;
         },
         error: (error) => {
@@ -84,8 +85,6 @@ export class FavoriteComponent implements OnInit {
   removeFavorite(productId: number): void {
     this.appFacade.removeFavorite(this.userId, productId).subscribe({
       next: (response) => {
-        console.log(response);
-        // Update the favorites list after removal
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
@@ -102,12 +101,14 @@ export class FavoriteComponent implements OnInit {
   }
 
   openProductPopup(product: IProduct): void {
+    const volume = product.volumes ? product.volumes[0] : null;
     const cartItem: Cart = {
       id: 0,
       userId: this.userId,
       productId: product.id,
       quantity: 1,
       product: product,
+      selectedVolume: volume || { volume: 0, price: 0 }, // Corrected for volume management
     };
 
     this.appFacade.cartService.addToCart(cartItem).subscribe({
@@ -118,7 +119,7 @@ export class FavoriteComponent implements OnInit {
           data: {
             product: product,
             quantity: cartItem.quantity,
-            subTotal: cartItem.quantity * product.price,
+            //subTotal: cartItem.quantity * product.price, // Uncomment if you have product.price logic
           },
         });
 
