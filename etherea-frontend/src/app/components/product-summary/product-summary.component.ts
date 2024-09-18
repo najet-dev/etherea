@@ -32,6 +32,9 @@ export class ProductSummaryComponent implements OnInit {
     dialogConfig.width = '60%'; // 60% de la largeur de la fenêtre
     dialogConfig.height = '80%'; // 80% de la hauteur de la fenêtre
     this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height); // Mise à jour de la taille de la boîte de dialogue
+    console.log('Product Data:', this.data.product);
+    console.log('Cart Data:', this.data.cart);
+    console.log('Selected Volume:', this.data.cart.selectedVolume);
   }
 
   // Fonction pour continuer les achats (ferme la boîte de dialogue)

@@ -1,10 +1,9 @@
 package com.etherea.models;
 
-
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
@@ -13,8 +12,6 @@ public class CartItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int quantity;
-    private double subTotal;
-    private double total;
     @ManyToOne
     @JoinColumn(name = "userId")
     @JsonIgnore // Ignorer la sérialisation de cette propriété pour éviter la récursion infinie
@@ -22,18 +19,22 @@ public class CartItem {
     @ManyToOne
     @JoinColumn(name = "productId")
     private Product product;
+    @ManyToOne(cascade = CascadeType.REMOVE)
+    @JoinColumn(name = "volumeId")
+    private Volume volume;  // Ajout de la référence au volume
     @ManyToOne
     @JoinColumn(name = "cartId")
+    @JsonIgnore
     private Cart cart;
-
+    private BigDecimal subTotal;
+    private BigDecimal total;
     public CartItem() {
     }
-    public CartItem(Long id,int quantity, double subTotal, double total, Product product, Cart cart) {
+    public CartItem(Long id, int quantity, Product product, Volume volume, Cart cart) {
         this.id = id;
         this.quantity = quantity;
-        this.subTotal = subTotal;
-        this.total = total;
         this.product = product;
+        this.volume = volume;
         this.cart = cart;
     }
     public Long getId() {
@@ -42,20 +43,11 @@ public class CartItem {
     public void setId(Long id) {
         this.id = id;
     }
+    public int getQuantity() {
+        return quantity;
+    }
     public void setQuantity(int quantity) {
         this.quantity = quantity;
-        // Recalculer le sous-total et le total après la mise à jour de la quantité
-        this.subTotal = calculateSubtotal();
-        this.total = calculateTotal();
-    }
-    public double getSubTotal() {
-        return subTotal;
-    }
-    public void setSubTotal(double subTotal) {
-        this.subTotal = subTotal;
-    }
-    public double getTotal() {
-        return total;
     }
     public User getUser() {
         return user;
@@ -63,17 +55,17 @@ public class CartItem {
     public void setUser(User user) {
         this.user = user;
     }
-    public void setTotal(double total) {
-        this.total = total;
-    }
     public Product getProduct() {
         return product;
     }
     public void setProduct(Product product) {
         this.product = product;
     }
-    public int getQuantity() {
-        return this.quantity;
+    public Volume getVolume() {
+        return volume;
+    }
+    public void setVolume(Volume volume) {
+        this.volume = volume;
     }
     public Cart getCart() {
         return cart;
@@ -81,25 +73,29 @@ public class CartItem {
     public void setCart(Cart cart) {
         this.cart = cart;
     }
-
-    // Méthode pour calculer le sous-total (prix * quantité) d'un produit
-    public double calculateSubtotal() {
-        double subtotal = getProduct().getPrice() * getQuantity();
-        return subtotal;
+    public BigDecimal getSubTotal() {
+        return subTotal;
     }
-    // Méthode pour calculer le total (prix total pour tous les produits dans le panier)
-    public double calculateTotal() {
-        double total = calculateSubtotal(); // appel à la méthode calculateSubtotal pour obtenir le sous-total
+    public void setSubTotal(BigDecimal subTotal) {
+        this.subTotal = subTotal;
+    }
+    public BigDecimal getTotal() {
         return total;
     }
-    // Méthode pour calculer le prix total de tous les produits dans le panier
-    public static double calculateTotalPrice(List<CartItem> items) {
-        double totalPrice = 0.0;
-
-        for (CartItem cartItem : items) {
-            totalPrice += cartItem.calculateSubtotal();
-        }
-        return totalPrice;
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
-
+    // Méthode pour calculer le sous-total (prix * quantité) d'un produit pour un volume spécifique
+    public BigDecimal calculateSubtotal() {
+        if (volume == null || volume.getPrice() == null) {
+            return BigDecimal.ZERO;
+        }
+        return volume.getPrice().multiply(BigDecimal.valueOf(quantity));
+    }
+    // Méthode pour calculer le prix total de tous les produits dans le panier
+    public static BigDecimal calculateTotalPrice(List<CartItem> items) {
+        return items.stream()
+                .map(CartItem::calculateSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

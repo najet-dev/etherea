@@ -1,12 +1,13 @@
+<!-- Affichage du panier vide -->
 <div *ngIf="isCartEmpty" class="container mt-5">
   <h2 class="mb-4">Votre Panier</h2>
   <p>Votre panier ne contient actuellement aucun produit.</p>
 </div>
 
+<!-- Affichage des articles dans le panier -->
 <div *ngIf="!isCartEmpty" class="container mt-5">
   <!-- Tableau pour afficher les articles dans le panier -->
   <table class="table">
-    <!-- Header du tableau -->
     <thead>
       <tr>
         <th scope="col">Description</th>
@@ -14,22 +15,17 @@
         <th scope="col">Quantité</th>
         <th scope="col">Sous-Total</th>
         <th scope="col"></th>
-        <!-- Ajout d'une colonne vide pour l'icône de suppression -->
       </tr>
     </thead>
-    <!-- Corps du tableau -->
     <tbody>
-      <!-- Boucle sur les articles du panier -->
       <tr *ngFor="let item of cartItems">
-        <!-- Colonne de la description -->
         <td>
-          <!-- Afficher les détails du produit -->
           <img
-            *ngIf="item.product && item.product.image"
-            [src]="item.product.image"
+            *ngIf="item.product?.image"
+            [src]="item.product?.image"
             alt="Product Image"
             width="60px"
-            [routerLink]="['/productDetails', item.product.id]"
+            [routerLink]="['/productDetails', item.product?.id]"
           />
           <h2
             *ngIf="item.product"
@@ -43,10 +39,9 @@
           >
             {{ item.product.description }}
           </p>
+          <p *ngIf="item.selectedVolume">{{ item.selectedVolume.volume }} ml</p>
         </td>
-        <!-- Colonne du prix -->
-        <td>{{ item.product && item.product.price | number : ".2-2" }} €</td>
-        <!-- Colonne de la quantité -->
+        <td>{{ item.selectedVolume?.price | number : ".2-2" }} €</td>
         <td>
           <button class="quantity-btn" (click)="decrementQuantity(item)">
             -
@@ -56,9 +51,7 @@
             +
           </button>
         </td>
-        <!-- Colonne du sous-total -->
-        <td>{{ item.subTotal | number : ".2-2" }}</td>
-        <!-- Colonne pour supprimer l'article -->
+        <td>{{ item.subTotal | number : ".2-2" }} €</td>
         <td>
           <button
             class="delete-btn close-button"
@@ -69,37 +62,39 @@
         </td>
       </tr>
     </tbody>
-    <!-- Footer du tableau -->
     <tfoot>
       <tr>
         <td colspan="3"></td>
-        <!-- Ajustement du colspan -->
         <td colspan="1"><strong>Total</strong></td>
-        <td>{{ cartTotal }} €</td>
+        <td>{{ cartTotal | number : ".2-2" }} €</td>
       </tr>
     </tfoot>
   </table>
 </div>
 
 <!-- Pop-up de confirmation -->
-<div *ngIf="showConfirmDelete" class="popup">
-  <div class="popup-content">
-    <button class="close-button" (click)="cancelDelete()">
+<div *ngIf="showConfirmDelete" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
       <div class="modal-header justify-content-end">
         <button
           mat-icon-button
           mat-dialog-close
           class="close-button"
-          (click)="hideModal()"
+          (click)="cancelDelete()"
         >
           <mat-icon aria-label="Close dialog">close</mat-icon>
         </button>
       </div>
-    </button>
-    <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
-    <div class="btn-box">
-      <button class="btn-primary" (click)="deleteItem()">Supprimer</button>
-      <button class="btn-primary" (click)="cancelDelete()">Annuler</button>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+      </div>
+      <div class="modal-footer">
+        <div class="btn-box">
+          <button class="btn-primary" (click)="deleteItem()">Supprimer</button>
+          <button class="btn-primary" (click)="cancelDelete()">Annuler</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -20,8 +20,9 @@ export class ProductService {
     return this.httpClient.get<IProduct[]>(url).pipe(
       catchError((error) => {
         console.error('Error fetching products:', error);
-        console.error('Failed to load products. Please try again later.');
-        return [];
+        return throwError(
+          () => new Error('Failed to load products. Please try again later.')
+        );
       })
     );
   }
@@ -32,20 +33,27 @@ export class ProductService {
     size: number
   ): Observable<IProduct[]> {
     const url = `${this.apiUrl}/products/type`;
-    let params = new HttpParams();
-    params = params.append('type', type);
-    params = params.append('page', page.toString());
-    params = params.append('size', size.toString());
+    let params = new HttpParams()
+      .set('type', type)
+      .set('page', page.toString())
+      .set('size', size.toString());
 
     return this.httpClient.get<IProduct[]>(url, { params }).pipe(
       catchError((error) => {
-        console.error('Error fetching products:', error);
-        return throwError(() => error);
+        console.error('Error fetching products by type:', error);
+        return throwError(() => new Error('Failed to fetch products by type.'));
       })
     );
   }
 
-  getProductById(id: number): Observable<IProduct> {
-    return this.httpClient.get<IProduct>(`${this.apiUrl}/products/${id}`);
+  getProductById(productId: number): Observable<IProduct> {
+    if (productId === undefined || productId === null) {
+      console.error('Invalid product ID provided:', productId);
+      return throwError(() => new Error('Invalid product ID'));
+    }
+
+    return this.httpClient.get<IProduct>(
+      `${this.apiUrl}/products/${productId}`
+    );
   }
 }

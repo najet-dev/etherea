@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { switchMap, catchError, tap } from 'rxjs/operators';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { switchMap, catchError, tap, of } from 'rxjs';
 import { IProduct } from '../models/i-product';
 import { ProductService } from 'src/app/services/product.service';
 import { ActivatedRoute } from '@angular/router';
@@ -9,10 +9,9 @@ import { ProductSummaryComponent } from '../product-summary/product-summary.comp
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from 'src/app/services/auth.service';
 import { SigninRequest } from '../models/signinRequest.model';
-import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { of } from 'rxjs';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { Volume } from '../models/volume.model';
 
 @Component({
   selector: 'app-product-details',
@@ -21,17 +20,17 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 })
 export class ProductDetailsComponent implements OnInit {
   product: IProduct | null = null;
+  selectedVolume: Volume | null = null;
   userId: number | null = null;
   cartItem: Cart = {
     id: 0,
     userId: 0,
-    productId: 1,
+    productId: 0,
     quantity: 1,
     product: {
-      id: 1,
+      id: 0,
       name: '',
       description: '',
-      price: 0,
       type: '',
       stockStatus: '',
       benefits: '',
@@ -39,6 +38,12 @@ export class ProductDetailsComponent implements OnInit {
       ingredients: '',
       characteristics: '',
       image: '',
+      volumes: [],
+    },
+    selectedVolume: {
+      id: 0,
+      volume: 0,
+      price: 0,
     },
   };
   limitReached = false;
@@ -76,6 +81,7 @@ export class ProductDetailsComponent implements OnInit {
           this.cartItem.productId = product.id;
           this.cartItem.product = { ...product };
           this.updateStockMessage(product.stockStatus);
+          this.selectedVolume = product.volumes ? product.volumes[0] : null; // Initialiser le volume sélectionné
         }
       });
   }
@@ -97,18 +103,39 @@ export class ProductDetailsComponent implements OnInit {
   updateStockMessage(stockStatus: string): void {
     switch (stockStatus) {
       case 'AVAILABLE':
-        this.stockMessage = `Le produit est disponible.`;
+        this.stockMessage = 'Le produit est disponible.';
         break;
       case 'OUT_OF_STOCK':
-        this.stockMessage = `Le produit est actuellement en rupture de stock.`;
+        this.stockMessage = 'Le produit est actuellement en rupture de stock.';
         break;
       default:
         this.stockMessage = 'Le statut du stock du produit est inconnu.';
     }
   }
 
+  onVolumeChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    const selectedValue = target?.value;
+
+    if (selectedValue && this.product?.volumes) {
+      const volume = this.product.volumes.find(
+        (vol) => vol.volume.toString() === selectedValue
+      );
+
+      if (volume) {
+        this.selectedVolume = volume;
+      } else {
+        console.error('Selected volume not found in product volumes.');
+      }
+    } else {
+      console.error(
+        'Invalid volume selection or product volumes not available.'
+      );
+    }
+  }
+
   incrementQuantity(): void {
-    if (this.cartItem.quantity < 8) {
+    if (this.cartItem.quantity < 10) {
       this.cartItem.quantity++;
     }
   }
@@ -120,27 +147,38 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   addToCart(): void {
-    if (this.userId !== null) {
-      const subTotal = this.cartItem.quantity * this.cartItem.product.price;
-      this.cartItem.subTotal = subTotal;
-      this.cartItem.userId = this.userId;
-
-      this.appFacade.cartService
-        .addToCart(this.cartItem)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            console.log('Product added to cart');
-            this.openProductSummaryDialog();
-            this.resetCartItem();
-          },
-          error: (error) => {
-            console.error('Error adding product to cart:', error);
-          },
-        });
-    } else {
-      console.error('User ID is not available.');
+    if (!this.userId) {
+      console.error('ID utilisateur non disponible.');
+      alert('Vous devez être connecté pour ajouter des articles au panier.');
+      return;
     }
+
+    if (!this.selectedVolume) {
+      console.error('Aucun volume sélectionné.');
+      alert("Veuillez sélectionner un volume avant d'ajouter au panier.");
+      return;
+    }
+
+    this.cartItem.userId = this.userId;
+    this.cartItem.selectedVolume = { ...this.selectedVolume };
+
+    this.appFacade
+      .addToCart(this.cartItem)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          console.log('Produit ajouté au panier');
+          this.openProductSummaryDialog();
+          this.resetCartItem();
+        },
+        error: (error) => {
+          console.error('Erreur lors de l’ajout du produit au panier :', error);
+          alert(
+            error.error?.message ||
+              "Une erreur est survenue lors de l'ajout au panier."
+          );
+        },
+      });
   }
 
   openProductSummaryDialog(): void {
@@ -164,13 +202,12 @@ export class ProductDetailsComponent implements OnInit {
     this.cartItem = {
       id: 0,
       userId: 0,
-      productId: 1,
+      productId: 0,
       quantity: 1,
       product: {
         id: 0,
         name: '',
         description: '',
-        price: 0,
         type: '',
         stockStatus: '',
         benefits: '',
@@ -178,7 +215,14 @@ export class ProductDetailsComponent implements OnInit {
         ingredients: '',
         characteristics: '',
         image: '',
+        volumes: [],
+      },
+      selectedVolume: {
+        id: 0,
+        volume: 0,
+        price: 0,
       },
     };
+    this.selectedVolume = null;
   }
 }

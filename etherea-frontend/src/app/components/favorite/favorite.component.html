@@ -22,11 +22,19 @@
                 <span
                   class="heart-icon favorite"
                   (click)="confirmRemoveFavorite(favorite.productId)"
-                  >&#x2764;</span
                 >
+                  &#x2764;
+                </span>
                 <h5 class="card-title">{{ favorite.product.name }}</h5>
                 <p class="card-text">{{ favorite.product.description }}</p>
-                <p class="card-text">{{ favorite.product.price }} €</p>
+                <!-- Affichage du prix pour le premier volume comme exemple -->
+                <p class="card-text">
+                  {{
+                    favorite.product.volumes &&
+                      favorite.product.volumes[0].price | number : ".2-2"
+                  }}
+                  €
+                </p>
                 <button
                   class="btn-primary align-bottom"
                   (click)="openProductPopup(favorite.product)"
