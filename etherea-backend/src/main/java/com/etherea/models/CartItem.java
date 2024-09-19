@@ -13,15 +13,15 @@ public class CartItem {
     private Long id;
     private int quantity;
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore // Ignorer la sérialisation de cette propriété pour éviter la récursion infinie
     private User user;
     @ManyToOne
-    @JoinColumn(name = "productId")
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "volumeId")
-    private Volume volume;  // Ajout de la référence au volume
+    @ManyToOne
+    @JoinColumn(name = "volume_id", nullable = false)
+    private Volume volume;
     @ManyToOne
     @JoinColumn(name = "cartId")
     @JsonIgnore

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 public class Volume {
@@ -16,6 +17,8 @@ public class Volume {
     @JoinColumn(name = "product_id")
     @JsonIgnore  // Évite la récursion infinie lors de la sérialisation JSON
     private Product product;
+    @OneToMany(mappedBy = "volume", cascade = CascadeType.REMOVE)
+    private List<CartItem> cartItems;
 
     // Constructeurs
     public Volume() {

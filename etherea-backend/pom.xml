@@ -92,8 +92,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-
-
 		<!-- Swagger 2 pour la documentation de l'API -->
 		<dependency>
 			<groupId>io.springfox</groupId>

@@ -14,8 +14,6 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     // Méthode pour trouver un élément de panier par utilisateur, produit et volume
     CartItem findByUserAndProductAndVolume(User user, Product product, Volume volume);
 
-
-
 }
 
 
