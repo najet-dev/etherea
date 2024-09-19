@@ -10,7 +10,7 @@
       <p class="detail description">{{ product.description }}</p>
 
       <!-- Volume selection -->
-      <div *ngIf="product.volumes">
+      <div *ngIf="product.type === 'HAIR' && product.volumes">
         <label for="volumeSelect">Volume :</label>
         <select
           id="volumeSelect"
