@@ -1,9 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CartService } from 'src/app/services/cart.service';
 import { Cart } from 'src/app/components/models/cart.model';
-import { ProductService } from 'src/app/services/product.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { StorageService } from 'src/app/services/storage.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
@@ -16,12 +14,12 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 export class CartComponent implements OnInit {
   cartItems: Cart[] = [];
   cartTotal: number = 0;
-  userId!: number;
+  userId: number = 0;
   isCartEmpty: boolean = true;
   showConfirmDelete: boolean = false;
-  itemIdToDelete!: number;
+  itemIdToDelete: number = 0;
   showModal = false;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
   constructor(private authService: AuthService, private appFacade: AppFacade) {
     this.appFacade.cartService.cartUpdated.subscribe(() => {
@@ -33,36 +31,73 @@ export class CartComponent implements OnInit {
     this.authService
       .getCurrentUser()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((user) => {
-        if (user && user.id) {
-          this.userId = user.id;
-          this.loadCartItems();
-        }
+      .subscribe({
+        next: (user) => {
+          if (user?.id) {
+            this.userId = user.id;
+            this.loadCartItems();
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching current user:', error);
+        },
       });
   }
 
-  loadCartItems() {
+  loadCartItems(): void {
     this.appFacade.getCartItems(this.userId).subscribe({
       next: (cartItems) => {
         this.cartItems = cartItems;
         this.isCartEmpty = this.cartItems.length === 0;
 
-        for (let i = 0; i < this.cartItems.length; i++) {
-          const item = this.cartItems[i];
-          this.appFacade.getProductById(item.productId).subscribe({
-            next: (product) => {
-              item.product = product;
-              this.calculateCartTotal();
-            },
-            error: (error) => {
-              console.log('Error retrieving product:', error);
-            },
-          });
+        if (this.cartItems.length > 0) {
+          this.loadProductDetails();
         }
       },
       error: (error) => {
-        console.log('Error retrieving cart items:', error);
+        console.error(
+          'Erreur lors de la récupération des articles du panier :',
+          error
+        );
       },
+    });
+  }
+
+  private loadProductDetails(): void {
+    this.cartItems.forEach((item) => {
+      const productId = item.productId || item.product?.id;
+
+      if (productId) {
+        this.appFacade.getProductById(productId).subscribe({
+          next: (product) => {
+            item.product = product;
+
+            // Vérification du type de produit et traitement en conséquence
+            if (item.product.type === 'HAIR' && item.selectedVolume) {
+              // Produit de type HAIR, utiliser le volume sélectionné
+              item.subTotal = item.selectedVolume.price * item.quantity;
+            } else if (
+              item.product?.type === 'FACE' &&
+              item.product.basePrice !== undefined
+            ) {
+              // Produit de type FACE, utiliser le prix de base
+              item.subTotal = item.product.basePrice * item.quantity;
+            } else {
+              console.error(
+                `Type de produit inconnu pour le produit avec ID : ${productId}`
+              );
+            }
+
+            // Calculer le total du panier après avoir chargé les détails du produit
+            this.calculateCartTotal();
+          },
+          error: (error) => {
+            console.error('Erreur lors de la récupération du produit:', error);
+          },
+        });
+      } else {
+        console.error("ID de produit manquant pour l'article:", item);
+      }
     });
   }
 
@@ -79,57 +114,86 @@ export class CartComponent implements OnInit {
   }
 
   updateCartItem(item: Cart): void {
-    this.appFacade.cartService
-      .updateCartItem(this.userId, item.productId, item.quantity)
-      .subscribe({
-        next: (updatedItem) => {
-          console.log('Cart item updated successfully');
-          const index = this.cartItems.findIndex(
-            (cartItem) => cartItem.productId === updatedItem.productId
-          );
-          if (index !== -1) {
-            this.cartItems[index] = updatedItem;
-            this.calculateCartTotal();
-          }
-        },
-        error: (error) => {
-          console.error('Error updating cart item:', error);
-        },
-      });
-  }
-
-  calculateCartTotal(): void {
-    this.cartTotal = 0;
-    for (const item of this.cartItems) {
-      if (item.product && item.product.price) {
-        item.subTotal = item.product.price * item.quantity;
-        this.cartTotal += item.subTotal;
-      }
+    if (item && item.userId && item.productId && item.quantity) {
+      this.appFacade.cartService
+        .updateCartItem(this.userId, item.productId, item.quantity)
+        .subscribe({
+          next: (updatedItem) => {
+            console.log('Cart item updated successfully');
+            const index = this.cartItems.findIndex(
+              (cartItem) => cartItem.productId === updatedItem.productId
+            );
+            if (index !== -1) {
+              this.cartItems[index] = updatedItem;
+              this.calculateCartTotal();
+            }
+          },
+          error: (error) => {
+            console.error('Error updating cart item:', error);
+          },
+        });
+    } else {
+      console.error('Invalid item data:', item);
     }
-    this.cartTotal = parseFloat(this.cartTotal.toFixed(2));
   }
 
+  private calculateCartTotal(): void {
+    this.cartTotal = this.cartItems.reduce((total, item) => {
+      if (item.product) {
+        if (
+          item.product.type === 'HAIR' &&
+          item.selectedVolume?.price !== undefined
+        ) {
+          // Produit de type HAIR avec volume sélectionné
+          item.subTotal = item.selectedVolume.price * item.quantity;
+        } else if (
+          item.product.type === 'FACE' &&
+          item.product.basePrice !== undefined
+        ) {
+          // Produit de type FACE avec prix de base
+          item.subTotal = item.product.basePrice * item.quantity;
+        } else {
+          console.error(
+            "Volume sélectionné ou prix manquant pour l'article avec l'ID :",
+            item.productId
+          );
+        }
+
+        // Assurez-vous que subTotal n'est pas undefined avant de l'ajouter au total
+        return total + (item.subTotal || 0); // Ajoute 0 si subTotal est undefined
+      } else {
+        return total;
+      }
+    }, 0);
+  }
   confirmDeleteItem(id: number): void {
     this.itemIdToDelete = id;
-    this.showConfirmDelete = true;
+    this.showConfirmDelete = true; // Affiche la modale de confirmation
   }
 
   deleteItem(): void {
-    this.appFacade.cartService.deleteCartItem(this.itemIdToDelete).subscribe({
-      next: () => {
-        console.log('Product deleted from cart successfully');
-        this.showConfirmDelete = false;
-        this.loadCartItems();
-      },
-      error: (error) => {
-        console.error('Failed to delete product from cart:', error);
-        this.showConfirmDelete = false;
-      },
-    });
+    if (this.itemIdToDelete !== null) {
+      // Vérifiez si l'ID est défini
+      this.appFacade.deleteCartItem(this.itemIdToDelete).subscribe({
+        next: () => {
+          console.log('Produit supprimé du panier avec succès');
+          this.loadCartItems(); // Recharge les articles du panier après suppression
+        },
+        error: (error) => {
+          console.error(
+            'Échec de la suppression du produit du panier :',
+            error
+          );
+        },
+      });
+      this.showConfirmDelete = false; // Ferme la fenêtre de confirmation
+    } else {
+      console.error('Aucun ID d’article spécifié pour la suppression.');
+    }
   }
 
   cancelDelete(): void {
-    this.showConfirmDelete = false;
+    this.showConfirmDelete = false; // Ferme la fenêtre de confirmation
   }
   hideModal(): void {
     this.showModal = false;

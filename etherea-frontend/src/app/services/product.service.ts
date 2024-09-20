@@ -1,8 +1,8 @@
-import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { IProduct } from '../components/models/i-product';
+import { IProduct, ProductType } from '../components/models/i-product';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +12,7 @@ export class ProductService {
 
   constructor(private httpClient: HttpClient) {}
 
+  // Récupère les produits avec un nombre limité
   getProducts(limit: number = 0): Observable<IProduct[]> {
     const url =
       limit > 0
@@ -20,32 +21,42 @@ export class ProductService {
     return this.httpClient.get<IProduct[]>(url).pipe(
       catchError((error) => {
         console.error('Error fetching products:', error);
-        console.error('Failed to load products. Please try again later.');
-        return [];
+        return throwError(
+          () => new Error('Failed to load products. Please try again later.')
+        );
       })
     );
   }
 
+  // Récupère les produits en fonction du type (FACE ou HAIR) avec pagination
   getProductsByType(
-    type: string,
+    type: ProductType, // Utilisation de l'enum ProductType
     page: number,
     size: number
   ): Observable<IProduct[]> {
     const url = `${this.apiUrl}/products/type`;
-    let params = new HttpParams();
-    params = params.append('type', type);
-    params = params.append('page', page.toString());
-    params = params.append('size', size.toString());
+    let params = new HttpParams()
+      .set('type', type)
+      .set('page', page.toString())
+      .set('size', size.toString());
 
     return this.httpClient.get<IProduct[]>(url, { params }).pipe(
       catchError((error) => {
-        console.error('Error fetching products:', error);
-        return throwError(() => error);
+        console.error('Error fetching products by type:', error);
+        return throwError(() => new Error('Failed to fetch products by type.'));
       })
     );
   }
 
-  getProductById(id: number): Observable<IProduct> {
-    return this.httpClient.get<IProduct>(`${this.apiUrl}/products/${id}`);
+  // Récupère un produit par son ID
+  getProductById(productId: number): Observable<IProduct> {
+    if (productId === undefined || productId === null) {
+      console.error('Invalid product ID provided:', productId);
+      return throwError(() => new Error('Invalid product ID'));
+    }
+
+    return this.httpClient.get<IProduct>(
+      `${this.apiUrl}/products/${productId}`
+    );
   }
 }

@@ -2,7 +2,6 @@ import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { Favorite } from '../models/favorite.model';
-import { ProductService } from 'src/app/services/product.service';
 import { IProduct } from '../models/i-product';
 import { forkJoin } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
@@ -23,10 +22,9 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 export class FavoriteComponent implements OnInit {
   favorites: Favorite[] = [];
   userId!: number;
-  product: IProduct | null = null;
   showModal = false;
   confirmedProductId!: number;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,
@@ -67,7 +65,6 @@ export class FavoriteComponent implements OnInit {
       )
       .subscribe({
         next: (favorites) => {
-          // Once all product details are loaded, assign the favorites
           this.favorites = favorites;
         },
         error: (error) => {
@@ -84,8 +81,7 @@ export class FavoriteComponent implements OnInit {
   removeFavorite(productId: number): void {
     this.appFacade.removeFavorite(this.userId, productId).subscribe({
       next: (response) => {
-        console.log(response);
-        // Update the favorites list after removal
+        console.log('Favorite removed:', response);
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
@@ -102,37 +98,45 @@ export class FavoriteComponent implements OnInit {
   }
 
   openProductPopup(product: IProduct): void {
-    const cartItem: Cart = {
-      id: 0,
-      userId: this.userId,
-      productId: product.id,
-      quantity: 1,
-      product: product,
-    };
+    // Suppose you want to add the first volume to the cart as an example
+    const selectedVolume = product.volumes ? product.volumes[0] : null;
 
-    this.appFacade.cartService.addToCart(cartItem).subscribe({
-      next: () => {
-        const dialogRef = this.dialog.open(ProductSummaryComponent, {
-          width: '60%',
-          height: '80%',
-          data: {
-            product: product,
-            quantity: cartItem.quantity,
-            subTotal: cartItem.quantity * product.price,
-          },
-        });
+    if (selectedVolume) {
+      const cartItem: Cart = {
+        id: 0,
+        userId: this.userId,
+        productId: product.id,
+        quantity: 1,
+        product: product,
+        selectedVolume: selectedVolume,
+      };
 
-        dialogRef.afterClosed().subscribe({
-          next: (result) => {
-            if (result === 'goToCart') {
-              this.router.navigateByUrl('/cart');
-            }
-          },
-        });
-      },
-      error: (error) => {
-        console.error('Error adding product to cart:', error);
-      },
-    });
+      this.appFacade.cartService.addToCart(cartItem).subscribe({
+        next: () => {
+          const dialogRef = this.dialog.open(ProductSummaryComponent, {
+            width: '60%',
+            height: '80%',
+            data: {
+              product: product,
+              quantity: cartItem.quantity,
+              subTotal: cartItem.quantity * (selectedVolume.price || 0),
+            },
+          });
+
+          dialogRef.afterClosed().subscribe({
+            next: (result) => {
+              if (result === 'goToCart') {
+                this.router.navigateByUrl('/cart');
+              }
+            },
+          });
+        },
+        error: (error) => {
+          console.error('Error adding product to cart:', error);
+        },
+      });
+    } else {
+      console.error('No volume selected for product');
+    }
   }
 }

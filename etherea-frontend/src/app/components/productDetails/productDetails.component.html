@@ -7,8 +7,31 @@
     <!-- Product details on the right -->
     <div class="col-md-6">
       <img class="logo" src="/assets/logo.png" alt="banner" />
-      <p class="detail description">{{ product.description }}</p>
-      <p class="detail">Prix : {{ product.price }} €</p>
+      <p class="detail description">{{ product.name }}</p>
+
+      <!-- Volume selection -->
+      <div *ngIf="product.type === 'HAIR' && product.volumes?.length">
+        <label for="volumeSelect">Volume :</label>
+        <select
+          id="volumeSelect"
+          (change)="onVolumeChange($event)"
+          class="form-control"
+          [value]="selectedVolume?.volume?.toString() ?? ''"
+        >
+          <option *ngFor="let vol of product.volumes" [value]="vol.volume">
+            {{ vol.volume }} ml - {{ vol.price }} €
+          </option>
+        </select>
+      </div>
+
+      <!-- Price Display -->
+      <p *ngIf="selectedVolume" class="detail">
+        Prix : {{ selectedVolume.price }} €
+      </p>
+      <p *ngIf="!selectedVolume && product.type === 'FACE'" class="detail">
+        Prix : {{ product.basePrice }} €
+      </p>
+
       <p
         class="detail"
         [ngClass]="{
@@ -38,6 +61,10 @@
     <!-- Additional product details below the image and text -->
     <div class="row">
       <div class="col-md-12">
+        <details>
+          <summary>Description</summary>
+          <p class="product">{{ product.name }}</p>
+        </details>
         <details>
           <summary>Bénéfices</summary>
           <p class="product">{{ product.benefits }}</p>

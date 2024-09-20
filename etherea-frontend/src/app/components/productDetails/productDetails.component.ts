@@ -1,18 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { switchMap, catchError, tap } from 'rxjs/operators';
-import { IProduct } from '../models/i-product';
-import { ProductService } from 'src/app/services/product.service';
-import { ActivatedRoute } from '@angular/router';
-import { CartService } from 'src/app/services/cart.service';
-import { Cart } from '../models/cart.model';
-import { ProductSummaryComponent } from '../product-summary/product-summary.component';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { switchMap, catchError, of } from 'rxjs';
+import { IProduct, ProductType } from '../models/i-product';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from 'src/app/services/auth.service';
 import { SigninRequest } from '../models/signinRequest.model';
-import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { of } from 'rxjs';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { Volume } from '../models/volume.model';
+import { Cart } from '../models/cart.model';
+import { ProductSummaryComponent } from '../product-summary/product-summary.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-product-details',
@@ -21,26 +18,30 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 })
 export class ProductDetailsComponent implements OnInit {
   product: IProduct | null = null;
+  selectedVolume: Volume | null = null;
   userId: number | null = null;
   cartItem: Cart = {
     id: 0,
     userId: 0,
-    productId: 1,
+    productId: 0,
     quantity: 1,
     product: {
-      id: 1,
+      id: 0,
       name: '',
       description: '',
-      price: 0,
-      type: '',
+      type: ProductType.HAIR,
       stockStatus: '',
       benefits: '',
       usageTips: '',
       ingredients: '',
       characteristics: '',
       image: '',
+      volumes: [],
+      basePrice: 0,
     },
+    selectedVolume: undefined,
   };
+
   limitReached = false;
   stockMessage: string = '';
   private destroyRef = inject(DestroyRef);
@@ -76,6 +77,12 @@ export class ProductDetailsComponent implements OnInit {
           this.cartItem.productId = product.id;
           this.cartItem.product = { ...product };
           this.updateStockMessage(product.stockStatus);
+
+          if (product.type === ProductType.HAIR && product.volumes?.length) {
+            this.selectedVolume = product.volumes[0];
+          } else {
+            this.selectedVolume = null;
+          }
         }
       });
   }
@@ -86,10 +93,19 @@ export class ProductDetailsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (user: SigninRequest | null) => {
-          this.userId = user ? user.id : null;
+          if (user) {
+            console.log('Utilisateur connecté:', user);
+            this.userId = user.id;
+          } else {
+            console.log('Aucun utilisateur connecté');
+            this.userId = null;
+          }
         },
         error: (error) => {
-          console.error('Error getting current user ID:', error);
+          console.error(
+            'Erreur lors de la récupération de l’utilisateur:',
+            error
+          );
         },
       });
   }
@@ -97,18 +113,41 @@ export class ProductDetailsComponent implements OnInit {
   updateStockMessage(stockStatus: string): void {
     switch (stockStatus) {
       case 'AVAILABLE':
-        this.stockMessage = `Le produit est disponible.`;
+        this.stockMessage = 'Le produit est disponible.';
         break;
       case 'OUT_OF_STOCK':
-        this.stockMessage = `Le produit est actuellement en rupture de stock.`;
+        this.stockMessage = 'Le produit est actuellement en rupture de stock.';
         break;
       default:
         this.stockMessage = 'Le statut du stock du produit est inconnu.';
     }
   }
 
+  onVolumeChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    const selectedValue = target?.value;
+
+    if (selectedValue && this.product?.volumes) {
+      const volume = this.product.volumes.find(
+        (vol) => vol.volume.toString() === selectedValue
+      );
+
+      if (volume) {
+        this.selectedVolume = volume;
+      } else {
+        console.error(
+          'Volume sélectionné introuvable dans les volumes du produit.'
+        );
+      }
+    } else {
+      console.error(
+        'Sélection de volume invalide ou volumes du produit non disponibles.'
+      );
+    }
+  }
+
   incrementQuantity(): void {
-    if (this.cartItem.quantity < 8) {
+    if (this.cartItem.quantity < 10) {
       this.cartItem.quantity++;
     }
   }
@@ -120,27 +159,43 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   addToCart(): void {
-    if (this.userId !== null) {
-      const subTotal = this.cartItem.quantity * this.cartItem.product.price;
-      this.cartItem.subTotal = subTotal;
-      this.cartItem.userId = this.userId;
-
-      this.appFacade.cartService
-        .addToCart(this.cartItem)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: () => {
-            console.log('Product added to cart');
-            this.openProductSummaryDialog();
-            this.resetCartItem();
-          },
-          error: (error) => {
-            console.error('Error adding product to cart:', error);
-          },
-        });
-    } else {
-      console.error('User ID is not available.');
+    if (!this.userId) {
+      console.error('ID utilisateur non disponible.');
+      alert('Vous devez être connecté pour ajouter des articles au panier.');
+      return;
     }
+
+    console.log('Produit sélectionné:', this.product);
+    console.log('Volume sélectionné:', this.selectedVolume);
+
+    if (this.product?.type === ProductType.HAIR && !this.selectedVolume) {
+      console.error('Aucun volume sélectionné pour un produit HAIR.');
+      alert("Veuillez sélectionner un volume avant d'ajouter au panier.");
+      return;
+    }
+
+    this.cartItem.userId = this.userId;
+    this.cartItem.selectedVolume = this.selectedVolume
+      ? { ...this.selectedVolume }
+      : undefined;
+
+    this.appFacade
+      .addToCart(this.cartItem)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          console.log('Produit ajouté au panier avec succès');
+          this.openProductSummaryDialog();
+          this.resetCartItem();
+        },
+        error: (error) => {
+          console.error('Erreur lors de l’ajout du produit au panier :', error);
+          alert(
+            error.error?.message ||
+              "Une erreur est survenue lors de l'ajout au panier."
+          );
+        },
+      });
   }
 
   openProductSummaryDialog(): void {
@@ -156,7 +211,7 @@ export class ProductDetailsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(() => {
-      console.log('The dialog was closed');
+      console.log('Le dialogue a été fermé');
     });
   }
 
@@ -164,21 +219,24 @@ export class ProductDetailsComponent implements OnInit {
     this.cartItem = {
       id: 0,
       userId: 0,
-      productId: 1,
+      productId: 0,
       quantity: 1,
       product: {
         id: 0,
         name: '',
         description: '',
-        price: 0,
-        type: '',
+        type: ProductType.HAIR,
         stockStatus: '',
         benefits: '',
         usageTips: '',
         ingredients: '',
         characteristics: '',
         image: '',
+        volumes: [],
+        basePrice: 0,
       },
+      selectedVolume: undefined,
     };
+    this.selectedVolume = null;
   }
 }
