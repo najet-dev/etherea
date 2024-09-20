@@ -1,10 +1,9 @@
 import { Volume } from './volume.model';
-
 export interface IProduct {
   id: number;
   name: string;
   description: string;
-  type: string;
+  type: ProductType;
   stockStatus: string;
   benefits: string;
   usageTips: string;
@@ -12,7 +11,8 @@ export interface IProduct {
   characteristics: string;
   image: string;
   isFavorite?: boolean;
-  volumes?: Volume[];
+  volumes?: Volume[]; // Présent uniquement si type === HAIR
+  basePrice?: number; // Ajouté pour les produits de type FACE
 }
 
 export enum ProductType {

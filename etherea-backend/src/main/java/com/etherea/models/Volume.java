@@ -15,10 +15,7 @@ public class Volume {
     private BigDecimal price;
     @ManyToOne
     @JoinColumn(name = "product_id")
-    @JsonIgnore  // Évite la récursion infinie lors de la sérialisation JSON
     private Product product;
-    @OneToMany(mappedBy = "volume", cascade = CascadeType.REMOVE)
-    private List<CartItem> cartItems;
 
     // Constructeurs
     public Volume() {

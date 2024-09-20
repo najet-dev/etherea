@@ -10,7 +10,7 @@
       <p class="detail description">{{ product.name }}</p>
 
       <!-- Volume selection -->
-      <div *ngIf="product.type === 'HAIR' && product.volumes">
+      <div *ngIf="product.type === 'HAIR' && product.volumes?.length">
         <label for="volumeSelect">Volume :</label>
         <select
           id="volumeSelect"
@@ -27,6 +27,9 @@
       <!-- Price Display -->
       <p *ngIf="selectedVolume" class="detail">
         Prix : {{ selectedVolume.price }} €
+      </p>
+      <p *ngIf="!selectedVolume && product.type === 'FACE'" class="detail">
+        Prix : {{ product.basePrice }} €
       </p>
 
       <p

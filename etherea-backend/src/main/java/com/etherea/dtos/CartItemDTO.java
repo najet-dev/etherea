@@ -70,14 +70,29 @@ public class CartItemDTO {
         if (cartItem == null) {
             return null;
         }
-        BigDecimal subTotal = cartItem.getVolume().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+
+        BigDecimal subTotal;
+        Long volumeId = null;
+
+        if (cartItem.getVolume() != null) {
+            volumeId = cartItem.getVolume().getId();
+            subTotal = cartItem.getVolume().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+        } else if (cartItem.getProduct() != null && "FACE".equals(cartItem.getProduct().getType())) {
+            // Pour les produits de type FACE, utiliser un prix de base
+            subTotal = cartItem.getProduct().getBasePrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+        } else {
+            // Si aucun volume n'est disponible et ce n'est pas un produit de type FACE
+            subTotal = BigDecimal.ZERO; // Ajuste selon ta logique
+        }
+
         return new CartItemDTO(
                 cartItem.getId(),
                 cartItem.getQuantity(),
                 cartItem.getProduct() != null ? cartItem.getProduct().getId() : null,
-                VolumeDTO.fromVolume(cartItem.getVolume()),
-                cartItem.getUser().getId(),
+                VolumeDTO.fromVolume(cartItem.getVolume()), // Assure-toi que cette méthode gère null
+                cartItem.getUser() != null ? cartItem.getUser().getId() : null,
                 subTotal
         );
     }
+
 }

@@ -8,10 +8,7 @@ public class VolumeDTO {
     private Long id;
     private int volume;
     private BigDecimal price;
-
-    // Constructeurs
     public VolumeDTO() {}
-
     public VolumeDTO(Long id, int volume, BigDecimal price) {
         this.id = id;
         this.volume = volume;
@@ -21,15 +18,12 @@ public class VolumeDTO {
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public int getVolume() {
         return volume;
     }
-
     public void setVolume(int volume) {
         this.volume = volume;
     }
@@ -42,6 +36,9 @@ public class VolumeDTO {
 
     // Méthode pour convertir un Volume en VolumeDTO
     public static VolumeDTO fromVolume(Volume volume) {
+        if (volume == null) {
+            return null; // Retourne null ou un VolumeDTO par défaut si nécessaire
+        }
         return new VolumeDTO(
                 volume.getId(),
                 volume.getVolume(),

@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CartService } from 'src/app/services/cart.service';
 import { Cart } from 'src/app/components/models/cart.model';
-import { ProductService } from 'src/app/services/product.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -34,7 +33,7 @@ export class CartComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (user) => {
-          if (user && user.id) {
+          if (user?.id) {
             this.userId = user.id;
             this.loadCartItems();
           }
@@ -44,6 +43,7 @@ export class CartComponent implements OnInit {
         },
       });
   }
+
   loadCartItems(): void {
     this.appFacade.getCartItems(this.userId).subscribe({
       next: (cartItems) => {
@@ -51,40 +51,7 @@ export class CartComponent implements OnInit {
         this.isCartEmpty = this.cartItems.length === 0;
 
         if (this.cartItems.length > 0) {
-          this.cartItems.forEach((item) => {
-            const productId = item.productId || item.product?.id;
-
-            if (productId) {
-              this.appFacade.getProductById(productId).subscribe({
-                next: (product) => {
-                  item.product = product;
-
-                  // Assigner le volume renvoyé par l'API à selectedVolume
-                  if (item.volume) {
-                    item.selectedVolume = item.volume; // Correction ici
-                    console.log(
-                      'Volume sélectionné pour cet article :',
-                      item.selectedVolume
-                    );
-                  } else {
-                    console.error(
-                      `Volume sélectionné manquant pour l'article avec l'ID de produit : ${productId}`
-                    );
-                  }
-
-                  this.calculateCartTotal();
-                },
-                error: (error) => {
-                  console.error(
-                    'Erreur lors de la récupération du produit :',
-                    error
-                  );
-                },
-              });
-            } else {
-              console.error("ID de produit manquant pour l'article :", item);
-            }
-          });
+          this.loadProductDetails();
         }
       },
       error: (error) => {
@@ -93,6 +60,44 @@ export class CartComponent implements OnInit {
           error
         );
       },
+    });
+  }
+
+  private loadProductDetails(): void {
+    this.cartItems.forEach((item) => {
+      const productId = item.productId || item.product?.id;
+
+      if (productId) {
+        this.appFacade.getProductById(productId).subscribe({
+          next: (product) => {
+            item.product = product;
+
+            // Vérification du type de produit et traitement en conséquence
+            if (item.product.type === 'HAIR' && item.selectedVolume) {
+              // Produit de type HAIR, utiliser le volume sélectionné
+              item.subTotal = item.selectedVolume.price * item.quantity;
+            } else if (
+              item.product?.type === 'FACE' &&
+              item.product.basePrice !== undefined
+            ) {
+              // Produit de type FACE, utiliser le prix de base
+              item.subTotal = item.product.basePrice * item.quantity;
+            } else {
+              console.error(
+                `Type de produit inconnu pour le produit avec ID : ${productId}`
+              );
+            }
+
+            // Calculer le total du panier après avoir chargé les détails du produit
+            this.calculateCartTotal();
+          },
+          error: (error) => {
+            console.error('Erreur lors de la récupération du produit:', error);
+          },
+        });
+      } else {
+        console.error("ID de produit manquant pour l'article:", item);
+      }
     });
   }
 
@@ -134,49 +139,62 @@ export class CartComponent implements OnInit {
 
   private calculateCartTotal(): void {
     this.cartTotal = this.cartItems.reduce((total, item) => {
-      if (item.product && item.selectedVolume) {
-        // Assurez-vous que le sous-total est correctement calculé
-        item.subTotal = item.selectedVolume.price * item.quantity;
-        return total + item.subTotal;
+      if (item.product) {
+        if (
+          item.product.type === 'HAIR' &&
+          item.selectedVolume?.price !== undefined
+        ) {
+          // Produit de type HAIR avec volume sélectionné
+          item.subTotal = item.selectedVolume.price * item.quantity;
+        } else if (
+          item.product.type === 'FACE' &&
+          item.product.basePrice !== undefined
+        ) {
+          // Produit de type FACE avec prix de base
+          item.subTotal = item.product.basePrice * item.quantity;
+        } else {
+          console.error(
+            "Volume sélectionné ou prix manquant pour l'article avec l'ID :",
+            item.productId
+          );
+        }
+
+        // Assurez-vous que subTotal n'est pas undefined avant de l'ajouter au total
+        return total + (item.subTotal || 0); // Ajoute 0 si subTotal est undefined
       } else {
-        console.error(
-          "Volume sélectionné ou produit manquant pour l'article avec l'ID :",
-          item.productId
-        );
         return total;
       }
     }, 0);
   }
-
   confirmDeleteItem(id: number): void {
-    console.log('Item ID to delete:', id);
     this.itemIdToDelete = id;
-    this.showConfirmDelete = true;
+    this.showConfirmDelete = true; // Affiche la modale de confirmation
   }
 
   deleteItem(): void {
-    console.log('Deleting item with ID:', this.itemIdToDelete); // Ajoutez un log pour vérifier
-    if (this.itemIdToDelete) {
-      this.appFacade.cartService.deleteCartItem(this.itemIdToDelete).subscribe({
+    if (this.itemIdToDelete !== null) {
+      // Vérifiez si l'ID est défini
+      this.appFacade.deleteCartItem(this.itemIdToDelete).subscribe({
         next: () => {
-          console.log('Product deleted from cart successfully');
-          this.showConfirmDelete = false;
+          console.log('Produit supprimé du panier avec succès');
           this.loadCartItems(); // Recharge les articles du panier après suppression
         },
         error: (error) => {
-          console.error('Failed to delete product from cart:', error);
-          this.showConfirmDelete = false;
+          console.error(
+            'Échec de la suppression du produit du panier :',
+            error
+          );
         },
       });
+      this.showConfirmDelete = false; // Ferme la fenêtre de confirmation
     } else {
-      console.error('No item ID specified for deletion.');
+      console.error('Aucun ID d’article spécifié pour la suppression.');
     }
   }
 
   cancelDelete(): void {
-    this.showConfirmDelete = false;
+    this.showConfirmDelete = false; // Ferme la fenêtre de confirmation
   }
-
   hideModal(): void {
     this.showModal = false;
   }

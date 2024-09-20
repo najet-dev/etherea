@@ -73,7 +73,6 @@ public class ProductService {
                     return new ProductNotFoundException("No product found with ID: " + id);
                 });
     }
-
     public ResponseEntity<String> saveProduct(ProductDTO productDTO, MultipartFile file) {
         if (productDTO == null) {
             return ResponseEntity.badRequest().body("ProductDTO cannot be null");
@@ -103,6 +102,9 @@ public class ProductService {
         // Convertir ProductDTO en Product
         Product product = convertToProduct(productDTO);
 
+        // Assigner le basePrice
+        product.setBasePrice(productDTO.getBasePrice());
+
         // Ajouter les volumes
         if (productDTO.getVolumes() != null && !productDTO.getVolumes().isEmpty()) {
             List<Volume> volumes = productDTO.getVolumes().stream()
@@ -116,9 +118,8 @@ public class ProductService {
             product.setVolumes(volumes);
         }
 
-        // Sauvegarder le produit (cela sauvegardera également les volumes associés grâce au cascade = CascadeType.ALL)
+        // Sauvegarder le produit
         productRepository.save(product);
-
         return ResponseEntity.ok("Product saved successfully");
     }
 
@@ -201,6 +202,7 @@ public class ProductService {
         existingProduct.setName(productDTO.getName());
         existingProduct.setDescription(productDTO.getDescription());
         existingProduct.setType(productDTO.getType());
+        existingProduct.setBasePrice(productDTO.getBasePrice());
         existingProduct.setStockStatus(productDTO.getStockStatus());
         existingProduct.setBenefits(productDTO.getBenefits());
         existingProduct.setUsageTips(productDTO.getUsageTips());

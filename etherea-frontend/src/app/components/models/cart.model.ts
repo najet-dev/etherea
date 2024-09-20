@@ -4,11 +4,11 @@ import { Volume } from './volume.model';
 export interface Cart {
   id: number;
   userId: number;
-  product?: IProduct;
+  product: IProduct;
   productId: number;
   quantity: number;
   selectedVolume?: Volume;
+  volumeId?: number;
   subTotal?: number;
   total?: number;
-  volume?: Volume; // Propriété qui vient de l'API, renvoyée pour chaque article
 }

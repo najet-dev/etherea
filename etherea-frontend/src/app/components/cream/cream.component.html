@@ -38,6 +38,7 @@
             >
               &#x2764;
             </span>
+            <h5 class="card-title">{{ product.name }}</h5>
             <a
               [routerLink]="['/productDetails', product.id]"
               class="card-description"
@@ -49,6 +50,7 @@
               class="card-description"
             >
             </a>
+            <p>Prix : {{ product.basePrice }} €</p>
           </div>
         </div>
       </div>

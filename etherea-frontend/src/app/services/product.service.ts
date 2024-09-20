@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { IProduct } from '../components/models/i-product';
+import { IProduct, ProductType } from '../components/models/i-product';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +12,7 @@ export class ProductService {
 
   constructor(private httpClient: HttpClient) {}
 
+  // Récupère les produits avec un nombre limité
   getProducts(limit: number = 0): Observable<IProduct[]> {
     const url =
       limit > 0
@@ -27,8 +28,9 @@ export class ProductService {
     );
   }
 
+  // Récupère les produits en fonction du type (FACE ou HAIR) avec pagination
   getProductsByType(
-    type: string,
+    type: ProductType, // Utilisation de l'enum ProductType
     page: number,
     size: number
   ): Observable<IProduct[]> {
@@ -46,6 +48,7 @@ export class ProductService {
     );
   }
 
+  // Récupère un produit par son ID
   getProductById(productId: number): Observable<IProduct> {
     if (productId === undefined || productId === null) {
       console.error('Invalid product ID provided:', productId);

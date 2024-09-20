@@ -2,7 +2,7 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
-import { IProduct } from '../components/models/i-product';
+import { IProduct, ProductType } from '../components/models/i-product';
 import { CartService } from './cart.service';
 import { FavoriteService } from './favorite.service';
 import { ProductService } from './product.service';
@@ -80,7 +80,7 @@ export class AppFacade {
   }
 
   getProductsByType(
-    type: string,
+    type: ProductType,
     page: number,
     size: number
   ): Observable<IProduct[]> {

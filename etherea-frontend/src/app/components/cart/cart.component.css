@@ -46,11 +46,29 @@
 }
 
 .close-button:hover {
-  color: red; /* Change la couleur de l'icône au survol */
+  color: red;
 }
 
 .btn-box {
   display: flex;
   justify-content: center;
   gap: 10px; /* Espace entre les boutons */
+}
+.popup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 5px;
+  text-align: center;
 }

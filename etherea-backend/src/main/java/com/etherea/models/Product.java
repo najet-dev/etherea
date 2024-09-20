@@ -5,6 +5,7 @@ import com.etherea.enums.StockStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 @Entity
@@ -16,6 +17,7 @@ public class Product {
     private String description;
     @Enumerated(EnumType.STRING)
     private ProductType type;
+    private BigDecimal basePrice;
     @Enumerated(EnumType.STRING)
     private StockStatus stockStatus;
     private String benefits;
@@ -28,13 +30,13 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore // Ignorer la sérialisation de cette propriété pour éviter la récursion infinie
     private List<CommandItem> commandItems = new ArrayList<>();
-
     public Product() {
     }
-    public Product(String name, String description, ProductType type, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public Product(String name, String description, ProductType type, BigDecimal basePrice, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
         this.name = name;
         this.description = description;
         this.type = type;
+        this.basePrice = basePrice;
         this.stockStatus = stockStatus;
         this.benefits = benefits;
         this.usageTips = usageTips;
@@ -66,6 +68,12 @@ public class Product {
     }
     public void setType(ProductType type) {
         this.type = type;
+    }
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
     }
     public StockStatus getStockStatus() {
         return stockStatus;
@@ -131,5 +139,4 @@ public class Product {
         // Ajouter les nouveaux volumes et les associer
         newVolumes.forEach(this::addVolume);
     }
-
 }

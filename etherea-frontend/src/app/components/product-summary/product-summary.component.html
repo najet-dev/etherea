@@ -18,10 +18,18 @@
     <div class="text-and-buttons-container">
       <div class="text-container">
         <h2>{{ data.product.name }}</h2>
-        <p>{{ data.product.description }}</p>
-        <p>Prix: {{ data.cart.selectedVolume?.price | number : ".2-2" }} €</p>
-        <p>Volume : {{ data.cart.selectedVolume?.volume }}ml</p>
-        <!-- Utilisation du prix du volume sélectionné -->
+        <!-- Affichage conditionnel pour les produits de type FACE -->
+        <ng-container *ngIf="data.product.type === 'FACE'; else hairProduct">
+          <p>Prix de base: {{ data.product.basePrice | number : ".2-2" }} €</p>
+        </ng-container>
+
+        <!-- Affichage conditionnel pour les produits de type HAIR -->
+        <ng-template #hairProduct>
+          <p>Prix: {{ data.cart.selectedVolume?.price | number : ".2-2" }} €</p>
+          <p>Volume : {{ data.cart.selectedVolume?.volume }}ml</p>
+        </ng-template>
+
+        <!-- Quantité, commune à tous les types de produit -->
         <p>Quantité: {{ data.quantity }}</p>
       </div>
 

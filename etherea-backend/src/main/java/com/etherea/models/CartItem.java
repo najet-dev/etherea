@@ -1,5 +1,6 @@
 package com.etherea.models;
 
+import com.etherea.enums.ProductType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -14,13 +15,13 @@ public class CartItem {
     private int quantity;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnore // Ignorer la sérialisation de cette propriété pour éviter la récursion infinie
+    @JsonIgnore
     private User user;
     @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false)
+    @JoinColumn(name = "product_id")
     private Product product;
-    @ManyToOne
-    @JoinColumn(name = "volume_id", nullable = false)
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "volume_id", nullable = true)
     private Volume volume;
     @ManyToOne
     @JoinColumn(name = "cartId")
@@ -85,12 +86,16 @@ public class CartItem {
     public void setTotal(BigDecimal total) {
         this.total = total;
     }
-    // Méthode pour calculer le sous-total (prix * quantité) d'un produit pour un volume spécifique
+    // Méthode pour calculer le sous-total
     public BigDecimal calculateSubtotal() {
-        if (volume == null || volume.getPrice() == null) {
-            return BigDecimal.ZERO;
+        if (product.getType() == ProductType.FACE) {
+            // Utiliser basePrice pour les produits de type FACE
+            return product.getBasePrice().multiply(BigDecimal.valueOf(quantity));
+        } else if (volume != null && volume.getPrice() != null) {
+            // Utiliser le prix du volume pour les produits de type HAIR
+            return volume.getPrice().multiply(BigDecimal.valueOf(quantity));
         }
-        return volume.getPrice().multiply(BigDecimal.valueOf(quantity));
+        return BigDecimal.ZERO; // Retourne 0 si aucune condition n'est remplie
     }
     // Méthode pour calculer le prix total de tous les produits dans le panier
     public static BigDecimal calculateTotalPrice(List<CartItem> items) {

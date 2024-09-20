@@ -6,6 +6,7 @@ import com.etherea.models.Product;
 import com.etherea.models.Volume;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ public class ProductDTO {
     private String name;
     private String description;
     private ProductType type;
+    private BigDecimal basePrice;
     private StockStatus stockStatus;
     private String benefits;
     private String usageTips;
@@ -27,13 +29,14 @@ public class ProductDTO {
     // Constructeurs
     public ProductDTO() {}
 
-    public ProductDTO(Long id, String name, String description, ProductType type, StockStatus stockStatus,
+    public ProductDTO(Long id, String name, String description, ProductType type, BigDecimal basePrice, StockStatus stockStatus,
                       String benefits, String usageTips, String ingredients, String characteristics,
                       String image, List<VolumeDTO> volumes) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.type = type;
+        this.basePrice = basePrice;
         this.stockStatus = stockStatus;
         this.benefits = benefits;
         this.usageTips = usageTips;
@@ -63,6 +66,12 @@ public class ProductDTO {
     }
     public ProductType getType() {
         return type;
+    }
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
     }
     public void setType(ProductType type) {
         this.type = type;
@@ -117,6 +126,7 @@ public class ProductDTO {
                 product.getName(),
                 product.getDescription(),
                 product.getType(),
+                product.getBasePrice(),
                 product.getStockStatus(),
                 product.getBenefits(),
                 product.getUsageTips(),
@@ -135,6 +145,7 @@ public class ProductDTO {
         product.setName(this.name);
         product.setDescription(this.description);
         product.setType(this.type);
+        product.setBasePrice(this.basePrice);
         product.setStockStatus(this.stockStatus);
         product.setBenefits(this.benefits);
         product.setUsageTips(this.usageTips);

@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { ProductType } from '../models/i-product'; // Assurez-vous d'importer l'énumération ProductType
 
 @Component({
   selector: 'app-day-cream',
@@ -43,7 +44,7 @@ export class CreamComponent implements OnInit {
   }
 
   loadProducts(): void {
-    const productType = 'FACE'; // Type de produit pour le visage
+    const productType = ProductType.FACE; // Utiliser l'énumération ProductType
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
 
