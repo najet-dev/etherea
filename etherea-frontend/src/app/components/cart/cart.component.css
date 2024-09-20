@@ -1,33 +1,74 @@
+/* Style pour la pop-up */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1051;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.modal-dialog {
+  z-index: 1052;
+  background: white;
+  width: 90%;
+  max-width: 600px; /* Largeur maximale pour la pop-up */
+  padding: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Ombre pour effet de profondeur */
+}
+
+.modal-content {
+  border: none;
+}
+
+.modal-header,
+.modal-footer {
+  border: none;
+  padding: 10px 20px;
+}
+
+.modal-body {
+  font-size: 18px;
+  text-align: center;
+}
+
 .close-button {
   background: none;
+  border: none;
   cursor: pointer;
+  font-size: 16px; /* Ajuste la taille de l'icône */
 }
 
 .close-button:hover {
   color: red;
 }
 
+.btn-box {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Espace entre les boutons */
+}
 .popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .popup-content {
-  width: 40%;
-  height: 40%;
   background: white;
   padding: 20px;
   border-radius: 5px;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }

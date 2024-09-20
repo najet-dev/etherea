@@ -7,43 +7,40 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
+import { StorageService } from 'src/app/services/storage.service';
+
 import { Observable, catchError, switchMap, take, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private storageService: StorageService,
+    private router: Router
+  ) {}
 
   intercept(
     request: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
-    return this.authService.AuthenticatedUser$.pipe(
+    return this.authService.getCurrentUser().pipe(
       take(1),
-      switchMap((signin) => {
-        if (!signin) {
-          return next.handle(request);
+      switchMap((user) => {
+        const token = this.storageService.getToken();
+        if (token) {
+          // Clone the request and add the token to the headers
+          request = request.clone({
+            setHeaders: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
         }
-
-        // Cloner la requête et ajouter le jeton d'authentification dans l'en-tête Authorization
-        const modifiedRequest = request.clone({
-          setHeaders: {
-            Authorization: `Bearer ${signin.accessToken}`,
-          },
-        });
-
-        return next.handle(modifiedRequest).pipe(
-          catchError((err) => {
-            if (err instanceof HttpErrorResponse) {
-              console.error('HTTP Interceptor: HTTP error occurred', err);
-
-              switch (err.status) {
-                case 403:
-                  console.error('HTTP Interceptor: 403 Forbidden Error');
-
-                  this.router.navigate(['/forbidden']);
-
-                  break;
-              }
+        return next.handle(request).pipe(
+          catchError((err: HttpErrorResponse) => {
+            if (err.status === 401) {
+              // Redirect to login or handle unauthorized access
+              this.router.navigate(['/signin']);
             }
             return throwError(() => err);
           })
