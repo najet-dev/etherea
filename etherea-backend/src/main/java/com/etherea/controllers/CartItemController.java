@@ -41,7 +41,6 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
     @PostMapping("/addToCart")
     public ResponseEntity<Map<String, String>> addToCart(@RequestParam Long userId,
                                                          @RequestParam Long productId,
@@ -72,7 +71,6 @@ public class CartItemController {
             @PathVariable Long productId,
             @PathVariable Long volumeId,
             @RequestParam int quantity) {
-
         try {
             cartItemService.updateCartItemQuantity(userId, productId, volumeId, quantity);
             Map<String, String> response = new HashMap<>();

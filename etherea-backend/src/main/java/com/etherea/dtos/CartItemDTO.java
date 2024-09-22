@@ -82,7 +82,7 @@ public class CartItemDTO {
             subTotal = cartItem.getProduct().getBasePrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()));
         } else {
             // Si aucun volume n'est disponible et ce n'est pas un produit de type FACE
-            subTotal = BigDecimal.ZERO; // Ajuste selon ta logique
+            subTotal = BigDecimal.ZERO;
         }
 
         return new CartItemDTO(

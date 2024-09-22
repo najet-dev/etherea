@@ -156,7 +156,7 @@ public class ProductDTO {
         if (this.volumes != null) {
             this.volumes.forEach(volumeDTO -> {
                 Volume volume = volumeDTO.toVolume();
-                volume.setProduct(product);  // Liaison du produit au volume
+                volume.setProduct(product);
                 product.addVolume(volume);
             });
         }
