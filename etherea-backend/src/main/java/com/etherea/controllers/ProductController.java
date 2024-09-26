@@ -54,7 +54,6 @@ public class ProductController {
                     .body("Product not found with ID: " + id);
         }
     }
-
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<String> saveProduct(
             @RequestParam("image") MultipartFile file,
@@ -71,11 +70,13 @@ public class ProductController {
             ObjectMapper objectMapper = new ObjectMapper();
             ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
 
-            if (volumesJson != null && !volumesJson.isEmpty()) {
+            // Traiter les volumes uniquement pour les produits de type HAIR
+            if (productDTO.getType() == ProductType.HAIR && volumesJson != null && !volumesJson.isEmpty()) {
                 List<VolumeDTO> volumeDTOs = objectMapper.readValue(volumesJson,
                         objectMapper.getTypeFactory().constructCollectionType(List.class, VolumeDTO.class));
                 productDTO.setVolumes(volumeDTOs);
             }
+
             return productService.saveProduct(productDTO, file);
 
         } catch (JsonProcessingException e) {
@@ -89,7 +90,6 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
         }
     }
-
     @PutMapping(value = "/update/{productId}", consumes = "multipart/form-data")
     public ResponseEntity<String> updateProduct(@PathVariable Long productId,
                                                 @RequestParam(value = "image", required = false) MultipartFile file,

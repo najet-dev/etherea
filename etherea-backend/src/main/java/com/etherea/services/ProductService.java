@@ -98,15 +98,23 @@ public class ProductService {
                         .body("Error saving file: " + e.getMessage());
             }
         }
-
         // Convertir ProductDTO en Product
         Product product = convertToProduct(productDTO);
 
-        // Assigner le basePrice
-        product.setBasePrice(productDTO.getBasePrice());
+        // Vérifier le type du produit
+        if (product.getType() == ProductType.FACE) {
+            // Pour les produits de type FACE, s'assurer que le basePrice est présent
+            if (productDTO.getBasePrice() == null) {
+                return ResponseEntity.badRequest().body("BasePrice is required for FACE products");
+            }
+            product.setBasePrice(productDTO.getBasePrice());
+            product.setVolumes(Collections.emptyList()); // Pas de volumes pour les produits FACE
+        } else if (product.getType() == ProductType.HAIR) {
+            // Pour les produits de type HAIR, s'assurer que les volumes sont présents
+            if (productDTO.getVolumes() == null || productDTO.getVolumes().isEmpty()) {
+                return ResponseEntity.badRequest().body("Volumes are required for HAIR products");
+            }
 
-        // Ajouter les volumes
-        if (productDTO.getVolumes() != null && !productDTO.getVolumes().isEmpty()) {
             List<Volume> volumes = productDTO.getVolumes().stream()
                     .map(volumeDTO -> {
                         Volume volume = new Volume();
@@ -116,13 +124,14 @@ public class ProductService {
                         return volume;
                     }).collect(Collectors.toList());
             product.setVolumes(volumes);
+        } else {
+            return ResponseEntity.badRequest().body("Invalid product type");
         }
 
         // Sauvegarder le produit
         productRepository.save(product);
         return ResponseEntity.ok("Product saved successfully");
     }
-
     private Product convertToProduct(ProductDTO productDTO) {
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(productDTO, Product.class);

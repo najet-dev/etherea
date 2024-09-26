@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,16 +30,20 @@ public class CartItemController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<CartItemDTO>> getUserCart(@PathVariable Long userId) {
+        logger.info("Fetching cart for userId: {}", userId); // Ajout de log
+
         try {
             List<CartItemDTO> cartItemDTOs = cartItemService.getCartItemsByUserId(userId);
-            logger.info("Cart items retrieved for user {}: {}", userId, cartItemDTOs);
+            if (cartItemDTOs.isEmpty()) {
+                logger.warn("No cart items found for user {}", userId); // Log pour les articles vides
+            }
             return ResponseEntity.ok(cartItemDTOs);
         } catch (UserNotFoundException e) {
             logger.error("User not found: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList()); // Retourner une liste vide
         } catch (Exception e) {
             logger.error("An error occurred: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList()); // Retourner une liste vide
         }
     }
 
@@ -93,6 +98,7 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
     @PutMapping("/{userId}/products/{productId}")
     public ResponseEntity<Map<String, String>> updateCartItemQuantityForFace(
             @PathVariable Long userId,
@@ -117,6 +123,7 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteCartItem(@PathVariable Long id) {
         try {

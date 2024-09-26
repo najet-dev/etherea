@@ -51,12 +51,10 @@ public class CartItemService {
 
         // Filtrage des items de type HAIR ou FACE
         cartItems = cartItems.stream()
-                .filter(cartItem ->
-                        cartItem.getProduct() != null &&
-                                (ProductType.HAIR.equals(cartItem.getProduct().getType()) ||
-                                        ProductType.FACE.equals(cartItem.getProduct().getType())))
+                .filter(cartItem -> cartItem.getProduct() != null &&
+                        (ProductType.HAIR.equals(cartItem.getProduct().getType()) ||
+                                ProductType.FACE.equals(cartItem.getProduct().getType())))
                 .collect(Collectors.toList());
-
 
         logger.info("Filtered cart items count for user {}: {}", userId, cartItems.size());
 
@@ -144,7 +142,6 @@ public class CartItemService {
         updateCartTotal(userId);
         logger.info("Cart total updated.");
     }
-
     // Méthode pour mettre à jour le total
     private void updateCartTotal(Long userId) {
         List<CartItem> userCartItems = cartItemRepository.findByUserId(userId);
@@ -174,6 +171,9 @@ public class CartItemService {
         // Vérification pour les produits de type HAIR
         Volume volume = null;
         if (product.getType() == ProductType.HAIR) {
+            if (volumeId == null) {
+                throw new IllegalArgumentException("Les produits de type HAIR nécessitent un volume.");
+            }
             volume = volumeRepository.findById(volumeId)
                     .orElseThrow(() -> new VolumeNotFoundException("Volume non trouvé avec l'ID : " + volumeId));
         } else if (product.getType() == ProductType.FACE && volumeId != null) {

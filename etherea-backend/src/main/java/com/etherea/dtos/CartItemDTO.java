@@ -10,12 +10,11 @@ public class CartItemDTO {
     private Long productId;
     private VolumeDTO volume;    // Contient les détails du volume
     private Long userId;
-    private BigDecimal subTotal; // Sous-total calculé
+    private BigDecimal subTotal;
 
     // Constructeurs
     public CartItemDTO() {
     }
-
     public CartItemDTO(Long id, int quantity, Long productId, VolumeDTO volume, Long userId, BigDecimal subTotal) {
         this.id = id;
         this.quantity = quantity;
