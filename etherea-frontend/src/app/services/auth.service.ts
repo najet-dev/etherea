@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
+import { catchError, take, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { environment } from 'src/environments/environment';
 import { SigninRequest } from '../components/models/signinRequest.model';
@@ -82,6 +82,12 @@ export class AuthService {
   }
 
   getCurrentUser(): Observable<SigninRequest | null> {
-    return this.AuthenticatedUser$.asObservable();
+    return this.AuthenticatedUser$.pipe(
+      take(1), // Pour obtenir la dernière valeur et compléter l'observable
+      catchError((error) => {
+        console.error("Erreur lors de l'obtention de l'utilisateur :", error);
+        return of(null); // Renvoie null en cas d'erreur
+      })
+    );
   }
 }

@@ -18,7 +18,7 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ProductDetailsComponent implements OnInit {
   product: IProduct | null = null;
-  selectedVolume: Volume | null = null;
+  selectedVolume: Volume | null = null; // Initialiser à null
   userId: number | null = null;
   cartItem: Cart = {
     id: 0,
@@ -39,7 +39,7 @@ export class ProductDetailsComponent implements OnInit {
       volumes: [],
       basePrice: 0,
     },
-    selectedVolume: undefined,
+    selectedVolume: null, // Modifier à null
   };
 
   limitReached = false;
@@ -76,13 +76,15 @@ export class ProductDetailsComponent implements OnInit {
           this.product = product;
           this.cartItem.productId = product.id;
           this.cartItem.product = { ...product };
-          this.updateStockMessage(product.stockStatus);
 
+          // Afficher le prix du volume sélectionné si c'est un produit de type HAIR
           if (product.type === ProductType.HAIR && product.volumes?.length) {
-            this.selectedVolume = product.volumes[0];
-          } else {
-            this.selectedVolume = null;
+            this.selectedVolume = product.volumes[0]; // Par exemple, le premier volume
+            console.log('Volume sélectionné:', this.selectedVolume);
           }
+
+          this.updateStockMessage(product.stockStatus);
+          console.log('Produit chargé:', product);
         }
       });
   }
@@ -123,6 +125,7 @@ export class ProductDetailsComponent implements OnInit {
     }
   }
 
+  // Gérer le changement de volume
   onVolumeChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const selectedValue = target?.value;
@@ -133,7 +136,8 @@ export class ProductDetailsComponent implements OnInit {
       );
 
       if (volume) {
-        this.selectedVolume = volume;
+        this.selectedVolume = volume; // Assurez-vous que le volume sélectionné est bien mis à jour ici
+        console.log('Volume sélectionné:', this.selectedVolume);
       } else {
         console.error(
           'Volume sélectionné introuvable dans les volumes du produit.'
@@ -158,6 +162,8 @@ export class ProductDetailsComponent implements OnInit {
     }
   }
 
+  // Ajouter un article au panier
+  // Ajouter un article au panier
   addToCart(): void {
     if (!this.userId) {
       console.error('ID utilisateur non disponible.');
@@ -165,19 +171,24 @@ export class ProductDetailsComponent implements OnInit {
       return;
     }
 
-    console.log('Produit sélectionné:', this.product);
-    console.log('Volume sélectionné:', this.selectedVolume);
-
+    // Vérification si un volume est sélectionné pour les produits HAIR
     if (this.product?.type === ProductType.HAIR && !this.selectedVolume) {
       console.error('Aucun volume sélectionné pour un produit HAIR.');
       alert("Veuillez sélectionner un volume avant d'ajouter au panier.");
       return;
     }
 
+    // Assurez-vous que le bon volume est assigné à l'objet cartItem
     this.cartItem.userId = this.userId;
     this.cartItem.selectedVolume = this.selectedVolume
-      ? { ...this.selectedVolume }
-      : undefined;
+      ? { ...this.selectedVolume } // Cloner l'objet selectedVolume pour éviter les références directes
+      : null;
+
+    // Log pour vérifier que le volume est bien assigné
+    console.log(
+      'Ajout au panier avec le volume:',
+      this.cartItem.selectedVolume
+    );
 
     this.appFacade
       .addToCart(this.cartItem)
@@ -207,6 +218,7 @@ export class ProductDetailsComponent implements OnInit {
         cart: this.cartItem,
         quantity: this.cartItem.quantity,
         subTotal: this.cartItem.subTotal,
+        selectedVolume: this.cartItem.selectedVolume?.volume || null,
       },
     });
 
@@ -235,7 +247,7 @@ export class ProductDetailsComponent implements OnInit {
         volumes: [],
         basePrice: 0,
       },
-      selectedVolume: undefined,
+      selectedVolume: null, // Modifier à null
     };
     this.selectedVolume = null;
   }

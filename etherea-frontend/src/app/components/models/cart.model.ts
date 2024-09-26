@@ -7,8 +7,7 @@ export interface Cart {
   product: IProduct;
   productId: number;
   quantity: number;
-  selectedVolume?: Volume;
-  volumeId?: number;
+  selectedVolume: Volume | null;
   subTotal?: number;
   total?: number;
 }

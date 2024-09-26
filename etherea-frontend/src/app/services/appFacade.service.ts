@@ -34,14 +34,17 @@ export class AppFacade {
   updateCartItem(
     userId: number,
     productId: number,
-    newQuantity: number
+    newQuantity: number,
+    volumeId?: number // volumeId est optionnel pour les produits de type FACE
   ): Observable<Cart> {
-    return this.cartService.updateCartItem(userId, productId, newQuantity).pipe(
-      catchError((error) => {
-        console.error('Error updating cart item:', error);
-        return throwError(() => new Error('Failed to update cart item.'));
-      })
-    );
+    return this.cartService
+      .updateCartItem(userId, productId, newQuantity, volumeId)
+      .pipe(
+        catchError((error) => {
+          console.error('Error updating cart item:', error);
+          return throwError(() => new Error('Failed to update cart item.'));
+        })
+      );
   }
 
   deleteCartItem(id: number): Observable<void> {

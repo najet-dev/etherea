@@ -5,6 +5,8 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { ProductType } from '../models/i-product';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
@@ -17,7 +19,7 @@ export class CartComponent implements OnInit {
   userId: number = 0;
   isCartEmpty: boolean = true;
   showConfirmDelete: boolean = false;
-  itemIdToDelete: number = 0;
+  itemIdToDelete: number | null = null; // Ensure this can be null initially
   showModal = false;
   private destroyRef = inject(DestroyRef);
 
@@ -36,6 +38,38 @@ export class CartComponent implements OnInit {
           if (user?.id) {
             this.userId = user.id;
             this.loadCartItems();
+          } else {
+            console.error('User not found');
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching current user:', error);
+        },
+      });
+  }
+  loadCartItems(): void {
+    this.authService
+      .getCurrentUser()
+      .pipe(take(1))
+      .subscribe({
+        next: (user) => {
+          if (user && user.id) {
+            this.userId = user.id;
+            this.appFacade.getCartItems(this.userId).subscribe({
+              next: (cartItems) => {
+                this.cartItems = cartItems;
+                this.isCartEmpty = this.cartItems.length === 0;
+
+                if (this.cartItems.length > 0) {
+                  this.loadProductDetails();
+                }
+              },
+              error: (error) => {
+                console.error('Error fetching cart items:', error);
+              },
+            });
+          } else {
+            console.error('User not found or ID is undefined');
           }
         },
         error: (error) => {
@@ -44,26 +78,7 @@ export class CartComponent implements OnInit {
       });
   }
 
-  loadCartItems(): void {
-    this.appFacade.getCartItems(this.userId).subscribe({
-      next: (cartItems) => {
-        this.cartItems = cartItems;
-        this.isCartEmpty = this.cartItems.length === 0;
-
-        if (this.cartItems.length > 0) {
-          this.loadProductDetails();
-        }
-      },
-      error: (error) => {
-        console.error(
-          'Erreur lors de la récupération des articles du panier :',
-          error
-        );
-      },
-    });
-  }
-
-  private loadProductDetails(): void {
+  loadProductDetails(): void {
     this.cartItems.forEach((item) => {
       const productId = item.productId || item.product?.id;
 
@@ -72,31 +87,46 @@ export class CartComponent implements OnInit {
           next: (product) => {
             item.product = product;
 
-            // Vérification du type de produit et traitement en conséquence
-            if (item.product.type === 'HAIR' && item.selectedVolume) {
-              // Produit de type HAIR, utiliser le volume sélectionné
-              item.subTotal = item.selectedVolume.price * item.quantity;
-            } else if (
-              item.product?.type === 'FACE' &&
-              item.product.basePrice !== undefined
-            ) {
-              // Produit de type FACE, utiliser le prix de base
-              item.subTotal = item.product.basePrice * item.quantity;
+            // Vérification que le produit est bien défini
+            if (item.product) {
+              // Traitement pour les produits de type HAIR
+              if (
+                item.product.type === ProductType.HAIR &&
+                item.product.volumes?.length
+              ) {
+                const selectedVolume =
+                  item.selectedVolume ||
+                  item.product.volumes.find(
+                    (volume) => volume.id === item.selectedVolume?.id
+                  ) ||
+                  item.product.volumes[0];
+
+                item.selectedVolume = selectedVolume;
+
+                if (selectedVolume) {
+                  item.subTotal = selectedVolume.price * item.quantity;
+                }
+              } else if (item.product.type === ProductType.FACE) {
+                item.subTotal = (item.product.basePrice || 0) * item.quantity;
+              }
             } else {
-              console.error(
-                `Type de produit inconnu pour le produit avec ID : ${productId}`
-              );
+              console.error("Produit non trouvé pour l'ID:", productId);
             }
 
-            // Calculer le total du panier après avoir chargé les détails du produit
             this.calculateCartTotal();
           },
           error: (error) => {
-            console.error('Erreur lors de la récupération du produit:', error);
+            console.error(
+              'Erreur lors de la récupération des détails du produit :',
+              error
+            );
           },
         });
       } else {
-        console.error("ID de produit manquant pour l'article:", item);
+        console.error(
+          "Aucun ID de produit trouvé pour l'article du panier:",
+          item
+        );
       }
     });
   }
@@ -137,65 +167,52 @@ export class CartComponent implements OnInit {
     }
   }
 
-  private calculateCartTotal(): void {
+  calculateCartTotal(): void {
     this.cartTotal = this.cartItems.reduce((total, item) => {
       if (item.product) {
-        if (
-          item.product.type === 'HAIR' &&
-          item.selectedVolume?.price !== undefined
-        ) {
-          // Produit de type HAIR avec volume sélectionné
+        if (item.product.type === ProductType.HAIR && item.selectedVolume) {
           item.subTotal = item.selectedVolume.price * item.quantity;
         } else if (
-          item.product.type === 'FACE' &&
+          item.product.type === ProductType.FACE &&
           item.product.basePrice !== undefined
         ) {
-          // Produit de type FACE avec prix de base
           item.subTotal = item.product.basePrice * item.quantity;
-        } else {
-          console.error(
-            "Volume sélectionné ou prix manquant pour l'article avec l'ID :",
-            item.productId
-          );
         }
 
-        // Assurez-vous que subTotal n'est pas undefined avant de l'ajouter au total
-        return total + (item.subTotal || 0); // Ajoute 0 si subTotal est undefined
-      } else {
-        return total;
+        return total + (item.subTotal || 0);
       }
+      return total;
     }, 0);
   }
+
   confirmDeleteItem(id: number): void {
     this.itemIdToDelete = id;
-    this.showConfirmDelete = true; // Affiche la modale de confirmation
+    this.showConfirmDelete = true; // Show confirmation modal
   }
 
   deleteItem(): void {
     if (this.itemIdToDelete !== null) {
-      // Vérifiez si l'ID est défini
+      // Ensure ID is defined
       this.appFacade.deleteCartItem(this.itemIdToDelete).subscribe({
         next: () => {
-          console.log('Produit supprimé du panier avec succès');
-          this.loadCartItems(); // Recharge les articles du panier après suppression
+          console.log('Item deleted from cart successfully');
+          this.loadCartItems(); // Reload cart items after deletion
         },
         error: (error) => {
-          console.error(
-            'Échec de la suppression du produit du panier :',
-            error
-          );
+          console.error('Failed to delete item from cart:', error);
         },
       });
-      this.showConfirmDelete = false; // Ferme la fenêtre de confirmation
+      this.showConfirmDelete = false; // Close confirmation modal
     } else {
-      console.error('Aucun ID d’article spécifié pour la suppression.');
+      console.error('No item ID specified for deletion.');
     }
   }
 
   cancelDelete(): void {
-    this.showConfirmDelete = false; // Ferme la fenêtre de confirmation
+    this.showConfirmDelete = false; // Close confirmation modal
   }
+
   hideModal(): void {
-    this.showModal = false;
+    this.showModal = false; // Hide modal
   }
 }

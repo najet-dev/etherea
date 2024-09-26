@@ -4,6 +4,7 @@
     <div class="col-md-6">
       <img [src]="product.image" class="img-fluid image" [alt]="product.name" />
     </div>
+
     <!-- Product details on the right -->
     <div class="col-md-6">
       <img class="logo" src="/assets/logo.png" alt="banner" />
@@ -63,7 +64,7 @@
       <div class="col-md-12">
         <details>
           <summary>Description</summary>
-          <p class="product">{{ product.name }}</p>
+          <p class="product">{{ product.description }}</p>
         </details>
         <details>
           <summary>Bénéfices</summary>

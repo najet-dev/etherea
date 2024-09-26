@@ -26,15 +26,21 @@
           >
             {{ item.product.name }}
           </p>
-          <p *ngIf="item.product.type === 'HAIR' && item.selectedVolume">
+          <p
+            *ngIf="
+              item.product &&
+              item.product?.type === 'HAIR' &&
+              item.selectedVolume
+            "
+          >
             {{ item.selectedVolume.volume }} ml
           </p>
         </td>
         <td>
-          <span *ngIf="item.product.type === 'FACE'"
+          <span *ngIf="item.product && item.product?.type === 'FACE'"
             >{{ item.product.basePrice | number : ".2-2" }} €</span
           >
-          <span *ngIf="item.product.type === 'HAIR'"
+          <span *ngIf="item.product?.type === 'HAIR'"
             >{{ item.selectedVolume?.price | number : ".2-2" }} €</span
           >
         </td>

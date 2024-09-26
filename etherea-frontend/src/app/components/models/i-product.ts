@@ -4,6 +4,7 @@ export interface IProduct {
   name: string;
   description: string;
   type: ProductType;
+  basePrice?: number; // Ajouté pour les produits de type FACE
   stockStatus: string;
   benefits: string;
   usageTips: string;
@@ -12,7 +13,6 @@ export interface IProduct {
   image: string;
   isFavorite?: boolean;
   volumes?: Volume[]; // Présent uniquement si type === HAIR
-  basePrice?: number; // Ajouté pour les produits de type FACE
 }
 
 export enum ProductType {
