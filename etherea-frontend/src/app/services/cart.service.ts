@@ -19,7 +19,7 @@ export class CartService {
 
   constructor(private httpClient: HttpClient) {}
 
-  // Récupère les éléments du panier d'un utilisateur
+  // Retrieve cart items for a user
   getCartItems(userId: number): Observable<Cart[]> {
     return this.httpClient.get<Cart[]>(`${this.apiUrl}/cart/${userId}`).pipe(
       catchError((error: HttpErrorResponse) => {
@@ -31,18 +31,18 @@ export class CartService {
     );
   }
 
-  // Ajoute un élément au panier
+  // Add an item to the cart
   addToCart(cart: Cart): Observable<Cart> {
-    console.log('Envoi des données du panier:', cart);
+    console.log('Sending cart data:', cart);
 
+    // Check for required data
     if (!cart.productId || !cart.userId || cart.quantity <= 0) {
       console.error(
-        'Données manquantes ou quantité invalide pour ajouter au panier:',
+        'Missing data or invalid quantity for adding to cart:',
         cart
       );
       return throwError(
-        () =>
-          new Error('Produit, utilisateur non défini, ou quantité invalide.')
+        () => new Error('Product, user not defined, or invalid quantity.')
       );
     }
 
@@ -51,29 +51,27 @@ export class CartService {
       .set('productId', cart.productId.toString())
       .set('quantity', cart.quantity.toString());
 
-    // Vérification pour les produits de type HAIR
-    if (cart.product?.type === ProductType.HAIR) {
-      if (cart.selectedVolume?.id) {
-        console.log("Volume sélectionné lors de l'ajout:", cart.selectedVolume); // Ajoutez ce log
+    // Check for HAIR products
+    if (cart.product.type === ProductType.HAIR) {
+      if (cart.selectedVolume) {
+        console.log('Selected volume when adding:', cart.selectedVolume);
         params = params.append('volumeId', cart.selectedVolume.id.toString());
       } else {
         return throwError(
-          () =>
-            new Error('Volume ID est requis pour les produits de type HAIR.')
+          () => new Error('Volume ID is required for HAIR products.')
         );
       }
     }
 
-    // Vérification pour les produits de type FACE
-    if (cart.product?.type === ProductType.FACE && cart.selectedVolume) {
+    // Check for FACE products
+    if (cart.product.type === ProductType.FACE && cart.selectedVolume) {
       return throwError(
-        () =>
-          new Error('Les produits de type FACE ne doivent pas avoir de volume.')
+        () => new Error('FACE products should not have a volume.')
       );
     }
 
     return this.httpClient
-      .post<Cart>(`${this.apiUrl}/cart/addToCart`, null, { params })
+      .post<Cart>(`${this.apiUrl}/cart/addToCart`, cart, { params }) // Pass cart directly
       .pipe(
         tap(() => this.cartUpdated.emit()),
         catchError((error) => {
@@ -83,36 +81,43 @@ export class CartService {
       );
   }
 
-  // Mise à jour de la quantité d'un article du panier avec gestion des produits de type FACE et HAIR
+  // Update the quantity of a cart item
   updateCartItem(
     userId: number,
     productId: number,
     newQuantity: number,
     volumeId?: number
-  ): Observable<Cart> {
+  ): Observable<any> {
     if (newQuantity <= 0) {
       return throwError(() => new Error('Quantity must be greater than 0.'));
     }
 
-    const url = volumeId
-      ? `${this.apiUrl}/cart/${userId}/products/${productId}/volume/${volumeId}`
-      : `${this.apiUrl}/cart/${userId}/products/${productId}`;
+    // Construct the URL based on product type
+    let url: string;
+    if (volumeId) {
+      // URL for HAIR products
+      url = `${this.apiUrl}/cart/${userId}/products/${productId}/volume/${volumeId}`;
+    } else {
+      // URL for FACE products
+      url = `${this.apiUrl}/cart/${userId}/products/${productId}`;
+    }
+
+    // Log the generated URL
+    console.log('Generated URL for PUT request:', url);
 
     const params = new HttpParams().set('quantity', newQuantity.toString());
 
-    return this.httpClient.put<Cart>(url, null, { params }).pipe(
-      tap(() => this.cartUpdated.emit()),
+    // Perform the PUT request
+    return this.httpClient.put<any>(url, null, { params }).pipe(
+      tap(() => console.log('Cart item updated successfully')),
       catchError((error) => {
         console.error('Error updating cart item:', error);
-        const errorMessage = volumeId
-          ? 'Failed to update cart item quantity for HAIR product.'
-          : 'Failed to update cart item quantity for FACE product.';
-        return throwError(() => new Error(errorMessage));
+        return throwError(() => new Error('Failed to update cart item.'));
       })
     );
   }
 
-  // Supprime un élément du panier
+  // Remove an item from the cart
   deleteCartItem(id: number): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiUrl}/cart/${id}`).pipe(
       tap(() => this.cartUpdated.emit()), // Emit update after deletion

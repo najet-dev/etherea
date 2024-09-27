@@ -12,7 +12,7 @@ export interface IProduct {
   characteristics: string;
   image: string;
   isFavorite?: boolean;
-  volumes?: Volume[]; // Présent uniquement si type === HAIR
+  volumes: Volume[];
 }
 
 export enum ProductType {

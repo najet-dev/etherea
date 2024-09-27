@@ -13,14 +13,12 @@
       <!-- Volume selection -->
       <div *ngIf="product.type === 'HAIR' && product.volumes?.length">
         <label for="volumeSelect">Volume :</label>
-        <select
-          id="volumeSelect"
-          (change)="onVolumeChange($event)"
-          class="form-control"
-          [value]="selectedVolume?.volume?.toString() ?? ''"
-        >
-          <option *ngFor="let vol of product.volumes" [value]="vol.volume">
-            {{ vol.volume }} ml - {{ vol.price }} €
+        <select (change)="onVolumeChange($event)">
+          <option
+            *ngFor="let volume of product?.volumes"
+            [value]="volume.volume"
+          >
+            {{ volume.volume }} ml
           </option>
         </select>
       </div>

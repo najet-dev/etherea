@@ -55,6 +55,8 @@ export class CartComponent implements OnInit {
         next: (user) => {
           if (user && user.id) {
             this.userId = user.id;
+            console.log('Articles du panier:', this.cartItems);
+
             this.appFacade.getCartItems(this.userId).subscribe({
               next: (cartItems) => {
                 this.cartItems = cartItems;
@@ -82,38 +84,21 @@ export class CartComponent implements OnInit {
     this.cartItems.forEach((item) => {
       const productId = item.productId || item.product?.id;
 
+      console.log("Traitement de l'ID du produit:", productId);
+
       if (productId) {
         this.appFacade.getProductById(productId).subscribe({
           next: (product) => {
             item.product = product;
 
-            // Vérification que le produit est bien défini
-            if (item.product) {
-              // Traitement pour les produits de type HAIR
-              if (
-                item.product.type === ProductType.HAIR &&
-                item.product.volumes?.length
-              ) {
-                const selectedVolume =
-                  item.selectedVolume ||
-                  item.product.volumes.find(
-                    (volume) => volume.id === item.selectedVolume?.id
-                  ) ||
-                  item.product.volumes[0];
-
-                item.selectedVolume = selectedVolume;
-
-                if (selectedVolume) {
-                  item.subTotal = selectedVolume.price * item.quantity;
-                }
-              } else if (item.product.type === ProductType.FACE) {
-                item.subTotal = (item.product.basePrice || 0) * item.quantity;
-              }
-            } else {
-              console.error("Produit non trouvé pour l'ID:", productId);
+            // Ici, vous devez assigner le volume sélectionné
+            if (product.volumes && product.volumes.length > 0) {
+              item.selectedVolume = product.volumes[0]; // Par exemple, sélectionnez le premier volume
             }
 
-            this.calculateCartTotal();
+            console.log('Produit chargé:', item.product);
+            console.log('Volumes disponibles:', item.product.volumes);
+            this.calculateCartTotal(); // Toujours recalculer le total
           },
           error: (error) => {
             console.error(
@@ -142,41 +127,39 @@ export class CartComponent implements OnInit {
       this.updateCartItem(item);
     }
   }
-
   updateCartItem(item: Cart): void {
-    if (item && item.userId && item.productId && item.quantity) {
-      this.appFacade.cartService
-        .updateCartItem(this.userId, item.productId, item.quantity)
+    if (item && item.userId && item.productId && item.quantity !== undefined) {
+      // Log des valeurs
+      console.log('userId:', item.userId);
+      console.log('productId:', item.productId);
+      console.log('quantity:', item.quantity);
+      console.log('volumeId:', item.selectedVolume?.id);
+
+      // Si le produit est de type HAIR, inclure le volumeId
+      const volumeId =
+        item.product.type === 'HAIR' ? item.selectedVolume?.id : undefined;
+
+      this.appFacade
+        .updateCartItem(item.userId, item.productId, item.quantity, volumeId)
         .subscribe({
-          next: (updatedItem) => {
-            console.log('Cart item updated successfully');
-            const index = this.cartItems.findIndex(
-              (cartItem) => cartItem.productId === updatedItem.productId
-            );
-            if (index !== -1) {
-              this.cartItems[index] = updatedItem;
-              this.calculateCartTotal();
-            }
+          next: (response) => {
+            console.log('Cart item updated successfully', response);
+            this.calculateCartTotal();
           },
           error: (error) => {
             console.error('Error updating cart item:', error);
           },
         });
-    } else {
-      console.error('Invalid item data:', item);
     }
   }
-
   calculateCartTotal(): void {
     this.cartTotal = this.cartItems.reduce((total, item) => {
       if (item.product) {
+        // Vérifiez si le sous-total est bien mis à jour pour chaque item
         if (item.product.type === ProductType.HAIR && item.selectedVolume) {
           item.subTotal = item.selectedVolume.price * item.quantity;
-        } else if (
-          item.product.type === ProductType.FACE &&
-          item.product.basePrice !== undefined
-        ) {
-          item.subTotal = item.product.basePrice * item.quantity;
+        } else if (item.product.type === ProductType.FACE) {
+          item.subTotal = (item.product.basePrice || 0) * item.quantity;
         }
 
         return total + (item.subTotal || 0);

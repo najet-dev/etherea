@@ -7,7 +7,7 @@ export interface Cart {
   product: IProduct;
   productId: number;
   quantity: number;
-  selectedVolume: Volume | null;
+  selectedVolume?: Volume | null; // Ajoutez ce champ si ce n'est pas déjà fait
   subTotal?: number;
   total?: number;
 }

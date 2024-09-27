@@ -5,9 +5,9 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { IProduct, ProductType } from '../models/i-product'; // Assurez-vous d'importer ProductType
+import { IProduct, ProductType } from '../models/i-product';
 import { Cart } from '../models/cart.model';
-import { Volume } from '../models/volume.model';
+import { Volume } from '../models/volume.model'; // Assurez-vous que Volume est bien importé
 
 @Component({
   selector: 'app-product-summary-modal',
@@ -16,6 +16,12 @@ import { Volume } from '../models/volume.model';
 })
 export class ProductSummaryComponent implements OnInit {
   ProductType = ProductType;
+
+  selectedVolume!: Volume | null;
+  product!: IProduct;
+  cart!: Cart;
+  quantity!: number;
+  subTotal!: number;
 
   constructor(
     private dialogRef: MatDialogRef<ProductSummaryComponent>,
@@ -28,11 +34,18 @@ export class ProductSummaryComponent implements OnInit {
     },
     private router: Router
   ) {}
+
   ngOnInit(): void {
     this.updateDialogSize();
-    console.log('Product Data:', this.data.product);
-    console.log('Cart Data:', this.data.cart);
-    console.log('Selected Volume:', this.data.cart.selectedVolume);
+    this.product = this.data.product;
+    this.cart = this.data.cart;
+    this.quantity = this.data.quantity;
+    this.subTotal = this.data.subTotal;
+    this.selectedVolume = this.cart.selectedVolume || null; // Valeur par défaut null si non défini
+
+    console.log('Product Data:', this.product);
+    console.log('Cart Data:', this.cart);
+    console.log('Selected Volume:', this.selectedVolume);
   }
 
   private updateDialogSize(): void {
@@ -51,7 +64,7 @@ export class ProductSummaryComponent implements OnInit {
     this.router.navigateByUrl('/cart');
   }
 
-  goToShopping(productId: number): void {
+  goToShopping(): void {
     this.dialogRef.close();
     this.router.navigateByUrl('/');
   }
