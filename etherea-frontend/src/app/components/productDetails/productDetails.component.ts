@@ -81,12 +81,6 @@ export class ProductDetailsComponent implements OnInit {
           this.cartItems.productId = product.id;
           this.cartItems.product = { ...product };
           this.updateStockMessage(product.stockStatus);
-
-          if (product.type === ProductType.HAIR && product.volumes?.length) {
-            this.selectedVolume = product.volumes[0];
-          } else {
-            this.selectedVolume = null;
-          }
         }
       });
   }
@@ -97,19 +91,10 @@ export class ProductDetailsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (user: SigninRequest | null) => {
-          if (user) {
-            console.log('Utilisateur connecté:', user);
-            this.userId = user.id;
-          } else {
-            console.log('Aucun utilisateur connecté');
-            this.userId = null;
-          }
+          this.userId = user ? user.id : null;
         },
         error: (error) => {
-          console.error(
-            'Erreur lors de la récupération de l’utilisateur:',
-            error
-          );
+          console.error('Error getting current user ID:', error);
         },
       });
   }
@@ -141,29 +126,6 @@ export class ProductDetailsComponent implements OnInit {
       } else {
         console.error('Selected volume not found in product volumes.');
       }
-    }
-  }
-
-  onVolumeChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const selectedValue = target?.value;
-
-    if (selectedValue && this.product?.volumes) {
-      const volume = this.product.volumes.find(
-        (vol) => vol.volume.toString() === selectedValue
-      );
-
-      if (volume) {
-        this.selectedVolume = volume;
-      } else {
-        console.error(
-          'Volume sélectionné introuvable dans les volumes du produit.'
-        );
-      }
-    } else {
-      console.error(
-        'Sélection de volume invalide ou volumes du produit non disponibles.'
-      );
     }
   }
 
@@ -239,7 +201,7 @@ export class ProductDetailsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(() => {
-      console.log('Le dialogue a été fermé');
+      console.log('The dialog was closed');
     });
   }
 
@@ -270,6 +232,5 @@ export class ProductDetailsComponent implements OnInit {
       },
       subTotal: 0, // Réinitialiser le sous-total
     };
-    this.selectedVolume = null;
   }
 }

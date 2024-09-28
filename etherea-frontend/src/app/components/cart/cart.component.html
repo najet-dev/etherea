@@ -1,8 +1,5 @@
-<div *ngIf="isCartEmpty" class="container mt-5">
-  <h2 class="mb-4">Votre Panier</h2>
-  <p>Votre panier ne contient actuellement aucun produit.</p>
-</div>
-
+<!-- Affichage des articles dans le panier -->
+<!-- Affichage des articles dans le panier -->
 <div *ngIf="!isCartEmpty" class="container mt-5">
   <table class="table">
     <thead>
@@ -29,17 +26,23 @@
             [routerLink]="['/productDetails', item.product.id]"
           >
             {{ item.product.name }}
-          </h2>
-          <p
-            *ngIf="item.product"
-            [routerLink]="['/productDetails', item.product.id]"
-          >
-            {{ item.product.description }}
+          </p>
+          <!-- Affichage du volume pour les produits de type HAIR -->
+          <p *ngIf="item.product?.type === 'HAIR' && item.selectedVolume">
+            {{ item.selectedVolume.volume }} ml
           </p>
         </td>
-        <!-- Colonne du prix -->
-        <td>{{ item.product && item.product.price | number : ".2-2" }} €</td>
-        <!-- Colonne de la quantité -->
+        <td>
+          <!-- Affichage du prix des produits de type FACE -->
+          <span *ngIf="item.product?.type === 'FACE'">
+            {{ item.product.basePrice | number : ".2-2" }} €
+          </span>
+          <!-- Affichage du prix pour les produits de type HAIR -->
+
+          <span *ngIf="item.product?.type === 'HAIR'">
+            {{ item.selectedVolume?.price | number : ".2-2" }} €
+          </span>
+        </td>
         <td>
           <button class="quantity-btn" (click)="decrementQuantity(item)">
             -
@@ -49,9 +52,8 @@
             +
           </button>
         </td>
-        <!-- Colonne du sous-total -->
-        <td>{{ item.subTotal | number : ".2-2" }}</td>
-        <!-- Colonne pour supprimer l'article -->
+        <!-- Affichage du sous-total de l'article -->
+        <td>{{ item.subTotal | number : ".2-2" }} €</td>
         <td>
           <button
             class="delete-btn close-button"
@@ -64,10 +66,9 @@
     </tbody>
     <tfoot>
       <tr>
-        <td colspan="3"></td>
-        <!-- Ajustement du colspan -->
-        <td colspan="1"><strong>Total</strong></td>
-        <td>{{ cartTotal }} €</td>
+        <td colspan="2"></td>
+        <td><strong>Total</strong></td>
+        <td>{{ cartTotal | number : ".2-2" }} €</td>
       </tr>
     </tfoot>
   </table>

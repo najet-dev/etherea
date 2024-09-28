@@ -4,7 +4,12 @@ import com.etherea.dtos.CartItemDTO;
 import com.etherea.exception.CartItemNotFoundException;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UserNotFoundException;
-import com.etherea.exception.VolumeNotFoundException;
+import com.etherea.models.CartItem;
+import com.etherea.models.Product;
+import com.etherea.models.User;
+import com.etherea.repositories.CartItemRepository;
+import com.etherea.repositories.ProductRepository;
+import com.etherea.repositories.UserRepository;
 import com.etherea.services.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,8 +30,8 @@ import java.util.Map;
 public class CartItemController {
     @Autowired
     private CartItemService cartItemService;
-    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
-
+    @Autowired
+    private UserRepository userRepository;
     @GetMapping("/{userId}")
     public ResponseEntity<List<CartItemDTO>> getUserCart(@PathVariable Long userId) {
         try {
@@ -70,36 +75,10 @@ public class CartItemController {
     public ResponseEntity<Map<String, String>> updateCartItemQuantity(
             @PathVariable Long userId,
             @PathVariable Long productId,
-            @PathVariable Long volumeId,
-            @RequestParam int quantity) {
+            @RequestParam int newQuantity) {
 
         try {
-            cartItemService.updateCartItemQuantity(userId, productId, volumeId, quantity);
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Quantity of cart item updated successfully.");
-            return ResponseEntity.ok(response);
-        } catch (UserNotFoundException | ProductNotFoundException | CartItemNotFoundException |
-                 VolumeNotFoundException e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", e.getClass().getSimpleName() + ": " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } catch (IllegalArgumentException e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "Invalid quantity: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
-        } catch (Exception e) {
-            Map<String, String> response = new HashMap<>();
-            response.put("error", "An error occurred: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-    @PutMapping("/{userId}/products/{productId}")
-    public ResponseEntity<Map<String, String>> updateCartItemQuantityForFace(
-            @PathVariable Long userId,
-            @PathVariable Long productId,
-            @RequestParam int quantity) {
-        try {
-            cartItemService.updateCartItemQuantity(userId, productId, null, quantity);
+            cartItemService.updateCartItemQuantity(userId, productId, newQuantity);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Quantity of FACE product cart item updated successfully.");
             return ResponseEntity.ok(response);

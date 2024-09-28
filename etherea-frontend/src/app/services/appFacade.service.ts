@@ -1,5 +1,11 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, tap, throwError } from 'rxjs';
+import { AuthService } from './auth.service';
+import { FavoriteService } from './favorite.service';
+import { ProductService } from './product.service';
+import { CartService } from './cart.service';
+import { SigninRequest } from '../components/models/signinRequest.model';
+import { SignupRequest } from '../components/models/SignupRequest.model';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
 import { IProduct } from '../components/models/i-product.model';
@@ -17,18 +23,13 @@ export class AppFacade {
     private productService: ProductService
   ) {}
 
-  // Cart
+  // cart
   getCartItems(userId: number): Observable<Cart[]> {
     return this.cartService.getCartItems(userId);
   }
 
   addToCart(cart: Cart): Observable<Cart> {
-    return this.cartService.addToCart(cart).pipe(
-      catchError((error) => {
-        console.error('Error adding to cart:', error);
-        return throwError(() => new Error('Failed to add item to cart.'));
-      })
-    );
+    return this.cartService.addToCart(cart);
   }
 
   updateCartItem(
@@ -36,21 +37,10 @@ export class AppFacade {
     productId: number,
     newQuantity: number
   ): Observable<Cart> {
-    return this.cartService.updateCartItem(userId, productId, newQuantity).pipe(
-      catchError((error) => {
-        console.error('Error updating cart item:', error);
-        return throwError(() => new Error('Failed to update cart item.'));
-      })
-    );
+    return this.cartService.updateCartItem(userId, productId, newQuantity);
   }
-
   deleteCartItem(id: number): Observable<void> {
-    return this.cartService.deleteCartItem(id).pipe(
-      catchError((error) => {
-        console.error('Error deleting cart item:', error);
-        return throwError(() => new Error('Failed to delete cart item.'));
-      })
-    );
+    return this.cartService.deleteCartItem(id);
   }
 
   // Favorite
@@ -80,7 +70,7 @@ export class AppFacade {
   }
 
   getProductsByType(
-    type: ProductType,
+    type: string,
     page: number,
     size: number
   ): Observable<IProduct[]> {
