@@ -2,10 +2,10 @@ import { EventEmitter, Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
-import { IProduct, ProductType } from '../components/models/i-product';
-import { CartService } from './cart.service';
-import { FavoriteService } from './favorite.service';
-import { ProductService } from './product.service';
+import { IProduct } from '../components/models/i-product.model';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { IProductVolume } from '../components/models/IProductVolume.model';
 
 @Injectable({
   providedIn: 'root',

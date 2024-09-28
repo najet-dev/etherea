@@ -5,7 +5,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { IProduct } from '../models/i-product';
+import { IProduct, ProductType } from '../models/i-product.model';
 import { Cart } from '../models/cart.model';
 
 @Component({
@@ -14,9 +14,11 @@ import { Cart } from '../models/cart.model';
   styleUrls: ['./product-summary.component.css'],
 })
 export class ProductSummaryComponent implements OnInit {
+  ProductType = ProductType;
+
   constructor(
-    private dialogRef: MatDialogRef<ProductSummaryComponent>, // Référence à la boîte de dialogue actuelle
-    @Inject(MAT_DIALOG_DATA) // Injection des données passées à la boîte de dialogue
+    private dialogRef: MatDialogRef<ProductSummaryComponent>,
+    @Inject(MAT_DIALOG_DATA)
     public data: {
       product: IProduct;
       cart: Cart;
@@ -25,7 +27,6 @@ export class ProductSummaryComponent implements OnInit {
     },
     private router: Router
   ) {}
-
   ngOnInit(): void {
     // Définition de la configuration de la boîte de dialogue
     const dialogConfig = new MatDialogConfig();
@@ -37,20 +38,17 @@ export class ProductSummaryComponent implements OnInit {
     console.log('Selected Volume:', this.data.cart.selectedVolume);
   }
 
-  // Fonction pour continuer les achats (ferme la boîte de dialogue)
   continueShopping(): void {
     this.dialogRef.close();
   }
 
-  // Fonction pour aller au panier
   goToCart(): void {
-    this.dialogRef.close(); // Ferme la boîte de dialogue
-    this.router.navigateByUrl('/cart'); // Navigue vers la page du panier
+    this.dialogRef.close();
+    this.router.navigateByUrl('/cart');
   }
 
-  // Fonction pour aller à la page d'accueil
   goToShopping(productId: number): void {
-    this.dialogRef.close(); // Ferme la boîte de dialogue
-    this.router.navigateByUrl('/'); // Navigue vers la page d'accueil
+    this.dialogRef.close();
+    this.router.navigateByUrl('/');
   }
 }

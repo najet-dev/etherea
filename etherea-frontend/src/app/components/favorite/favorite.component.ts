@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { IProductVolume } from '../models/IProductVolume.model';
 
 @Component({
   selector: 'app-favorite',
@@ -24,6 +25,7 @@ export class FavoriteComponent implements OnInit {
   userId!: number;
   showModal = false;
   confirmedProductId!: number;
+  private destroyRef = inject(DestroyRef);
   private destroyRef = inject(DestroyRef);
 
   constructor(

@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IProduct } from '../models/i-product';
+import { IProduct } from '../models/i-product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { ProductService } from 'src/app/services/product.service';
@@ -19,6 +19,7 @@ import { ProductType } from '../models/i-product'; // Assurez-vous d'importer l'
 export class CreamComponent implements OnInit {
   products$: Observable<IProduct[]> = new Observable<IProduct[]>();
   userId: number | null = null;
+  selectedVolume: IProductVolume | null = null;
   private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(

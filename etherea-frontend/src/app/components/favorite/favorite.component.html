@@ -16,7 +16,7 @@
               <img
                 [src]="favorite.product.image"
                 class="product-image card-img-top mx-auto img-fluid small-img"
-                alt="{{ favorite.product.name }}"
+                [alt]="favorite.product.name"
               />
               <div class="card-body d-flex flex-column justify-content-between">
                 <span
@@ -35,7 +35,7 @@
                   €
                 </p>
                 <button
-                  class="btn-primary align-bottom"
+                  class="btn btn-primary mt-auto"
                   (click)="openProductPopup(favorite.product)"
                 >
                   Ajouter au panier
@@ -50,7 +50,7 @@
 </div>
 
 <div
-  class="modal"
+  class="modal fade"
   tabindex="-1"
   role="dialog"
   [ngClass]="{ show: showModal }"
@@ -59,12 +59,7 @@
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header justify-content-end">
-        <button
-          mat-icon-button
-          mat-dialog-close
-          class="close-button"
-          (click)="hideModal()"
-        >
+        <button mat-icon-button class="close-button" (click)="hideModal()">
           <mat-icon aria-label="Close dialog">close</mat-icon>
         </button>
       </div>
@@ -75,12 +70,12 @@
         <div class="btn-box">
           <button
             type="button"
-            class="btn-primary"
+            class="btn btn-primary"
             (click)="removeFavorite(confirmedProductId)"
           >
             Confirmer
           </button>
-          <button type="button" class="btn-primary" (click)="hideModal()">
+          <button type="button" class="btn btn-secondary" (click)="hideModal()">
             Annuler
           </button>
         </div>
