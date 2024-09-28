@@ -1,12 +1,7 @@
-<div *ngIf="isCartEmpty" class="container mt-5">
-  <h2 class="mb-4">Votre Panier</h2>
-  <p>Votre panier ne contient actuellement aucun produit.</p>
-</div>
-
+<!-- Affichage des articles dans le panier -->
+<!-- Affichage des articles dans le panier -->
 <div *ngIf="!isCartEmpty" class="container mt-5">
-  <!-- Tableau pour afficher les articles dans le panier -->
   <table class="table">
-    <!-- Header du tableau -->
     <thead>
       <tr>
         <th scope="col">Description</th>
@@ -14,41 +9,40 @@
         <th scope="col">Quantité</th>
         <th scope="col">Sous-Total</th>
         <th scope="col"></th>
-        <!-- Ajout d'une colonne vide pour l'icône de suppression -->
       </tr>
     </thead>
-    <!-- Corps du tableau -->
     <tbody>
-      <!-- Boucle sur les articles du panier -->
       <tr *ngFor="let item of cartItems">
-        <!-- Colonne de la description -->
         <td>
-          <!-- Afficher les détails du produit -->
           <img
-            *ngIf="item.product && item.product.image"
+            *ngIf="item.product?.image"
             [src]="item.product.image"
             alt="Product Image"
             width="60px"
             [routerLink]="['/productDetails', item.product.id]"
           />
-          <h2
-            *ngIf="item.product"
-            [routerLink]="['/productDetails', item.product.id]"
-          >
-            {{ item.product.name }}
-          </h2>
           <p
             *ngIf="item.product"
             [routerLink]="['/productDetails', item.product.id]"
           >
-            {{ item.product.description }}
+            {{ item.product.name }}
+          </p>
+          <!-- Affichage du volume pour les produits de type HAIR -->
+          <p *ngIf="item.product?.type === 'HAIR' && item.selectedVolume">
+            {{ item.selectedVolume.volume }} ml
           </p>
         </td>
-        <!-- Colonne du prix -->
         <td>
-          {{ item.product && item.selectedVolume.price | number : ".2-2" }} €
+          <!-- Affichage du prix des produits de type FACE -->
+          <span *ngIf="item.product?.type === 'FACE'">
+            {{ item.product.basePrice | number : ".2-2" }} €
+          </span>
+          <!-- Affichage du prix pour les produits de type HAIR -->
+
+          <span *ngIf="item.product?.type === 'HAIR'">
+            {{ item.selectedVolume?.price | number : ".2-2" }} €
+          </span>
         </td>
-        <!-- Colonne de la quantité -->
         <td>
           <button class="quantity-btn" (click)="decrementQuantity(item)">
             -
@@ -58,9 +52,8 @@
             +
           </button>
         </td>
-        <!-- Colonne du sous-total -->
-        <td>{{ item.subTotal | number : ".2-2" }}</td>
-        <!-- Colonne pour supprimer l'article -->
+        <!-- Affichage du sous-total de l'article -->
+        <td>{{ item.subTotal | number : ".2-2" }} €</td>
         <td>
           <button
             class="delete-btn close-button"
@@ -71,19 +64,17 @@
         </td>
       </tr>
     </tbody>
-    <!-- Footer du tableau -->
     <tfoot>
       <tr>
-        <td colspan="3"></td>
-        <!-- Ajustement du colspan -->
-        <td colspan="1"><strong>Total</strong></td>
-        <td>{{ cartTotal }} €</td>
+        <td colspan="2"></td>
+        <td><strong>Total</strong></td>
+        <td>{{ cartTotal | number : ".2-2" }} €</td>
       </tr>
     </tfoot>
   </table>
 </div>
 
-<!-- Pop-up de confirmation -->
+<!-- Modal de confirmation -->
 <div *ngIf="showConfirmDelete" class="popup">
   <div class="popup-content">
     <button class="close-button" (click)="cancelDelete()">

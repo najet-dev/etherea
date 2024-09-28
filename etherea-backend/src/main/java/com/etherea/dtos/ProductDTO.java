@@ -6,37 +6,44 @@ import com.etherea.models.Product;
 import com.etherea.models.Volume;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@JsonIgnoreProperties(ignoreUnknown = true)  // Ignorer les champs inconnus pendant la désérialisation
+@JsonIgnoreProperties(ignoreUnknown = true)  // Ignorer les champs inconnus lors de la désérialisation
 public class ProductDTO {
     private Long id;
     private String name;
     private String description;
     private ProductType type;
+    private BigDecimal basePrice;
     private StockStatus stockStatus;
     private String benefits;
     private String usageTips;
     private String ingredients;
     private String characteristics;
     private String image;
-    private List<VolumeDTO> volumes;  // Ajout de la liste de volumes
+    private List<VolumeDTO> volumes;
 
-    public ProductDTO() {
-    }
-    public ProductDTO(Long id, String name, String description, ProductType type, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image, List<VolumeDTO> volumes) {
+    // Constructeurs
+    public ProductDTO() {}
+
+    public ProductDTO(Long id, String name, String description, ProductType type, BigDecimal basePrice, StockStatus stockStatus,
+                      String benefits, String usageTips, String ingredients, String characteristics,
+                      String image, List<VolumeDTO> volumes) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.type = type;
+        this.basePrice = basePrice;
         this.stockStatus = stockStatus;
         this.benefits = benefits;
         this.usageTips = usageTips;
         this.ingredients = ingredients;
         this.characteristics = characteristics;
         this.image = image;
-        this.volumes = volumes;  // Initialiser la liste de volumes
+        this.volumes = volumes;
     }
     // Getters et Setters
     public Long getId() {
@@ -59,6 +66,12 @@ public class ProductDTO {
     }
     public ProductType getType() {
         return type;
+    }
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
     }
     public void setType(ProductType type) {
         this.type = type;
@@ -105,30 +118,34 @@ public class ProductDTO {
     public void setVolumes(List<VolumeDTO> volumes) {
         this.volumes = volumes;
     }
+
     // Convertir un objet Product en ProductDTO
     public static ProductDTO fromProduct(Product product) {
-        ProductDTO productDTO  = new ProductDTO();
-        productDTO.setId(product.getId());
-        productDTO.setName(product.getName());
-        productDTO.setDescription(product.getDescription());
-        productDTO.setType(product.getType());
-        productDTO.setStockStatus(product.getStockStatus());
-        productDTO.setBenefits(product.getBenefits());
-        productDTO.setUsageTips(product.getUsageTips());
-        productDTO.setIngredients(product.getIngredients());
-        productDTO.setImage(product.getImage());
-        productDTO.setVolumes(product.getVolumes().stream()
-                .map(VolumeDTO::fromVolume)
-                .collect(Collectors.toList()));
-        return  productDTO;
+        return new ProductDTO(
+                product.getId(),
+                product.getName(),
+                product.getDescription(),
+                product.getType(),
+                product.getBasePrice(),
+                product.getStockStatus(),
+                product.getBenefits(),
+                product.getUsageTips(),
+                product.getIngredients(),
+                product.getCharacteristics(),
+                product.getImage(),
+                product.getVolumes() != null ? product.getVolumes().stream()
+                        .map(VolumeDTO::fromVolume)
+                        .collect(Collectors.toList()) : null
+        );
     }
-    // Convertir un objet ProductDTO en objet Product
+    // Convertir un objet ProductDTO en Product
     public Product toProduct() {
         Product product = new Product();
         product.setId(this.id);
         product.setName(this.name);
         product.setDescription(this.description);
         product.setType(this.type);
+        product.setBasePrice(this.basePrice);
         product.setStockStatus(this.stockStatus);
         product.setBenefits(this.benefits);
         product.setUsageTips(this.usageTips);
@@ -136,15 +153,13 @@ public class ProductDTO {
         product.setCharacteristics(this.characteristics);
         product.setImage(this.image);
 
-        // Convertir les VolumeDTO en Volume et ajouter au produit
         if (this.volumes != null) {
-            for (VolumeDTO volumeDTO : this.volumes) {
+            this.volumes.forEach(volumeDTO -> {
                 Volume volume = volumeDTO.toVolume();
-                volume.setProduct(product);  // Associe le produit au volume
+                volume.setProduct(product);
                 product.addVolume(volume);
-            }
+            });
         }
         return product;
     }
-
 }

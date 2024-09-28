@@ -1,9 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CartService } from 'src/app/services/cart.service';
 import { Cart } from 'src/app/components/models/cart.model';
-import { ProductService } from 'src/app/services/product.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { StorageService } from 'src/app/services/storage.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
@@ -14,14 +12,14 @@ import { AppFacade } from 'src/app/services/appFacade.service';
   styleUrls: ['./cart.component.css'],
 })
 export class CartComponent implements OnInit {
-  cartItems: Cart[] = [];
+  cartItems: Cart[] = []; // Initialize as an empty array
   cartTotal: number = 0;
   userId!: number;
   isCartEmpty: boolean = true;
   showConfirmDelete: boolean = false;
   itemIdToDelete!: number;
   showModal = false;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
   constructor(private authService: AuthService, private appFacade: AppFacade) {
     this.appFacade.cartService.cartUpdated.subscribe(() => {
@@ -47,23 +45,56 @@ export class CartComponent implements OnInit {
         this.cartItems = cartItems;
         this.isCartEmpty = this.cartItems.length === 0;
 
-        for (let i = 0; i < this.cartItems.length; i++) {
-          const item = this.cartItems[i];
+        for (const item of this.cartItems) {
           this.appFacade.getProductById(item.productId).subscribe({
             next: (product) => {
-              item.product = product;
-              this.calculateCartTotal();
+              if (product) {
+                item.product = product;
+
+                // Initialize selectedVolume if it's not set
+                if (!item.selectedVolume && item.volume) {
+                  // If item.volume is defined, assign it to selectedVolume
+                  item.selectedVolume = { ...item.volume }; // Spread to create a new object if needed
+                }
+
+                // Check if product has volumes and selectedVolume exists
+                if (product.volumes && item.selectedVolume) {
+                  const selectedVol = product.volumes.find(
+                    (vol) => vol.id === item.selectedVolume?.id // Safely access id
+                  );
+                  item.selectedVolume = selectedVol || item.selectedVolume;
+                } else {
+                  // Log warning if selectedVolume remains undefined
+                  console.warn('selectedVolume is undefined for item:', item);
+                }
+
+                this.calculateItemSubTotal(item); // Calculate subtotal after setting selectedVolume
+              } else {
+                console.error('Product not found for id:', item.productId);
+              }
             },
             error: (error) => {
               console.log('Error retrieving product:', error);
             },
           });
         }
+        this.calculateCartTotal(); // Calculate total after loading items
       },
       error: (error) => {
         console.log('Error retrieving cart items:', error);
       },
     });
+  }
+
+  calculateItemSubTotal(item: Cart): void {
+    if (item.product) {
+      if (item.product.type === 'HAIR' && item.selectedVolume) {
+        item.subTotal = item.selectedVolume.price * item.quantity;
+      } else if (item.product.type === 'FACE') {
+        item.subTotal = item.product.basePrice * item.quantity;
+      }
+    }
+    item.subTotal = item.subTotal || 0; // Ensure subtotal is set
   }
 
   incrementQuantity(item: Cart): void {
@@ -79,33 +110,34 @@ export class CartComponent implements OnInit {
   }
 
   updateCartItem(item: Cart): void {
-    this.appFacade.cartService
-      .updateCartItem(this.userId, item.productId, item.quantity)
-      .subscribe({
-        next: (updatedItem) => {
-          console.log('Cart item updated successfully');
-          const index = this.cartItems.findIndex(
-            (cartItem) => cartItem.productId === updatedItem.productId
-          );
-          if (index !== -1) {
-            this.cartItems[index] = updatedItem;
-            this.calculateCartTotal();
-          }
-        },
-        error: (error) => {
-          console.error('Error updating cart item:', error);
-        },
-      });
-  }
-  calculateCartTotal(): void {
-    this.cartTotal = 0;
-    for (const item of this.cartItems) {
-      if (item.product && item.selectedVolume.price) {
-        item.subTotal = item.selectedVolume.price * item.quantity;
-        this.cartTotal += item.subTotal;
-      }
+    if (item && item.userId && item.productId && item.quantity) {
+      this.appFacade.cartService
+        .updateCartItem(this.userId, item.productId, item.quantity)
+        .subscribe({
+          next: (updatedItem) => {
+            console.log('Cart item updated successfully');
+            const index = this.cartItems.findIndex(
+              (cartItem) => cartItem.productId === updatedItem.productId
+            );
+            if (index !== -1) {
+              this.cartItems[index] = updatedItem;
+              this.calculateCartTotal();
+            }
+          },
+          error: (error) => {
+            console.error('Error updating cart item:', error);
+          },
+        });
+    } else {
+      console.error('Invalid item data:', item);
     }
-    this.cartTotal = parseFloat(this.cartTotal.toFixed(2));
+  }
+
+  calculateCartTotal(): void {
+    this.cartTotal = this.cartItems.reduce((total, item) => {
+      return total + (item.subTotal || 0); // Calculate total
+    }, 0);
+    this.cartTotal = parseFloat(this.cartTotal.toFixed(2)); // Format total
   }
 
   confirmDeleteItem(id: number): void {
@@ -130,6 +162,7 @@ export class CartComponent implements OnInit {
   cancelDelete(): void {
     this.showConfirmDelete = false;
   }
+
   hideModal(): void {
     this.showModal = false;
   }

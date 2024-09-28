@@ -9,5 +9,6 @@ export interface Cart {
   quantity: number;
   subTotal?: number;
   total?: number;
-  selectedVolume: IProductVolume; // Correction pour une seule volume sélectionnée
+  selectedVolume?: IProductVolume;
+  volume?: { id: number; volume: number; price: number } | null;
 }

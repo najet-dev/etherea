@@ -8,7 +8,7 @@
   <div class="modal-content">
     <div class="image-container">
       <img
-        *ngIf="data.product && data.product.image"
+        *ngIf="data.product.image"
         [src]="data.product.image"
         alt="Product Image"
         class="product-image"
@@ -18,9 +18,27 @@
     <div class="text-and-buttons-container">
       <div class="text-container">
         <h2>{{ data.product.name }}</h2>
-        <p>{{ data.product.description }}</p>
-        <!-- <p>Prix: {{ data.product.price | number : ".2-2" }}</p> -->
+        <p>{{ data.cart.selectedVolume?.volume }} ml</p>
+        <p
+          *ngIf="
+            data.product.type === ProductType.HAIR && data.cart.selectedVolume
+          "
+        ></p>
+        <p
+          *ngIf="
+            data.product &&
+            data.product.type === ProductType.HAIR &&
+            data.cart?.selectedVolume
+          "
+        >
+          Prix: {{ data.cart.selectedVolume?.price | number : ".2-2" }} €
+        </p>
+        <p *ngIf="data.product && data.product.type === ProductType.FACE">
+          Prix: {{ data.product.basePrice | number : ".2-2" }} €
+        </p>
+
         <p>Quantité: {{ data.quantity }}</p>
+        <p>Sous-total: {{ data.subTotal | number : ".2-2" }} €</p>
       </div>
 
       <div class="modal-buttons">

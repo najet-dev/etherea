@@ -108,7 +108,7 @@ export class FavoriteComponent implements OnInit {
       productId: product.id,
       quantity: 1,
       product: product,
-      selectedVolume: volume || { volume: 0, price: 0 }, // Corrected for volume management
+      selectedVolume: volume || { id: 0, volume: 0, price: 0 }, // Corrected for volume management
     };
 
     this.appFacade.cartService.addToCart(cartItem).subscribe({

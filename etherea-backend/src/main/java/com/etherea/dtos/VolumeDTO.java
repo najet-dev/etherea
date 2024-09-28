@@ -3,48 +3,49 @@ package com.etherea.dtos;
 import com.etherea.models.Volume;
 
 import java.math.BigDecimal;
+
 public class VolumeDTO {
     private Long id;
-    private Integer volume;
+    private int volume;
     private BigDecimal price;
-    public VolumeDTO() {
-    }
-    public VolumeDTO(Long id, Integer volume, BigDecimal  price) {
+    public VolumeDTO() {}
+    public VolumeDTO(Long id, int volume, BigDecimal price) {
         this.id = id;
         this.volume = volume;
         this.price = price;
     }
-    // Getters and Setters
+    // Getters et Setters
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
-    public Integer getVolume() {
+    public int getVolume() {
         return volume;
     }
-
-    public void setVolume(Integer volume) {
+    public void setVolume(int volume) {
         this.volume = volume;
     }
-    public BigDecimal  getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
-    public void setPrice(BigDecimal  price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
-    // Method to convert from Volume entity to VolumeDTO
+
+    // Méthode pour convertir un Volume en VolumeDTO
     public static VolumeDTO fromVolume(Volume volume) {
-        VolumeDTO dto = new VolumeDTO();
-        dto.setId(volume.getId());
-        dto.setVolume(volume.getVolume());
-        dto.setPrice(volume.getPrice());
-        return dto;
+        if (volume == null) {
+            return null; // Retourne null ou un VolumeDTO par défaut si nécessaire
+        }
+        return new VolumeDTO(
+                volume.getId(),
+                volume.getVolume(),
+                volume.getPrice()
+        );
     }
-    // Method to convert from VolumeDTO to Volume entity
+    // Méthode pour convertir un VolumeDTO en Volume
     public Volume toVolume() {
         Volume volume = new Volume();
         volume.setId(this.id);

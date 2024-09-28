@@ -1,19 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { switchMap, catchError, tap } from 'rxjs/operators';
-import { IProduct } from '../models/i-product.model';
-import { ProductService } from 'src/app/services/product.service';
+import { switchMap, catchError, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { CartService } from 'src/app/services/cart.service';
-import { Cart } from '../models/cart.model';
-import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { MatDialog } from '@angular/material/dialog';
-import { AuthService } from 'src/app/services/auth.service';
-import { SigninRequest } from '../models/signinRequest.model';
-import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { of } from 'rxjs';
+import { IProduct } from '../models/i-product.model';
+import { Cart } from '../models/cart.model';
+import { AuthService } from 'src/app/services/auth.service';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { IProductVolume } from '../models/IProductVolume.model';
+import { DestroyRef, inject } from '@angular/core';
+import { SigninRequest } from '../models/signinRequest.model';
+import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 
 @Component({
   selector: 'app-product-details',
@@ -24,16 +21,18 @@ export class ProductDetailsComponent implements OnInit {
   product: IProduct | null = null;
   selectedVolume: IProductVolume | null = null;
   userId: number | null = null;
-  cartItem: Cart = {
+
+  cartItems: Cart = {
     id: 0,
     userId: 0,
-    productId: 1,
+    productId: 0,
     quantity: 1,
     product: {
-      id: 1,
+      id: 0,
       name: '',
       description: '',
       type: '',
+      basePrice: 0,
       stockStatus: '',
       benefits: '',
       usageTips: '',
@@ -43,10 +42,13 @@ export class ProductDetailsComponent implements OnInit {
       volumes: [],
     },
     selectedVolume: {
+      id: 0,
       volume: 0,
       price: 0,
     },
+    subTotal: 0, // Ajout de la propriété subTotal ici
   };
+
   limitReached = false;
   stockMessage: string = '';
   private destroyRef = inject(DestroyRef);
@@ -66,10 +68,7 @@ export class ProductDetailsComponent implements OnInit {
   loadProductDetails(): void {
     this.route.params
       .pipe(
-        switchMap((params) => {
-          const id = params['id'];
-          return this.appFacade.getProductById(id);
-        }),
+        switchMap((params) => this.appFacade.getProductById(params['id'])),
         catchError((error) => {
           console.error('Error fetching product:', error);
           return of(null);
@@ -79,8 +78,8 @@ export class ProductDetailsComponent implements OnInit {
       .subscribe((product) => {
         if (product) {
           this.product = product;
-          this.cartItem.productId = product.id;
-          this.cartItem.product = { ...product }; // Remove price assignment
+          this.cartItems.productId = product.id;
+          this.cartItems.product = { ...product };
           this.updateStockMessage(product.stockStatus);
         }
       });
@@ -101,17 +100,14 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   updateStockMessage(stockStatus: string): void {
-    switch (stockStatus) {
-      case 'AVAILABLE':
-        this.stockMessage = `Le produit est disponible.`;
-        break;
-      case 'OUT_OF_STOCK':
-        this.stockMessage = `Le produit est actuellement en rupture de stock.`;
-        break;
-      default:
-        this.stockMessage = 'Le statut du stock du produit est inconnu.';
-    }
+    this.stockMessage =
+      stockStatus === 'AVAILABLE'
+        ? `Le produit est disponible.`
+        : stockStatus === 'OUT_OF_STOCK'
+        ? `Le produit est actuellement en rupture de stock.`
+        : 'Le statut du stock du produit est inconnu.';
   }
+
   onVolumeChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
     const selectedValue = target?.value;
@@ -124,63 +120,70 @@ export class ProductDetailsComponent implements OnInit {
       if (volume) {
         this.selectedVolume = volume;
         console.log('Volume selected:', this.selectedVolume);
+        // Mettre à jour le sous-total lors du changement de volume
+        this.cartItems.subTotal =
+          this.cartItems.quantity * this.selectedVolume.price;
       } else {
         console.error('Selected volume not found in product volumes.');
       }
-    } else {
-      console.error(
-        'Invalid volume selection or product volumes not available.'
-      );
     }
   }
 
-  selectVolume(volume: IProductVolume): void {
-    this.selectedVolume = volume;
-    // Adjust the cart item here if needed
-  }
-
   incrementQuantity(): void {
-    if (this.cartItem.quantity < 8) {
-      this.cartItem.quantity++;
+    if (this.cartItems.quantity < 10) {
+      this.cartItems.quantity++;
+    } else {
+      this.limitReached = true;
     }
   }
 
   decrementQuantity(): void {
-    if (this.cartItem.quantity > 1) {
-      this.cartItem.quantity--;
+    if (this.cartItems.quantity > 1) {
+      this.cartItems.quantity--;
     }
   }
 
   addToCart(): void {
     if (!this.userId) {
-      console.error('User ID is not available.');
       alert('Vous devez être connecté pour ajouter des articles au panier.');
       return;
     }
 
-    if (!this.selectedVolume) {
-      console.error('No volume selected.');
+    // Vérifiez que le volume est sélectionné pour les produits HAIR
+    if (this.product?.type === 'HAIR' && !this.selectedVolume) {
       alert("Veuillez sélectionner un volume avant d'ajouter au panier.");
       return;
     }
 
-    // Proceed with adding to cart
-    const subTotal = this.cartItem.quantity * this.selectedVolume.price;
-    this.cartItem.subTotal = subTotal;
-    this.cartItem.userId = this.userId;
-    this.cartItem.selectedVolume = { ...this.selectedVolume };
+    // Calculer le sous-total selon le type de produit
+    const subTotal =
+      this.product?.type === 'HAIR' && this.selectedVolume
+        ? this.cartItems.quantity * this.selectedVolume.price
+        : this.product?.type === 'FACE'
+        ? this.cartItems.quantity * this.product.basePrice
+        : 0;
 
+    // Mettez à jour le cartItem avec le volume sélectionné et le sous-total
+    this.cartItems.subTotal = subTotal; // Met à jour le sous-total
+    this.cartItems.userId = this.userId;
+
+    // Affecter le volume sélectionné uniquement pour les produits HAIR
+    if (this.product?.type === 'HAIR' && this.selectedVolume) {
+      this.cartItems.selectedVolume = this.selectedVolume; // Assurez-vous que cela est défini
+    }
+
+    // Appel au service pour ajouter au panier
     this.appFacade
-      .addToCart(this.cartItem)
+      .addToCart(this.cartItems)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          console.log('Product added to cart');
+          console.log('Produit ajouté au panier:', this.cartItems);
           this.openProductSummaryDialog();
           this.resetCartItem();
         },
         error: (error) => {
-          console.error('Error adding product to cart:', error);
+          console.error("Erreur lors de l'ajout du produit au panier:", error);
         },
       });
   }
@@ -191,9 +194,9 @@ export class ProductDetailsComponent implements OnInit {
       height: '900px',
       data: {
         product: this.product,
-        cart: this.cartItem,
-        quantity: this.cartItem.quantity,
-        subTotal: this.cartItem.subTotal,
+        cart: this.cartItems,
+        quantity: this.cartItems.quantity,
+        subTotal: this.cartItems.subTotal,
       },
     });
 
@@ -203,16 +206,17 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   private resetCartItem(): void {
-    this.cartItem = {
+    this.cartItems = {
       id: 0,
-      userId: 0,
-      productId: 1,
+      userId: this.userId || 0,
+      productId: this.product?.id || 0,
       quantity: 1,
-      product: {
+      product: this.product || {
         id: 0,
         name: '',
         description: '',
         type: '',
+        basePrice: 0,
         stockStatus: '',
         benefits: '',
         usageTips: '',
@@ -222,10 +226,11 @@ export class ProductDetailsComponent implements OnInit {
         volumes: [],
       },
       selectedVolume: {
+        id: 0,
         volume: 0,
         price: 0,
       },
+      subTotal: 0, // Réinitialiser le sous-total
     };
-    this.selectedVolume = null;
   }
 }

@@ -2,11 +2,12 @@ package com.etherea.models;
 
 import com.etherea.enums.ProductType;
 import com.etherea.enums.StockStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-
 @Entity
 public class Product {
     @Id
@@ -16,6 +17,7 @@ public class Product {
     private String description;
     @Enumerated(EnumType.STRING)
     private ProductType type;
+    private BigDecimal basePrice;
     @Enumerated(EnumType.STRING)
     private StockStatus stockStatus;
     private String benefits;
@@ -26,14 +28,15 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Volume> volumes = new ArrayList<>();
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonIgnore // Ignorer la sérialisation de cette propriété pour éviter la récursion infinie
     private List<CommandItem> commandItems = new ArrayList<>();
-
     public Product() {
     }
-    public Product(String name, String description, ProductType type, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public Product(String name, String description, ProductType type, BigDecimal basePrice, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
         this.name = name;
         this.description = description;
         this.type = type;
+        this.basePrice = basePrice;
         this.stockStatus = stockStatus;
         this.benefits = benefits;
         this.usageTips = usageTips;
@@ -65,6 +68,12 @@ public class Product {
     }
     public void setType(ProductType type) {
         this.type = type;
+    }
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+    public void setBasePrice(BigDecimal basePrice) {
+        this.basePrice = basePrice;
     }
     public StockStatus getStockStatus() {
         return stockStatus;
@@ -124,10 +133,10 @@ public class Product {
     }
     // Nouvelle méthode pour remplacer les volumes existants par une nouvelle liste
     public void updateVolumes(List<Volume> newVolumes) {
-        this.volumes.clear(); // Vide la liste actuelle
+        // Vider la liste actuelle et dissocier les anciens volumes
+        this.volumes.clear();
 
-        for (Volume volume : newVolumes) {
-            addVolume(volume); // Utilise la méthode addVolume pour s'assurer que le produit est correctement associé
-        }
+        // Ajouter les nouveaux volumes et les associer
+        newVolumes.forEach(this::addVolume);
     }
 }

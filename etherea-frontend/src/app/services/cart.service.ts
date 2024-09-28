@@ -5,6 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Cart } from '../components/models/cart.model';
 import { StorageService } from './storage.service';
+import { IProductVolume } from '../components/models/IProductVolume.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,16 +30,20 @@ export class CartService {
   }
 
   addToCart(cart: Cart): Observable<Cart> {
-    const params = new HttpParams()
+    // Initialisation des paramètres avec userId, productId et quantity
+    let params = new HttpParams()
       .set('userId', cart.userId.toString())
       .set('productId', cart.productId.toString())
-      .set('productId', cart.selectedVolume.toString())
       .set('quantity', cart.quantity.toString());
 
+    // Si le produit est de type HAIR, ajouter volumeId dans les paramètres
+    if (cart.product.type === 'HAIR' && cart.selectedVolume) {
+      params = params.set('volumeId', cart.selectedVolume.id.toString());
+    }
+
+    // Effectuer la requête POST avec les paramètres
     return this.httpClient
-      .post<Cart>(`${this.apiUrl}/cart/addToCart`, null, {
-        params,
-      })
+      .post<Cart>(`${this.apiUrl}/cart/addToCart`, null, { params })
       .pipe(
         catchError((error) => {
           console.error('Error adding product to cart:', error);
@@ -50,25 +55,31 @@ export class CartService {
   updateCartItem(
     userId: number,
     productId: number,
-    newQuantity: number
+    newQuantity: number,
+    volumeId?: number
   ): Observable<Cart> {
-    const params = new HttpParams().set('newQuantity', newQuantity.toString());
+    if (newQuantity <= 0) {
+      return throwError(() => new Error('Quantity must be greater than 0.'));
+    }
 
-    return this.httpClient
-      .put<Cart>(`${this.apiUrl}/cart/${userId}/products/${productId}`, null, {
-        params,
+    const url = volumeId
+      ? `${this.apiUrl}/cart/${userId}/products/${productId}/volume/${volumeId}`
+      : `${this.apiUrl}/cart/${userId}/products/${productId}`;
+
+    const params = new HttpParams().set('quantity', newQuantity.toString());
+
+    return this.httpClient.put<Cart>(url, null, { params }).pipe(
+      tap(() => this.cartUpdated.emit()),
+      catchError((error) => {
+        console.error('Error updating cart item:', error);
+        const errorMessage = volumeId
+          ? 'Failed to update cart item quantity for HAIR product.'
+          : 'Failed to update cart item quantity for FACE product.';
+        return throwError(() => new Error(errorMessage));
       })
-      .pipe(
-        catchError((error) => {
-          console.error('Error updating cart item quantity:', error);
-          return throwError(() => error);
-        }),
-        tap(() => {
-          // Émettre l'événement une fois que la mise à jour du panier est effectuée avec succès
-          this.cartUpdated.emit();
-        })
-      );
+    );
   }
+
   deleteCartItem(id: number): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiUrl}/cart/${id}`).pipe(
       catchError((error) => {

@@ -4,13 +4,13 @@
     <div class="col-md-6">
       <img [src]="product.image" class="img-fluid image" [alt]="product.name" />
     </div>
+
     <!-- Product details on the right -->
     <div class="col-md-6">
       <img class="logo" src="/assets/logo.png" alt="banner" />
-      <p class="detail description">{{ product.description }}</p>
 
-      <!-- Volume selection -->
-      <div *ngIf="product.volumes">
+      <!-- Volume selection - Only for HAIR products -->
+      <div *ngIf="product.type === 'HAIR' && product.volumes?.length">
         <label for="volumeSelect">Volume :</label>
         <select
           id="volumeSelect"
@@ -18,19 +18,23 @@
           class="form-control"
         >
           <option
-            *ngFor="let vol of product.volumes"
-            [value]="vol.volume.toString()"
+            *ngFor="let volume of product.volumes"
+            [value]="volume.volume"
           >
-            {{ vol.volume }} ml - {{ vol.price }} €
+            {{ volume.volume }} ml - {{ volume.price }} €
           </option>
         </select>
       </div>
 
-      <!-- Price Display -->
-      <p *ngIf="selectedVolume" class="detail">
+      <!-- Price Display for selected volume (HAIR) or basePrice (FACE) -->
+      <p *ngIf="product.type === 'HAIR' && selectedVolume" class="detail">
         Prix : {{ selectedVolume.price }} €
       </p>
+      <p *ngIf="product.type === 'FACE'" class="detail">
+        Prix : {{ product.basePrice }} €
+      </p>
 
+      <!-- Stock status -->
       <p
         class="detail"
         [ngClass]="{
@@ -41,13 +45,14 @@
         {{ stockMessage }}
       </p>
 
+      <!-- Quantity selection -->
       <label class="detail" for="quantityInput">Quantité :</label>
       <div *ngIf="limitReached" class="alert alert-warning">
         La limite de 10 produits a été atteinte.
       </div>
       <div class="quantity-selector" style="display: inline-flex">
         <button class="quantity-btn" (click)="decrementQuantity()">-</button>
-        <span>{{ cartItem.quantity }}</span>
+        <span>{{ cartItems.quantity }}</span>
         <button class="quantity-btn" (click)="incrementQuantity()">+</button>
       </div>
 

@@ -5,6 +5,7 @@ export interface IProduct {
   name: string;
   description: string;
   type: string;
+  basePrice: number;
   stockStatus: string;
   benefits: String;
   usageTips: String;

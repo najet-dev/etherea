@@ -2,9 +2,7 @@ package com.etherea.services;
 
 import com.etherea.dtos.VolumeDTO;
 import com.etherea.enums.ProductType;
-import com.etherea.enums.StockStatus;
 import com.etherea.exception.ProductNotFoundException;
-import com.etherea.exception.VolumeNotFoundException;
 import com.etherea.models.Product;
 import com.etherea.models.Volume;
 import com.etherea.repositories.ProductRepository;
@@ -13,6 +11,7 @@ import com.etherea.repositories.VolumeRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,10 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.modelmapper.ModelMapper;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +31,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -106,6 +102,9 @@ public class ProductService {
         // Convertir ProductDTO en Product
         Product product = convertToProduct(productDTO);
 
+        // Assigner le basePrice
+        product.setBasePrice(productDTO.getBasePrice());
+
         // Ajouter les volumes
         if (productDTO.getVolumes() != null && !productDTO.getVolumes().isEmpty()) {
             List<Volume> volumes = productDTO.getVolumes().stream()
@@ -119,11 +118,11 @@ public class ProductService {
             product.setVolumes(volumes);
         }
 
-        // Sauvegarder le produit (cela sauvegardera également les volumes associés grâce au cascade = CascadeType.ALL)
+        // Sauvegarder le produit
         productRepository.save(product);
-
         return ResponseEntity.ok("Product saved successfully");
     }
+
     private Product convertToProduct(ProductDTO productDTO) {
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(productDTO, Product.class);
@@ -135,6 +134,7 @@ public class ProductService {
             uploadDirFile.mkdirs();
         }
     }
+
     @Transactional
     public void updateProduct(Long productId, ProductDTO updatedProductDTO, MultipartFile file) {
         logger.info("Starting updateProduct for product ID: {}", productId);
@@ -160,52 +160,40 @@ public class ProductService {
         productRepository.save(existingProduct);
         logger.info("Finished updateProduct for product ID: {}", productId);
     }
-
     @Transactional
     public void updateProductVolumes(Product existingProduct, List<VolumeDTO> updatedVolumes) {
-        logger.info("Starting updateProductVolumes for product ID: {}", existingProduct.getId());
+        if (updatedVolumes == null) return; // Si aucun volume mis à jour, on sort
 
-        // Récupérer les volumes existants du produit
-        List<Volume> existingVolumes = new ArrayList<>(existingProduct.getVolumes());
-        Map<Long, Volume> existingVolumeMap = existingVolumes.stream()
+        // Créer un map des volumes existants par ID pour faciliter l'accès
+        Map<Long, Volume> existingVolumeMap = existingProduct.getVolumes().stream()
                 .collect(Collectors.toMap(Volume::getId, v -> v));
 
-        Set<Long> updatedVolumeIds = updatedVolumes.stream()
-                .filter(volumeDTO -> volumeDTO.getId() != null)
-                .map(VolumeDTO::getId)
-                .collect(Collectors.toSet());
-
-        // Mettre à jour les volumes existants ou ajouter les nouveaux
+        // Traiter les volumes à mettre à jour ou à ajouter
         for (VolumeDTO volumeDTO : updatedVolumes) {
-            if (volumeDTO.getId() != null && existingVolumeMap.containsKey(volumeDTO.getId())) {
+            if (volumeDTO.getId() != null) {
                 // Mise à jour du volume existant
                 Volume existingVolume = existingVolumeMap.get(volumeDTO.getId());
-                existingVolume.setVolume(volumeDTO.getVolume());
-                existingVolume.setPrice(volumeDTO.getPrice());
-                volumeRepository.save(existingVolume); // Assurez-vous de sauvegarder les modifications
-                logger.debug("Updated existing volume: {}", existingVolume);
-            } else if (volumeDTO.getId() == null) {
-                // Ajout d'un nouveau volume
+                if (existingVolume != null) {
+                    existingVolume.setVolume(volumeDTO.getVolume());
+                    existingVolume.setPrice(volumeDTO.getPrice());
+                    volumeRepository.save(existingVolume);
+                    existingVolumeMap.remove(volumeDTO.getId()); // Marquer comme traité
+                }
+            } else {
+                // Création d'un nouveau volume
                 Volume newVolume = new Volume();
                 newVolume.setVolume(volumeDTO.getVolume());
                 newVolume.setPrice(volumeDTO.getPrice());
                 newVolume.setProduct(existingProduct);
                 existingProduct.getVolumes().add(newVolume);
-                volumeRepository.save(newVolume); // Assurez-vous de sauvegarder le nouveau volume
-                logger.debug("Added new volume: {}", newVolume);
+                volumeRepository.save(newVolume);
             }
         }
-
-        // Supprimer les volumes qui ne sont plus présents
-        for (Volume existingVolume : existingVolumes) {
-            if (!updatedVolumeIds.contains(existingVolume.getId())) {
-                existingProduct.getVolumes().remove(existingVolume);
-                volumeRepository.delete(existingVolume); // Assurez-vous de supprimer le volume
-                logger.debug("Removed volume: {}", existingVolume);
-            }
+        // Supprimer les volumes qui ne sont plus dans la mise à jour
+        for (Volume volumeToDelete : existingVolumeMap.values()) {
+            existingProduct.getVolumes().remove(volumeToDelete);
+            volumeRepository.delete(volumeToDelete);
         }
-
-        logger.info("Finished updateProductVolumes for product ID: {}", existingProduct.getId());
     }
     @Transactional
     public void updateProductFromDTO(Product existingProduct, ProductDTO productDTO) {
@@ -214,6 +202,7 @@ public class ProductService {
         existingProduct.setName(productDTO.getName());
         existingProduct.setDescription(productDTO.getDescription());
         existingProduct.setType(productDTO.getType());
+        existingProduct.setBasePrice(productDTO.getBasePrice());
         existingProduct.setStockStatus(productDTO.getStockStatus());
         existingProduct.setBenefits(productDTO.getBenefits());
         existingProduct.setUsageTips(productDTO.getUsageTips());
@@ -241,10 +230,11 @@ public class ProductService {
 
             existingProduct.setImage(filePath);
         } catch (IOException e) {
-            logger.error("Error updating product image: {}", e.getMessage());
+            logger.error("Error updating product image: {}", e.getMessage(), e);
             throw new RuntimeException("Error updating product image", e);
         }
     }
+
     public void deleteProduct(Long id) {
         if (productRepository.existsById(id)) {
             productRepository.deleteById(id);

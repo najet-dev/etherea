@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @CrossOrigin
 @RestController
@@ -34,6 +35,7 @@ public class ProductController {
     public List<ProductDTO> getProducts(@RequestParam(defaultValue = "10") int limit) {
         return productService.getProducts(limit);
     }
+
     @GetMapping("/type")
     public List<ProductDTO> getProductsByTypeAndPagination(
             @RequestParam(defaultValue = "0") int page,
@@ -42,6 +44,7 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page, size);
         return productService.getProductsByType(pageable, type);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
         try {
@@ -51,56 +54,51 @@ public class ProductController {
                     .body("Product not found with ID: " + id);
         }
     }
-    @PostMapping(value = "/add", consumes = "multipart/form-data")
-    public ResponseEntity<String> saveProduct(@RequestParam("image") MultipartFile file,
-                                              @RequestParam("product") String productJson,
-                                              @RequestParam(value = "volumes", required = false) String volumesJson) {
-        try {
-            if (file == null || StringUtils.isBlank(productJson)) {
-                return ResponseEntity.badRequest().body("Required parameters are missing");
-            }
 
+    @PostMapping(value = "/add", consumes = "multipart/form-data")
+    public ResponseEntity<String> saveProduct(
+            @RequestParam("image") MultipartFile file,
+            @RequestParam("product") String productJson,
+            @RequestParam(value = "volumes", required = false) String volumesJson) {
+
+        if (file == null || file.isEmpty() || !Objects.requireNonNull(file.getOriginalFilename()).endsWith(".png")) {
+            return ResponseEntity.badRequest().body("Valid PNG image file is required.");
+        }
+        if (StringUtils.isBlank(productJson)) {
+            return ResponseEntity.badRequest().body("Product data is required.");
+        }
+        try {
             ObjectMapper objectMapper = new ObjectMapper();
             ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
 
-            // Convert volumesJson to List<VolumeDTO> if provided
             if (volumesJson != null && !volumesJson.isEmpty()) {
-                List<VolumeDTO> volumeDTOs = objectMapper.readValue(volumesJson, objectMapper.getTypeFactory().constructCollectionType(List.class, VolumeDTO.class));
-                productDTO.setVolumes(volumeDTOs); // Ajouter les volumes au DTO du produit
+                List<VolumeDTO> volumeDTOs = objectMapper.readValue(volumesJson,
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, VolumeDTO.class));
+                productDTO.setVolumes(volumeDTOs);
             }
-
             return productService.saveProduct(productDTO, file);
 
         } catch (JsonProcessingException e) {
-            logger.error("JSON deserialization error", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("JSON deserialization error: " + e.getMessage());
+            logger.error("Error deserializing product or volumes JSON", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid product or volume JSON data.");
         } catch (IOException e) {
-            logger.error("Error reading file", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error reading file: " + e.getMessage());
+            logger.error("Error reading image file", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving image file.");
         } catch (Exception e) {
             logger.error("An unexpected error occurred", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
         }
     }
+
     @PutMapping(value = "/update/{productId}", consumes = "multipart/form-data")
     public ResponseEntity<String> updateProduct(@PathVariable Long productId,
                                                 @RequestParam(value = "image", required = false) MultipartFile file,
-                                                @RequestParam("product") String updatedProductJson,
-                                                @RequestParam(value = "volumes", required = false) String volumesJson) {
+                                                @RequestParam("product") String updatedProductJson) {
         try {
             logger.info("Request Body: {}", updatedProductJson);
 
             ObjectMapper objectMapper = new ObjectMapper();
             ProductDTO updatedProductDTO = objectMapper.readValue(updatedProductJson, ProductDTO.class);
-
-            List<VolumeDTO> volumeDTOs = (volumesJson != null && !volumesJson.isEmpty())
-                    ? objectMapper.readValue(volumesJson, objectMapper.getTypeFactory().constructCollectionType(List.class, VolumeDTO.class))
-                    : Collections.emptyList();
-
-            updatedProductDTO.setVolumes(volumeDTOs);  // Set volumes to ProductDTO
 
             // Appeler la méthode de mise à jour avec le fichier
             productService.updateProduct(productId, updatedProductDTO, file);
@@ -120,7 +118,6 @@ public class ProductController {
                     .body("An unexpected error occurred: " + e.getMessage());
         }
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         try {

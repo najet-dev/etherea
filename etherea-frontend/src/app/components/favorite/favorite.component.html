@@ -25,8 +25,7 @@
                   >&#x2764;</span
                 >
                 <h5 class="card-title">{{ favorite.product.name }}</h5>
-                <p class="card-text">{{ favorite.product.description }}</p>
-                <p *ngIf="favorite.product.volumes?.length">
+                <p *ngIf="favorite.product.volumes.length">
                   À partir de
                   {{ favorite.product.volumes[0].price | currency : "EUR" }}
                 </p>
