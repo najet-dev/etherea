@@ -70,20 +70,6 @@ public class CartItemService {
 
         return cartItemDTOs;
     }
-    public List<Volume> getVolumesByProductId(Long productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Produit non trouvé avec l'ID : " + productId));
-
-        List<Volume> volumes = volumeRepository.findByProductId(productId);
-
-        if (volumes.isEmpty()) {
-            logger.warn("Aucun volume trouvé pour le produit avec l'ID {}", productId);
-            throw new VolumeNotFoundException("Aucun volume trouvé pour le produit avec l'ID " + productId);
-        }
-
-        return volumes;
-    }
-
     @Transactional
     public void addProductToUserCart(Long userId, Long productId, Long volumeId, int quantity) {
         if (quantity <= 0) {
@@ -124,6 +110,7 @@ public class CartItemService {
         if (existingCartItem != null) {
             BigDecimal newQuantity = BigDecimal.valueOf(existingCartItem.getQuantity()).add(BigDecimal.valueOf(quantity));
             existingCartItem.setQuantity(newQuantity.intValue());
+            existingCartItem.setSubTotal(existingCartItem.calculateSubtotal()); // Met à jour le sous-total
             logger.info("Updated existing cart item quantity to {}", newQuantity);
         } else {
             CartItem newCartItem = new CartItem();

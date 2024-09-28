@@ -41,24 +41,6 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-    @GetMapping("/products/{productId}")
-    public ResponseEntity<List<Volume>> getVolumesByProduct(@PathVariable Long productId) {
-        try {
-            List<Volume> volumes = cartItemService.getVolumesByProductId(productId);
-            logger.info("Volumes retrieved for product {}: {}", productId, volumes);
-            return ResponseEntity.ok(volumes);
-        } catch (ProductNotFoundException e) {
-            logger.error("Product not found: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (VolumeNotFoundException e) {
-            logger.error("No volumes found: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (Exception e) {
-            logger.error("An error occurred: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-
     @PostMapping("/addToCart")
     public ResponseEntity<Map<String, String>> addToCart(@RequestParam Long userId,
                                                          @RequestParam Long productId,

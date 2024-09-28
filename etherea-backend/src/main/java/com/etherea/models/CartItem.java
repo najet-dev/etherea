@@ -1,5 +1,6 @@
 package com.etherea.models;
 
+import com.etherea.enums.ProductType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
@@ -103,13 +104,17 @@ public class CartItem {
     }
 
     // Méthode pour calculer le sous-total (prix * quantité) d'un produit pour un volume spécifique
+    // Méthode pour calculer le sous-total
     public BigDecimal calculateSubtotal() {
-        if (volume == null || volume.getPrice() == null) {
-            return BigDecimal.ZERO;
+        if (product.getType() == ProductType.FACE) {
+            // Utiliser basePrice pour les produits de type FACE
+            return product.getBasePrice().multiply(BigDecimal.valueOf(quantity));
+        } else if (volume != null && volume.getPrice() != null) {
+            // Utiliser le prix du volume pour les produits de type HAIR
+            return volume.getPrice().multiply(BigDecimal.valueOf(quantity));
         }
-        return volume.getPrice().multiply(BigDecimal.valueOf(quantity));
+        return BigDecimal.ZERO; // Retourne 0 si aucune condition n'est remplie
     }
-
     // Méthode pour calculer le prix total de tous les produits dans le panier
     public static BigDecimal calculateTotalPrice(List<CartItem> items) {
         return items.stream()

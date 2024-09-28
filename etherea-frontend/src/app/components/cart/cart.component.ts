@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { ProductType } from '../models/i-product.model';
 
 @Component({
   selector: 'app-cart',
@@ -68,7 +69,7 @@ export class CartComponent implements OnInit {
                   console.warn('selectedVolume is undefined for item:', item);
                 }
 
-                this.calculateItemSubTotal(item); // Calculate subtotal after setting selectedVolume
+                this.calculateCartTotal(); // Calculate subtotal after setting selectedVolume
               } else {
                 console.error('Product not found for id:', item.productId);
               }
@@ -86,15 +87,22 @@ export class CartComponent implements OnInit {
     });
   }
 
-  calculateItemSubTotal(item: Cart): void {
-    if (item.product) {
-      if (item.product.type === 'HAIR' && item.selectedVolume) {
-        item.subTotal = item.selectedVolume.price * item.quantity;
-      } else if (item.product.type === 'FACE') {
-        item.subTotal = item.product.basePrice * item.quantity;
+  calculateCartTotal(): void {
+    this.cartTotal = this.cartItems.reduce((total, item) => {
+      if (item.product) {
+        if (item.product.type === ProductType.HAIR && item.selectedVolume) {
+          item.subTotal = item.selectedVolume.price * item.quantity;
+        } else if (
+          item.product.type === ProductType.FACE &&
+          item.product.basePrice !== undefined
+        ) {
+          item.subTotal = item.product.basePrice * item.quantity;
+        }
+
+        return total + (item.subTotal || 0);
       }
-    }
-    item.subTotal = item.subTotal || 0; // Ensure subtotal is set
+      return total;
+    }, 0);
   }
 
   incrementQuantity(item: Cart): void {
@@ -131,13 +139,6 @@ export class CartComponent implements OnInit {
     } else {
       console.error('Invalid item data:', item);
     }
-  }
-
-  calculateCartTotal(): void {
-    this.cartTotal = this.cartItems.reduce((total, item) => {
-      return total + (item.subTotal || 0); // Calculate total
-    }, 0);
-    this.cartTotal = parseFloat(this.cartTotal.toFixed(2)); // Format total
   }
 
   confirmDeleteItem(id: number): void {
