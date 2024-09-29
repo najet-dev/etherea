@@ -7,6 +7,7 @@ import {
 import { Router } from '@angular/router';
 import { IProduct, ProductType } from '../models/i-product.model';
 import { Cart } from '../models/cart.model';
+import { IProductVolume } from '../models/IProductVolume.model';
 
 @Component({
   selector: 'app-product-summary-modal',
@@ -14,6 +15,9 @@ import { Cart } from '../models/cart.model';
   styleUrls: ['./product-summary.component.css'],
 })
 export class ProductSummaryComponent implements OnInit {
+  product!: IProduct;
+  quantity!: number;
+  selectedVolume!: IProductVolume | null;
   ProductType = ProductType;
 
   constructor(
@@ -27,6 +31,7 @@ export class ProductSummaryComponent implements OnInit {
     },
     private router: Router
   ) {}
+
   ngOnInit(): void {
     this.updateDialogSize();
 
@@ -35,9 +40,20 @@ export class ProductSummaryComponent implements OnInit {
       return;
     }
 
+    this.product = this.data.product;
+    this.quantity = this.data.quantity;
+
+    // Add a check for this.data.cart before accessing selectedVolume
+    if (this.data.cart) {
+      this.selectedVolume = this.data.cart.selectedVolume || null;
+      console.log('Cart Data:', this.data.cart);
+      console.log('Selected Volume:', this.selectedVolume);
+    } else {
+      this.selectedVolume = null; // Default to null if cart is undefined
+      console.warn('Cart non défini dans les données du dialogue.');
+    }
+
     console.log('Product Data:', this.data.product);
-    console.log('Cart Data:', this.data.cart);
-    console.log('Selected Volume:', this.data.cart.selectedVolume);
   }
 
   private updateDialogSize(): void {

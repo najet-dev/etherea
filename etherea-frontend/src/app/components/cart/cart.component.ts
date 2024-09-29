@@ -6,6 +6,7 @@ import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductType } from '../models/i-product.model';
+import { catchError, forkJoin, of, tap } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
@@ -13,7 +14,7 @@ import { ProductType } from '../models/i-product.model';
   styleUrls: ['./cart.component.css'],
 })
 export class CartComponent implements OnInit {
-  cartItems: Cart[] = []; // Initialize as an empty array
+  cartItems: Cart[] = [];
   cartTotal: number = 0;
   userId!: number;
   isCartEmpty: boolean = true;
@@ -36,55 +37,70 @@ export class CartComponent implements OnInit {
         if (user && user.id) {
           this.userId = user.id;
           this.loadCartItems();
+        } else {
+          console.error("L'ID utilisateur n'est pas défini.");
         }
       });
   }
 
   loadCartItems() {
+    // Vérifier si userId est défini
+    if (!this.userId) {
+      console.error(
+        "L'ID utilisateur n'est pas défini. Impossible de charger les éléments du panier."
+      );
+      return;
+    }
+
     this.appFacade.getCartItems(this.userId).subscribe({
       next: (cartItems) => {
         this.cartItems = cartItems;
         this.isCartEmpty = this.cartItems.length === 0;
 
-        for (const item of this.cartItems) {
-          this.appFacade.getProductById(item.productId).subscribe({
-            next: (product) => {
+        const productObservables = this.cartItems.map((item) =>
+          this.appFacade.getProductById(item.productId).pipe(
+            tap((product) => {
               if (product) {
                 item.product = product;
-
-                // Initialize selectedVolume if it's not set
-                if (!item.selectedVolume && item.volume) {
-                  // If item.volume is defined, assign it to selectedVolume
-                  item.selectedVolume = { ...item.volume }; // Spread to create a new object if needed
-                }
-
-                // Check if product has volumes and selectedVolume exists
-                if (product.volumes && item.selectedVolume) {
-                  const selectedVol = product.volumes.find(
-                    (vol) => vol.id === item.selectedVolume?.id // Safely access id
-                  );
-                  item.selectedVolume = selectedVol || item.selectedVolume;
-                } else {
-                  // Log warning if selectedVolume remains undefined
-                  console.warn('selectedVolume is undefined for item:', item);
-                }
-
-                this.calculateCartTotal(); // Calculate subtotal after setting selectedVolume
+                this.initializeSelectedVolume(item); // Extraire la logique d'initialisation
               } else {
-                console.error('Product not found for id:', item.productId);
+                console.error("Produit non trouvé pour l'id :", item.productId);
               }
-            },
-            error: (error) => {
-              console.log('Error retrieving product:', error);
-            },
-          });
-        }
-        this.calculateCartTotal(); // Calculate total after loading items
+            }),
+            catchError((error) => {
+              console.log('Erreur lors de la récupération du produit :', error);
+              return of(null);
+            })
+          )
+        );
+
+        forkJoin(productObservables).subscribe(() => {
+          this.calculateCartTotal();
+        });
       },
       error: (error) => {
-        console.log('Error retrieving cart items:', error);
+        console.log(
+          'Erreur lors de la récupération des éléments du panier :',
+          error
+        );
       },
     });
+  }
+
+  initializeSelectedVolume(item: Cart): void {
+    // Initialiser selectedVolume si ce n'est pas défini
+    if (!item.selectedVolume && item.volume) {
+      item.selectedVolume = { ...item.volume };
+    }
+
+    if (item.product.volumes && item.selectedVolume) {
+      const selectedVol = item.product.volumes.find(
+        (vol) => vol.id === item.selectedVolume?.id
+      );
+      item.selectedVolume = selectedVol || item.selectedVolume;
+    } else {
+      console.warn("selectedVolume est indéfini pour l'article :", item);
+    }
   }
 
   calculateCartTotal(): void {
@@ -119,8 +135,9 @@ export class CartComponent implements OnInit {
 
   updateCartItem(item: Cart): void {
     if (item && item.userId && item.productId && item.quantity) {
-      this.appFacade.cartService
-        .updateCartItem(this.userId, item.productId, item.quantity)
+      const volumeId = item.selectedVolume?.id;
+      this.appFacade
+        .updateCartItem(this.userId, item.productId, item.quantity, volumeId)
         .subscribe({
           next: (updatedItem) => {
             console.log('Cart item updated successfully');

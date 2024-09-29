@@ -3,7 +3,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { Favorite } from '../models/favorite.model';
 import { ProductService } from 'src/app/services/product.service';
-import { IProduct } from '../models/i-product.model';
+import { IProduct, ProductType } from '../models/i-product.model';
 import { forkJoin } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 import { Cart } from '../models/cart.model';
@@ -29,6 +29,7 @@ export class FavoriteComponent implements OnInit {
   showModal = false;
   confirmedProductId!: number;
   private destroyRef = inject(DestroyRef);
+  ProductType = ProductType;
 
   constructor(
     private authService: AuthService,
@@ -100,16 +101,28 @@ export class FavoriteComponent implements OnInit {
     this.showModal = false;
   }
 
-  openProductPopup(product: IProduct): void {
-    const volume = product.volumes ? product.volumes[0] : null;
+  openProductPopup(
+    product: IProduct,
+    selectedVolume: IProductVolume | null
+  ): void {
     const cartItem: Cart = {
       id: 0,
       userId: this.userId,
       productId: product.id,
       quantity: 1,
       product: product,
-      selectedVolume: volume || { id: 0, volume: 0, price: 0 }, // Corrected for volume management
+      // Si le produit est de type FACE, on ne passe pas de volume
+      selectedVolume:
+        product.type === ProductType.FACE
+          ? undefined
+          : selectedVolume || { id: 0, volume: 0, price: 0 },
     };
+
+    // Calcul du sous-total
+    const subTotal =
+      product.type === ProductType.FACE
+        ? product.basePrice * cartItem.quantity
+        : (cartItem.selectedVolume?.price || 0) * cartItem.quantity;
 
     this.appFacade.cartService.addToCart(cartItem).subscribe({
       next: () => {
@@ -119,7 +132,13 @@ export class FavoriteComponent implements OnInit {
           data: {
             product: product,
             quantity: cartItem.quantity,
-            //subTotal: cartItem.quantity * product.price, // Uncomment if you have product.price logic
+            // On passe selectedVolume uniquement si c'est un produit de type HAIR
+            selectedVolume:
+              product.type === ProductType.HAIR
+                ? cartItem.selectedVolume
+                : null,
+            cart: cartItem,
+            subTotal: subTotal,
           },
         });
 

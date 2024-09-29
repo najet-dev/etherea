@@ -25,54 +25,30 @@
                   >&#x2764;</span
                 >
                 <h5 class="card-title">{{ favorite.product.name }}</h5>
-                <p *ngIf="favorite.product.volumes.length">
-                  À partir de
-                  {{ favorite.product.volumes[0].price | currency : "EUR" }}
-                </p>
+                <div *ngIf="product?.type === ProductType.HAIR">
+                  <p>Volume sélectionné: {{ selectedVolume?.volume }} ml</p>
+                  <p>Prix: {{ selectedVolume?.price | currency : "EUR" }}</p>
+                </div>
+                <select
+                  *ngIf="favorite.product.volumes.length"
+                  [(ngModel)]="selectedVolume"
+                >
+                  <option
+                    *ngFor="let vol of favorite.product.volumes"
+                    [ngValue]="vol"
+                  >
+                    {{ vol.volume }} ml - {{ vol.price | currency : "EUR" }}
+                  </option>
+                </select>
                 <button
                   class="btn btn-primary mt-auto"
-                  (click)="openProductPopup(favorite.product)"
+                  (click)="openProductPopup(favorite.product, selectedVolume)"
                 >
                   Ajouter au panier
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div
-  class="modal fade"
-  tabindex="-1"
-  role="dialog"
-  [ngClass]="{ show: showModal }"
-  *ngIf="showModal"
->
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header justify-content-end">
-        <button mat-icon-button class="close-button" (click)="hideModal()">
-          <mat-icon aria-label="Close dialog">close</mat-icon>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Êtes-vous sûr de vouloir supprimer ce produit de vos favoris ?</p>
-      </div>
-      <div class="modal-footer">
-        <div class="btn-box">
-          <button
-            type="button"
-            class="btn btn-primary"
-            (click)="removeFavorite(confirmedProductId)"
-          >
-            Confirmer
-          </button>
-          <button type="button" class="btn btn-secondary" (click)="hideModal()">
-            Annuler
-          </button>
         </div>
       </div>
     </div>
