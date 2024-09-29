@@ -62,7 +62,7 @@ export class CartComponent implements OnInit {
             tap((product) => {
               if (product) {
                 item.product = product;
-                this.initializeSelectedVolume(item); // Extraire la logique d'initialisation
+                this.initializeSelectedVolume(item);
               } else {
                 console.error("Produit non trouvé pour l'id :", item.productId);
               }
