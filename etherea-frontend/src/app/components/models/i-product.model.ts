@@ -7,10 +7,10 @@ export interface IProduct {
   type: string;
   basePrice: number;
   stockStatus: string;
-  benefits: String;
-  usageTips: String;
-  ingredients: String;
-  characteristics: String;
+  benefits: string;
+  usageTips: string;
+  ingredients: string;
+  characteristics: string;
   image: string;
   volumes: IProductVolume[];
   isFavorite?: boolean;

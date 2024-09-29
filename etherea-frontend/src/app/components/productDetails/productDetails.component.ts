@@ -170,6 +170,8 @@ export class ProductDetailsComponent implements OnInit {
     // Affecter le volume sélectionné uniquement pour les produits HAIR
     if (this.product?.type === 'HAIR' && this.selectedVolume) {
       this.cartItems.selectedVolume = this.selectedVolume; // Assurez-vous que cela est défini
+    } else if (this.product?.type === 'FACE') {
+      this.cartItems.selectedVolume = undefined; // Ne pas affecter de volume pour les produits FACE
     }
 
     // Appel au service pour ajouter au panier
@@ -197,6 +199,11 @@ export class ProductDetailsComponent implements OnInit {
         cart: this.cartItems,
         quantity: this.cartItems.quantity,
         subTotal: this.cartItems.subTotal,
+        // Ne pas passer selectedVolume pour les produits de type FACE
+        selectedVolume:
+          this.product?.type === 'HAIR'
+            ? this.cartItems.selectedVolume
+            : undefined,
       },
     });
 

@@ -2,7 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { Favorite } from '../models/favorite.model';
-import { IProduct } from '../models/i-product.model';
+import { IProduct, ProductType } from '../models/i-product.model';
 import { forkJoin } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 import { Cart } from '../models/cart.model';
@@ -26,6 +26,7 @@ export class FavoriteComponent implements OnInit {
   showModal = false;
   confirmedProductId!: number;
   private destroyRef = inject(DestroyRef);
+  ProductType = ProductType;
 
   constructor(
     private authService: AuthService,

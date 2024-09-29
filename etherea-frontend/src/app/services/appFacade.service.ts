@@ -35,10 +35,17 @@ export class AppFacade {
   updateCartItem(
     userId: number,
     productId: number,
-    newQuantity: number
+    newQuantity: number,
+    volumeId?: number
   ): Observable<Cart> {
-    return this.cartService.updateCartItem(userId, productId, newQuantity);
+    return this.cartService.updateCartItem(
+      userId,
+      productId,
+      newQuantity,
+      volumeId
+    );
   }
+
   deleteCartItem(id: number): Observable<void> {
     return this.cartService.deleteCartItem(id);
   }

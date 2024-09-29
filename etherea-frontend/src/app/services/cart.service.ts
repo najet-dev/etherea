@@ -21,6 +21,7 @@ export class CartService {
 
   // Méthodes pour interagir avec le backend
   getCartItems(userId: number): Observable<Cart[]> {
+    console.log('Fetching cart items for user ID:', userId); // Debugging line
     return this.httpClient.get<Cart[]>(`${this.apiUrl}/cart/${userId}`).pipe(
       catchError((error) => {
         console.error('Error fetching cart items:', error);
@@ -62,6 +63,7 @@ export class CartService {
       return throwError(() => new Error('Quantity must be greater than 0.'));
     }
 
+    // Vérifier si le produit est de type HAIR
     const url = volumeId
       ? `${this.apiUrl}/cart/${userId}/products/${productId}/volume/${volumeId}`
       : `${this.apiUrl}/cart/${userId}/products/${productId}`;

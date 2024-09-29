@@ -7,6 +7,7 @@ import {
 import { Router } from '@angular/router';
 import { IProduct, ProductType } from '../models/i-product.model';
 import { Cart } from '../models/cart.model';
+import { IProductVolume } from '../models/IProductVolume.model';
 
 @Component({
   selector: 'app-product-summary-modal',
@@ -14,6 +15,9 @@ import { Cart } from '../models/cart.model';
   styleUrls: ['./product-summary.component.css'],
 })
 export class ProductSummaryComponent implements OnInit {
+  product!: IProduct;
+  quantity!: number;
+  selectedVolume!: IProductVolume | null;
   ProductType = ProductType;
 
   constructor(
@@ -27,6 +31,7 @@ export class ProductSummaryComponent implements OnInit {
     },
     private router: Router
   ) {}
+
   ngOnInit(): void {
     // Définition de la configuration de la boîte de dialogue
     const dialogConfig = new MatDialogConfig();
@@ -34,8 +39,6 @@ export class ProductSummaryComponent implements OnInit {
     dialogConfig.height = '80%'; // 80% de la hauteur de la fenêtre
     this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height); // Mise à jour de la taille de la boîte de dialogue
     console.log('Product Data:', this.data.product);
-    console.log('Cart Data:', this.data.cart);
-    console.log('Selected Volume:', this.data.cart.selectedVolume);
   }
 
   continueShopping(): void {
