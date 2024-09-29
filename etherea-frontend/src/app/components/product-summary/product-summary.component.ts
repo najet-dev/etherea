@@ -33,12 +33,34 @@ export class ProductSummaryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Définition de la configuration de la boîte de dialogue
-    const dialogConfig = new MatDialogConfig();
-    dialogConfig.width = '60%'; // 60% de la largeur de la fenêtre
-    dialogConfig.height = '80%'; // 80% de la hauteur de la fenêtre
-    this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height); // Mise à jour de la taille de la boîte de dialogue
+    this.updateDialogSize();
+
+    if (!this.data.product) {
+      console.error('Produit non défini dans les données du dialogue.');
+      return;
+    }
+
+    this.product = this.data.product;
+    this.quantity = this.data.quantity;
+
+    // Add a check for this.data.cart before accessing selectedVolume
+    if (this.data.cart) {
+      this.selectedVolume = this.data.cart.selectedVolume || null;
+      console.log('Cart Data:', this.data.cart);
+      console.log('Selected Volume:', this.selectedVolume);
+    } else {
+      this.selectedVolume = null; // Default to null if cart is undefined
+      console.warn('Cart non défini dans les données du dialogue.');
+    }
+
     console.log('Product Data:', this.data.product);
+  }
+
+  private updateDialogSize(): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.width = '60%';
+    dialogConfig.height = '80%';
+    this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height);
   }
 
   continueShopping(): void {
