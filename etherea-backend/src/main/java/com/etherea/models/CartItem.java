@@ -73,10 +73,6 @@ public class CartItem {
         this.volume = volume;
     }
 
-    public void setVolume(Volume volume) {
-        this.volume = volume;
-    }
-
     public Cart getCart() {
         return cart;
     }

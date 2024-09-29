@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProductService } from 'src/app/services/product.service';
-import { IProduct, ProductType } from '../models/i-product'; // Importez ProductType ici
+import { IProduct } from '../models/i-product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
+import { FavoriteService } from 'src/app/services/favorite.service';
 import { Router } from '@angular/router';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -37,7 +38,7 @@ export class HairComponent implements OnInit {
   }
 
   private loadProducts(): void {
-    const productType: ProductType = ProductType.HAIR; // Utilisez l'énumération ProductType ici
+    const productType = 'HAIR';
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
 
