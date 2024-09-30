@@ -86,7 +86,6 @@ export class FavoriteComponent implements OnInit {
   removeFavorite(productId: number): void {
     this.appFacade.removeFavorite(this.userId, productId).subscribe({
       next: (response) => {
-        console.log('Favorite removed:', response);
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
@@ -101,6 +100,7 @@ export class FavoriteComponent implements OnInit {
   hideModal(): void {
     this.showModal = false;
   }
+
   openProductPopup(
     product: IProduct,
     selectedVolume: IProductVolume | null
@@ -142,32 +142,17 @@ export class FavoriteComponent implements OnInit {
           },
         });
 
-      this.appFacade.cartService.addToCart(cartItem).subscribe({
-        next: () => {
-          const dialogRef = this.dialog.open(ProductSummaryComponent, {
-            width: '60%',
-            height: '80%',
-            data: {
-              product: product,
-              quantity: cartItem.quantity,
-              subTotal: cartItem.quantity * (selectedVolume.price || 0),
-            },
-          });
-
-          dialogRef.afterClosed().subscribe({
-            next: (result) => {
-              if (result === 'goToCart') {
-                this.router.navigateByUrl('/cart');
-              }
-            },
-          });
-        },
-        error: (error) => {
-          console.error('Error adding product to cart:', error);
-        },
-      });
-    } else {
-      console.error('No volume selected for product');
-    }
+        dialogRef.afterClosed().subscribe({
+          next: (result) => {
+            if (result === 'goToCart') {
+              this.router.navigateByUrl('/cart');
+            }
+          },
+        });
+      },
+      error: (error) => {
+        console.error('Error adding product to cart:', error);
+      },
+    });
   }
 }

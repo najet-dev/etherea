@@ -7,24 +7,18 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
-import { StorageService } from 'src/app/services/storage.service';
-
 import { Observable, catchError, switchMap, take, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(
-    private authService: AuthService,
-    private storageService: StorageService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   intercept(
     request: HttpRequest<unknown>,
     next: HttpHandler
   ): Observable<HttpEvent<unknown>> {
-    return this.authService.getCurrentUser().pipe(
+    return this.authService.AuthenticatedUser$.pipe(
       take(1),
       switchMap((signin) => {
         if (!signin) {

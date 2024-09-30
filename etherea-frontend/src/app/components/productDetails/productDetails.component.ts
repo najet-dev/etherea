@@ -52,7 +52,6 @@ export class ProductDetailsComponent implements OnInit {
   limitReached = false;
   stockMessage: string = '';
   private destroyRef = inject(DestroyRef);
-  ProductType = ProductType;
 
   constructor(
     private route: ActivatedRoute,
@@ -66,7 +65,6 @@ export class ProductDetailsComponent implements OnInit {
     this.loadCurrentUser();
   }
 
-  // Load product details from the facade
   loadProductDetails(): void {
     this.route.params
       .pipe(
@@ -83,13 +81,10 @@ export class ProductDetailsComponent implements OnInit {
           this.cartItems.productId = product.id;
           this.cartItems.product = { ...product };
           this.updateStockMessage(product.stockStatus);
-        } else {
-          console.error('Product not found');
         }
       });
   }
 
-  // Load current user information
   loadCurrentUser(): void {
     this.authService
       .getCurrentUser()
@@ -99,12 +94,11 @@ export class ProductDetailsComponent implements OnInit {
           this.userId = user ? user.id : null;
         },
         error: (error) => {
-          console.error('Error fetching user:', error);
+          console.error('Error getting current user ID:', error);
         },
       });
   }
 
-  // Update stock message based on stock status
   updateStockMessage(stockStatus: string): void {
     this.stockMessage =
       stockStatus === 'AVAILABLE'
@@ -135,28 +129,6 @@ export class ProductDetailsComponent implements OnInit {
     }
   }
 
-  // Handle volume change event
-  onVolumeChange(event: Event): void {
-    const target = event.target as HTMLSelectElement;
-    const selectedValue = target?.value;
-
-    if (selectedValue && this.product?.volumes) {
-      const volume = this.product.volumes.find(
-        (vol) => vol.volume.toString() === selectedValue
-      );
-
-      if (volume) {
-        this.selectedVolume = { ...volume }; // Clone to avoid direct reference
-        this.cartItem.selectedVolume = { ...this.selectedVolume }; // Update cartItem
-      } else {
-        this.selectedVolume = null; // Reset if no volume found
-      }
-    } else {
-      this.selectedVolume = null; // Reset if invalid selection
-    }
-  }
-
-  // Increment quantity
   incrementQuantity(): void {
     if (this.cartItems.quantity < 10) {
       this.cartItems.quantity++;
@@ -165,14 +137,12 @@ export class ProductDetailsComponent implements OnInit {
     }
   }
 
-  // Decrement quantity
   decrementQuantity(): void {
     if (this.cartItems.quantity > 1) {
       this.cartItems.quantity--;
     }
   }
 
-  // Add to cart function
   addToCart(): void {
     if (!this.userId) {
       alert('Vous devez être connecté pour ajouter des articles au panier.');
@@ -220,7 +190,6 @@ export class ProductDetailsComponent implements OnInit {
       });
   }
 
-  // Open product summary dialog
   openProductSummaryDialog(): void {
     const dialogRef = this.dialog.open(ProductSummaryComponent, {
       width: '600px',
@@ -239,11 +208,10 @@ export class ProductDetailsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(() => {
-      console.log('Le dialogue a été fermé');
+      console.log('The dialog was closed');
     });
   }
 
-  // Reset cart item
   private resetCartItem(): void {
     this.cartItems = {
       id: 0,
@@ -271,6 +239,5 @@ export class ProductDetailsComponent implements OnInit {
       },
       subTotal: 0, // Réinitialiser le sous-total
     };
-    this.selectedVolume = null;
   }
 }
