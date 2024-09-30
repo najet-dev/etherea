@@ -1,5 +1,5 @@
 import { IProduct } from './i-product';
-import { Volume } from './volume.model';
+import { Volume } from './Volume.model';
 
 export interface Cart {
   id: number;

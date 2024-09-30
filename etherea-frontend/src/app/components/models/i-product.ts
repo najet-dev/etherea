@@ -1,4 +1,5 @@
-import { Volume } from './volume.model';
+import { Volume } from './Volume.model';
+
 export interface IProduct {
   id: number;
   name: string;

@@ -6,7 +6,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { SigninRequest } from '../models/signinRequest.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { Volume } from '../models/volume.model';
+import { Volume } from '../models/Volume.model';
 import { Cart } from '../models/cart.model';
 import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { ActivatedRoute } from '@angular/router';
