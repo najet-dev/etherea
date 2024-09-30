@@ -10,6 +10,7 @@ import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductVolume } from '../models/ProductVolume.model';
+import { ProductTypeService } from 'src/app/services/product-type.service'; // Ajout du service
 
 @Component({
   selector: 'app-day-cream',
@@ -20,29 +21,29 @@ export class CreamComponent implements OnInit {
   products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
   selectedVolume: ProductVolume | null = null;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private productService: ProductService,
     private authService: AuthService,
     private favoriteService: FavoriteService,
     private appFacade: AppFacade,
-    private router: Router
+    private router: Router,
+    public productTypeService: ProductTypeService
   ) {
     this.authService
       .getCurrentUser()
       .pipe(
         tap((user) => {
           this.userId = user ? user.id : null;
-          this.loadProducts(); // Load products after determining user ID
+          this.loadProducts();
         }),
-        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
-  ngOnInit(): void {
-    throw new Error('Method not implemented.');
-  }
+
+  ngOnInit(): void {}
 
   loadProducts(): void {
     const productType = 'FACE'; // Type de produit pour le visage
