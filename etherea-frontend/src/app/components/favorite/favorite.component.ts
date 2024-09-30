@@ -1,20 +1,21 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { Favorite } from '../models/favorite.model';
-import { ProductService } from 'src/app/services/product.service';
-import { IProduct, ProductType } from '../models/i-product.model';
+import { Product } from '../models/Product.model';
+import { ProductType } from '../models/ProductType.enum';
 import { forkJoin } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 import { Cart } from '../models/cart.model';
-import { CartService } from 'src/app/services/cart.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { Router } from '@angular/router';
-import { DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { IProductVolume } from '../models/IProductVolume.model';
+import { ProductVolume } from '../models/ProductVolume.model';
+import { FaceProduct } from '../models/FaceProduct.model';
+import { ProductTypeService } from 'src/app/services/product-type.service';
+import { HairProduct } from '../models/HairProduct.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-favorite',
@@ -24,18 +25,17 @@ import { IProductVolume } from '../models/IProductVolume.model';
 export class FavoriteComponent implements OnInit {
   favorites: Favorite[] = [];
   userId!: number;
-  product: IProduct | null = null;
-  selectedVolume: IProductVolume | null = null;
+  selectedVolume: ProductVolume | undefined;
   showModal = false;
   confirmedProductId!: number;
   private destroyRef = inject(DestroyRef);
-  ProductType = ProductType;
 
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {
@@ -62,11 +62,22 @@ export class FavoriteComponent implements OnInit {
             map((products) => {
               favorites.forEach((favorite, index) => {
                 favorite.product = products[index];
+
+                // Vérifier si le produit est un HairProduct
+                if (this.productTypeService.isHairProduct(favorite.product)) {
+                  const hairProduct = favorite.product as HairProduct;
+
+                  // Si le produit a des volumes, sélectionner le premier volume par défaut
+                  if (hairProduct.volumes && hairProduct.volumes.length > 0) {
+                    this.selectedVolume = hairProduct.volumes[0]; // Sélectionner le premier volume
+                  }
+                }
               });
               return favorites;
             })
           );
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (favorites) => {
@@ -85,7 +96,7 @@ export class FavoriteComponent implements OnInit {
 
   removeFavorite(productId: number): void {
     this.appFacade.removeFavorite(this.userId, productId).subscribe({
-      next: (response) => {
+      next: () => {
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
@@ -102,8 +113,8 @@ export class FavoriteComponent implements OnInit {
   }
 
   openProductPopup(
-    product: IProduct,
-    selectedVolume: IProductVolume | null
+    product: Product,
+    selectedVolume: ProductVolume | undefined
   ): void {
     const cartItem: Cart = {
       id: 0,
@@ -111,18 +122,20 @@ export class FavoriteComponent implements OnInit {
       productId: product.id,
       quantity: 1,
       product: product,
-      // Si le produit est de type FACE, on ne passe pas de volume
-      selectedVolume:
-        product.type === ProductType.FACE
-          ? undefined
-          : selectedVolume || { id: 0, volume: 0, price: 0 },
+      selectedVolume: this.productTypeService.isHairProduct(product)
+        ? selectedVolume
+        : undefined,
+      hairProduct: this.productTypeService.isHairProduct(product)
+        ? (product as HairProduct)
+        : null,
+      faceProduct: this.productTypeService.isFaceProduct(product)
+        ? (product as FaceProduct)
+        : null,
     };
 
-    // Calcul du sous-total
-    const subTotal =
-      product.type === ProductType.FACE
-        ? product.basePrice * cartItem.quantity
-        : (cartItem.selectedVolume?.price || 0) * cartItem.quantity;
+    const subTotal = this.productTypeService.isFaceProduct(product)
+      ? (product as FaceProduct).basePrice * cartItem.quantity
+      : (selectedVolume?.price || 0) * cartItem.quantity;
 
     this.appFacade.cartService.addToCart(cartItem).subscribe({
       next: () => {
@@ -132,11 +145,9 @@ export class FavoriteComponent implements OnInit {
           data: {
             product: product,
             quantity: cartItem.quantity,
-            // On passe selectedVolume uniquement si c'est un produit de type HAIR
-            selectedVolume:
-              product.type === ProductType.HAIR
-                ? cartItem.selectedVolume
-                : null,
+            selectedVolume: this.productTypeService.isHairProduct(product)
+              ? cartItem.selectedVolume
+              : null,
             cart: cartItem,
             subTotal: subTotal,
           },

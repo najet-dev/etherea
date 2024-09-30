@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProductService } from 'src/app/services/product.service';
-import { IProduct } from '../models/i-product.model';
+import { Product } from '../models/Product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
@@ -16,7 +16,7 @@ import { AppFacade } from 'src/app/services/appFacade.service';
   styleUrls: ['./hair.component.css'],
 })
 export class HairComponent implements OnInit {
-  products$: Observable<IProduct[]> = new Observable<IProduct[]>();
+  products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
   private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
@@ -60,7 +60,7 @@ export class HairComponent implements OnInit {
       );
   }
 
-  handleFavoriteClick(product: IProduct): void {
+  handleFavoriteClick(product: Product): void {
     if (this.userId === null) {
       this.router.navigate(['/signin']);
     } else {
@@ -68,7 +68,7 @@ export class HairComponent implements OnInit {
     }
   }
 
-  toggleFavorite(product: IProduct): void {
+  toggleFavorite(product: Product): void {
     this.appFacade.toggleFavorite(product);
   }
 }

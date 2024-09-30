@@ -25,21 +25,18 @@
                   >&#x2764;</span
                 >
                 <h5 class="card-title">{{ favorite.product.name }}</h5>
-                <div *ngIf="product?.type === ProductType.HAIR">
-                  <p>Volume sélectionné: {{ selectedVolume?.volume }} ml</p>
-                  <p>Prix: {{ selectedVolume?.price | currency : "EUR" }}</p>
+
+                <div *ngIf="productTypeService.isHairProduct(favorite.product)">
+                  <select [(ngModel)]="selectedVolume">
+                    <option
+                      *ngFor="let vol of favorite.product.volumes"
+                      [ngValue]="vol"
+                    >
+                      {{ vol.volume }} ml - {{ vol.price }} €
+                    </option>
+                  </select>
                 </div>
-                <select
-                  *ngIf="favorite.product.volumes.length"
-                  [(ngModel)]="selectedVolume"
-                >
-                  <option
-                    *ngFor="let vol of favorite.product.volumes"
-                    [ngValue]="vol"
-                  >
-                    {{ vol.volume }} ml - {{ vol.price | currency : "EUR" }}
-                  </option>
-                </select>
+
                 <button
                   class="btn btn-primary mt-auto"
                   (click)="openProductPopup(favorite.product, selectedVolume)"

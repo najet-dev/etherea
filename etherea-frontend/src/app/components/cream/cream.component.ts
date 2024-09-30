@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IProduct } from '../models/i-product.model';
+import { Product } from '../models/Product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { ProductService } from 'src/app/services/product.service';
@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { IProductVolume } from '../models/IProductVolume.model';
+import { ProductVolume } from '../models/ProductVolume.model';
 
 @Component({
   selector: 'app-day-cream',
@@ -17,9 +17,9 @@ import { IProductVolume } from '../models/IProductVolume.model';
   styleUrls: ['./cream.component.css'],
 })
 export class CreamComponent implements OnInit {
-  products$: Observable<IProduct[]> = new Observable<IProduct[]>();
+  products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
-  selectedVolume: IProductVolume | null = null;
+  selectedVolume: ProductVolume | null = null;
   private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(
@@ -67,7 +67,7 @@ export class CreamComponent implements OnInit {
       );
   }
 
-  handleFavoriteClick(product: IProduct): void {
+  handleFavoriteClick(product: Product): void {
     if (this.userId === null) {
       this.router.navigate(['/signin']);
     } else {
@@ -75,7 +75,7 @@ export class CreamComponent implements OnInit {
     }
   }
 
-  toggleFavorite(product: IProduct): void {
+  toggleFavorite(product: Product): void {
     this.appFacade.toggleFavorite(product);
   }
 }

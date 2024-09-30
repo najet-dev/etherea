@@ -5,8 +5,12 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { ProductType } from '../models/i-product.model';
+import { ProductType } from '../models/ProductType.enum';
+import { Product } from '../models/Product.model';
+import { ProductVolume } from '../models/ProductVolume.model';
 import { catchError, forkJoin, of, tap } from 'rxjs';
+import { ProductTypeService } from 'src/app/services/product-type.service';
+import { HairProduct } from '../models/HairProduct.model';
 
 @Component({
   selector: 'app-cart',
@@ -23,7 +27,11 @@ export class CartComponent implements OnInit {
   showModal = false;
   private destroyRef = inject(DestroyRef);
 
-  constructor(private authService: AuthService, private appFacade: AppFacade) {
+  constructor(
+    private authService: AuthService,
+    private appFacade: AppFacade,
+    public productTypeService: ProductTypeService
+  ) {
     this.appFacade.cartService.cartUpdated.subscribe(() => {
       this.loadCartItems();
     });
@@ -34,6 +42,7 @@ export class CartComponent implements OnInit {
       .getCurrentUser()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => {
+        console.log('Objet utilisateur reçu:', user);
         if (user && user.id) {
           this.userId = user.id;
           this.loadCartItems();
@@ -44,6 +53,9 @@ export class CartComponent implements OnInit {
   }
 
   loadCartItems() {
+    // Vérifier si userId est défini
+    console.log('UserId dans loadCartItems:', this.userId);
+
     // Vérifier si userId est défini
     if (!this.userId) {
       console.error(
@@ -59,7 +71,7 @@ export class CartComponent implements OnInit {
 
         const productObservables = this.cartItems.map((item) =>
           this.appFacade.getProductById(item.productId).pipe(
-            tap((product) => {
+            tap((product: Product | null) => {
               if (product) {
                 item.product = product;
                 this.initializeSelectedVolume(item);
@@ -93,23 +105,33 @@ export class CartComponent implements OnInit {
       item.selectedVolume = { ...item.volume };
     }
 
-    if (item.product.volumes && item.selectedVolume) {
-      const selectedVol = item.product.volumes.find(
-        (vol) => vol.id === item.selectedVolume?.id
+    // Vérifiez si le produit a des volumes avant de les utiliser
+    if (
+      this.productTypeService.isHairProduct(item.product) &&
+      item.selectedVolume
+    ) {
+      const hairProduct = item.product as HairProduct; // Type assertion
+      const selectedVol = hairProduct.volumes.find(
+        (vol: ProductVolume) => vol.id === item.selectedVolume?.id
       );
       item.selectedVolume = selectedVol || item.selectedVolume;
+    } else if (this.productTypeService.isFaceProduct(item.product)) {
+      console.warn("Les produits faciaux n'ont pas de volumes :", item);
     } else {
-      console.warn("selectedVolume est indéfini pour l'article :", item);
+      console.warn("Produit non reconnu pour l'article :", item);
     }
   }
 
   calculateCartTotal(): void {
     this.cartTotal = this.cartItems.reduce((total, item) => {
       if (item.product) {
-        if (item.product.type === ProductType.HAIR && item.selectedVolume) {
+        if (
+          this.productTypeService.isHairProduct(item.product) &&
+          item.selectedVolume
+        ) {
           item.subTotal = item.selectedVolume.price * item.quantity;
         } else if (
-          item.product.type === ProductType.FACE &&
+          this.productTypeService.isFaceProduct(item.product) &&
           item.product.basePrice !== undefined
         ) {
           item.subTotal = item.product.basePrice * item.quantity;

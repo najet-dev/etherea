@@ -8,7 +8,7 @@ import { Observable, throwError, BehaviorSubject, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Favorite } from '../components/models/favorite.model';
-import { IProduct } from '../components/models/i-product.model';
+import { Product } from '../components/models/Product.model';
 import { AuthService } from './auth.service';
 
 @Injectable()
@@ -79,7 +79,7 @@ export class FavoriteService {
       );
   }
 
-  toggleFavorite(product: IProduct): void {
+  toggleFavorite(product: Product): void {
     if (this.userId) {
       if (product.isFavorite) {
         this.removeFavorite(this.userId, product.id).subscribe(() => {
@@ -93,7 +93,7 @@ export class FavoriteService {
     }
   }
 
-  productsFavorites(products: IProduct[]): Observable<IProduct[]> {
+  productsFavorites(products: Product[]): Observable<Product[]> {
     return this.favorites$.pipe(
       map((favoriteIds) => {
         return products.map((product) => {
