@@ -110,6 +110,7 @@ public class CartItemService {
         if (existingCartItem != null) {
             BigDecimal newQuantity = BigDecimal.valueOf(existingCartItem.getQuantity()).add(BigDecimal.valueOf(quantity));
             existingCartItem.setQuantity(newQuantity.intValue());
+            existingCartItem.setSubTotal(existingCartItem.calculateSubtotal()); // Met à jour le sous-total
             logger.info("Updated existing cart item quantity to {}", newQuantity);
         } else {
             CartItem newCartItem = new CartItem();

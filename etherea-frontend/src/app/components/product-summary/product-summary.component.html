@@ -8,9 +8,9 @@
   <div class="modal-content">
     <div class="image-container">
       <img
-        *ngIf="data.product && data.product.image"
+        *ngIf="data.product.image"
         [src]="data.product.image"
-        alt="Product Image"
+        alt="Image du produit"
         class="product-image"
       />
     </div>
@@ -18,19 +18,26 @@
     <div class="text-and-buttons-container">
       <div class="text-container">
         <h2>{{ data.product.name }}</h2>
-        <!-- Affichage conditionnel pour les produits de type FACE -->
-        <ng-container *ngIf="data.product.type === 'FACE'; else hairProduct">
-          <p>Prix de base: {{ data.product.basePrice | number : ".2-2" }} €</p>
-        </ng-container>
 
-        <!-- Affichage conditionnel pour les produits de type HAIR -->
-        <ng-template #hairProduct>
-          <p>Prix: {{ data.cart.selectedVolume?.price | number : ".2-2" }} €</p>
-          <p>Volume : {{ data.cart.selectedVolume?.volume }}ml</p>
-        </ng-template>
+        <p *ngIf="data.cart?.selectedVolume">
+          {{ data.cart.selectedVolume?.volume }} ml
+        </p>
 
-        <!-- Quantité, commune à tous les types de produit -->
-        <p>Quantité: {{ data.quantity }}</p>
+        <p
+          *ngIf="
+            productTypeService.isHairProduct(data.product) &&
+            data.cart?.selectedVolume
+          "
+        >
+          Prix : {{ data.cart.selectedVolume?.price | number : ".2-2" }} €
+        </p>
+
+        <p *ngIf="productTypeService.isFaceProduct(data.product)">
+          Prix : {{ data.product.basePrice | number : ".2-2" }} €
+        </p>
+
+        <p>Quantité : {{ data.quantity }}</p>
+        <p>Sous-total : {{ data.subTotal | number : ".2-2" }} €</p>
       </div>
 
       <div class="modal-buttons">

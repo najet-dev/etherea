@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { IProduct } from '../models/i-product';
+import { Product } from '../models/Product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
@@ -15,7 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrls: ['./home.component.css'],
 })
 export class HomeComponent implements OnInit {
-  products$: Observable<IProduct[]> = new Observable<IProduct[]>();
+  products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
   private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
@@ -47,7 +47,7 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  handleFavoriteClick(product: IProduct): void {
+  handleFavoriteClick(product: Product): void {
     if (this.userId === null) {
       this.router.navigate(['/signin']);
     } else {
@@ -55,7 +55,7 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  toggleFavorite(product: IProduct): void {
+  toggleFavorite(product: Product): void {
     this.appFacade.toggleFavorite(product);
   }
 }

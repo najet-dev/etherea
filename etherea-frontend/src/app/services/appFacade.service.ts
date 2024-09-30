@@ -1,11 +1,17 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { Observable, catchError, throwError } from 'rxjs';
-import { Cart } from '../components/models/cart.model';
-import { Favorite } from '../components/models/favorite.model';
-import { IProduct, ProductType } from '../components/models/i-product';
-import { CartService } from './cart.service';
+import { Observable, catchError, tap, throwError } from 'rxjs';
+import { AuthService } from './auth.service';
 import { FavoriteService } from './favorite.service';
 import { ProductService } from './product.service';
+import { CartService } from './cart.service';
+import { SigninRequest } from '../components/models/signinRequest.model';
+import { SignupRequest } from '../components/models/SignupRequest.model';
+import { Cart } from '../components/models/cart.model';
+import { Favorite } from '../components/models/favorite.model';
+import { Product } from '../components/models/Product.model';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+import { ProductVolume } from '../components/models/ProductVolume.model';
 
 @Injectable({
   providedIn: 'root',
@@ -17,42 +23,32 @@ export class AppFacade {
     private productService: ProductService
   ) {}
 
-  // Cart
+  // cart
   getCartItems(userId: number): Observable<Cart[]> {
     return this.cartService.getCartItems(userId);
   }
 
   addToCart(cart: Cart): Observable<Cart> {
-    return this.cartService.addToCart(cart).pipe(
-      catchError((error) => {
-        console.error('Error adding to cart:', error);
-        return throwError(() => new Error('Failed to add item to cart.'));
-      })
-    );
+    return this.cartService.addToCart(cart);
   }
 
   updateCartItem(
     userId: number,
     productId: number,
-    newQuantity: number
+    newQuantity: number,
+    volumeId?: number
   ): Observable<Cart> {
-    return this.cartService.updateCartItem(userId, productId, newQuantity).pipe(
-      catchError((error) => {
-        console.error('Error updating cart item:', error);
-        return throwError(() => new Error('Failed to update cart item.'));
-      })
+    return this.cartService.updateCartItem(
+      userId,
+      productId,
+      newQuantity,
+      volumeId
     );
   }
 
   deleteCartItem(id: number): Observable<void> {
-    return this.cartService.deleteCartItem(id).pipe(
-      catchError((error) => {
-        console.error('Error deleting cart item:', error);
-        return throwError(() => new Error('Failed to delete cart item.'));
-      })
-    );
+    return this.cartService.deleteCartItem(id);
   }
-
   // Favorite
   getUserFavorites(userId: number): Observable<Favorite[]> {
     return this.favoriteService.getUserFavorites(userId);
@@ -66,28 +62,27 @@ export class AppFacade {
     return this.favoriteService.removeFavorite(userId, productId);
   }
 
-  toggleFavorite(product: IProduct): void {
+  toggleFavorite(product: Product): void {
     this.favoriteService.toggleFavorite(product);
   }
 
-  productsFavorites(products: IProduct[]): Observable<IProduct[]> {
+  productsFavorites(products: Product[]): Observable<Product[]> {
     return this.favoriteService.productsFavorites(products);
   }
-
   // Products
-  getProducts(limit?: number): Observable<IProduct[]> {
+  getProducts(limit?: number): Observable<Product[]> {
     return this.productService.getProducts(limit);
   }
 
   getProductsByType(
-    type: ProductType,
+    type: string,
     page: number,
     size: number
-  ): Observable<IProduct[]> {
+  ): Observable<Product[]> {
     return this.productService.getProductsByType(type, page, size);
   }
 
-  getProductById(id: number): Observable<IProduct> {
+  getProductById(id: number): Observable<Product> {
     return this.productService.getProductById(id);
   }
 }

@@ -5,6 +5,7 @@ import com.etherea.exception.CartItemNotFoundException;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.exception.VolumeNotFoundException;
+import com.etherea.models.Volume;
 import com.etherea.services.CartItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,6 @@ public class CartItemController {
     @Autowired
     private CartItemService cartItemService;
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
-
     @GetMapping("/{userId}")
     public ResponseEntity<List<CartItemDTO>> getUserCart(@PathVariable Long userId) {
         try {

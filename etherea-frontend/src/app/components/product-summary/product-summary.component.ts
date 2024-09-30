@@ -5,8 +5,11 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { IProduct } from '../models/i-product';
+import { Product } from '../models/Product.model';
+import { ProductType } from '../models/ProductType.enum';
 import { Cart } from '../models/cart.model';
+import { ProductVolume } from '../models/ProductVolume.model';
+import { ProductTypeService } from 'src/app/services/product-type.service';
 
 @Component({
   selector: 'app-product-summary-modal',
@@ -14,43 +17,65 @@ import { Cart } from '../models/cart.model';
   styleUrls: ['./product-summary.component.css'],
 })
 export class ProductSummaryComponent implements OnInit {
+  product!: Product;
+  quantity!: number;
+  selectedVolume!: ProductVolume | null;
+  ProductType = ProductType;
+
   constructor(
-    private dialogRef: MatDialogRef<ProductSummaryComponent>, // Référence à la boîte de dialogue actuelle
-    @Inject(MAT_DIALOG_DATA) // Injection des données passées à la boîte de dialogue
+    private dialogRef: MatDialogRef<ProductSummaryComponent>,
+    @Inject(MAT_DIALOG_DATA)
     public data: {
-      product: IProduct;
+      product: Product;
       cart: Cart;
       quantity: number;
       subTotal: number;
     },
-    private router: Router
+    private router: Router,
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {
-    // Définition de la configuration de la boîte de dialogue
-    const dialogConfig = new MatDialogConfig();
-    dialogConfig.width = '60%'; // 60% de la largeur de la fenêtre
-    dialogConfig.height = '80%'; // 80% de la hauteur de la fenêtre
-    this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height); // Mise à jour de la taille de la boîte de dialogue
+    this.updateDialogSize();
+
+    if (!this.data.product) {
+      console.error('Produit non défini dans les données du dialogue.');
+      return;
+    }
+
+    this.product = this.data.product;
+    this.quantity = this.data.quantity;
+
+    if (this.data.cart) {
+      this.selectedVolume = this.data.cart.selectedVolume || null;
+      console.log('Cart Data:', this.data.cart);
+      console.log('Selected Volume:', this.selectedVolume);
+    } else {
+      this.selectedVolume = null; // Par défaut à null si le panier est indéfini
+      console.warn('Cart non défini dans les données du dialogue.');
+    }
+
     console.log('Product Data:', this.data.product);
-    console.log('Cart Data:', this.data.cart);
-    console.log('Selected Volume:', this.data.cart.selectedVolume);
   }
 
-  // Fonction pour continuer les achats (ferme la boîte de dialogue)
+  private updateDialogSize(): void {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.width = '60%';
+    dialogConfig.height = '80%';
+    this.dialogRef.updateSize(dialogConfig.width, dialogConfig.height);
+  }
+
   continueShopping(): void {
     this.dialogRef.close();
   }
 
-  // Fonction pour aller au panier
   goToCart(): void {
-    this.dialogRef.close(); // Ferme la boîte de dialogue
-    this.router.navigateByUrl('/cart'); // Navigue vers la page du panier
+    this.dialogRef.close();
+    this.router.navigateByUrl('/cart');
   }
 
-  // Fonction pour aller à la page d'accueil
   goToShopping(productId: number): void {
-    this.dialogRef.close(); // Ferme la boîte de dialogue
-    this.router.navigateByUrl('/'); // Navigue vers la page d'accueil
+    this.dialogRef.close();
+    this.router.navigateByUrl('/');
   }
 }
