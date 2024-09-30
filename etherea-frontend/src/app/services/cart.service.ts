@@ -1,129 +1,96 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpParams,
-} from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Cart } from '../components/models/cart.model';
-import { IProduct, ProductType } from '../components/models/i-product';
+import { StorageService } from './storage.service';
+import { IProductVolume } from '../components/models/IProductVolume.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
   private apiUrl = environment.apiUrl;
-  cartUpdated: EventEmitter<void> = new EventEmitter<void>();
+  cartUpdated: EventEmitter<void> = new EventEmitter<void>(); // Événement pour indiquer la mise à jour du panier
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(
+    private httpClient: HttpClient,
+    private storageService: StorageService
+  ) {}
 
-  // Retrieve cart items for a user
+  // Méthodes pour interagir avec le backend
   getCartItems(userId: number): Observable<Cart[]> {
+    console.log('Fetching cart items for user ID:', userId); // Debugging line
     return this.httpClient.get<Cart[]>(`${this.apiUrl}/cart/${userId}`).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 404) {
-          return throwError(() => new Error('User or cart not found.'));
-        }
-        return throwError(() => new Error('Failed to load cart items.'));
+      catchError((error) => {
+        console.error('Error fetching cart items:', error);
+        return throwError(() => error);
       })
     );
   }
 
-  // Add an item to the cart
   addToCart(cart: Cart): Observable<Cart> {
-    console.log('Sending cart data:', cart);
-
-    // Check for required data
-    if (!cart.productId || !cart.userId || cart.quantity <= 0) {
-      console.error(
-        'Missing data or invalid quantity for adding to cart:',
-        cart
-      );
-      return throwError(
-        () => new Error('Product, user not defined, or invalid quantity.')
-      );
-    }
-
+    // Initialisation des paramètres avec userId, productId et quantity
     let params = new HttpParams()
       .set('userId', cart.userId.toString())
       .set('productId', cart.productId.toString())
       .set('quantity', cart.quantity.toString());
 
-    // Check for HAIR products
-    if (cart.product.type === ProductType.HAIR) {
-      if (cart.selectedVolume) {
-        console.log('Selected volume when adding:', cart.selectedVolume);
-        params = params.append('volumeId', cart.selectedVolume.id.toString());
-      } else {
-        return throwError(
-          () => new Error('Volume ID is required for HAIR products.')
-        );
-      }
+    // Si le produit est de type HAIR, ajouter volumeId dans les paramètres
+    if (cart.product.type === 'HAIR' && cart.selectedVolume) {
+      params = params.set('volumeId', cart.selectedVolume.id.toString());
     }
 
-    // Check for FACE products
-    if (cart.product.type === ProductType.FACE && cart.selectedVolume) {
-      return throwError(
-        () => new Error('FACE products should not have a volume.')
-      );
-    }
-
+    // Effectuer la requête POST avec les paramètres
     return this.httpClient
-      .post<Cart>(`${this.apiUrl}/cart/addToCart`, cart, { params }) // Pass cart directly
+      .post<Cart>(`${this.apiUrl}/cart/addToCart`, null, { params })
       .pipe(
-        tap(() => this.cartUpdated.emit()),
         catchError((error) => {
-          console.error('Error adding item to cart:', error);
-          return throwError(() => new Error('Failed to add item to cart.'));
+          console.error('Error adding product to cart:', error);
+          return throwError(() => error);
         })
       );
   }
 
-  // Update the quantity of a cart item
   updateCartItem(
     userId: number,
     productId: number,
     newQuantity: number,
     volumeId?: number
-  ): Observable<any> {
+  ): Observable<Cart> {
     if (newQuantity <= 0) {
       return throwError(() => new Error('Quantity must be greater than 0.'));
     }
 
-    // Construct the URL based on product type
-    let url: string;
-    if (volumeId) {
-      // URL for HAIR products
-      url = `${this.apiUrl}/cart/${userId}/products/${productId}/volume/${volumeId}`;
-    } else {
-      // URL for FACE products
-      url = `${this.apiUrl}/cart/${userId}/products/${productId}`;
-    }
-
-    // Log the generated URL
-    console.log('Generated URL for PUT request:', url);
+    // Vérifier si le produit est de type HAIR
+    const url = volumeId
+      ? `${this.apiUrl}/cart/${userId}/products/${productId}/volume/${volumeId}`
+      : `${this.apiUrl}/cart/${userId}/products/${productId}`;
 
     const params = new HttpParams().set('quantity', newQuantity.toString());
 
-    // Perform the PUT request
-    return this.httpClient.put<any>(url, null, { params }).pipe(
-      tap(() => console.log('Cart item updated successfully')),
+    return this.httpClient.put<Cart>(url, null, { params }).pipe(
+      tap(() => this.cartUpdated.emit()),
       catchError((error) => {
         console.error('Error updating cart item:', error);
-        return throwError(() => new Error('Failed to update cart item.'));
+        const errorMessage = volumeId
+          ? 'Failed to update cart item quantity for HAIR product.'
+          : 'Failed to update cart item quantity for FACE product.';
+        return throwError(() => new Error(errorMessage));
       })
     );
   }
 
-  // Remove an item from the cart
   deleteCartItem(id: number): Observable<void> {
     return this.httpClient.delete<void>(`${this.apiUrl}/cart/${id}`).pipe(
-      tap(() => this.cartUpdated.emit()), // Emit update after deletion
       catchError((error) => {
         console.error('Error deleting cart item:', error);
-        return throwError(() => new Error('Failed to delete cart item.'));
+        return throwError(() => error);
+      }),
+      tap(() => {
+        // Émettre l'événement une fois que la suppression du produit du panier est effectuée avec succès
+        this.cartUpdated.emit();
       })
     );
   }

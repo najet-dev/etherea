@@ -1,18 +1,19 @@
-import { Volume } from './volume.model';
+import { IProductVolume } from './IProductVolume.model';
+
 export interface IProduct {
   id: number;
   name: string;
   description: string;
-  type: ProductType;
-  basePrice?: number; // Ajouté pour les produits de type FACE
+  type: string;
+  basePrice: number;
   stockStatus: string;
   benefits: string;
   usageTips: string;
   ingredients: string;
   characteristics: string;
   image: string;
+  volumes: IProductVolume[];
   isFavorite?: boolean;
-  volumes: Volume[];
 }
 
 export enum ProductType {

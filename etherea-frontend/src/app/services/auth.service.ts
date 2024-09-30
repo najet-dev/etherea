@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { environment } from 'src/environments/environment';
@@ -12,8 +12,7 @@ import { SignupRequest } from '../components/models/SignupRequest.model';
   providedIn: 'root',
 })
 export class AuthService {
-  apiUrl = environment.apiUrl;
-
+  private apiUrl = environment.apiUrl;
   AuthenticatedUser$ = new BehaviorSubject<SigninRequest | null>(null);
 
   constructor(
@@ -22,17 +21,27 @@ export class AuthService {
     private router: Router
   ) {}
 
+  /**
+   * Inscription d'un nouvel utilisateur
+   * @param signupData Les données d'inscription
+   * @returns Un observable contenant les données d'inscription
+   */
   signup(signupData: SignupRequest): Observable<SignupRequest> {
     return this.httpClient
-      .post<any>(`${this.apiUrl}/api/auth/signup`, signupData)
+      .post<SignupRequest>(`${this.apiUrl}/api/auth/signup`, signupData)
       .pipe(
         catchError((error) => {
           console.error('An error occurred during signup:', error);
-          return throwError(() => error);
+          return throwError(() => new Error("Erreur lors de l'inscription."));
         })
       );
   }
 
+  /**
+   * Connexion d'un utilisateur existant
+   * @param signinData Les données de connexion
+   * @returns Un observable contenant les données de connexion
+   */
   signin(signinData: SigninRequest): Observable<SigninRequest> {
     return this.httpClient
       .post<SigninRequest>(`${this.apiUrl}/api/auth/signin`, signinData, {
@@ -58,9 +67,11 @@ export class AuthService {
       );
   }
 
+  /**
+   * Déconnexion de l'utilisateur
+   */
   logout(): void {
     const token = this.storageService.getToken();
-
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     this.httpClient
@@ -81,7 +92,25 @@ export class AuthService {
       .subscribe();
   }
 
+  /**
+   * Obtenir l'utilisateur actuel
+   * @returns Un observable de l'utilisateur actuel
+   */
   getCurrentUser(): Observable<SigninRequest | null> {
-    return this.AuthenticatedUser$.asObservable();
+    // Remplacer par un appel réel à votre API si nécessaire
+    return this.AuthenticatedUser$.asObservable().pipe(
+      tap((user) => {
+        if (!user) {
+          console.error('Aucun utilisateur authentifié');
+        }
+      }),
+      catchError((error) => {
+        console.error(
+          'Erreur lors de la récupération de l’utilisateur actuel :',
+          error
+        );
+        return of(null); // Retourner null en cas d'erreur
+      })
+    );
   }
 }

@@ -1,5 +1,5 @@
-import { IProduct } from './i-product';
-import { Volume } from './volume.model';
+import { IProduct } from './i-product.model';
+import { IProductVolume } from './IProductVolume.model';
 
 export interface Cart {
   id: number;
@@ -7,7 +7,8 @@ export interface Cart {
   product: IProduct;
   productId: number;
   quantity: number;
-  selectedVolume?: Volume | null; // Ajoutez ce champ si ce n'est pas déjà fait
   subTotal?: number;
   total?: number;
+  selectedVolume?: IProductVolume;
+  volume?: { id: number; volume: number; price: number } | null;
 }

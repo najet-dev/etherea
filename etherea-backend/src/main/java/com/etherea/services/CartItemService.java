@@ -36,7 +36,6 @@ public class CartItemService {
     @Autowired
     private VolumeRepository volumeRepository;
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
-
     public List<CartItemDTO> getCartItemsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'ID : " + userId));
@@ -51,10 +50,12 @@ public class CartItemService {
 
         // Filtrage des items de type HAIR ou FACE
         cartItems = cartItems.stream()
-                .filter(cartItem -> cartItem.getProduct() != null &&
-                        (ProductType.HAIR.equals(cartItem.getProduct().getType()) ||
-                                ProductType.FACE.equals(cartItem.getProduct().getType())))
+                .filter(cartItem ->
+                        cartItem.getProduct() != null &&
+                                (ProductType.HAIR.equals(cartItem.getProduct().getType()) ||
+                                        ProductType.FACE.equals(cartItem.getProduct().getType())))
                 .collect(Collectors.toList());
+
 
         logger.info("Filtered cart items count for user {}: {}", userId, cartItems.size());
 
@@ -109,6 +110,7 @@ public class CartItemService {
         if (existingCartItem != null) {
             BigDecimal newQuantity = BigDecimal.valueOf(existingCartItem.getQuantity()).add(BigDecimal.valueOf(quantity));
             existingCartItem.setQuantity(newQuantity.intValue());
+            existingCartItem.setSubTotal(existingCartItem.calculateSubtotal()); // Met à jour le sous-total
             logger.info("Updated existing cart item quantity to {}", newQuantity);
         } else {
             CartItem newCartItem = new CartItem();
@@ -142,6 +144,7 @@ public class CartItemService {
         updateCartTotal(userId);
         logger.info("Cart total updated.");
     }
+
     // Méthode pour mettre à jour le total
     private void updateCartTotal(Long userId) {
         List<CartItem> userCartItems = cartItemRepository.findByUserId(userId);
@@ -171,9 +174,6 @@ public class CartItemService {
         // Vérification pour les produits de type HAIR
         Volume volume = null;
         if (product.getType() == ProductType.HAIR) {
-            if (volumeId == null) {
-                throw new IllegalArgumentException("Les produits de type HAIR nécessitent un volume.");
-            }
             volume = volumeRepository.findById(volumeId)
                     .orElseThrow(() -> new VolumeNotFoundException("Volume non trouvé avec l'ID : " + volumeId));
         } else if (product.getType() == ProductType.FACE && volumeId != null) {
@@ -229,5 +229,4 @@ public class CartItemService {
             throw new CartItemNotFoundException("CartItem with id " + id + " not found");
         }
     }
-
 }

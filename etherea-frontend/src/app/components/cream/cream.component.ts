@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IProduct } from '../models/i-product';
+import { IProduct } from '../models/i-product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { ProductService } from 'src/app/services/product.service';
@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { ProductType } from '../models/i-product'; // Assurez-vous d'importer l'énumération ProductType
+import { IProductVolume } from '../models/IProductVolume.model';
 
 @Component({
   selector: 'app-day-cream',
@@ -19,6 +19,7 @@ import { ProductType } from '../models/i-product'; // Assurez-vous d'importer l'
 export class CreamComponent implements OnInit {
   products$: Observable<IProduct[]> = new Observable<IProduct[]>();
   userId: number | null = null;
+  selectedVolume: IProductVolume | null = null;
   private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(
@@ -44,7 +45,7 @@ export class CreamComponent implements OnInit {
   }
 
   loadProducts(): void {
-    const productType = ProductType.FACE; // Utiliser l'énumération ProductType
+    const productType = 'FACE'; // Type de produit pour le visage
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
 

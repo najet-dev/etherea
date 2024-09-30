@@ -26,26 +26,39 @@ export class AuthInterceptor implements HttpInterceptor {
   ): Observable<HttpEvent<unknown>> {
     return this.authService.getCurrentUser().pipe(
       take(1),
-      switchMap((user) => {
-        const token = this.storageService.getToken();
-        if (token) {
-          // Clone the request and add the token to the headers
-          request = request.clone({
-            setHeaders: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+      switchMap((signin) => {
+        if (!signin) {
+          return next.handle(request);
         }
-        return next.handle(request).pipe(
-          catchError((err: HttpErrorResponse) => {
-            if (err.status === 401) {
-              // Redirect to login or handle unauthorized access
-              this.router.navigate(['/signin']);
-            }
-            return throwError(() => err);
-          })
-        );
-      })
+
+        const modifiedRequest = request.clone({
+          setHeaders: {
+            Authorization: `Bearer ${signin.accessToken}`,
+          },
+        });
+
+        return next.handle(modifiedRequest);
+      }),
+      catchError((err) => this.handleError(err))
     );
+  }
+
+  private handleError(err: HttpErrorResponse): Observable<never> {
+    if (err instanceof HttpErrorResponse) {
+      console.error('HTTP Interceptor: HTTP error occurred', err);
+
+      switch (err.status) {
+        case 403:
+          console.error('HTTP Interceptor: 403 Forbidden Error');
+          this.router.navigate(['/forbidden']);
+          break;
+
+        // Gestion d'autres erreurs HTTP si nécessaire
+
+        default:
+          console.error(`HTTP Interceptor: Error ${err.status}`);
+      }
+    }
+    return throwError(() => err);
   }
 }

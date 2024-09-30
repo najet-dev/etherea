@@ -15,12 +15,14 @@
         <td>
           <img
             *ngIf="item.product?.image"
+            *ngIf="item.product?.image"
             [src]="item.product.image"
             alt="Product Image"
             width="60px"
             [routerLink]="['/productDetails', item.product.id]"
           />
           <p
+            <p
             *ngIf="item.product"
             [routerLink]="['/productDetails', item.product.id]"
           >
@@ -72,6 +74,7 @@
   </table>
 </div>
 
+<!-- Modal de confirmation -->
 <!-- Modal de confirmation -->
 <div *ngIf="showConfirmDelete" class="popup">
   <div class="popup-content">
