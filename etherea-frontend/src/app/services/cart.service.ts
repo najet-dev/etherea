@@ -5,7 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Cart } from '../components/models/cart.model';
 import { StorageService } from './storage.service';
-import { IProductVolume } from '../components/models/IProductVolume.model';
+import { ProductVolume } from '../components/models/ProductVolume.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,12 +14,8 @@ export class CartService {
   private apiUrl = environment.apiUrl;
   cartUpdated: EventEmitter<void> = new EventEmitter<void>(); // Événement pour indiquer la mise à jour du panier
 
-  constructor(
-    private httpClient: HttpClient,
-    private storageService: StorageService
-  ) {}
+  constructor(private httpClient: HttpClient) {}
 
-  // Méthodes pour interagir avec le backend
   getCartItems(userId: number): Observable<Cart[]> {
     console.log('Fetching cart items for user ID:', userId); // Debugging line
     return this.httpClient.get<Cart[]>(`${this.apiUrl}/cart/${userId}`).pipe(

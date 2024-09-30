@@ -3,14 +3,17 @@ import { switchMap, catchError, of } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { IProduct } from '../models/i-product.model';
-import { Cart } from '../models/cart.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { IProductVolume } from '../models/IProductVolume.model';
 import { DestroyRef, inject } from '@angular/core';
 import { SigninRequest } from '../models/signinRequest.model';
 import { ProductSummaryComponent } from '../product-summary/product-summary.component';
+import { ProductType } from '../models/ProductType.enum';
+import { ProductTypeService } from 'src/app/services/product-type.service';
+import { Cart } from '../models/cart.model';
+import { HairProduct } from '../models/HairProduct.model';
+import { FaceProduct } from '../models/FaceProduct.model';
+import { ProductVolume } from '../models/ProductVolume.model';
 
 @Component({
   selector: 'app-product-details',
@@ -18,46 +21,49 @@ import { ProductSummaryComponent } from '../product-summary/product-summary.comp
   styleUrls: ['./productDetails.component.css'],
 })
 export class ProductDetailsComponent implements OnInit {
-  product: IProduct | null = null;
-  selectedVolume: IProductVolume | null = null;
+  product: HairProduct | FaceProduct | null = null;
+  selectedVolume: ProductVolume | null = null;
   userId: number | null = null;
 
   cartItems: Cart = {
     id: 0,
     userId: 0,
-    productId: 0,
-    quantity: 1,
     product: {
       id: 0,
       name: '',
       description: '',
-      type: '',
-      basePrice: 0,
+      type: ProductType.FACE,
       stockStatus: '',
       benefits: '',
       usageTips: '',
       ingredients: '',
       characteristics: '',
       image: '',
-      volumes: [],
+      isFavorite: false,
     },
+    hairProduct: null,
+    faceProduct: null,
+    productId: 0,
+    quantity: 1,
+    subTotal: 0,
     selectedVolume: {
       id: 0,
       volume: 0,
       price: 0,
     },
-    subTotal: 0, // Ajout de la propriété subTotal ici
   };
 
   limitReached = false;
   stockMessage: string = '';
   private destroyRef = inject(DestroyRef);
+  ProductType = ProductType;
 
   constructor(
     private route: ActivatedRoute,
     private appFacade: AppFacade,
     private dialog: MatDialog,
-    private authService: AuthService
+    private authService: AuthService,
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {
@@ -77,10 +83,28 @@ export class ProductDetailsComponent implements OnInit {
       )
       .subscribe((product) => {
         if (product) {
-          this.product = product;
+          if (this.productTypeService.isHairProduct(product)) {
+            this.product = product as HairProduct;
+
+            // Vérifier si le produit a des volumes disponibles
+            if (this.product.volumes && this.product.volumes.length > 0) {
+              // Sélectionner automatiquement le premier volume
+              this.selectedVolume = this.product.volumes[0];
+              this.cartItems.selectedVolume = { ...this.selectedVolume };
+
+              // Mettre à jour le sous-total en fonction du premier volume
+              this.cartItems.subTotal =
+                this.cartItems.quantity * this.selectedVolume.price;
+            }
+          } else if (this.productTypeService.isFaceProduct(product)) {
+            this.product = product as FaceProduct;
+          }
+
           this.cartItems.productId = product.id;
           this.cartItems.product = { ...product };
           this.updateStockMessage(product.stockStatus);
+        } else {
+          console.error('Product not found');
         }
       });
   }
@@ -94,7 +118,7 @@ export class ProductDetailsComponent implements OnInit {
           this.userId = user ? user.id : null;
         },
         error: (error) => {
-          console.error('Error getting current user ID:', error);
+          console.error('Error fetching user:', error);
         },
       });
   }
@@ -112,20 +136,26 @@ export class ProductDetailsComponent implements OnInit {
     const target = event.target as HTMLSelectElement;
     const selectedValue = target?.value;
 
-    if (selectedValue && this.product?.volumes) {
+    if (
+      selectedValue &&
+      this.product &&
+      this.productTypeService.isHairProduct(this.product) &&
+      this.product.volumes
+    ) {
       const volume = this.product.volumes.find(
-        (vol) => vol.volume.toString() === selectedValue
+        (vol: ProductVolume) => vol.volume.toString() === selectedValue
       );
 
       if (volume) {
-        this.selectedVolume = volume;
-        console.log('Volume selected:', this.selectedVolume);
-        // Mettre à jour le sous-total lors du changement de volume
+        this.selectedVolume = { ...volume };
+        this.cartItems.selectedVolume = { ...this.selectedVolume };
         this.cartItems.subTotal =
           this.cartItems.quantity * this.selectedVolume.price;
       } else {
-        console.error('Selected volume not found in product volumes.');
+        this.selectedVolume = null;
       }
+    } else {
+      this.selectedVolume = null;
     }
   }
 
@@ -144,34 +174,50 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   addToCart(): void {
+    // Vérifiez que l'utilisateur est connecté
     if (!this.userId) {
       alert('Vous devez être connecté pour ajouter des articles au panier.');
       return;
     }
 
-    // Vérifiez que le volume est sélectionné pour les produits HAIR
-    if (this.product?.type === 'HAIR' && !this.selectedVolume) {
-      alert("Veuillez sélectionner un volume avant d'ajouter au panier.");
+    // Vérifiez que le produit est de type Hair et que le volume est sélectionné
+    if (
+      this.product &&
+      this.productTypeService.isHairProduct(this.product) &&
+      !this.selectedVolume
+    ) {
+      alert(
+        "Veuillez sélectionner un volume avant d'ajouter un produit capillaire au panier."
+      );
       return;
     }
-
     // Calculer le sous-total selon le type de produit
-    const subTotal =
-      this.product?.type === 'HAIR' && this.selectedVolume
-        ? this.cartItems.quantity * this.selectedVolume.price
-        : this.product?.type === 'FACE'
-        ? this.cartItems.quantity * this.product.basePrice
-        : 0;
+    let subTotal = 0;
 
-    // Mettez à jour le cartItem avec le volume sélectionné et le sous-total
-    this.cartItems.subTotal = subTotal; // Met à jour le sous-total
+    if (this.product) {
+      if (
+        this.productTypeService.isHairProduct(this.product) &&
+        this.selectedVolume
+      ) {
+        subTotal = this.cartItems.quantity * this.selectedVolume.price;
+      } else if (this.productTypeService.isFaceProduct(this.product)) {
+        subTotal = this.cartItems.quantity * this.product.basePrice;
+      }
+    }
+
+    // Mettre à jour les informations du panier
+    this.cartItems.subTotal = subTotal;
     this.cartItems.userId = this.userId;
 
-    // Affecter le volume sélectionné uniquement pour les produits HAIR
-    if (this.product?.type === 'HAIR' && this.selectedVolume) {
-      this.cartItems.selectedVolume = this.selectedVolume; // Assurez-vous que cela est défini
-    } else if (this.product?.type === 'FACE') {
-      this.cartItems.selectedVolume = undefined; // Ne pas affecter de volume pour les produits FACE
+    // Affecter le volume sélectionné pour les produits HAIR
+    if (
+      this.product &&
+      this.productTypeService.isHairProduct(this.product) &&
+      this.selectedVolume
+    ) {
+      this.cartItems.selectedVolume = this.selectedVolume;
+    } else {
+      this.cartItems.selectedVolume = undefined;
     }
 
     // Appel au service pour ajouter au panier
@@ -181,7 +227,11 @@ export class ProductDetailsComponent implements OnInit {
       .subscribe({
         next: () => {
           console.log('Produit ajouté au panier:', this.cartItems);
+
+          // Ouvrir la boîte de dialogue de résumé du produit
           this.openProductSummaryDialog();
+
+          // Réinitialiser les informations du panier
           this.resetCartItem();
         },
         error: (error) => {
@@ -211,33 +261,29 @@ export class ProductDetailsComponent implements OnInit {
       console.log('The dialog was closed');
     });
   }
-
   private resetCartItem(): void {
     this.cartItems = {
       id: 0,
-      userId: this.userId || 0,
-      productId: this.product?.id || 0,
-      quantity: 1,
-      product: this.product || {
+      userId: 0,
+      product: {
         id: 0,
         name: '',
         description: '',
-        type: '',
-        basePrice: 0,
+        type: ProductType.FACE,
         stockStatus: '',
         benefits: '',
         usageTips: '',
         ingredients: '',
         characteristics: '',
         image: '',
-        volumes: [],
+        isFavorite: false,
       },
-      selectedVolume: {
-        id: 0,
-        volume: 0,
-        price: 0,
-      },
-      subTotal: 0, // Réinitialiser le sous-total
+      hairProduct: null,
+      faceProduct: null,
+      productId: 0,
+      quantity: 1,
+      subTotal: 0,
+      selectedVolume: undefined,
     };
   }
 }

@@ -5,9 +5,11 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { IProduct, ProductType } from '../models/i-product.model';
+import { Product } from '../models/Product.model';
+import { ProductType } from '../models/ProductType.enum';
 import { Cart } from '../models/cart.model';
-import { IProductVolume } from '../models/IProductVolume.model';
+import { ProductVolume } from '../models/ProductVolume.model';
+import { ProductTypeService } from 'src/app/services/product-type.service';
 
 @Component({
   selector: 'app-product-summary-modal',
@@ -15,21 +17,22 @@ import { IProductVolume } from '../models/IProductVolume.model';
   styleUrls: ['./product-summary.component.css'],
 })
 export class ProductSummaryComponent implements OnInit {
-  product!: IProduct;
+  product!: Product;
   quantity!: number;
-  selectedVolume!: IProductVolume | null;
+  selectedVolume!: ProductVolume | null;
   ProductType = ProductType;
 
   constructor(
     private dialogRef: MatDialogRef<ProductSummaryComponent>,
     @Inject(MAT_DIALOG_DATA)
     public data: {
-      product: IProduct;
+      product: Product;
       cart: Cart;
       quantity: number;
       subTotal: number;
     },
-    private router: Router
+    private router: Router,
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {
@@ -43,13 +46,12 @@ export class ProductSummaryComponent implements OnInit {
     this.product = this.data.product;
     this.quantity = this.data.quantity;
 
-    // Add a check for this.data.cart before accessing selectedVolume
     if (this.data.cart) {
       this.selectedVolume = this.data.cart.selectedVolume || null;
       console.log('Cart Data:', this.data.cart);
       console.log('Selected Volume:', this.selectedVolume);
     } else {
-      this.selectedVolume = null; // Default to null if cart is undefined
+      this.selectedVolume = null; // Par défaut à null si le panier est indéfini
       console.warn('Cart non défini dans les données du dialogue.');
     }
 

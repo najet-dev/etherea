@@ -2,7 +2,7 @@ import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { IProduct } from '../components/models/i-product.model';
+import { Product } from '../components/models/Product.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,12 +12,12 @@ export class ProductService {
 
   constructor(private httpClient: HttpClient) {}
 
-  getProducts(limit: number = 0): Observable<IProduct[]> {
+  getProducts(limit: number = 0): Observable<Product[]> {
     const url =
       limit > 0
         ? `${this.apiUrl}/products?limit=${limit}`
         : `${this.apiUrl}/products`;
-    return this.httpClient.get<IProduct[]>(url).pipe(
+    return this.httpClient.get<Product[]>(url).pipe(
       catchError((error) => {
         console.error('Error fetching products:', error);
         console.error('Failed to load products. Please try again later.');
@@ -30,14 +30,14 @@ export class ProductService {
     type: string,
     page: number,
     size: number
-  ): Observable<IProduct[]> {
+  ): Observable<Product[]> {
     const url = `${this.apiUrl}/products/type`;
     let params = new HttpParams();
     params = params.append('type', type);
     params = params.append('page', page.toString());
     params = params.append('size', size.toString());
 
-    return this.httpClient.get<IProduct[]>(url, { params }).pipe(
+    return this.httpClient.get<Product[]>(url, { params }).pipe(
       catchError((error) => {
         console.error('Error fetching products:', error);
         return throwError(() => error);
@@ -45,7 +45,7 @@ export class ProductService {
     );
   }
 
-  getProductById(id: number): Observable<IProduct> {
-    return this.httpClient.get<IProduct>(`${this.apiUrl}/products/${id}`);
+  getProductById(id: number): Observable<Product> {
+    return this.httpClient.get<Product>(`${this.apiUrl}/products/${id}`);
   }
 }

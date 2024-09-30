@@ -8,10 +8,10 @@ import { SigninRequest } from '../components/models/signinRequest.model';
 import { SignupRequest } from '../components/models/SignupRequest.model';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
-import { IProduct } from '../components/models/i-product.model';
+import { Product } from '../components/models/Product.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { IProductVolume } from '../components/models/IProductVolume.model';
+import { ProductVolume } from '../components/models/ProductVolume.model';
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +49,6 @@ export class AppFacade {
   deleteCartItem(id: number): Observable<void> {
     return this.cartService.deleteCartItem(id);
   }
-
   // Favorite
   getUserFavorites(userId: number): Observable<Favorite[]> {
     return this.favoriteService.getUserFavorites(userId);
@@ -63,16 +62,15 @@ export class AppFacade {
     return this.favoriteService.removeFavorite(userId, productId);
   }
 
-  toggleFavorite(product: IProduct): void {
+  toggleFavorite(product: Product): void {
     this.favoriteService.toggleFavorite(product);
   }
 
-  productsFavorites(products: IProduct[]): Observable<IProduct[]> {
+  productsFavorites(products: Product[]): Observable<Product[]> {
     return this.favoriteService.productsFavorites(products);
   }
-
   // Products
-  getProducts(limit?: number): Observable<IProduct[]> {
+  getProducts(limit?: number): Observable<Product[]> {
     return this.productService.getProducts(limit);
   }
 
@@ -80,11 +78,11 @@ export class AppFacade {
     type: string,
     page: number,
     size: number
-  ): Observable<IProduct[]> {
+  ): Observable<Product[]> {
     return this.productService.getProductsByType(type, page, size);
   }
 
-  getProductById(id: number): Observable<IProduct> {
+  getProductById(id: number): Observable<Product> {
     return this.productService.getProductById(id);
   }
 }
