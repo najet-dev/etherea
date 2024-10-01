@@ -30,7 +30,7 @@
   font-size: 24px;
   color: grey;
   cursor: pointer;
-  transition: color 0.5s ease; /* Ajout de transition */
+  transition: color 0.5s ease;
 }
 .favorite {
   color: red !important;

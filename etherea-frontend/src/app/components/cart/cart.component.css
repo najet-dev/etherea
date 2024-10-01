@@ -1,59 +1,83 @@
-/* Style pour la pop-up */
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1051;
+/* Styles globaux */
+.container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0, 0, 0, 0.5);
-  width: 100%;
-  height: 100%;
-  border: none;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.modal-dialog {
-  z-index: 1052;
-  background: white;
-  width: 90%;
-  max-width: 600px; /* Largeur maximale pour la pop-up */
+.card {
+  border: 1px solid #ccc;
+  border-radius: 5px;
   padding: 20px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Ombre pour effet de profondeur */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.modal-content {
-  border: none;
+.card-title {
+  margin-bottom: 20px;
 }
 
-.modal-header,
-.modal-footer {
-  border: none;
-  padding: 10px 20px;
+/* Cart Item */
+.cart-item {
+  margin-bottom: 20px;
 }
 
-.modal-body {
-  font-size: 18px;
-  text-align: center;
+.product-image {
+  margin-right: 10px;
 }
 
-.close-button {
-  background: none;
+.item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-name {
+  margin: 0;
+}
+
+.product-volume,
+.product-price {
+  margin: 2px 0;
+}
+
+/* Quantité et sous-total */
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.delete-btn {
+  background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 16px; /* Ajuste la taille de l'icône */
+  font-size: 20px;
 }
 
-.close-button:hover {
-  color: red;
+/* Carte de récapitulatif */
+.summary-card {
+  border: 1px solid #007bff;
+  border-radius: 5px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+/* Boutons */
+.btn {
+  margin-top: 20px;
 }
 
 .btn-box {
   display: flex;
   justify-content: center;
+
   gap: 10px; /* Espace entre les boutons */
 }
+
+/* Popup */
 .popup {
   display: flex;
   justify-content: center;
@@ -64,11 +88,30 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
 }
 
 .popup-content {
   background: white;
   padding: 20px;
-  border-radius: 5px;
+  border-radius: 0;
   text-align: center;
+  position: relative;
+  max-width: 600px;
+  width: 90%;
+}
+
+/* Close Button */
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 15px;
+}
+
+.close-icon {
+  font-weight: normal;
+  font-size: 18px;
+  margin-left: 100px;
 }
