@@ -228,7 +228,6 @@ export class ProductDetailsComponent implements OnInit {
         next: () => {
           console.log('Produit ajouté au panier:', this.cartItems);
 
-          // Ouvrir la boîte de dialogue de résumé du produit
           this.openProductSummaryDialog();
 
           // Réinitialiser les informations du panier
@@ -249,7 +248,6 @@ export class ProductDetailsComponent implements OnInit {
         cart: this.cartItems,
         quantity: this.cartItems.quantity,
         subTotal: this.cartItems.subTotal,
-        // Ne pas passer selectedVolume pour les produits de type FACE
         selectedVolume:
           this.product?.type === 'HAIR'
             ? this.cartItems.selectedVolume

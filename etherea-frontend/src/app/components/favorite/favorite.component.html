@@ -38,7 +38,7 @@
                 </div>
 
                 <button
-                  class="btn btn-primary mt-auto"
+                  class="btn-primary mt-auto"
                   (click)="openProductPopup(favorite.product, selectedVolume)"
                 >
                   Ajouter au panier
@@ -47,6 +47,45 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmation pour la suppression -->
+<div
+  class="modal"
+  tabindex="-1"
+  role="dialog"
+  [ngClass]="{ show: showModal }"
+  *ngIf="showModal"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header justify-content-end">
+        <button
+          mat-icon-button
+          mat-dialog-close
+          class="close-button"
+          (click)="hideModal()"
+        >
+          <mat-icon aria-label="Close dialog">close</mat-icon>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir supprimer ce produit de vos favoris ?</p>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="removeFavorite(confirmedProductId)"
+        >
+          Confirmer
+        </button>
+        <button type="button" class="btn-primary" (click)="hideModal()">
+          Annuler
+        </button>
       </div>
     </div>
   </div>
