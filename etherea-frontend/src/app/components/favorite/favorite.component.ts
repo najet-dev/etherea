@@ -3,6 +3,12 @@ import { AuthService } from 'src/app/services/auth.service';
 import { Favorite } from '../models/favorite.model';
 import { Product } from '../models/Product.model';
 import { ProductVolume } from '../models/ProductVolume.model';
+import { ProductService } from 'src/app/services/product.service';
+import { IProduct, ProductType } from '../models/i-product.model';
+import { forkJoin } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
+import { Cart } from '../models/cart.model';
+import { CartService } from 'src/app/services/cart.service';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
@@ -25,7 +31,12 @@ export class FavoriteComponent implements OnInit {
   selectedVolume: ProductVolume | undefined;
   showModal = false; // Pour contrôler l'affichage de la modale
   confirmedProductId!: number; // ID du produit à supprimer après confirmation
+  product: IProduct | null = null;
+  selectedVolume: IProductVolume | null = null;
+  showModal = false;
+  confirmedProductId!: number;
   private destroyRef = inject(DestroyRef);
+  ProductType = ProductType;
 
   constructor(
     private authService: AuthService,
@@ -100,6 +111,7 @@ export class FavoriteComponent implements OnInit {
     this.appFacade.removeFavorite(this.userId, productId).subscribe({
       next: () => {
         // Mettre à jour la liste des favoris après suppression
+      next: (response) => {
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
@@ -109,6 +121,10 @@ export class FavoriteComponent implements OnInit {
         console.error('Error removing favorite:', error);
       },
     });
+  }
+
+  hideModal(): void {
+    this.showModal = false;
   }
 
   openProductPopup(

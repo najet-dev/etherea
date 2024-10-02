@@ -12,6 +12,7 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductVolume } from '../models/ProductVolume.model';
 import { ProductTypeService } from 'src/app/services/product-type.service'; // Ajout du service
 import { FaceProduct } from '../models'; // Assurez-vous que ce modèle est correctement importé
+import { IProductVolume } from '../models/IProductVolume.model';
 
 @Component({
   selector: 'app-day-cream',
@@ -47,6 +48,7 @@ export class CreamComponent implements OnInit {
 
   loadProducts(): void {
     const productType = 'FACE';
+    const productType = 'FACE'; // Type de produit pour le visage
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
 

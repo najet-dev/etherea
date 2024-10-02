@@ -116,6 +116,7 @@ export class ProductDetailsComponent implements OnInit {
       .subscribe({
         next: (user: SigninRequest | null) => {
           this.userId = user ? user.id : null;
+          this.userId = user ? user.id : null;
         },
         error: (error) => {
           console.error('Error fetching user:', error);
@@ -256,6 +257,7 @@ export class ProductDetailsComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(() => {
+      console.log('The dialog was closed');
       console.log('The dialog was closed');
     });
   }

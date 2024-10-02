@@ -1,6 +1,8 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Cart } from '../components/models/cart.model';
@@ -13,12 +15,19 @@ import { ProductVolume } from '../components/models/ProductVolume.model';
 export class CartService {
   private apiUrl = environment.apiUrl;
   cartUpdated: EventEmitter<void> = new EventEmitter<void>(); // Événement pour indiquer la mise à jour du panier
+  cartUpdated: EventEmitter<void> = new EventEmitter<void>(); // Événement pour indiquer la mise à jour du panier
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(
+    private httpClient: HttpClient,
+    private storageService: StorageService
+  ) {}
 
   getCartItems(userId: number): Observable<Cart[]> {
     console.log('Fetching cart items for user ID:', userId); // Debugging line
     return this.httpClient.get<Cart[]>(`${this.apiUrl}/cart/${userId}`).pipe(
+      catchError((error) => {
+        console.error('Error fetching cart items:', error);
+        return throwError(() => error);
       catchError((error) => {
         console.error('Error fetching cart items:', error);
         return throwError(() => error);
@@ -43,6 +52,8 @@ export class CartService {
       .post<Cart>(`${this.apiUrl}/cart/addToCart`, null, { params })
       .pipe(
         catchError((error) => {
+          console.error('Error adding product to cart:', error);
+          return throwError(() => error);
           console.error('Error adding product to cart:', error);
           return throwError(() => error);
         })
@@ -82,6 +93,11 @@ export class CartService {
     return this.httpClient.delete<void>(`${this.apiUrl}/cart/${id}`).pipe(
       catchError((error) => {
         console.error('Error deleting cart item:', error);
+        return throwError(() => error);
+      }),
+      tap(() => {
+        // Émettre l'événement une fois que la suppression du produit du panier est effectuée avec succès
+        this.cartUpdated.emit();
         return throwError(() => error);
       }),
       tap(() => {
