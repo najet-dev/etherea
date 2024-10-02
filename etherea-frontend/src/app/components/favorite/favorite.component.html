@@ -37,21 +37,6 @@
                   </select>
                 </div>
 
-                <div *ngIf="product?.type === ProductType.HAIR">
-                  <p>Volume sélectionné: {{ selectedVolume?.volume }} ml</p>
-                  <p>Prix: {{ selectedVolume?.price | currency : "EUR" }}</p>
-                </div>
-                <select
-                  *ngIf="favorite.product.volumes.length"
-                  [(ngModel)]="selectedVolume"
-                >
-                  <option
-                    *ngFor="let vol of favorite.product.volumes"
-                    [ngValue]="vol"
-                  >
-                    {{ vol.volume }} ml - {{ vol.price | currency : "EUR" }}
-                  </option>
-                </select>
                 <button
                   class="btn-primary mt-auto"
                   (click)="openProductPopup(favorite.product, selectedVolume)"

@@ -9,11 +9,9 @@ import { SignupRequest } from '../components/models/SignupRequest.model';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
 import { Product } from '../components/models/Product.model';
-import { IProduct } from '../components/models/i-product.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { ProductVolume } from '../components/models/ProductVolume.model';
-import { IProductVolume } from '../components/models/IProductVolume.model';
 
 @Injectable({
   providedIn: 'root',

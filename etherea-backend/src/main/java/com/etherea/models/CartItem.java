@@ -14,28 +14,22 @@ public class CartItem {
     private Long id;
 
     private int quantity;
-
     @ManyToOne
-    @JoinColumn(name = "userId")
-    @JsonIgnore // Ignorer la sérialisation de cette propriété pour éviter la récursion infinie
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
     @ManyToOne
-    @JoinColumn(name = "productId")
+    @JoinColumn(name = "product_id")
     private Product product;
     @ManyToOne(optional = true)
     @JoinColumn(name = "volume_id", nullable = true)
     private Volume volume;
-    @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "volumeId")
-    private Volume volume;  // Ajout de la référence au volume
     @ManyToOne
     @JoinColumn(name = "cartId")
     @JsonIgnore
     private Cart cart;
     private BigDecimal subTotal;
     private BigDecimal total;
-    private BigDecimal subTotal; // Modification pour BigDecimal
-    private BigDecimal total;    // Modification pour BigDecimal
     public CartItem() {
     }
     public CartItem(Long id, int quantity, Product product, Volume volume, Cart cart) {
@@ -51,11 +45,9 @@ public class CartItem {
     public void setId(Long id) {
         this.id = id;
     }
-
     public int getQuantity() {
         return quantity;
     }
-
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
@@ -67,7 +59,6 @@ public class CartItem {
     public void setUser(User user) {
         this.user = user;
     }
-
     public Product getProduct() {
         return product;
     }
@@ -78,11 +69,6 @@ public class CartItem {
     public Volume getVolume() {
         return volume;
     }
-
-    public Volume getVolume() {
-        return volume;
-    }
-
     public void setVolume(Volume volume) {
         this.volume = volume;
     }
@@ -94,24 +80,18 @@ public class CartItem {
     public void setCart(Cart cart) {
         this.cart = cart;
     }
-
     public BigDecimal getSubTotal() {
         return subTotal;
     }
-
     public void setSubTotal(BigDecimal subTotal) {
         this.subTotal = subTotal;
     }
-
     public BigDecimal getTotal() {
         return total;
     }
-
     public void setTotal(BigDecimal total) {
         this.total = total;
     }
-
-    // Méthode pour calculer le sous-total (prix * quantité) d'un produit pour un volume spécifique
     // Méthode pour calculer le sous-total
     public BigDecimal calculateSubtotal() {
         if (product.getType() == ProductType.FACE) {

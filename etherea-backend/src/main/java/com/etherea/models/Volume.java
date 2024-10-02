@@ -5,9 +5,6 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.List;
-import jakarta.persistence.*;
-
-import java.math.BigDecimal;
 
 @Entity
 public class Volume {
@@ -15,7 +12,6 @@ public class Volume {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int volume;
-    private Integer volume;
     private BigDecimal price;
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -25,9 +21,6 @@ public class Volume {
     public Volume() {
     }
     public Volume(int volume, BigDecimal price, Product product) {
-    public Volume() {
-    }
-    public Volume(Integer volume, BigDecimal price, Product product) {
         this.volume = volume;
         this.price = price;
         this.product = product;
@@ -43,16 +36,6 @@ public class Volume {
         return volume;
     }
     public void setVolume(int volume) {
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Integer getVolume() {
-        return volume;
-    }
-
-    public void setVolume(Integer volume) {
         this.volume = volume;
     }
     public BigDecimal getPrice() {
@@ -61,11 +44,9 @@ public class Volume {
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
-
     public Product getProduct() {
         return product;
     }
-
     public void setProduct(Product product) {
         this.product = product;
     }
