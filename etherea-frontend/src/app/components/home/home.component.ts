@@ -1,12 +1,12 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { Product } from '../models/Product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
-
-import { DestroyRef } from '@angular/core';
+import { ProductVolume } from '../models/ProductVolume.model';
+import { ProductTypeService } from 'src/app/services/product-type.service'; // Import du service
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -17,12 +17,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class HomeComponent implements OnInit {
   products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
-    private router: Router
+    private router: Router,
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {
@@ -31,19 +32,19 @@ export class HomeComponent implements OnInit {
       .getCurrentUser()
       .pipe(
         tap((user) => (this.userId = user ? user.id : null)),
-        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
 
   loadProducts(): void {
-    this.products$ = this.appFacade.getProducts(12).pipe(
+    this.products$ = this.appFacade.getProducts(10).pipe(
       switchMap((products) => this.appFacade.productsFavorites(products)),
       catchError((error) => {
         console.error('Error fetching products:', error);
         return of([]);
       }),
-      takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+      takeUntilDestroyed(this.destroyRef)
     );
   }
 

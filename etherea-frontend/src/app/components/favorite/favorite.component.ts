@@ -1,21 +1,18 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
-import { FavoriteService } from 'src/app/services/favorite.service';
 import { Favorite } from '../models/favorite.model';
 import { Product } from '../models/Product.model';
-import { ProductType } from '../models/ProductType.enum';
-import { forkJoin } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
-import { Cart } from '../models/cart.model';
+import { ProductVolume } from '../models/ProductVolume.model';
 import { MatDialog } from '@angular/material/dialog';
-import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { ProductVolume } from '../models/ProductVolume.model';
-import { FaceProduct } from '../models/FaceProduct.model';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { HairProduct } from '../models/HairProduct.model';
+import { FaceProduct } from '../models/FaceProduct.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ProductSummaryComponent } from '../product-summary/product-summary.component';
+import { Cart } from '../models/cart.model';
+import { forkJoin, map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-favorite',
@@ -26,8 +23,8 @@ export class FavoriteComponent implements OnInit {
   favorites: Favorite[] = [];
   userId!: number;
   selectedVolume: ProductVolume | undefined;
-  showModal = false;
-  confirmedProductId!: number;
+  showModal = false; // Pour contrôler l'affichage de la modale
+  confirmedProductId!: number; // ID du produit à supprimer après confirmation
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -63,13 +60,11 @@ export class FavoriteComponent implements OnInit {
               favorites.forEach((favorite, index) => {
                 favorite.product = products[index];
 
-                // Vérifier si le produit est un HairProduct
                 if (this.productTypeService.isHairProduct(favorite.product)) {
                   const hairProduct = favorite.product as HairProduct;
 
-                  // Si le produit a des volumes, sélectionner le premier volume par défaut
                   if (hairProduct.volumes && hairProduct.volumes.length > 0) {
-                    this.selectedVolume = hairProduct.volumes[0]; // Sélectionner le premier volume
+                    this.selectedVolume = hairProduct.volumes[0];
                   }
                 }
               });
@@ -89,27 +84,31 @@ export class FavoriteComponent implements OnInit {
       });
   }
 
+  // Afficher la modale de confirmation
   confirmRemoveFavorite(productId: number): void {
-    this.confirmedProductId = productId;
-    this.showModal = true;
+    this.confirmedProductId = productId; // Stocker l'ID du produit à supprimer
+    this.showModal = true; // Afficher la modale
   }
 
+  // Méthode pour cacher la modale
+  hideModal(): void {
+    this.showModal = false;
+  }
+
+  // Méthode pour supprimer le produit des favoris
   removeFavorite(productId: number): void {
     this.appFacade.removeFavorite(this.userId, productId).subscribe({
       next: () => {
+        // Mettre à jour la liste des favoris après suppression
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
-        this.hideModal();
+        this.hideModal(); // Masquer la modale après suppression
       },
       error: (error) => {
         console.error('Error removing favorite:', error);
       },
     });
-  }
-
-  hideModal(): void {
-    this.showModal = false;
   }
 
   openProductPopup(

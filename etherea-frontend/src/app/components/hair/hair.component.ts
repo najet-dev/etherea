@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { ProductTypeService } from 'src/app/services/product-type.service';
+import { HairProduct } from '../models';
 
 @Component({
   selector: 'app-hair',
@@ -23,7 +25,8 @@ export class HairComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
-    private router: Router
+    private router: Router,
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {
@@ -37,7 +40,7 @@ export class HairComponent implements OnInit {
       .subscribe();
   }
 
-  private loadProducts(): void {
+  loadProducts(): void {
     const productType = 'HAIR';
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
@@ -45,18 +48,24 @@ export class HairComponent implements OnInit {
     this.products$ = this.appFacade
       .getProductsByType(productType, page, size)
       .pipe(
-        switchMap((products) => {
+        switchMap((products: Product[]) => {
+          // Filtrer pour ne garder que les HairProducts
+          const hairProducts = products.filter((product) =>
+            this.productTypeService.isHairProduct(product)
+          );
+
+          // Si l'utilisateur est connecté, appliquez le service de favoris
           if (this.userId !== null) {
-            return this.appFacade.productsFavorites(products);
+            return this.appFacade.productsFavorites(hairProducts);
           }
-          return of(products);
+          return of(hairProducts); // Retourne uniquement les HairProduct
         }),
         catchError((error) => {
           console.error('Error fetching products:', error);
           console.error('Failed to load products. Please try again later.');
-          return of([]);
+          return of([] as HairProduct[]); // Cast to HairProduct[]
         }),
-        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+        takeUntilDestroyed(this.destroyRef)
       );
   }
 

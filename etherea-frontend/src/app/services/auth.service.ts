@@ -69,13 +69,14 @@ export class AuthService {
 
   /**
    * Déconnexion de l'utilisateur
+   * @returns Un Observable indiquant l'état de la déconnexion
    */
-  logout(): void {
+  logout(): Observable<void> {
     const token = this.storageService.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
-    this.httpClient
-      .post(`${this.apiUrl}/api/auth/logout`, {}, { headers })
+    return this.httpClient
+      .post<void>(`${this.apiUrl}/api/auth/logout`, {}, { headers })
       .pipe(
         tap(() => {
           this.storageService.removeToken(); // Supprime le token lors de la déconnexion
@@ -88,8 +89,7 @@ export class AuthService {
           this.router.navigate(['/signin']);
           return throwError(() => error);
         })
-      )
-      .subscribe();
+      );
   }
 
   /**

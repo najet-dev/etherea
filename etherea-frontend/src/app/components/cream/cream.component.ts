@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductVolume } from '../models/ProductVolume.model';
 import { ProductTypeService } from 'src/app/services/product-type.service'; // Ajout du service
+import { FaceProduct } from '../models'; // Assurez-vous que ce modèle est correctement importé
 
 @Component({
   selector: 'app-day-cream',
@@ -20,7 +21,6 @@ import { ProductTypeService } from 'src/app/services/product-type.service'; // A
 export class CreamComponent implements OnInit {
   products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
-  selectedVolume: ProductVolume | null = null;
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -30,7 +30,9 @@ export class CreamComponent implements OnInit {
     private appFacade: AppFacade,
     private router: Router,
     public productTypeService: ProductTypeService
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     this.authService
       .getCurrentUser()
       .pipe(
@@ -43,28 +45,32 @@ export class CreamComponent implements OnInit {
       .subscribe();
   }
 
-  ngOnInit(): void {}
-
   loadProducts(): void {
-    const productType = 'FACE'; // Type de produit pour le visage
+    const productType = 'FACE';
     const page = 0; // Numéro de la page
     const size = 10; // Taille de la page
 
     this.products$ = this.appFacade
       .getProductsByType(productType, page, size)
       .pipe(
-        switchMap((products) => {
+        switchMap((products: Product[]) => {
+          // Filtrer pour ne garder que les FaceProducts
+          const faceProducts = products.filter((product) =>
+            this.productTypeService.isFaceProduct(product)
+          );
+
+          // Si l'utilisateur est connecté, appliquez le service de favoris
           if (this.userId !== null) {
-            return this.favoriteService.productsFavorites(products);
+            return this.appFacade.productsFavorites(faceProducts);
           }
-          return of(products);
+          return of(faceProducts); // Retourne uniquement les FaceProducts
         }),
         catchError((error) => {
           console.error('Error fetching products:', error);
           console.error('Failed to load products. Please try again later.');
-          return of([]);
+          return of([] as FaceProduct[]); // Cast to FaceProduct[]
         }),
-        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+        takeUntilDestroyed(this.destroyRef)
       );
   }
 

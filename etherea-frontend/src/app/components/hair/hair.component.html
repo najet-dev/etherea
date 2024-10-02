@@ -6,14 +6,15 @@
     style="width: 100%"
   />
 </div>
+
 <div class="container mt-5">
   <div class="row">
     <div class="col-md-12 text-center">
       <h2>Produits pour les cheveux</h2>
     </div>
   </div>
+
   <div class="row">
-    <!-- Produits -->
     <div
       *ngFor="let product of products$ | async"
       class="col-md-3 d-flex align-items-stretch"
@@ -30,27 +31,34 @@
               alt="{{ product.name }}"
             />
           </a>
-          <div class="card-body d-flex flex-column">
-            <span
-              class="heart-icon"
-              [class.favorite]="product.isFavorite"
-              (click)="handleFavoriteClick(product)"
-            >
-              &#x2764;
-            </span>
-            <h5 class="card-title">{{ product.name }}</h5>
-            <a
-              [routerLink]="['/productDetails', product.id]"
-              class="card-description"
-            >
-              <p class="card-text">{{ product.name }}</p>
-            </a>
-            <a
-              [routerLink]="['/productDetails', product.id]"
-              class="card-description"
-            >
-            </a>
+        </div>
+
+        <div class="card-body d-flex flex-column">
+          <span
+            class="heart-icon"
+            [class.favorite]="product.isFavorite"
+            (click)="handleFavoriteClick(product)"
+          >
+            &#x2764;
+          </span>
+
+          <h5 class="card-title">{{ product.name }}</h5>
+
+          <div
+            *ngIf="
+              productTypeService.isHairProduct(product) &&
+              product.volumes.length > 0
+            "
+          >
+            <p class="card-text">
+              {{ product.volumes[0].volume }} ml -
+              {{ product.volumes[0].price }} €
+            </p>
           </div>
+
+          <a [routerLink]="['/productDetails', product.id]" class="btn-primary">
+            Voir les détails
+          </a>
         </div>
       </div>
     </div>

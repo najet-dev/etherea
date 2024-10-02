@@ -1,12 +1,12 @@
 <div *ngIf="!isCartEmpty" class="container mt-5">
   <div class="row">
     <!-- Titre du panier -->
-    <h2 class="card-title">Votre Panier</h2>
+    <h2 class="text-center text-dark">Votre Panier</h2>
 
     <div class="col-md-8">
-      <div class="card">
-        <div class="card-body">
-          <div *ngFor="let item of cartItems" class="cart-item">
+      <div class="card my-5 rounded">
+        <div class="card-body cardbody-color p-lg-5">
+          <div *ngFor="let item of cartItems" class="cart-item mb-4">
             <div class="row align-items-center item-container">
               <!-- Colonne gauche : image, nom et prix -->
               <div class="col-6 d-flex align-items-center">
@@ -48,17 +48,19 @@
               </div>
 
               <!-- Colonne droite : boutons de quantité et sous-total -->
-              <div class="col-6 d-flex justify-space-around align-items-center">
-                <div class="quantity-controls me-3">
+              <div
+                class="col-6 d-flex justify-content-around align-items-center"
+              >
+                <div class="quantity-controls me-4">
                   <button
-                    class="quantity-btn"
+                    class="quantity-btn btn-outline-secondary"
                     (click)="decrementQuantity(item)"
                   >
                     -
                   </button>
                   <span>{{ item.quantity }}</span>
                   <button
-                    class="quantity-btn"
+                    class="quantity-btn btn-outline-secondary"
                     (click)="incrementQuantity(item)"
                   >
                     +
@@ -85,34 +87,37 @@
 
     <!-- Carte de récapitulatif de la commande -->
     <div class="col-md-4">
-      <div class="card summary-card">
-        <div class="card-body">
-          <h2 class="card-title">Récapitulatif de la Commande</h2>
+      <div class="card my-5 rounded summary-card">
+        <div class="card-body p-lg-5">
+          <h3 class="card-title">Récapitulatif de la Commande</h3>
           <div class="summary-item">
-            <strong>Total</strong>
+            Total
             <span>{{ cartTotal | number : ".2-2" }} €</span>
           </div>
-          <button class="btn btn-primary btn-block" (click)="placeOrder()">
-            Commander
-          </button>
+          <div class="text-center">
+            <!-- Ajout de cette div pour centrer le bouton -->
+            <button class="btn-primary btnCommand" (click)="placeOrder()">
+              Commander
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<!-- Modal de confirmation pour la suppression -->
-<div *ngIf="showConfirmDelete" class="popup">
-  <div class="popup-content">
-    <div class="modal-header justify-content-end">
-      <button class="close-button" (click)="cancelDelete()">
-        <mat-icon aria-label="Close dialog">close</mat-icon>
-      </button>
-    </div>
-    <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
-    <div class="btn-box">
-      <button class="btn-primary" (click)="deleteItem()">Supprimer</button>
-      <button class="btn-primary" (click)="cancelDelete()">Annuler</button>
+    <!-- Modal de confirmation pour la suppression -->
+    <div *ngIf="showConfirmDelete" class="popup">
+      <div class="popup-content">
+        <div class="modal-header justify-content-end">
+          <button class="close-button" (click)="cancelDelete()">
+            <mat-icon aria-label="Close dialog">close</mat-icon>
+          </button>
+        </div>
+        <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+        <div class="btn-box">
+          <button class="btn-primary" (click)="deleteItem()">Supprimer</button>
+          <button class="btn-primary" (click)="cancelDelete()">Annuler</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
