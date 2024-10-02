@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
     private authService: AuthService,
     private appFacade: AppFacade,
     private router: Router,
-    public productTypeService: ProductTypeService
+    public productTypeService: ProductTypeService // Ajout du service ici
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +38,7 @@ export class HomeComponent implements OnInit {
   }
 
   loadProducts(): void {
-    this.products$ = this.appFacade.getProducts(10).pipe(
+    this.products$ = this.appFacade.getProducts(12).pipe(
       switchMap((products) => this.appFacade.productsFavorites(products)),
       catchError((error) => {
         console.error('Error fetching products:', error);
