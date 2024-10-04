@@ -46,8 +46,8 @@ export class AppFacade {
     );
   }
 
-  deleteCartItem(id: number): Observable<void> {
-    return this.cartService.deleteCartItem(id);
+  deleteCartItem(id: number, productId: number): Observable<void> {
+    return this.cartService.deleteCartItem(id, productId);
   }
   // Favorite
   getUserFavorites(userId: number): Observable<Favorite[]> {

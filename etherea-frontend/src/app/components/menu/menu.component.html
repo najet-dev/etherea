@@ -34,23 +34,33 @@
     </form>
 
     <div class="icons-container">
-      <mat-icon *ngIf="!isLoggedIn" class="icon" [routerLink]="'/signin'"
-        >account_circle</mat-icon
-      >
-      <mat-icon *ngIf="isLoggedIn" class="icon" [routerLink]="'/profile'"
-        >person</mat-icon
-      >
-      <div class="favorite-icon-container">
+      <mat-icon *ngIf="!isLoggedIn" class="icon" [routerLink]="'/signin'">
+        account_circle
+      </mat-icon>
+      <mat-icon *ngIf="isLoggedIn" class="icon" [routerLink]="'/profile'">
+        person
+      </mat-icon>
+
+      <!-- Favoris avec badge -->
+      <div class="icon-container">
         <mat-icon class="icon" (click)="favorite()">favorite</mat-icon>
         <span *ngIf="favoriteCount > 0" class="favorite-count">{{
           favoriteCount
         }}</span>
       </div>
 
-      <mat-icon class="icon" [routerLink]="'/cart'">shopping_cart</mat-icon>
-      <mat-icon *ngIf="isLoggedIn" class="icon" (click)="logout()"
-        >exit_to_app</mat-icon
-      >
+      <!-- Panier avec badge -->
+      <div class="icon-container">
+        <mat-icon class="iconCart" [routerLink]="'/cart'">
+          shopping_cart
+        </mat-icon>
+        <span *ngIf="cartCount > 0" class="cart-count">{{ cartCount }}</span>
+      </div>
+      <div class="icon-deconnexion">
+        <mat-icon *ngIf="isLoggedIn" class="icon" (click)="logout()"
+          >exit_to_app</mat-icon
+        >
+      </div>
     </div>
   </div>
 </nav>

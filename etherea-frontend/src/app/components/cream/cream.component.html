@@ -30,9 +30,6 @@
               class="product-image card-img-top mx-auto"
               alt="{{ product.name }}"
             />
-            <div *ngIf="productTypeService.isFaceProduct(product)">
-              <p class="card-text">Prix : {{ product.basePrice }} €</p>
-            </div>
           </a>
         </div>
 
@@ -53,7 +50,10 @@
           <div *ngIf="productTypeService.isFaceProduct(product)">
             <span>{{ product.basePrice | number : ".2-2" }} €</span>
           </div>
-          <a [routerLink]="['/productDetails', product.id]" class="btn-primary">
+          <a
+            [routerLink]="['/productDetails', product.id]"
+            class="btn-primary btnProductDetail"
+          >
             Voir les détails
           </a>
         </div>

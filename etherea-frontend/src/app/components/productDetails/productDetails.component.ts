@@ -136,26 +136,18 @@ export class ProductDetailsComponent implements OnInit {
     const target = event.target as HTMLSelectElement;
     const selectedValue = target?.value;
 
-    if (
-      selectedValue &&
-      this.product &&
-      this.productTypeService.isHairProduct(this.product) &&
-      this.product.volumes
-    ) {
+    if (this.product?.type === 'HAIR' && this.product.volumes) {
       const volume = this.product.volumes.find(
         (vol: ProductVolume) => vol.volume.toString() === selectedValue
       );
 
       if (volume) {
-        this.selectedVolume = { ...volume };
-        this.cartItems.selectedVolume = { ...this.selectedVolume };
-        this.cartItems.subTotal =
-          this.cartItems.quantity * this.selectedVolume.price;
+        this.selectedVolume = volume; // Directement assigner le volume
+        this.cartItems.selectedVolume = volume; // Mettre à jour le volume dans le panier
+        this.cartItems.subTotal = this.cartItems.quantity * volume.price; // Mettre à jour le sous-total
       } else {
-        this.selectedVolume = null;
+        this.selectedVolume = null; // Réinitialiser si aucun volume n'est trouvé
       }
-    } else {
-      this.selectedVolume = null;
     }
   }
 

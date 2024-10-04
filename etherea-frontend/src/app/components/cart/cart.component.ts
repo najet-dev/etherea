@@ -146,12 +146,14 @@ export class CartComponent implements OnInit {
   incrementQuantity(item: Cart): void {
     item.quantity++;
     this.updateCartItem(item);
+    this.calculateCartTotal();
   }
 
   decrementQuantity(item: Cart): void {
     if (item.quantity > 1) {
       item.quantity--;
       this.updateCartItem(item);
+      this.calculateCartTotal();
     }
   }
 
@@ -162,7 +164,7 @@ export class CartComponent implements OnInit {
         .updateCartItem(this.userId, item.productId, item.quantity, volumeId)
         .subscribe({
           next: (updatedItem) => {
-            console.log('Cart item updated successfully');
+            console.log('Article du panier mis à jour avec succès');
             const index = this.cartItems.findIndex(
               (cartItem) => cartItem.productId === updatedItem.productId
             );
@@ -172,11 +174,14 @@ export class CartComponent implements OnInit {
             }
           },
           error: (error) => {
-            console.error('Error updating cart item:', error);
+            console.error(
+              "Erreur lors de la mise à jour de l'article du panier :",
+              error
+            );
           },
         });
     } else {
-      console.error('Invalid item data:', item);
+      console.error("Données de l'article non valides :", item);
     }
   }
 
@@ -186,17 +191,19 @@ export class CartComponent implements OnInit {
   }
 
   deleteItem(): void {
-    this.appFacade.cartService.deleteCartItem(this.itemIdToDelete).subscribe({
-      next: () => {
-        console.log('Product deleted from cart successfully');
-        this.showConfirmDelete = false;
-        this.loadCartItems();
-      },
-      error: (error) => {
-        console.error('Failed to delete product from cart:', error);
-        this.showConfirmDelete = false;
-      },
-    });
+    this.appFacade.cartService
+      .deleteCartItem(this.userId, this.itemIdToDelete)
+      .subscribe({
+        next: () => {
+          console.log('Product deleted from cart successfully');
+          this.showConfirmDelete = false;
+          this.loadCartItems();
+        },
+        error: (error) => {
+          console.error('Failed to delete product from cart:', error);
+          this.showConfirmDelete = false;
+        },
+      });
   }
 
   cancelDelete(): void {

@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
+import { CartService } from 'src/app/services/cart.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { StorageService } from 'src/app/services/storage.service';
+import { Cart } from '../models/cart.model';
 
 @Component({
   selector: 'app-menu',
@@ -16,12 +18,14 @@ export class MenuComponent implements OnInit {
   isLoggedIn: boolean = false;
   userId: number | null = null;
   favoriteCount: number = 0;
+  cartCount: number = 0;
 
   constructor(
     private router: Router,
     private storageService: StorageService,
     private authService: AuthService,
-    private favoriteService: FavoriteService
+    private favoriteService: FavoriteService,
+    private cartService: CartService
   ) {
     // Écouter les événements de navigation pour fermer le menu
     this.router.events
@@ -34,22 +38,27 @@ export class MenuComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoggedIn = this.storageService.isLoggedIn();
+
     this.storageService
       .isLoggedInObservable()
       .subscribe((loggedIn: boolean) => {
-        console.log('Is logged in:', loggedIn);
         this.isLoggedIn = loggedIn;
+
+        if (this.isLoggedIn) {
+          this.authService.getCurrentUser().subscribe((user) => {
+            if (user) {
+              this.userId = user.id;
+              this.favoriteService.loadUserFavorites(this.userId); // Charger les favoris
+              this.cartService.getCartItems(this.userId).subscribe(); // Charger les articles du panier
+            }
+          });
+        }
       });
     this.favoriteService.favorites$.subscribe((favoriteIds: number[]) => {
-      this.favoriteCount = favoriteIds.length; // Met à jour le nombre de favoris
+      this.favoriteCount = favoriteIds.length;
     });
-
-    // Récupérer l'utilisateur actuel et son ID
-    this.authService.getCurrentUser().subscribe((user) => {
-      if (user) {
-        this.userId = user.id; // Extraire l'ID de l'utilisateur
-        this.favoriteService.loadUserFavorites(this.userId); // Charger les favoris
-      }
+    this.cartService.carts$.subscribe((cartItems: Cart[]) => {
+      this.cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     });
   }
 
@@ -82,6 +91,7 @@ export class MenuComponent implements OnInit {
       next: () => {
         this.isLoggedIn = false; // Réinitialiser l'état de connexion
         this.favoriteCount = 0; // Réinitialiser le compteur de favoris
+        this.cartCount = 0;
         console.log('User logged out successfully');
       },
       error: (err) => {

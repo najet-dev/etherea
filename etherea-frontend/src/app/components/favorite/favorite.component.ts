@@ -12,7 +12,7 @@ import { FaceProduct } from '../models/FaceProduct.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { Cart } from '../models/cart.model';
-import { forkJoin, map, switchMap } from 'rxjs';
+import { forkJoin, map, Observable, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-favorite',
@@ -21,6 +21,7 @@ import { forkJoin, map, switchMap } from 'rxjs';
 })
 export class FavoriteComponent implements OnInit {
   favorites: Favorite[] = [];
+  selectedVolumes: { [productId: number]: ProductVolume } = {};
   userId!: number;
   selectedVolume: ProductVolume | undefined;
   showModal = false; // Pour contrôler l'affichage de la modale
@@ -63,8 +64,10 @@ export class FavoriteComponent implements OnInit {
                 if (this.productTypeService.isHairProduct(favorite.product)) {
                   const hairProduct = favorite.product as HairProduct;
 
+                  // Initialiser le volume sélectionné pour chaque produit
                   if (hairProduct.volumes && hairProduct.volumes.length > 0) {
-                    this.selectedVolume = hairProduct.volumes[0];
+                    this.selectedVolumes[favorite.productId] =
+                      hairProduct.volumes[0];
                   }
                 }
               });
@@ -83,7 +86,6 @@ export class FavoriteComponent implements OnInit {
         },
       });
   }
-
   // Afficher la modale de confirmation
   confirmRemoveFavorite(productId: number): void {
     this.confirmedProductId = productId; // Stocker l'ID du produit à supprimer
