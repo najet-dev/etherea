@@ -18,7 +18,6 @@
     <!-- Search Form -->
     <form class="form-inline my-2 my-lg-0 mx-auto custom-search-form">
       <div class="input-group">
-        <!-- Wrap input and button in an input group -->
         <input
           class="form-control rounded-search-input"
           type="search"
@@ -51,7 +50,7 @@
 
       <!-- Panier avec badge -->
       <div class="icon-container">
-        <mat-icon class="iconCart" [routerLink]="'/cart'">
+        <mat-icon class="icon-cart" [routerLink]="'/cart'">
           shopping_cart
         </mat-icon>
         <span *ngIf="cartCount > 0" class="cart-count">{{ cartCount }}</span>

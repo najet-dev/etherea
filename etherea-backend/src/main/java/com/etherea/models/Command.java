@@ -13,17 +13,22 @@ public class Command {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDateTime commandDate;
+    @Enumerated(EnumType.STRING)
     private CommandStatus status;
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "delivery_address_id")
+    private DeliveryAddress deliveryAddress;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @OneToMany(mappedBy = "command")
+    @OneToMany(mappedBy = "command", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandItem> commandItems = new ArrayList<>();
     public Command() {
     }
-    public Command(LocalDateTime commandDate, CommandStatus status) {
+    public Command(LocalDateTime commandDate, CommandStatus status, DeliveryAddress deliveryAddress) {
         this.commandDate = commandDate;
         this.status = status;
+        this.deliveryAddress = deliveryAddress;
     }
     public Long getId() {
         return id;
@@ -42,6 +47,12 @@ public class Command {
     }
     public void setStatus(CommandStatus status) {
         this.status = status;
+    }
+    public DeliveryAddress getDeliveryAddress() {
+        return deliveryAddress;
+    }
+    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
     public User getUser() {
         return user;

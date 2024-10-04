@@ -3,16 +3,14 @@ import { AuthService } from 'src/app/services/auth.service';
 import { Favorite } from '../models/favorite.model';
 import { Product } from '../models/Product.model';
 import { ProductVolume } from '../models/ProductVolume.model';
-import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { HairProduct } from '../models/HairProduct.model';
 import { FaceProduct } from '../models/FaceProduct.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { Cart } from '../models/cart.model';
-import { forkJoin, map, Observable, switchMap } from 'rxjs';
+import { forkJoin, map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-favorite',
@@ -23,15 +21,12 @@ export class FavoriteComponent implements OnInit {
   favorites: Favorite[] = [];
   selectedVolumes: { [productId: number]: ProductVolume } = {};
   userId!: number;
-  selectedVolume: ProductVolume | undefined;
-  showModal = false; // Pour contrôler l'affichage de la modale
-  confirmedProductId!: number; // ID du produit à supprimer après confirmation
+  showSuccessMessage = false; // Pour contrôler l'affichage du message de succès
   private destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
-    private dialog: MatDialog,
     private router: Router,
     public productTypeService: ProductTypeService
   ) {}
@@ -86,16 +81,6 @@ export class FavoriteComponent implements OnInit {
         },
       });
   }
-  // Afficher la modale de confirmation
-  confirmRemoveFavorite(productId: number): void {
-    this.confirmedProductId = productId; // Stocker l'ID du produit à supprimer
-    this.showModal = true; // Afficher la modale
-  }
-
-  // Méthode pour cacher la modale
-  hideModal(): void {
-    this.showModal = false;
-  }
 
   // Méthode pour supprimer le produit des favoris
   removeFavorite(productId: number): void {
@@ -105,7 +90,12 @@ export class FavoriteComponent implements OnInit {
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
-        this.hideModal(); // Masquer la modale après suppression
+
+        // Afficher le message de succès pendant 3 secondes
+        this.showSuccessMessage = true;
+        setTimeout(() => {
+          this.showSuccessMessage = false;
+        }, 3000);
       },
       error: (error) => {
         console.error('Error removing favorite:', error);
@@ -140,27 +130,7 @@ export class FavoriteComponent implements OnInit {
 
     this.appFacade.cartService.addToCart(cartItem).subscribe({
       next: () => {
-        const dialogRef = this.dialog.open(ProductSummaryComponent, {
-          width: '60%',
-          height: '80%',
-          data: {
-            product: product,
-            quantity: cartItem.quantity,
-            selectedVolume: this.productTypeService.isHairProduct(product)
-              ? cartItem.selectedVolume
-              : null,
-            cart: cartItem,
-            subTotal: subTotal,
-          },
-        });
-
-        dialogRef.afterClosed().subscribe({
-          next: (result) => {
-            if (result === 'goToCart') {
-              this.router.navigateByUrl('/cart');
-            }
-          },
-        });
+        this.router.navigateByUrl('/cart');
       },
       error: (error) => {
         console.error('Error adding product to cart:', error);

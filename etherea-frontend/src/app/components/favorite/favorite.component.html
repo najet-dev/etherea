@@ -10,6 +10,15 @@
             <h2>Mes favoris</h2>
           </div>
         </div>
+
+        <!-- Message de confirmation de suppression -->
+        <div
+          *ngIf="showSuccessMessage"
+          class="alert alert-success text-center message-success"
+        >
+          Le produit a bien été supprimé des favoris.
+        </div>
+
         <div class="row">
           <div *ngFor="let favorite of favorites" class="col-md-3">
             <div class="card h-100 mb-4">
@@ -22,19 +31,24 @@
               <div class="card-body d-flex flex-column justify-content-between">
                 <span
                   class="heart-icon favorite"
-                  (click)="confirmRemoveFavorite(favorite.productId)"
+                  (click)="removeFavorite(favorite.productId)"
                   >&#x2764;</span
                 >
                 <h5 class="card-title">{{ favorite.product.name }}</h5>
+                <div *ngIf="productTypeService.isFaceProduct(favorite.product)">
+                  <span
+                    >{{ favorite.product.basePrice | number : ".2-2" }} €</span
+                  >
+                </div>
 
                 <div *ngIf="productTypeService.isHairProduct(favorite.product)">
                   <select [(ngModel)]="selectedVolumes[favorite.product.id]">
-                    <!-- Modifié ici -->
                     <option
                       *ngFor="let vol of favorite.product.volumes"
                       [ngValue]="vol"
                     >
-                      {{ vol.volume }} ml - {{ vol.price }} €
+                      {{ vol.volume }} ml &nbsp;&nbsp; - &nbsp;&nbsp;
+                      {{ vol.price }} €
                     </option>
                   </select>
                 </div>
@@ -54,45 +68,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal de confirmation pour la suppression -->
-<div
-  class="modal"
-  tabindex="-1"
-  role="dialog"
-  [ngClass]="{ show: showModal }"
-  *ngIf="showModal"
->
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header justify-content-end">
-        <button
-          mat-icon-button
-          mat-dialog-close
-          class="close-button"
-          (click)="hideModal()"
-        >
-          <mat-icon aria-label="Close dialog">close</mat-icon>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Êtes-vous sûr de vouloir supprimer ce produit de vos favoris ?</p>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn-primary"
-          (click)="removeFavorite(confirmedProductId)"
-        >
-          Confirmer
-        </button>
-        <button type="button" class="btn-primary" (click)="hideModal()">
-          Annuler
-        </button>
       </div>
     </div>
   </div>
