@@ -57,6 +57,9 @@
 
 .icon {
   margin-right: 2rem;
+}
+.icon,
+.icon-cart {
   cursor: pointer;
 }
 
@@ -85,7 +88,7 @@
 .cart-count {
   position: absolute;
   top: -8px;
-  right: -18px;
+  right: -15px;
   background-color: var(--main-color);
   color: var(--text-color);
   border-radius: 50%;

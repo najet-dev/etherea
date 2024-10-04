@@ -11,11 +11,8 @@ public class CartItemDTO {
     private VolumeDTO volume;    // Contient les détails du volume
     private Long userId;
     private BigDecimal subTotal; // Sous-total calculé
-
-    // Constructeurs
     public CartItemDTO() {
     }
-
     public CartItemDTO(Long id, int quantity, Long productId, VolumeDTO volume, Long userId, BigDecimal subTotal) {
         this.id = id;
         this.quantity = quantity;
@@ -24,16 +21,13 @@ public class CartItemDTO {
         this.userId = userId;
         this.subTotal = subTotal;
     }
-
     // Getters et Setters
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public int getQuantity() {
         return quantity;
     }
@@ -70,7 +64,6 @@ public class CartItemDTO {
         if (cartItem == null) {
             return null;
         }
-
         BigDecimal subTotal;
         Long volumeId = null;
 
@@ -84,7 +77,6 @@ public class CartItemDTO {
             // Si aucun volume n'est disponible et ce n'est pas un produit de type FACE
             subTotal = BigDecimal.ZERO;
         }
-
         return new CartItemDTO(
                 cartItem.getId(),
                 cartItem.getQuantity(),
