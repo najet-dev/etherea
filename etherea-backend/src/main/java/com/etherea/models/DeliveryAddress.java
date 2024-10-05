@@ -1,11 +1,13 @@
 package com.etherea.models;
 
 import jakarta.persistence.*;
+
 @Entity
-public class  DeliveryAddress{
+public class DeliveryAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String address;
     private int zipCode;
     private String city;
@@ -23,6 +25,7 @@ public class  DeliveryAddress{
         this.phoneNumber = phoneNumber;
         this.user = user;
     }
+
     // Getters et Setters
     public Long getId() {
         return id;

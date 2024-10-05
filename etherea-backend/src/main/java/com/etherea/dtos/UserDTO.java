@@ -53,6 +53,8 @@ public class UserDTO {
     public Set<Role> getRoles() {
         return roles;
     }
+
+    // Conversion de User à UserDTO
     public static UserDTO fromUser(User user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
@@ -63,6 +65,7 @@ public class UserDTO {
         userDTO.getRoles().addAll(user.getRoles());
         return userDTO;
     }
+    //Conversion de UserDTO à User
     public User toUser() {
         User user = new User();
         user.setId(this.id);
