@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
+import { CartService } from 'src/app/services/cart.service';
+import { FavoriteService } from 'src/app/services/favorite.service';
 import { StorageService } from 'src/app/services/storage.service';
+import { Cart } from '../models/cart.model';
 
 @Component({
   selector: 'app-menu',
@@ -14,29 +17,49 @@ export class MenuComponent implements OnInit {
   isBurgerIconVisible = true;
   isLoggedIn: boolean = false;
   userId: number | null = null;
+  favoriteCount: number = 0;
+  cartCount: number = 0;
 
   constructor(
     private router: Router,
     private storageService: StorageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private favoriteService: FavoriteService,
+    private cartService: CartService
   ) {
     // Écouter les événements de navigation pour fermer le menu
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => {
-        console.log('Navigation event:', event); // Ajout d'un console.log pour vérifier les événements de navigation
+        console.log('Navigation event:', event);
         this.closeBurgerMenu();
       });
   }
 
   ngOnInit(): void {
     this.isLoggedIn = this.storageService.isLoggedIn();
+
     this.storageService
       .isLoggedInObservable()
       .subscribe((loggedIn: boolean) => {
-        console.log('Is logged in:', loggedIn); // Ajout d'un console.log pour vérifier l'état de connexion
         this.isLoggedIn = loggedIn;
+
+        if (this.isLoggedIn) {
+          this.authService.getCurrentUser().subscribe((user) => {
+            if (user) {
+              this.userId = user.id;
+              this.favoriteService.loadUserFavorites(this.userId); // Charger les favoris
+              this.cartService.getCartItems(this.userId).subscribe(); // Charger les articles du panier
+            }
+          });
+        }
       });
+    this.favoriteService.favorites$.subscribe((favoriteIds: number[]) => {
+      this.favoriteCount = favoriteIds.length;
+    });
+    this.cartService.carts$.subscribe((cartItems: Cart[]) => {
+      this.cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+    });
   }
 
   isCurrentRoute(route: string): boolean {
@@ -61,9 +84,19 @@ export class MenuComponent implements OnInit {
   }
 
   logout() {
-    console.log('Logging out'); // Ajout d'un message de log pour vérifier que la fonction est appelée
+    console.log('Logging out');
 
     // Appel à la méthode logout() du service AuthService
-    this.authService.logout();
+    this.authService.logout().subscribe({
+      next: () => {
+        this.isLoggedIn = false; // Réinitialiser l'état de connexion
+        this.favoriteCount = 0; // Réinitialiser le compteur de favoris
+        this.cartCount = 0;
+        console.log('User logged out successfully');
+      },
+      error: (err) => {
+        console.error('Error during logout:', err);
+      },
+    });
   }
 }

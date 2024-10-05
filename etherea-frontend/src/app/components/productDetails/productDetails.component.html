@@ -4,51 +4,66 @@
     <div class="col-md-6">
       <img [src]="product.image" class="img-fluid image" [alt]="product.name" />
     </div>
+
     <!-- Product details on the right -->
     <div class="col-md-6">
-      <img class="logo" src="/assets/logo.png" alt="banner" />
-      <p class="detail description">{{ product.description }}</p>
+      <div class="product-details">
+        <p class="detail description">{{ product.name }}</p>
 
-      <!-- Volume selection -->
-      <label for="volumeSelect" class="detail">Volume :</label>
-      <select
-        id="volumeSelect"
-        class="form-select"
-        [(ngModel)]="selectedVolume"
-      >
-        <option *ngFor="let volume of product.volumes" [ngValue]="volume">
-          {{ volume.volume }} - {{ volume.price }} €
-        </option>
-      </select>
+        <!-- Volume selection - Only for HAIR products -->
+        <div *ngIf="product.type === 'HAIR' && product.volumes?.length">
+          <div class="custom-select-container">
+            <select
+              (change)="onVolumeChange($event)"
+              class="form-control custom-select"
+            >
+              <option
+                *ngFor="let volume of product.volumes"
+                [value]="volume.volume"
+              >
+                {{ volume.volume }} ml&nbsp;&nbsp; - &nbsp;&nbsp;{{
+                  volume.price
+                }}
+                €
+              </option>
+            </select>
+          </div>
+        </div>
 
-      <p class="detail">Prix : {{ selectedVolume?.price }} €</p>
-      <p
-        class="detail"
-        [ngClass]="{
-          'stock-available': product.stockStatus === 'AVAILABLE',
-          'stock-out-of-stock': product.stockStatus === 'OUT_OF_STOCK'
-        }"
-      >
-        {{ stockMessage }}
-      </p>
+        <!-- Stock status -->
+        <p
+          class="detail"
+          [ngClass]="{
+            'stock-available': product.stockStatus === 'AVAILABLE',
+            'stock-out-of-stock': product.stockStatus === 'OUT_OF_STOCK'
+          }"
+        >
+          {{ stockMessage }}
+        </p>
 
-      <label class="detail" for="quantityInput">Quantité :</label>
-      <div *ngIf="limitReached" class="alert alert-warning">
-        La limite de 10 produits a été atteinte.
+        <!-- Quantity selection -->
+        <div class="quantity-container">
+          <label class="detail" for="quantityInput">Quantité :</label>
+          <div *ngIf="limitReached" class="alert alert-warning">
+            La limite de 10 produits a été atteinte.
+          </div>
+          <div class="quantity-selector">
+            <button class="quantity-btn" (click)="decrementQuantity()">
+              -
+            </button>
+            <span class="selected-quantity">{{ cartItems.quantity }}</span>
+            <button class="quantity-btn" (click)="incrementQuantity()">
+              +
+            </button>
+          </div>
+        </div>
+
+        <button class="btn-primary" (click)="addToCart()">
+          Ajouter au panier
+        </button>
       </div>
-      <div class="quantity-selector" style="display: inline-flex">
-        <button class="quantity-btn" (click)="decrementQuantity()">-</button>
-        <span>{{ cartItem.quantity }}</span>
-        <button class="quantity-btn" (click)="incrementQuantity()">+</button>
-      </div>
-
-      <!-- Add to cart button -->
-      <button class="btn-primary" (click)="addToCart()">
-        Ajouter au panier
-      </button>
     </div>
 
-    <!-- Additional product details below the image and text -->
     <div class="row">
       <div class="col-md-12">
         <details>

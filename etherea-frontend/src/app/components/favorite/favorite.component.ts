@@ -1,19 +1,18 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
-import { FavoriteService } from 'src/app/services/favorite.service';
 import { Favorite } from '../models/favorite.model';
-import { ProductService } from 'src/app/services/product.service';
-import { IProduct } from '../models/i-product';
-import { forkJoin } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
-import { Cart } from '../models/cart.model';
-import { CartService } from 'src/app/services/cart.service';
+import { Product } from '../models/Product.model';
+import { ProductVolume } from '../models/ProductVolume.model';
 import { MatDialog } from '@angular/material/dialog';
-import { ProductSummaryComponent } from '../product-summary/product-summary.component';
 import { Router } from '@angular/router';
-import { DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { ProductTypeService } from 'src/app/services/product-type.service';
+import { HairProduct } from '../models/HairProduct.model';
+import { FaceProduct } from '../models/FaceProduct.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ProductSummaryComponent } from '../product-summary/product-summary.component';
+import { Cart } from '../models/cart.model';
+import { forkJoin, map, Observable, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-favorite',
@@ -22,17 +21,19 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 })
 export class FavoriteComponent implements OnInit {
   favorites: Favorite[] = [];
+  selectedVolumes: { [productId: number]: ProductVolume } = {};
   userId!: number;
-  product: IProduct | null = null;
-  showModal = false;
-  confirmedProductId!: number;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  selectedVolume: ProductVolume | undefined;
+  showModal = false; // Pour contrôler l'affichage de la modale
+  confirmedProductId!: number; // ID du produit à supprimer après confirmation
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {
@@ -59,15 +60,25 @@ export class FavoriteComponent implements OnInit {
             map((products) => {
               favorites.forEach((favorite, index) => {
                 favorite.product = products[index];
+
+                if (this.productTypeService.isHairProduct(favorite.product)) {
+                  const hairProduct = favorite.product as HairProduct;
+
+                  // Initialiser le volume sélectionné pour chaque produit
+                  if (hairProduct.volumes && hairProduct.volumes.length > 0) {
+                    this.selectedVolumes[favorite.productId] =
+                      hairProduct.volumes[0];
+                  }
+                }
               });
               return favorites;
             })
           );
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (favorites) => {
-          // Once all product details are loaded, assign the favorites
           this.favorites = favorites;
         },
         error: (error) => {
@@ -75,21 +86,26 @@ export class FavoriteComponent implements OnInit {
         },
       });
   }
-
+  // Afficher la modale de confirmation
   confirmRemoveFavorite(productId: number): void {
-    this.confirmedProductId = productId;
-    this.showModal = true;
+    this.confirmedProductId = productId; // Stocker l'ID du produit à supprimer
+    this.showModal = true; // Afficher la modale
   }
 
+  // Méthode pour cacher la modale
+  hideModal(): void {
+    this.showModal = false;
+  }
+
+  // Méthode pour supprimer le produit des favoris
   removeFavorite(productId: number): void {
     this.appFacade.removeFavorite(this.userId, productId).subscribe({
-      next: (response) => {
-        console.log(response);
-        // Update the favorites list after removal
+      next: () => {
+        // Mettre à jour la liste des favoris après suppression
         this.favorites = this.favorites.filter(
           (favorite) => favorite.productId !== productId
         );
-        this.hideModal();
+        this.hideModal(); // Masquer la modale après suppression
       },
       error: (error) => {
         console.error('Error removing favorite:', error);
@@ -97,18 +113,30 @@ export class FavoriteComponent implements OnInit {
     });
   }
 
-  hideModal(): void {
-    this.showModal = false;
-  }
-
-  openProductPopup(product: IProduct): void {
+  openProductPopup(
+    product: Product,
+    selectedVolume: ProductVolume | undefined
+  ): void {
     const cartItem: Cart = {
       id: 0,
       userId: this.userId,
       productId: product.id,
       quantity: 1,
       product: product,
+      selectedVolume: this.productTypeService.isHairProduct(product)
+        ? selectedVolume
+        : undefined,
+      hairProduct: this.productTypeService.isHairProduct(product)
+        ? (product as HairProduct)
+        : null,
+      faceProduct: this.productTypeService.isFaceProduct(product)
+        ? (product as FaceProduct)
+        : null,
     };
+
+    const subTotal = this.productTypeService.isFaceProduct(product)
+      ? (product as FaceProduct).basePrice * cartItem.quantity
+      : (selectedVolume?.price || 0) * cartItem.quantity;
 
     this.appFacade.cartService.addToCart(cartItem).subscribe({
       next: () => {
@@ -118,7 +146,11 @@ export class FavoriteComponent implements OnInit {
           data: {
             product: product,
             quantity: cartItem.quantity,
-            subTotal: cartItem.quantity * product.price,
+            selectedVolume: this.productTypeService.isHairProduct(product)
+              ? cartItem.selectedVolume
+              : null,
+            cart: cartItem,
+            subTotal: subTotal,
           },
         });
 

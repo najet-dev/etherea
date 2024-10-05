@@ -1,105 +1,123 @@
-<div *ngIf="isCartEmpty" class="container mt-5">
-  <h2 class="mb-4">Votre Panier</h2>
-  <p>Votre panier ne contient actuellement aucun produit.</p>
-</div>
-
 <div *ngIf="!isCartEmpty" class="container mt-5">
-  <!-- Tableau pour afficher les articles dans le panier -->
-  <table class="table">
-    <!-- Header du tableau -->
-    <thead>
-      <tr>
-        <th scope="col">Description</th>
-        <th scope="col">Prix</th>
-        <th scope="col">Quantité</th>
-        <th scope="col">Sous-Total</th>
-        <th scope="col"></th>
-        <!-- Ajout d'une colonne vide pour l'icône de suppression -->
-      </tr>
-    </thead>
-    <!-- Corps du tableau -->
-    <tbody>
-      <!-- Boucle sur les articles du panier -->
-      <tr *ngFor="let item of cartItems">
-        <!-- Colonne de la description -->
-        <td>
-          <!-- Afficher les détails du produit -->
-          <img
-            *ngIf="item.product && item.product.image"
-            [src]="item.product.image"
-            alt="Product Image"
-            width="60px"
-            [routerLink]="['/productDetails', item.product.id]"
-          />
-          <h2
-            *ngIf="item.product"
-            [routerLink]="['/productDetails', item.product.id]"
-          >
-            {{ item.product.name }}
-          </h2>
-          <p
-            *ngIf="item.product"
-            [routerLink]="['/productDetails', item.product.id]"
-          >
-            {{ item.product.description }}
-          </p>
-        </td>
-        <!-- Colonne du prix -->
-        <td>{{ item.product && item.product.price | number : ".2-2" }} €</td>
-        <!-- Colonne de la quantité -->
-        <td>
-          <button class="quantity-btn" (click)="decrementQuantity(item)">
-            -
-          </button>
-          <span>{{ item.quantity }}</span>
-          <button class="quantity-btn" (click)="incrementQuantity(item)">
-            +
-          </button>
-        </td>
-        <!-- Colonne du sous-total -->
-        <td>{{ item.subTotal | number : ".2-2" }}</td>
-        <!-- Colonne pour supprimer l'article -->
-        <td>
-          <button
-            class="delete-btn close-button"
-            (click)="confirmDeleteItem(item.id)"
-          >
-            &#10006;
-          </button>
-        </td>
-      </tr>
-    </tbody>
-    <!-- Footer du tableau -->
-    <tfoot>
-      <tr>
-        <td colspan="3"></td>
-        <!-- Ajustement du colspan -->
-        <td colspan="1"><strong>Total</strong></td>
-        <td>{{ cartTotal }} €</td>
-      </tr>
-    </tfoot>
-  </table>
-</div>
+  <div class="row">
+    <!-- Titre du panier -->
+    <h2 class="text-center text-dark">Votre Panier</h2>
 
-<!-- Pop-up de confirmation -->
-<div *ngIf="showConfirmDelete" class="popup">
-  <div class="popup-content">
-    <button class="close-button" (click)="cancelDelete()">
-      <div class="modal-header justify-content-end">
-        <button
-          mat-icon-button
-          mat-dialog-close
-          class="close-button"
-          (click)="hideModal()"
-        >
-          <mat-icon aria-label="Close dialog">close</mat-icon>
-        </button>
+    <div class="col-md-8">
+      <div class="card my-5 rounded">
+        <div class="card-body cardbody-color p-lg-5">
+          <div *ngFor="let item of cartItems" class="cart-item mb-4">
+            <div class="row align-items-center item-container">
+              <!-- Colonne gauche : image, nom et prix -->
+              <div class="col-6 d-flex align-items-center">
+                <img
+                  *ngIf="item.product?.image"
+                  [src]="item.product.image"
+                  alt="Product Image"
+                  width="60px"
+                  [routerLink]="['/productDetails', item.product.id]"
+                  class="product-image"
+                />
+                <div class="item-info ms-3">
+                  <p
+                    *ngIf="item.product"
+                    [routerLink]="['/productDetails', item.product.id]"
+                    class="product-name mb-1"
+                  >
+                    {{ item.product.name }}
+                  </p>
+                  <p
+                    *ngIf="item.product?.type === 'HAIR' && item.selectedVolume"
+                    class="product-volume mb-1"
+                  >
+                    {{ item.selectedVolume.volume }} ml
+                  </p>
+                  <span
+                    *ngIf="productTypeService.isFaceProduct(item.product)"
+                    class="product-price"
+                  >
+                    {{ item.product.basePrice | number : ".2-2" }} €
+                  </span>
+                  <span
+                    *ngIf="item.product?.type === 'HAIR'"
+                    class="product-price"
+                  >
+                    {{ item.selectedVolume?.price | number : ".2-2" }} €
+                  </span>
+                </div>
+              </div>
+
+              <!-- Colonne droite : boutons de quantité et sous-total -->
+              <div
+                class="col-6 d-flex justify-content-around align-items-center"
+              >
+                <div class="quantity-controls me-4">
+                  <button
+                    class="quantity-btn btn-outline-secondary"
+                    (click)="decrementQuantity(item)"
+                  >
+                    -
+                  </button>
+                  <span>{{ item.quantity }}</span>
+                  <button
+                    class="quantity-btn btn-outline-secondary"
+                    (click)="incrementQuantity(item)"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div class="subtotal">
+                  {{ item.subTotal | number : ".2-2" }} €
+                </div>
+
+                <button
+                  class="delete-btn close-button ms-5"
+                  (click)="confirmDeleteItem(item.id)"
+                >
+                  <span class="close-icon">&#10006;</span>
+                </button>
+              </div>
+            </div>
+            <hr />
+          </div>
+        </div>
       </div>
-    </button>
-    <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
-    <div class="btn-box">
-      <button class="btn-primary" (click)="deleteItem()">Supprimer</button>
-      <button class="btn-primary" (click)="cancelDelete()">Annuler</button>
+    </div>
+
+    <!-- Carte de récapitulatif de la commande -->
+    <div class="col-md-4">
+      <div class="card my-5 rounded summary-card">
+        <div class="card-body p-lg-5">
+          <h3 class="card-title">Récapitulatif de la Commande</h3>
+          <div class="summary-item">
+            Total
+            <span>{{ cartTotal | number : ".2-2" }} €</span>
+          </div>
+          <div class="text-center">
+            <!-- Ajout de cette div pour centrer le bouton -->
+            <button class="btn-primary btnCommand" (click)="placeOrder()">
+              Commander
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmation pour la suppression -->
+    <div *ngIf="showConfirmDelete" class="popup">
+      <div class="popup-content">
+        <div class="modal-header justify-content-end">
+          <button class="close-button" (click)="cancelDelete()">
+            <mat-icon aria-label="Close dialog">close</mat-icon>
+          </button>
+        </div>
+        <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+        <div class="btn-box">
+          <button class="btn-primary" (click)="deleteItem()">Supprimer</button>
+          <button class="btn-primary" (click)="cancelDelete()">Annuler</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -15,22 +15,6 @@
   align-items: baseline; /* Modifié pour aligner les éléments à la même ligne */
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  border: 1px solid black;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  height: 100%;
-}
-
-.card:hover {
-  border-color: green;
-  box-shadow: 0 0 30px rgba(0, 128, 0, 0.5);
-}
-
 .heart-icon {
   position: absolute;
   top: 10px;
@@ -47,7 +31,7 @@
 
 .card-title,
 .card-text {
-  height: 50px; /* Hauteur fixe pour aligner les titres et descriptions */
+  height: 50px;
   overflow: hidden; /* Pour gérer le dépassement de texte */
   text-overflow: ellipsis; /* Pour afficher en cas de dépassement */
 }

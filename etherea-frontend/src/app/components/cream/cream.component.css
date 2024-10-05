@@ -15,22 +15,6 @@
   align-items: baseline;
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  border: 1px solid black;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  height: 100%;
-}
-
-.card:hover {
-  border-color: green;
-  box-shadow: 0 0 30px rgba(0, 128, 0, 0.5);
-}
-
 .heart-icon {
   position: absolute;
   top: 10px;

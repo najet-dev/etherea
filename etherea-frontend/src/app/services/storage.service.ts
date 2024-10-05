@@ -13,6 +13,7 @@ export class StorageService {
   constructor(private router: Router) {
     this.isLoggedInSubject = new BehaviorSubject<boolean>(this.isLoggedIn()); // Initialisation du BehaviorSubject avec l'état de connexion actuel
   }
+
   // Méthode pour sauvegarder le token JWT dans le stockage local
   saveToken(token: string): void {
     this.setItem(TOKEN_KEY, token);

@@ -1,12 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CartService } from 'src/app/services/cart.service';
 import { Cart } from 'src/app/components/models/cart.model';
-import { ProductService } from 'src/app/services/product.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { StorageService } from 'src/app/services/storage.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { ProductType } from '../models/ProductType.enum';
+import { Product } from '../models/Product.model';
+import { ProductVolume } from '../models/ProductVolume.model';
+import { catchError, forkJoin, of, tap } from 'rxjs';
+import { ProductTypeService } from 'src/app/services/product-type.service';
+import { HairProduct } from '../models/HairProduct.model';
 
 @Component({
   selector: 'app-cart',
@@ -21,9 +25,13 @@ export class CartComponent implements OnInit {
   showConfirmDelete: boolean = false;
   itemIdToDelete!: number;
   showModal = false;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
-  constructor(private authService: AuthService, private appFacade: AppFacade) {
+  constructor(
+    private authService: AuthService,
+    private appFacade: AppFacade,
+    public productTypeService: ProductTypeService
+  ) {
     this.appFacade.cartService.cartUpdated.subscribe(() => {
       this.loadCartItems();
     });
@@ -34,79 +42,147 @@ export class CartComponent implements OnInit {
       .getCurrentUser()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((user) => {
+        console.log('Objet utilisateur reçu:', user);
         if (user && user.id) {
           this.userId = user.id;
           this.loadCartItems();
+        } else {
+          console.error("L'ID utilisateur n'est pas défini.");
         }
       });
   }
 
   loadCartItems() {
+    // Vérifier si userId est défini
+    console.log('UserId dans loadCartItems:', this.userId);
+
+    // Vérifier si userId est défini
+    if (!this.userId) {
+      console.error(
+        "L'ID utilisateur n'est pas défini. Impossible de charger les éléments du panier."
+      );
+      return;
+    }
+
     this.appFacade.getCartItems(this.userId).subscribe({
       next: (cartItems) => {
         this.cartItems = cartItems;
         this.isCartEmpty = this.cartItems.length === 0;
 
-        for (let i = 0; i < this.cartItems.length; i++) {
-          const item = this.cartItems[i];
-          this.appFacade.getProductById(item.productId).subscribe({
-            next: (product) => {
-              item.product = product;
-              this.calculateCartTotal();
-            },
-            error: (error) => {
-              console.log('Error retrieving product:', error);
-            },
-          });
-        }
+        const productObservables = this.cartItems.map((item) =>
+          this.appFacade.getProductById(item.productId).pipe(
+            tap((product: Product | null) => {
+              if (product) {
+                item.product = product;
+                this.initializeSelectedVolume(item);
+              } else {
+                console.error("Produit non trouvé pour l'id :", item.productId);
+              }
+            }),
+            catchError((error) => {
+              console.log('Erreur lors de la récupération du produit :', error);
+              return of(null);
+            })
+          )
+        );
+
+        forkJoin(productObservables).subscribe(() => {
+          this.calculateCartTotal();
+        });
       },
       error: (error) => {
-        console.log('Error retrieving cart items:', error);
+        console.log(
+          'Erreur lors de la récupération des éléments du panier :',
+          error
+        );
       },
     });
+  }
+
+  initializeSelectedVolume(item: Cart): void {
+    // Initialiser selectedVolume si ce n'est pas défini
+    if (!item.selectedVolume && item.volume) {
+      item.selectedVolume = { ...item.volume };
+    }
+
+    // Vérifiez si le produit a des volumes avant de les utiliser
+    if (
+      this.productTypeService.isHairProduct(item.product) &&
+      item.selectedVolume
+    ) {
+      const hairProduct = item.product as HairProduct; // Type assertion
+      const selectedVol = hairProduct.volumes.find(
+        (vol: ProductVolume) => vol.id === item.selectedVolume?.id
+      );
+      item.selectedVolume = selectedVol || item.selectedVolume;
+    } else if (this.productTypeService.isFaceProduct(item.product)) {
+      console.warn("Les produits faciaux n'ont pas de volumes :", item);
+    } else {
+      console.warn("Produit non reconnu pour l'article :", item);
+    }
+  }
+
+  calculateCartTotal(): void {
+    this.cartTotal = this.cartItems.reduce((total, item) => {
+      if (item.product) {
+        if (
+          this.productTypeService.isHairProduct(item.product) &&
+          item.selectedVolume
+        ) {
+          item.subTotal = item.selectedVolume.price * item.quantity;
+        } else if (
+          this.productTypeService.isFaceProduct(item.product) &&
+          item.product.basePrice !== undefined
+        ) {
+          item.subTotal = item.product.basePrice * item.quantity;
+        }
+
+        return total + (item.subTotal || 0);
+      }
+      return total;
+    }, 0);
   }
 
   incrementQuantity(item: Cart): void {
     item.quantity++;
     this.updateCartItem(item);
+    this.calculateCartTotal();
   }
 
   decrementQuantity(item: Cart): void {
     if (item.quantity > 1) {
       item.quantity--;
       this.updateCartItem(item);
+      this.calculateCartTotal();
     }
   }
 
   updateCartItem(item: Cart): void {
-    this.appFacade.cartService
-      .updateCartItem(this.userId, item.productId, item.quantity)
-      .subscribe({
-        next: (updatedItem) => {
-          console.log('Cart item updated successfully');
-          const index = this.cartItems.findIndex(
-            (cartItem) => cartItem.productId === updatedItem.productId
-          );
-          if (index !== -1) {
-            this.cartItems[index] = updatedItem;
-            this.calculateCartTotal();
-          }
-        },
-        error: (error) => {
-          console.error('Error updating cart item:', error);
-        },
-      });
-  }
-
-  calculateCartTotal(): void {
-    this.cartTotal = 0;
-    for (const item of this.cartItems) {
-      if (item.product && item.product.price) {
-        item.subTotal = item.product.price * item.quantity;
-        this.cartTotal += item.subTotal;
-      }
+    if (item && item.userId && item.productId && item.quantity) {
+      const volumeId = item.selectedVolume?.id;
+      this.appFacade
+        .updateCartItem(this.userId, item.productId, item.quantity, volumeId)
+        .subscribe({
+          next: (updatedItem) => {
+            console.log('Article du panier mis à jour avec succès');
+            const index = this.cartItems.findIndex(
+              (cartItem) => cartItem.productId === updatedItem.productId
+            );
+            if (index !== -1) {
+              this.cartItems[index] = updatedItem;
+              this.calculateCartTotal();
+            }
+          },
+          error: (error) => {
+            console.error(
+              "Erreur lors de la mise à jour de l'article du panier :",
+              error
+            );
+          },
+        });
+    } else {
+      console.error("Données de l'article non valides :", item);
     }
-    this.cartTotal = parseFloat(this.cartTotal.toFixed(2));
   }
 
   confirmDeleteItem(id: number): void {
@@ -115,23 +191,29 @@ export class CartComponent implements OnInit {
   }
 
   deleteItem(): void {
-    this.appFacade.cartService.deleteCartItem(this.itemIdToDelete).subscribe({
-      next: () => {
-        console.log('Product deleted from cart successfully');
-        this.showConfirmDelete = false;
-        this.loadCartItems();
-      },
-      error: (error) => {
-        console.error('Failed to delete product from cart:', error);
-        this.showConfirmDelete = false;
-      },
-    });
+    this.appFacade.cartService
+      .deleteCartItem(this.userId, this.itemIdToDelete)
+      .subscribe({
+        next: () => {
+          console.log('Product deleted from cart successfully');
+          this.showConfirmDelete = false;
+          this.loadCartItems();
+        },
+        error: (error) => {
+          console.error('Failed to delete product from cart:', error);
+          this.showConfirmDelete = false;
+        },
+      });
   }
 
   cancelDelete(): void {
     this.showConfirmDelete = false;
   }
+
   hideModal(): void {
     this.showModal = false;
+  }
+  placeOrder() {
+    throw new Error('Method not implemented.');
   }
 }

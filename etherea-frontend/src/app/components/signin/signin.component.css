@@ -1,12 +1,3 @@
-.card {
-  border: 1px solid black;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-.card:hover {
-  border-color: green;
-  box-shadow: 0 0 30px rgba(0, 128, 0, 0.5);
-}
-
 .connect {
   text-align: center;
   margin-top: 50px;

@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProductService } from 'src/app/services/product.service';
-import { IProduct } from '../models/i-product';
+import { Product } from '../models/Product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { ProductTypeService } from 'src/app/services/product-type.service';
+import { HairProduct } from '../models';
 
 @Component({
   selector: 'app-hair',
@@ -16,14 +18,15 @@ import { AppFacade } from 'src/app/services/appFacade.service';
   styleUrls: ['./hair.component.css'],
 })
 export class HairComponent implements OnInit {
-  products$: Observable<IProduct[]> = new Observable<IProduct[]>();
+  products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
   private destroyRef = inject(DestroyRef); // Inject DestroyRef
 
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
-    private router: Router
+    private router: Router,
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {
@@ -37,30 +40,35 @@ export class HairComponent implements OnInit {
       .subscribe();
   }
 
-  private loadProducts(): void {
+  loadProducts(): void {
     const productType = 'HAIR';
-    const page = 0; // Numéro de la page
-    const size = 10; // Taille de la page
+    const page = 0;
+    const size = 10;
 
     this.products$ = this.appFacade
       .getProductsByType(productType, page, size)
       .pipe(
-        switchMap((products) => {
+        tap((products: Product[]) => {
+          console.log('Products received:', products);
+        }),
+        switchMap((products: Product[]) => {
+          const hairProducts = products.filter((product) =>
+            this.productTypeService.isHairProduct(product)
+          );
+          console.log('Hair Products:', hairProducts); // Log des produits filtrés
           if (this.userId !== null) {
-            return this.appFacade.productsFavorites(products);
+            return this.appFacade.productsFavorites(hairProducts);
           }
-          return of(products);
+          return of(hairProducts);
         }),
         catchError((error) => {
           console.error('Error fetching products:', error);
-          console.error('Failed to load products. Please try again later.');
-          return of([]);
-        }),
-        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+          return of([] as HairProduct[]);
+        })
       );
   }
 
-  handleFavoriteClick(product: IProduct): void {
+  handleFavoriteClick(product: Product): void {
     if (this.userId === null) {
       this.router.navigate(['/signin']);
     } else {
@@ -68,7 +76,7 @@ export class HairComponent implements OnInit {
     }
   }
 
-  toggleFavorite(product: IProduct): void {
+  toggleFavorite(product: Product): void {
     this.appFacade.toggleFavorite(product);
   }
 }
