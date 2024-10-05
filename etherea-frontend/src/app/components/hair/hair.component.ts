@@ -42,30 +42,29 @@ export class HairComponent implements OnInit {
 
   loadProducts(): void {
     const productType = 'HAIR';
-    const page = 0; // Numéro de la page
-    const size = 10; // Taille de la page
+    const page = 0;
+    const size = 10;
 
     this.products$ = this.appFacade
       .getProductsByType(productType, page, size)
       .pipe(
+        tap((products: Product[]) => {
+          console.log('Products received:', products);
+        }),
         switchMap((products: Product[]) => {
-          // Filtrer pour ne garder que les HairProducts
           const hairProducts = products.filter((product) =>
             this.productTypeService.isHairProduct(product)
           );
-
-          // Si l'utilisateur est connecté, appliquez le service de favoris
+          console.log('Hair Products:', hairProducts); // Log des produits filtrés
           if (this.userId !== null) {
             return this.appFacade.productsFavorites(hairProducts);
           }
-          return of(hairProducts); // Retourne uniquement les HairProduct
+          return of(hairProducts);
         }),
         catchError((error) => {
           console.error('Error fetching products:', error);
-          console.error('Failed to load products. Please try again later.');
-          return of([] as HairProduct[]); // Cast to HairProduct[]
-        }),
-        takeUntilDestroyed(this.destroyRef)
+          return of([] as HairProduct[]);
+        })
       );
   }
 
