@@ -31,6 +31,7 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 
 import { FavoriteService } from './services/favorite.service';
 import { OrderComponent } from './components/order/order.component';
+import { DeliveryMethodComponent } from './components/delivery-method/delivery-method.component';
 
 @NgModule({
   declarations: [
@@ -52,6 +53,7 @@ import { OrderComponent } from './components/order/order.component';
     SidebarComponent,
     FavoriteComponent,
     OrderComponent,
+    DeliveryMethodComponent,
   ],
   imports: [
     BrowserModule,

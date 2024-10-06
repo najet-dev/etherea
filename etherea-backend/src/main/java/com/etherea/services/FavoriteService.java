@@ -26,14 +26,14 @@ public class FavoriteService {
     private UserRepository userRepository;
 
     /**
-     * Récupère la liste des favoris d'un utilisateur.
+     * Retrieves the list of favorites for a user.
      *
-     * @param userId L'ID de l'utilisateur.
-     * @return Une liste de DTO représentant les favoris de l'utilisateur.
+     * @param userId the ID of the user
+     * @return A list of DTOs representing the user's favorites.
      */
     public List<FavoriteDTO> getUserFavorites(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID : " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
         List<Favorite> favorites = favoriteRepository.findByUser(user);
 
@@ -41,6 +41,7 @@ public class FavoriteService {
                 .map(this::convertToFavoriteDTO)
                 .collect(Collectors.toList());
     }
+
     private FavoriteDTO convertToFavoriteDTO(Favorite favorite) {
         FavoriteDTO favoriteDTO = new FavoriteDTO();
         favoriteDTO.setFavoriteId(favorite.getId());
@@ -48,21 +49,22 @@ public class FavoriteService {
         favoriteDTO.setProductId(favorite.getProduct().getId());
         return favoriteDTO;
     }
+
     /**
-     * Ajoute un produit aux favoris d'un utilisateur.
+     * Adds a product to the user's list of favorites.
      *
-     * @param userId    L'ID de l'utilisateur.
-     * @param productId L'ID du produit à ajouter.
+     * @param userId the ID of the user
+     * @param productId the ID of the product to add.
      */
     public void addFavorite(Long userId, Long productId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID : " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
         if (favoriteRepository.existsByUserAndProduct(user, product)) {
-            throw new IllegalStateException("Product already in favorites");
+            throw new IllegalStateException("Product is already in favorites.");
         }
 
         Favorite favorite = new Favorite();
@@ -71,25 +73,26 @@ public class FavoriteService {
 
         favoriteRepository.save(favorite);
     }
+
     /**
-     * Met à jour les favoris d'un utilisateur.
+     * Updates the user's list of favorites.
      *
-     * @param userId         L'ID de l'utilisateur.
-     * @param updatedProductIds La liste des nouveaux IDs de produits à mettre à jour.
+     * @param userId the ID of the user
+     * @param updatedProductIds the list of new product IDs to update.
      */
     public void updateFavorites(Long userId, List<Long> updatedProductIds) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID : " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
-        // Récupérer les favoris actuels de l'utilisateur
+        // Retrieve the user's current list of favorites
         List<Favorite> existingFavorites = favoriteRepository.findByUser(user);
 
-        // Parcourir la liste des nouveaux favoris
+        // Iterate through the list of new favorites
         for (Long productId : updatedProductIds) {
             boolean isExistingFavorite = existingFavorites.stream()
                     .anyMatch(favorite -> favorite.getProduct().getId().equals(productId));
 
-            // Si le produit n'est pas déjà un favori, l'ajouter
+            // If the product is not already a favorite, add it
             if (!isExistingFavorite) {
                 Product product = productRepository.findById(productId)
                         .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
@@ -102,21 +105,22 @@ public class FavoriteService {
             }
         }
     }
+
     /**
-     * Supprime un produit des favoris d'un utilisateur.
+     * Removes a product from the user's list of favorites.
      *
-     * @param userId    L'ID de l'utilisateur.
-     * @param productId L'ID du produit à supprimer.
+     * @param userId the ID of the user
+     * @param productId the ID of the product to remove.
      */
     public void removeFavorite(Long userId, Long productId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID : " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
         Favorite favorite = favoriteRepository.findByUserAndProduct(user, product)
-                .orElseThrow(() -> new FavoriteNotFoundException("Favorite not found"));
+                .orElseThrow(() -> new FavoriteNotFoundException("Favorite not found."));
 
         favoriteRepository.delete(favorite);
     }

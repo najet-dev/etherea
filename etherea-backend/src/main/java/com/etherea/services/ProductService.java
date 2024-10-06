@@ -42,6 +42,12 @@ public class ProductService {
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private static final String UPLOAD_DIR = "assets";
 
+    /**
+     * Retrieves a list of products, split between facial and hair products, and shuffles them.
+     *
+     * @param limit The maximum number of products to retrieve.
+     * @return A shuffled list of ProductDTO objects.
+     */
     public List<ProductDTO> getProducts(int limit) {
         List<Product> facialProducts = productRepository.findByType(ProductType.FACE, PageRequest.of(0, limit / 2, Sort.by(Sort.Direction.ASC, "id"))).getContent();
         List<Product> hairProducts = productRepository.findByType(ProductType.HAIR, PageRequest.of(0, limit / 2, Sort.by(Sort.Direction.ASC, "id"))).getContent();
@@ -50,7 +56,7 @@ public class ProductService {
         allProducts.addAll(facialProducts);
         allProducts.addAll(hairProducts);
 
-        // Mélanger la liste de tous les produits
+        // Shuffle the list of all products
         Collections.shuffle(allProducts);
 
         return allProducts.stream()
@@ -58,6 +64,13 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves products of a specific type with pagination.
+     *
+     * @param pageable The pagination information.
+     * @param type The type of product (FACE, HAIR, etc.).
+     * @return A list of ProductDTOs matching the given type.
+     */
     public List<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
         Page<Product> productPage = productRepository.findByType(type, pageable);
         return productPage.getContent().stream()
@@ -65,6 +78,13 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a product by its ID.
+     *
+     * @param id The ID of the product.
+     * @return A ProductDTO representing the product.
+     * @throws ProductNotFoundException if no product is found with the given ID.
+     */
     public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
                 .map(ProductDTO::fromProduct)
@@ -73,12 +93,20 @@ public class ProductService {
                     return new ProductNotFoundException("No product found with ID: " + id);
                 });
     }
+
+    /**
+     * Saves a product to the repository and handles the product image upload.
+     *
+     * @param productDTO The product data transfer object.
+     * @param file The image file associated with the product.
+     * @return A ResponseEntity with a success or error message.
+     */
     public ResponseEntity<String> saveProduct(ProductDTO productDTO, MultipartFile file) {
         if (productDTO == null) {
             return ResponseEntity.badRequest().body("ProductDTO cannot be null");
         }
 
-        // Upload de l'image
+        // Upload the image
         if (file != null && !file.isEmpty()) {
             createUploadDirectory();
             String fileName = StringUtils.cleanPath(file.getOriginalFilename());
@@ -99,26 +127,26 @@ public class ProductService {
             }
         }
 
-        // Convertir ProductDTO en Product
+        // Convert ProductDTO to Product
         Product product = convertToProduct(productDTO);
 
-        // Assigner le basePrice
+        // Assign base price
         product.setBasePrice(productDTO.getBasePrice());
 
-        // Ajouter les volumes
+        // Add volumes
         if (productDTO.getVolumes() != null && !productDTO.getVolumes().isEmpty()) {
             List<Volume> volumes = productDTO.getVolumes().stream()
                     .map(volumeDTO -> {
                         Volume volume = new Volume();
                         volume.setVolume(volumeDTO.getVolume());
                         volume.setPrice(volumeDTO.getPrice());
-                        volume.setProduct(product); // Associer le volume au produit
+                        volume.setProduct(product); // Associate the volume with the product
                         return volume;
                     }).collect(Collectors.toList());
             product.setVolumes(volumes);
         }
 
-        // Sauvegarder le produit
+        // Save the product
         productRepository.save(product);
         return ResponseEntity.ok("Product saved successfully");
     }
@@ -135,6 +163,13 @@ public class ProductService {
         }
     }
 
+    /**
+     * Updates an existing product with new data and optional image.
+     *
+     * @param productId The ID of the product to update.
+     * @param updatedProductDTO The new data for the product.
+     * @param file The new image file (optional).
+     */
     @Transactional
     public void updateProduct(Long productId, ProductDTO updatedProductDTO, MultipartFile file) {
         logger.info("Starting updateProduct for product ID: {}", productId);
@@ -160,27 +195,34 @@ public class ProductService {
         productRepository.save(existingProduct);
         logger.info("Finished updateProduct for product ID: {}", productId);
     }
+
+    /**
+     * Updates product volumes based on the provided list.
+     *
+     * @param existingProduct The product being updated.
+     * @param updatedVolumes The updated volume data.
+     */
     @Transactional
     public void updateProductVolumes(Product existingProduct, List<VolumeDTO> updatedVolumes) {
-        if (updatedVolumes == null) return; // Si aucun volume mis à jour, on sort
+        if (updatedVolumes == null) return; // If no volumes to update, exit
 
-        // Créer un map des volumes existants par ID pour faciliter l'accès
+        // Create a map of existing volumes by ID for easy access
         Map<Long, Volume> existingVolumeMap = existingProduct.getVolumes().stream()
                 .collect(Collectors.toMap(Volume::getId, v -> v));
 
-        // Traiter les volumes à mettre à jour ou à ajouter
+        // Handle volumes to update or add
         for (VolumeDTO volumeDTO : updatedVolumes) {
             if (volumeDTO.getId() != null) {
-                // Mise à jour du volume existant
+                // Update existing volume
                 Volume existingVolume = existingVolumeMap.get(volumeDTO.getId());
                 if (existingVolume != null) {
                     existingVolume.setVolume(volumeDTO.getVolume());
                     existingVolume.setPrice(volumeDTO.getPrice());
                     volumeRepository.save(existingVolume);
-                    existingVolumeMap.remove(volumeDTO.getId()); // Marquer comme traité
+                    existingVolumeMap.remove(volumeDTO.getId()); // Mark as processed
                 }
             } else {
-                // Création d'un nouveau volume
+                // Create a new volume
                 Volume newVolume = new Volume();
                 newVolume.setVolume(volumeDTO.getVolume());
                 newVolume.setPrice(volumeDTO.getPrice());
@@ -189,12 +231,20 @@ public class ProductService {
                 volumeRepository.save(newVolume);
             }
         }
-        // Supprimer les volumes qui ne sont plus dans la mise à jour
+
+        // Remove volumes no longer in the update
         for (Volume volumeToDelete : existingVolumeMap.values()) {
             existingProduct.getVolumes().remove(volumeToDelete);
             volumeRepository.delete(volumeToDelete);
         }
     }
+
+    /**
+     * Updates the product's basic details from the ProductDTO.
+     *
+     * @param existingProduct The product to update.
+     * @param productDTO The new data to apply to the product.
+     */
     @Transactional
     public void updateProductFromDTO(Product existingProduct, ProductDTO productDTO) {
         logger.info("Updating product with ID: {}", existingProduct.getId());
@@ -212,6 +262,12 @@ public class ProductService {
         logger.debug("Updated product details: {}", existingProduct);
     }
 
+    /**
+     * Updates the product's image.
+     *
+     * @param existingProduct The product to update.
+     * @param file The new image file.
+     */
     private void updateProductImage(Product existingProduct, MultipartFile file) {
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
@@ -235,6 +291,12 @@ public class ProductService {
         }
     }
 
+    /**
+     * Deletes a product by its ID.
+     *
+     * @param id The ID of the product to delete.
+     * @throws ProductNotFoundException if the product does not exist.
+     */
     public void deleteProduct(Long id) {
         if (productRepository.existsById(id)) {
             productRepository.deleteById(id);
@@ -244,4 +306,3 @@ public class ProductService {
         }
     }
 }
-

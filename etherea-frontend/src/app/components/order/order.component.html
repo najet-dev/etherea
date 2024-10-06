@@ -1,1 +1,194 @@
-<app-sidebar></app-sidebar> bonjour
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="">
+        <h2 class="text-dark mt-5">1. Adresse de Livraison</h2>
+      </div>
+      <div class="card my-5 rounded">
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+        <form
+          [formGroup]="deliveryAddressForm"
+          class="card-body cardbody-color p-lg-5"
+          (ngSubmit)="onSubmit()"
+        >
+          <div class="mb-3">
+            <input
+              type="text"
+              formControlName="firstName"
+              class="form-control"
+              id="firstName"
+              placeholder="Prénom"
+            />
+            <div *ngFor="let error of errorMessages.firstName">
+              <div
+                *ngIf="
+                  deliveryAddressForm.get('firstName')?.hasError(error.type) &&
+                  (deliveryAddressForm.get('firstName')?.dirty ||
+                    deliveryAddressForm.get('firstName')?.touched)
+                "
+              >
+                <small class="error-message">{{ error.message }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <input
+              type="text"
+              formControlName="lastName"
+              class="form-control"
+              id="lastName"
+              placeholder="Nom"
+            />
+            <div *ngFor="let error of errorMessages.lastName">
+              <div
+                *ngIf="
+                  deliveryAddressForm.get('lastName')?.hasError(error.type) &&
+                  (deliveryAddressForm.get('lastName')?.dirty ||
+                    deliveryAddressForm.get('lastName')?.touched)
+                "
+              >
+                <small class="error-message">{{ error.message }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <input
+              type="text"
+              formControlName="address"
+              class="form-control"
+              id="address"
+              placeholder="Adresse"
+            />
+            <div *ngFor="let error of errorMessages.address">
+              <div
+                *ngIf="
+                  deliveryAddressForm.get('address')?.hasError(error.type) &&
+                  (deliveryAddressForm.get('address')?.dirty ||
+                    deliveryAddressForm.get('address')?.touched)
+                "
+              >
+                <small class="error-message">{{ error.message }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <input
+              type="number"
+              formControlName="zipCode"
+              class="form-control"
+              id="zipCode"
+              placeholder="Code Postal"
+            />
+            <div *ngFor="let error of errorMessages.zipCode">
+              <div
+                *ngIf="
+                  deliveryAddressForm.get('zipCode')?.hasError(error.type) &&
+                  (deliveryAddressForm.get('zipCode')?.dirty ||
+                    deliveryAddressForm.get('zipCode')?.touched)
+                "
+              >
+                <small class="error-message">{{ error.message }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <input
+              type="text"
+              formControlName="city"
+              class="form-control"
+              id="city"
+              placeholder="Ville"
+            />
+            <div *ngFor="let error of errorMessages.city">
+              <div
+                *ngIf="
+                  deliveryAddressForm.get('city')?.hasError(error.type) &&
+                  (deliveryAddressForm.get('city')?.dirty ||
+                    deliveryAddressForm.get('city')?.touched)
+                "
+              >
+                <small class="error-message">{{ error.message }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <input
+              type="text"
+              formControlName="country"
+              class="form-control"
+              id="country"
+              placeholder="Pays"
+            />
+            <div *ngFor="let error of errorMessages.country">
+              <div
+                *ngIf="
+                  deliveryAddressForm.get('country')?.hasError(error.type) &&
+                  (deliveryAddressForm.get('country')?.dirty ||
+                    deliveryAddressForm.get('country')?.touched)
+                "
+              >
+                <small class="error-message">{{ error.message }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <input
+              type="text"
+              formControlName="phoneNumber"
+              class="form-control"
+              id="phoneNumber"
+              placeholder="Numéro de Téléphone"
+            />
+            <div *ngFor="let error of errorMessages.phoneNumber">
+              <div
+                *ngIf="
+                  deliveryAddressForm
+                    .get('phoneNumber')
+                    ?.hasError(error.type) &&
+                  (deliveryAddressForm.get('phoneNumber')?.dirty ||
+                    deliveryAddressForm.get('phoneNumber')?.touched)
+                "
+              >
+                <small class="error-message">{{ error.message }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="!deliveryAddressForm.valid"
+            >
+              Continuer vers la livraison
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="mt-5">
+        <h3>Articles</h3>
+        <div class="row">
+          <!-- Article  -->
+          <div class="col-md-6 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Articles</h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
