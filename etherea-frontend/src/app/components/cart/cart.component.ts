@@ -213,7 +213,4 @@ export class CartComponent implements OnInit {
   hideModal(): void {
     this.showModal = false;
   }
-  placeOrder() {
-    throw new Error('Method not implemented.');
-  }
 }

@@ -124,7 +124,7 @@ export class SignupComponent implements OnInit {
             }
           },
         }),
-        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }

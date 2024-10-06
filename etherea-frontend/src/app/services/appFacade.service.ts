@@ -1,17 +1,13 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { Observable, catchError, tap, throwError } from 'rxjs';
-import { AuthService } from './auth.service';
 import { FavoriteService } from './favorite.service';
 import { ProductService } from './product.service';
 import { CartService } from './cart.service';
-import { SigninRequest } from '../components/models/signinRequest.model';
-import { SignupRequest } from '../components/models/SignupRequest.model';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
 import { Product } from '../components/models/Product.model';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
-import { ProductVolume } from '../components/models/ProductVolume.model';
+import { DeliveryAddress } from '../components/models/DeliveryAddress.model';
+import { OrderService } from './order.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +16,8 @@ export class AppFacade {
   constructor(
     public cartService: CartService,
     public favoriteService: FavoriteService,
-    private productService: ProductService
+    private productService: ProductService,
+    private orderService: OrderService
   ) {}
 
   // cart
@@ -84,5 +81,12 @@ export class AppFacade {
 
   getProductById(id: number): Observable<Product> {
     return this.productService.getProductById(id);
+  }
+  //DeliveryAddress
+  addDeliveryAddress(
+    userId: number,
+    deliveryAddress: DeliveryAddress
+  ): Observable<DeliveryAddress> {
+    return this.orderService.addDeliveryAddress(userId, deliveryAddress);
   }
 }

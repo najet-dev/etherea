@@ -1,3 +1,16 @@
+.form-control {
+  border: none;
+  border-bottom: 1px solid rgb(186, 183, 183);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.form-control:focus {
+  border-bottom: 1px solid var(--main-color);
+  outline: none;
+  box-shadow: none;
+}
+
 .connect {
   text-align: center;
   margin-top: 50px;
