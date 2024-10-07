@@ -1,11 +1,14 @@
 import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { tap } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { Cart } from '../models/cart.model';
+import { forkJoin, of } from 'rxjs';
+import { ProductTypeService } from 'src/app/services/product-type.service';
 
 @Component({
   selector: 'app-order',
@@ -18,6 +21,9 @@ export class OrderComponent implements OnInit {
   submitted = false;
   private destroyRef = inject(DestroyRef);
   userId: number | null = null;
+  cartItems: Cart[] = [];
+  cartTotal: number = 0;
+  isCartEmpty: boolean = true;
 
   public errorMessages = {
     firstName: [{ type: 'required', message: 'Prénom requis' }],
@@ -36,7 +42,8 @@ export class OrderComponent implements OnInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private appFacade: AppFacade,
-    private router: Router
+    private router: Router,
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit() {
@@ -44,6 +51,7 @@ export class OrderComponent implements OnInit {
       tap((user) => {
         if (user) {
           this.userId = user.id;
+          this.loadCartItems();
         }
       }),
       takeUntilDestroyed(this.destroyRef)
@@ -88,5 +96,66 @@ export class OrderComponent implements OnInit {
     } else {
       this.errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
     }
+  }
+
+  loadCartItems() {
+    if (!this.userId) return;
+
+    this.appFacade.getCartItems(this.userId).subscribe((cartItems) => {
+      this.cartItems = cartItems;
+      this.isCartEmpty = this.cartItems.length === 0;
+
+      const productObservables = this.cartItems.map((item) =>
+        this.appFacade.getProductById(item.productId).pipe(
+          tap((product) => {
+            if (product) {
+              item.product = product;
+              this.initializeSelectedVolume(item);
+            }
+          }),
+          catchError((error) => {
+            console.error('Erreur lors de la récupération du produit :', error);
+            return of(null);
+          })
+        )
+      );
+
+      forkJoin(productObservables).subscribe(() => {
+        this.calculateCartTotal();
+      });
+    });
+  }
+
+  initializeSelectedVolume(item: Cart): void {
+    if (!item.selectedVolume && item.volume) {
+      item.selectedVolume = { ...item.volume };
+    }
+
+    if (
+      this.productTypeService.isHairProduct(item.product) &&
+      item.selectedVolume
+    ) {
+      const selectedVol = item.product.volumes?.find(
+        (vol) => vol.id === item.selectedVolume?.id
+      );
+      item.selectedVolume = selectedVol || item.selectedVolume;
+    }
+  }
+
+  calculateCartTotal(): void {
+    this.cartTotal = this.cartItems.reduce((total, item) => {
+      if (item.product) {
+        if (
+          this.productTypeService.isHairProduct(item.product) &&
+          item.selectedVolume
+        ) {
+          item.subTotal = item.selectedVolume.price * item.quantity;
+        } else if (this.productTypeService.isFaceProduct(item.product)) {
+          item.subTotal = item.product.basePrice * item.quantity;
+        }
+        return total + (item.subTotal || 0);
+      }
+      return total;
+    }, 0);
   }
 }

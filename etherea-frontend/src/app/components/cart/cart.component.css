@@ -135,3 +135,21 @@
   font-size: 18px;
   margin-left: 100px;
 }
+@media (max-width: 576px) {
+  .item-container {
+    flex-direction: column;
+  }
+  .item-info {
+    margin-top: 10px;
+  }
+}
+
+.popup-content {
+  max-width: 90%;
+  width: 100%;
+}
+
+.btnCommand {
+  width: 100%;
+  text-align: center;
+}

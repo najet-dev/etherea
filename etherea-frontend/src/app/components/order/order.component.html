@@ -1,18 +1,18 @@
 <div class="container-fluid">
   <div class="row">
+    <!-- Formulaire d'adresse de livraison -->
     <div class="col-lg-6">
-      <div class="">
-        <h2 class="text-dark mt-5">1. Adresse de Livraison</h2>
-      </div>
-      <div class="card my-5 rounded">
+      <h2 class="text-dark card-form-margin">1. Adresse de Livraison</h2>
+      <div class="card my-5 rounded card-form-margin">
         <div *ngIf="errorMessage" class="error-message">
           {{ errorMessage }}
         </div>
         <form
           [formGroup]="deliveryAddressForm"
-          class="card-body cardbody-color p-lg-5"
+          class="card-body cardbody-color p-lg-4"
           (ngSubmit)="onSubmit()"
         >
+          <!-- Champs du formulaire -->
           <div class="mb-3">
             <input
               type="text"
@@ -175,17 +175,28 @@
       </div>
     </div>
 
-    <div class="col-lg-6">
-      <div class="mt-5">
-        <h3>Articles</h3>
-        <div class="row">
-          <!-- Article  -->
-          <div class="col-md-6 mb-3">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title">Articles</h5>
-              </div>
-            </div>
+    <!-- Liste des produits et récapitulatif -->
+    <div *ngIf="!isCartEmpty" class="col-lg-6">
+      <!-- Liste des produits -->
+      <div class="card my-5 rounded card-summary-margin product-card">
+        <div class="card-body cardbody-color p-lg-4 product-list-container">
+          <app-product-display
+            *ngFor="let item of cartItems"
+            [item]="item"
+            [showVolume]="true"
+          ></app-product-display>
+        </div>
+      </div>
+
+      <!-- Récapitulatif de la commande (en dessous des produits) -->
+      <div
+        class="card my-5 rounded summary-card card-summary-margin order-summary-card"
+      >
+        <div class="card-body p-lg-3">
+          <h3 class="card-title">Récapitulatif de la Commande</h3>
+          <div class="summary-item">
+            Total :
+            <span>{{ cartTotal | number : ".2-2" }} €</span>
           </div>
         </div>
       </div>

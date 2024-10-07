@@ -1,0 +1,41 @@
+<div class="cart-item mb-4">
+  <div class="row">
+    <!-- Colonne gauche : image, nom et prix -->
+    <div class="col-6 d-flex align-items-center">
+      <img
+        *ngIf="item.product?.image"
+        [src]="item.product.image"
+        alt="Product Image"
+        width="60"
+        [routerLink]="['/productDetails', item.product.id]"
+        class="product-image"
+      />
+      <div class="item-info ms-3">
+        <p
+          *ngIf="item.product"
+          [routerLink]="['/productDetails', item.product.id]"
+          class="product-name mb-1"
+        >
+          {{ item.product.name }}
+        </p>
+        <p
+          *ngIf="
+            showVolume && item.product?.type === 'HAIR' && item.selectedVolume
+          "
+          class="product-volume mb-1"
+        >
+          {{ item.selectedVolume.volume }} ml
+        </p>
+        <span *ngIf="item.product" class="product-price">
+          {{
+            productTypeService.isFaceProduct(item.product)
+              ? item.product.basePrice
+              : (item.selectedVolume?.price | number : ".2-2")
+          }}
+          €
+        </span>
+      </div>
+    </div>
+  </div>
+  <hr />
+</div>

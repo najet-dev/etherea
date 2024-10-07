@@ -32,6 +32,7 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 import { FavoriteService } from './services/favorite.service';
 import { OrderComponent } from './components/order/order.component';
 import { DeliveryMethodComponent } from './components/delivery-method/delivery-method.component';
+import { ProductDisplayComponent } from './components/product-display/product-display.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { DeliveryMethodComponent } from './components/delivery-method/delivery-m
     FavoriteComponent,
     OrderComponent,
     DeliveryMethodComponent,
+    ProductDisplayComponent,
   ],
   imports: [
     BrowserModule,

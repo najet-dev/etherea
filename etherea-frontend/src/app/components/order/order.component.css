@@ -1,3 +1,24 @@
+.product-card,
+.order-summary-card {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Conteneur des produits avec scroll */
+.product-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.card-form-margin {
+  margin-left: 80px;
+}
+
+.card-summary-margin {
+  margin-right: 80px;
+}
+
+/* Styles pour les champs du formulaire */
 .form-control {
   border: none;
   border-bottom: 1px solid rgb(186, 183, 183);
@@ -9,4 +30,15 @@
   border-bottom: 1px solid var(--main-color);
   outline: none;
   box-shadow: none;
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  margin-top: 10px;
 }
