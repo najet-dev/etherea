@@ -9,16 +9,13 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String username;
-    private String password;
-    private final Set<Role> roles = new HashSet<>();
     public UserDTO() {
     }
-    public UserDTO(Long id, String firstName, String lastName, String username, String password) {
+    public UserDTO(Long id, String firstName, String lastName, String username) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
-        this.password = password;
     }
     public Long getId() {
         return id;
@@ -44,15 +41,6 @@ public class UserDTO {
     public void setUsername(String username) {
         this.username = username;
     }
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    public Set<Role> getRoles() {
-        return roles;
-    }
 
     // Conversion de User à UserDTO
     public static UserDTO fromUser(User user) {
@@ -61,8 +49,6 @@ public class UserDTO {
         userDTO.setFirstName(user.getFirstName());
         userDTO.setLastName(user.getLastName());
         userDTO.setUsername(user.getUsername());
-        userDTO.setPassword(user.getPassword());
-        userDTO.getRoles().addAll(user.getRoles());
         return userDTO;
     }
     //Conversion de UserDTO à User
@@ -72,8 +58,6 @@ public class UserDTO {
         user.setFirstName(this.firstName);
         user.setLastName(this.lastName);
         user.setUsername(this.username);
-        user.setPassword(this.password);
-        user.getRoles().addAll(this.roles);
         return user;
     }
 }

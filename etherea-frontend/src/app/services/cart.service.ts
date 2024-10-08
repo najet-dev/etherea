@@ -88,12 +88,12 @@ export class CartService {
   }
 
   // Supprimer un article du panier
-  deleteCartItem(userId: number, productId: number): Observable<void> {
+  deleteCartItem(cartItemId: number): Observable<void> {
     return this.httpClient
-      .delete<void>(`${this.apiUrl}/cart/${userId}/products/${productId}`)
+      .delete<void>(`${this.apiUrl}/cart/${cartItemId}`)
       .pipe(
         tap(() => {
-          this.refreshCart(userId); // Actualise le panier après suppression
+          this.refreshCart(cartItemId); // Actualise le panier après suppression
         }),
         catchError((error) => {
           console.error('Error deleting cart item:', error);

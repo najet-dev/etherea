@@ -185,25 +185,23 @@ export class CartComponent implements OnInit {
     }
   }
 
-  confirmDeleteItem(id: number): void {
-    this.itemIdToDelete = id;
+  confirmDeleteItem(cartItemId: number): void {
+    this.itemIdToDelete = cartItemId;
     this.showConfirmDelete = true;
   }
 
   deleteItem(): void {
-    this.appFacade.cartService
-      .deleteCartItem(this.userId, this.itemIdToDelete)
-      .subscribe({
-        next: () => {
-          console.log('Product deleted from cart successfully');
-          this.showConfirmDelete = false;
-          this.loadCartItems();
-        },
-        error: (error) => {
-          console.error('Failed to delete product from cart:', error);
-          this.showConfirmDelete = false;
-        },
-      });
+    this.appFacade.cartService.deleteCartItem(this.itemIdToDelete).subscribe({
+      next: () => {
+        console.log('Product deleted from cart successfully');
+        this.showConfirmDelete = false;
+        this.loadCartItems(); // Recharger le panier après suppression
+      },
+      error: (error) => {
+        console.error('Failed to delete product from cart:', error);
+        this.showConfirmDelete = false;
+      },
+    });
   }
 
   cancelDelete(): void {

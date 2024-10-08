@@ -43,8 +43,8 @@ export class AppFacade {
     );
   }
 
-  deleteCartItem(id: number, productId: number): Observable<void> {
-    return this.cartService.deleteCartItem(id, productId);
+  deleteCartItem(id: number): Observable<void> {
+    return this.cartService.deleteCartItem(id);
   }
   // Favorite
   getUserFavorites(userId: number): Observable<Favorite[]> {

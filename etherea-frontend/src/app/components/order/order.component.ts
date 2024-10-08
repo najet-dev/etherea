@@ -52,6 +52,8 @@ export class OrderComponent implements OnInit {
         if (user) {
           this.userId = user.id;
           this.loadCartItems();
+        } else {
+          this.userId = null;
         }
       }),
       takeUntilDestroyed(this.destroyRef)

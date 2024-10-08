@@ -1,9 +1,9 @@
 <div class="container-fluid">
-  <div class="row">
+  <div class="row d-flex align-items-start">
     <!-- Formulaire d'adresse de livraison -->
-    <div class="col-lg-6">
-      <h2 class="text-dark card-form-margin">1. Adresse de Livraison</h2>
-      <div class="card my-5 rounded card-form-margin">
+    <div class="col-lg-6" *ngIf="userId">
+      <h2 class="text-dark mt-4">1. Adresse de Livraison</h2>
+      <div class="card mt-5 mb-0 rounded card-form-margin">
         <div *ngIf="errorMessage" class="error-message">
           {{ errorMessage }}
         </div>
@@ -176,9 +176,12 @@
     </div>
 
     <!-- Liste des produits et récapitulatif -->
-    <div *ngIf="!isCartEmpty" class="col-lg-6">
+    <div
+      *ngIf="!isCartEmpty"
+      class="col-lg-6 d-flex flex-column align-items-end"
+    >
       <!-- Liste des produits -->
-      <div class="card my-5 rounded card-summary-margin product-card">
+      <div class="card mb-0 rounded product-card">
         <div class="card-body cardbody-color p-lg-4 product-list-container">
           <app-product-display
             *ngFor="let item of cartItems"
@@ -188,11 +191,11 @@
         </div>
       </div>
 
-      <!-- Récapitulatif de la commande (en dessous des produits) -->
+      <!-- Récapitulatif de la commande -->
       <div
         class="card my-5 rounded summary-card card-summary-margin order-summary-card"
       >
-        <div class="card-body p-lg-3">
+        <div class="card-body p-lg-5">
           <h3 class="card-title">Récapitulatif de la Commande</h3>
           <div class="summary-item">
             Total :

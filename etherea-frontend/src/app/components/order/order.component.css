@@ -1,21 +1,17 @@
-.product-card,
-.order-summary-card {
-  max-width: 500px;
-  margin: 0 auto;
+.row {
+  padding-left: 7rem;
+  padding-right: 7rem;
 }
 
-/* Conteneur des produits avec scroll */
+.product-card,
+.order-summary-card {
+  width: 80%;
+  margin-top: 105px;
+}
+
 .product-list-container {
   max-height: 300px;
   overflow-y: auto;
-}
-
-.card-form-margin {
-  margin-left: 80px;
-}
-
-.card-summary-margin {
-  margin-right: 80px;
 }
 
 /* Styles pour les champs du formulaire */
@@ -40,5 +36,14 @@
   display: flex;
   justify-content: space-between;
   font-size: 1.2rem;
-  margin-top: 10px;
+  margin-top: 15px;
+}
+.card-title {
+  margin-bottom: 60px;
+  text-align: center;
+}
+.error-message {
+  color: red;
+  text-align: center;
+  margin: 0 auto;
 }
