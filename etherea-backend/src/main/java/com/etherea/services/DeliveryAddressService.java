@@ -20,11 +20,11 @@ public class DeliveryAddressService {
     /**
      * Retrieves a delivery address by its ID and the user's ID.
      *
-     * @param userId    the ID of the user.
-     * @param addressId the ID of the delivery address.
-     * @return the DeliveryAddressDTO representing the delivery address.
-     * @throws UserNotFoundException if the user is not found.
-     * @throws DeliveryAddressNotFoundException if the address is not found or does not belong to the user.
+     * @param userId    the ID of the user
+     * @param addressId the ID of the delivery address
+     * @return the DeliveryAddressDTO representing the delivery address
+     * @throws UserNotFoundException if the user is not found
+     * @throws DeliveryAddressNotFoundException if the address is not found or does not belong to the user
      */
     public DeliveryAddressDTO getDeliveryAddressByIdAndUserId(Long userId, Long addressId) {
         // Find the delivery address and check if it belongs to the user

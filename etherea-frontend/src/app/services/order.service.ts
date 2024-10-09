@@ -35,7 +35,6 @@ export class OrderService {
       )
       .pipe(
         tap((newAddress) => {
-          // Met à jour le BehaviorSubject avec la nouvelle adresse ajoutée
           const currentAddresses = this.deliveryAddressSubject.value;
           this.deliveryAddressSubject.next([...currentAddresses, newAddress]);
         }),
