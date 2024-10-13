@@ -17,7 +17,7 @@ import { forkJoin, map, switchMap } from 'rxjs';
   templateUrl: './favorite.component.html',
   styleUrls: ['./favorite.component.css'],
 })
-export class FavoriteComponent implements OnInit {
+export class FavoriteComponent {
   favorites: Favorite[] = [];
   selectedVolumes: { [productId: number]: ProductVolume } = {};
   userId!: number;

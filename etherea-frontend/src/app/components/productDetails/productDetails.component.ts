@@ -20,7 +20,7 @@ import { ProductVolume } from '../models/ProductVolume.model';
   templateUrl: './productDetails.component.html',
   styleUrls: ['./productDetails.component.css'],
 })
-export class ProductDetailsComponent implements OnInit {
+export class ProductDetailsComponent {
   product: HairProduct | FaceProduct | null = null;
   selectedVolume: ProductVolume | null = null;
   userId: number | null = null;

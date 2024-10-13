@@ -17,7 +17,7 @@ import { HairProduct } from '../models/HairProduct.model';
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css'],
 })
-export class CartComponent implements OnInit {
+export class CartComponent {
   cartItems: Cart[] = [];
   cartTotal: number = 0;
   userId!: number;

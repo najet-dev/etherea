@@ -30,6 +30,10 @@ const routes: Routes = [
   { path: 'favorites', component: FavoriteComponent },
   { path: 'order', component: OrderComponent },
   { path: 'deliveryMethod', component: DeliveryMethodComponent },
+  {
+    path: 'deliveryAddresses/:userId/:id',
+    component: DeliveryMethodComponent,
+  },
 
   {
     path: 'cream',

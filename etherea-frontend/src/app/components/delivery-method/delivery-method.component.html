@@ -1,1 +1,10 @@
-<p>delivery-method works!</p>
+<div *ngIf="deliveryAddress">
+  <h2>Adresse de Livraison</h2>
+  <p><strong>Adresse:</strong> {{ deliveryAddress.address }}</p>
+  <p><strong>Code Postal:</strong> {{ deliveryAddress.zipCode }}</p>
+  <p><strong>Ville:</strong> {{ deliveryAddress.city }}</p>
+  <p><strong>Pays:</strong> {{ deliveryAddress.country }}</p>
+</div>
+<div *ngIf="!deliveryAddress">
+  <p>Chargement de l'adresse...</p>
+</div>

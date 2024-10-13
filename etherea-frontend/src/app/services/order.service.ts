@@ -19,6 +19,25 @@ export class OrderService {
     private authService: AuthService
   ) {}
 
+  getDeliveryAddress(
+    userId: number,
+    addressId: number
+  ): Observable<DeliveryAddress> {
+    return this.httpClient
+      .get<DeliveryAddress>(
+        `${this.apiUrl}/deliveryAddresses/${userId}/${addressId}`
+      )
+      .pipe(
+        tap((address) => {
+          console.log('Delivery address retrieved:', address);
+        }),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Error retrieving delivery address:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
   /**
    * Ajoute une nouvelle adresse de livraison pour un utilisateur donné.
    * @param userId L'ID de l'utilisateur.

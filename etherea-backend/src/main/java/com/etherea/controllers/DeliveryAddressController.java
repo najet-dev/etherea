@@ -21,13 +21,13 @@ public class DeliveryAddressController {
      * Retrieves a delivery address by user ID and address ID.
      *
      * @param userId the ID of the user.
-     * @param id     the ID of the delivery address.
+     * @param addressId     the ID of the delivery address.
      * @return ResponseEntity containing the DeliveryAddressDTO if found.
      */
-    @GetMapping("/{userId}/{id}")
-    public ResponseEntity<DeliveryAddressDTO> getDeliveryAddress(@PathVariable Long userId, @PathVariable Long id) {
+    @GetMapping("/{userId}/{addressId}")
+    public ResponseEntity<DeliveryAddressDTO> getDeliveryAddress(@PathVariable Long userId, @PathVariable Long addressId) {
 
-        DeliveryAddressDTO deliveryAddressDTO = deliveryAddressService.getDeliveryAddressByIdAndUserId(userId, id);
+        DeliveryAddressDTO deliveryAddressDTO = deliveryAddressService.getDeliveryAddressByIdAndUserId(userId, addressId);
 
         return ResponseEntity.ok(deliveryAddressDTO);
     }
