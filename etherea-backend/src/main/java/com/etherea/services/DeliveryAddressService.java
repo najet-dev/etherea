@@ -10,6 +10,8 @@ import com.etherea.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DeliveryAddressService {
     @Autowired
@@ -27,13 +29,11 @@ public class DeliveryAddressService {
      * @throws DeliveryAddressNotFoundException if the address is not found or does not belong to the user
      */
     public DeliveryAddressDTO getDeliveryAddressByIdAndUserId(Long userId, Long addressId) {
-        // Find the delivery address and check if it belongs to the user
         DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(addressId)
-                .filter(address -> address.getUser().getId().equals(userId)) // Ensures the address belongs to the user
+                .filter(address -> address.getUser().getId().equals(userId))
                 .orElseThrow(() -> new DeliveryAddressNotFoundException(
                         "Delivery address not found with ID: " + addressId + " for user with ID: " + userId));
 
-        // Convert the DeliveryAddress entity to a DTO and return it
         return DeliveryAddressDTO.fromDeliveryAddress(deliveryAddress);
     }
 
@@ -45,17 +45,21 @@ public class DeliveryAddressService {
      * @throws UserNotFoundException if the user is not found.
      */
     public void addDeliveryAddress(Long userId, DeliveryAddressDTO deliveryAddressDTO) {
-        // Fetch the user by userId, throw an exception if not found
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
-        // Convert the DTO to a DeliveryAddress entity
         DeliveryAddress deliveryAddress = deliveryAddressDTO.toDeliveryAddress();
-
-        // Associate the delivery address with the user
         deliveryAddress.setUser(user);
 
-        // Save the delivery address
+        // Mettre à jour toutes les autres adresses de l'utilisateur pour qu'elles ne soient plus par défaut
+        List<DeliveryAddress> existingAddresses = deliveryAddressRepository.findByUserId(userId);
+        for (DeliveryAddress existingAddress : existingAddresses) {
+            existingAddress.setDefault(false);
+            deliveryAddressRepository.save(existingAddress);
+        }
+
+        // Définir la nouvelle adresse comme l'adresse par défaut
+        deliveryAddress.setDefault(true);
         deliveryAddressRepository.save(deliveryAddress);
     }
 }

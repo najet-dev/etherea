@@ -1,10 +1,10 @@
 <div *ngIf="deliveryAddress">
-  <h2>Adresse de Livraison</h2>
-  <p><strong>Adresse:</strong> {{ deliveryAddress.address }}</p>
-  <p><strong>Code Postal:</strong> {{ deliveryAddress.zipCode }}</p>
-  <p><strong>Ville:</strong> {{ deliveryAddress.city }}</p>
-  <p><strong>Pays:</strong> {{ deliveryAddress.country }}</p>
+  <h2>1. Adresse de livraison</h2>
+  <p>Rue : {{ deliveryAddress.address }}</p>
+  <p>Code postal : {{ deliveryAddress.zipCode }}</p>
+  <p>Ville : {{ deliveryAddress.city }}</p>
+  <p>Pays : {{ deliveryAddress.country }}</p>
 </div>
 <div *ngIf="!deliveryAddress">
-  <p>Chargement de l'adresse...</p>
+  <p>Adresse non trouvée.</p>
 </div>

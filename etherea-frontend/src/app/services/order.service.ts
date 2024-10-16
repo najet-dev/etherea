@@ -54,8 +54,7 @@ export class OrderService {
       )
       .pipe(
         tap((newAddress) => {
-          const currentAddresses = this.deliveryAddressSubject.value;
-          this.deliveryAddressSubject.next([...currentAddresses, newAddress]);
+          console.log('Adresse ajoutée:', newAddress); // Vérifiez ce qui est retourné
         }),
         catchError((error: HttpErrorResponse) => {
           console.error('Error adding delivery address:', error);

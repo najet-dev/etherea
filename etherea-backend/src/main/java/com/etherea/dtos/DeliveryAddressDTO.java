@@ -10,17 +10,16 @@ public class DeliveryAddressDTO {
     private String country;
     private String phoneNumber;
     private UserDTO user;
-
-    // Constructeurs
+    private boolean isDefault;
     public DeliveryAddressDTO() {}
-
-    public DeliveryAddressDTO(Long id, String address, String city, int zipCode, String country, String phoneNumber, UserDTO user) {
+    public DeliveryAddressDTO(Long id, String address, String city, int zipCode, String country, String phoneNumber, boolean isDefault, UserDTO user) {
         this.id = id;
         this.address = address;
         this.city = city;
         this.zipCode = zipCode;
         this.country = country;
         this.phoneNumber = phoneNumber;
+        this.isDefault = isDefault;
         this.user = user;
     }
 
@@ -67,6 +66,12 @@ public class DeliveryAddressDTO {
     public void setUser(UserDTO user) {
         this.user = user;
     }
+    public boolean isDefault() {
+        return isDefault;
+    }
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 
     // Convertir un objet DeliveryAddress en DeliveryAddressDTO
     public static DeliveryAddressDTO fromDeliveryAddress(DeliveryAddress deliveryAddress) {
@@ -77,10 +82,10 @@ public class DeliveryAddressDTO {
                 deliveryAddress.getZipCode(),
                 deliveryAddress.getCountry(),
                 deliveryAddress.getPhoneNumber(),
+                deliveryAddress.isDefault(), // Récupérer la valeur de isDefault
                 UserDTO.fromUser(deliveryAddress.getUser())  // Conversion de User vers UserDTO
         );
     }
-
     // Convertir un objet DeliveryAddressDTO en DeliveryAddress
     public DeliveryAddress toDeliveryAddress() {
         DeliveryAddress deliveryAddress = new DeliveryAddress();
@@ -90,6 +95,7 @@ public class DeliveryAddressDTO {
         deliveryAddress.setZipCode(this.zipCode);
         deliveryAddress.setCountry(this.country);
         deliveryAddress.setPhoneNumber(this.phoneNumber);
+        deliveryAddress.setDefault(this.isDefault);
         // Si user n'est pas null, l'associer à l'adresse de livraison
         if (this.user != null) {
             deliveryAddress.setUser(this.user.toUser());
