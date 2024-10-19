@@ -39,21 +39,15 @@ public class DeliveryAddressController {
      * @return ResponseEntity containing a message and status of the operation.
      */
     @PostMapping("/{userId}")
-    public ResponseEntity<Map<String, Object>> addDeliveryAddress(@PathVariable Long userId, @RequestBody DeliveryAddressDTO deliveryAddressDTO) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<DeliveryAddressDTO> addDeliveryAddress(@PathVariable Long userId, @RequestBody DeliveryAddressDTO deliveryAddressDTO) {
         try {
-            deliveryAddressService.addDeliveryAddress(userId, deliveryAddressDTO);
-            response.put("message", "Delivery address added successfully.");
-            response.put("status", HttpStatus.OK.value());
-            return ResponseEntity.ok(response);
+            DeliveryAddressDTO newAddress = deliveryAddressService.addDeliveryAddress(userId, deliveryAddressDTO);
+            return ResponseEntity.ok(newAddress);
         } catch (UserNotFoundException e) {
-            response.put("message", "User not found: " + e.getMessage());
-            response.put("status", HttpStatus.NOT_FOUND.value());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
-            response.put("message", "Error adding delivery address: " + e.getMessage());
-            response.put("status", HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
 }

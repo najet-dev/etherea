@@ -44,7 +44,7 @@ public class DeliveryAddressService {
      * @param deliveryAddressDTO The delivery address to add.
      * @throws UserNotFoundException if the user is not found.
      */
-    public void addDeliveryAddress(Long userId, DeliveryAddressDTO deliveryAddressDTO) {
+    public DeliveryAddressDTO addDeliveryAddress(Long userId, DeliveryAddressDTO deliveryAddressDTO) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
@@ -60,6 +60,10 @@ public class DeliveryAddressService {
 
         // Définir la nouvelle adresse comme l'adresse par défaut
         deliveryAddress.setDefault(true);
-        deliveryAddressRepository.save(deliveryAddress);
+        DeliveryAddress savedAddress = deliveryAddressRepository.save(deliveryAddress);
+
+        // Retourner le DTO de l'adresse ajoutée
+        return DeliveryAddressDTO.fromDeliveryAddress(savedAddress);
     }
+
 }

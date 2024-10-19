@@ -27,7 +27,7 @@ const routes: Routes = [
   { path: 'signin', component: SigninComponent },
   { path: 'favorites', component: FavoriteComponent },
   { path: 'order', component: OrderComponent },
-  { path: 'deliveryMethod/:addressId', component: DeliveryMethodComponent }, // Modifié ici
+  { path: 'deliveryMethod/:addressId', component: DeliveryMethodComponent },
   {
     path: 'cream',
     loadChildren: () =>

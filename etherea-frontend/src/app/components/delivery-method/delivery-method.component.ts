@@ -3,6 +3,7 @@ import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { OrderService } from 'src/app/services/order.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { ActivatedRoute } from '@angular/router';
+import { switchMap, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-delivery-method',
@@ -21,57 +22,35 @@ export class DeliveryMethodComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.paramMap.subscribe((params) => {
-      const addressIdParam = params.get('addressId');
-      this.addressId = addressIdParam ? +addressIdParam : null;
-
-      if (this.addressId) {
-        this.loadCurrentUser(); // Charger l'utilisateur et l'adresse de livraison
-      } else {
-        console.error(
-          "Le paramètre 'addressId' est manquant ou invalide dans l'URL"
-        );
-      }
-    });
-  }
-
-  // Charger l'utilisateur actuellement connecté
-  loadCurrentUser(): void {
-    this.authService.getCurrentUser().subscribe({
-      next: (user) => {
-        this.userId = user ? user.id : null;
-        if (this.userId && this.addressId) {
-          this.loadDeliveryAddress(); // Charger l'adresse de livraison
-        } else {
-          console.error("Impossible de récupérer l'utilisateur ou l'adresse.");
-        }
-      },
-      error: (error) => {
-        console.error(
-          'Erreur lors de la récupération de l’utilisateur :',
-          error
-        );
-      },
-    });
-  }
-
-  // Récupérer l'adresse de livraison depuis le backend
-  loadDeliveryAddress(): void {
-    if (this.userId && this.addressId) {
-      this.orderService
-        .getDeliveryAddress(this.userId, this.addressId)
-        .subscribe({
-          next: (address) => {
-            this.deliveryAddress = address;
-            console.log('Adresse de livraison récupérée :', address);
-          },
-          error: (error) => {
-            console.error(
-              'Erreur lors de la récupération de l’adresse de livraison :',
-              error
-            );
-          },
-        });
-    }
+    this.route.paramMap
+      .pipe(
+        filter((params) => !!params.get('addressId')),
+        switchMap((params) => {
+          const addressId = +params.get('addressId')!;
+          this.addressId = addressId;
+          return this.authService.getCurrentUser().pipe(
+            filter((user) => user !== null && user.id !== undefined), // Vérification explicite
+            switchMap((user) => {
+              this.userId = user!.id; // Utilisation de l'opérateur "!" pour affirmer que user n'est pas null
+              return this.orderService.getDeliveryAddress(
+                this.userId,
+                addressId
+              );
+            })
+          );
+        })
+      )
+      .subscribe({
+        next: (address) => {
+          this.deliveryAddress = address;
+          console.log('Adresse de livraison récupérée :', address);
+        },
+        error: (error) => {
+          console.error(
+            'Erreur lors de la récupération de l’adresse de livraison :',
+            error
+          );
+        },
+      });
   }
 }

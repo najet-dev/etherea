@@ -1,3 +1,4 @@
+<!-- delivery-method.component.html -->
 <div *ngIf="deliveryAddress">
   <h2>1. Adresse de livraison</h2>
   <p>Rue : {{ deliveryAddress.address }}</p>
@@ -5,6 +6,9 @@
   <p>Ville : {{ deliveryAddress.city }}</p>
   <p>Pays : {{ deliveryAddress.country }}</p>
 </div>
-<div *ngIf="!deliveryAddress">
+<div *ngIf="!deliveryAddress && !userId">
   <p>Adresse non trouvée.</p>
+</div>
+<div *ngIf="!deliveryAddress && userId">
+  <p>Aucune adresse associée à cet utilisateur.</p>
 </div>

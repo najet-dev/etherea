@@ -10,9 +10,8 @@ import { environment } from 'src/environments/environment';
 })
 export class OrderService {
   apiUrl = environment.apiUrl;
-  private deliveryAddressSubject = new BehaviorSubject<DeliveryAddress[]>([]); // Modifié pour stocker les adresses de livraison
+  private deliveryAddressSubject = new BehaviorSubject<DeliveryAddress[]>([]);
   deliveryAddress$ = this.deliveryAddressSubject.asObservable();
-  userId: number | null = null;
 
   constructor(
     private httpClient: HttpClient,
@@ -29,20 +28,12 @@ export class OrderService {
       )
       .pipe(
         tap((address) => {
-          console.log('Delivery address retrieved:', address);
+          console.log('Adresse de livraison récupérée:', address);
         }),
-        catchError((error: HttpErrorResponse) => {
-          console.error('Error retrieving delivery address:', error);
-          return throwError(() => error);
-        })
+        catchError(this.handleError)
       );
   }
 
-  /**
-   * Ajoute une nouvelle adresse de livraison pour un utilisateur donné.
-   * @param userId L'ID de l'utilisateur.
-   * @param deliveryAddress L'objet DeliveryAddress à envoyer au backend.
-   */
   addDeliveryAddress(
     userId: number,
     deliveryAddress: DeliveryAddress
@@ -54,12 +45,14 @@ export class OrderService {
       )
       .pipe(
         tap((newAddress) => {
-          console.log('Adresse ajoutée:', newAddress); // Vérifiez ce qui est retourné
+          console.log('Nouvelle adresse ajoutée avec succès:', newAddress);
         }),
-        catchError((error: HttpErrorResponse) => {
-          console.error('Error adding delivery address:', error);
-          return throwError(() => error);
-        })
+        catchError(this.handleError)
       );
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    console.error('Une erreur est survenue:', error);
+    return throwError(() => error);
   }
 }
