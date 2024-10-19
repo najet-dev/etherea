@@ -10,20 +10,30 @@ import { environment } from 'src/environments/environment';
 })
 export class OrderService {
   apiUrl = environment.apiUrl;
-  private deliveryAddressSubject = new BehaviorSubject<DeliveryAddress[]>([]); // Modifié pour stocker les adresses de livraison
+  private deliveryAddressSubject = new BehaviorSubject<DeliveryAddress[]>([]);
   deliveryAddress$ = this.deliveryAddressSubject.asObservable();
-  userId: number | null = null;
 
   constructor(
     private httpClient: HttpClient,
     private authService: AuthService
   ) {}
 
-  /**
-   * Ajoute une nouvelle adresse de livraison pour un utilisateur donné.
-   * @param userId L'ID de l'utilisateur.
-   * @param deliveryAddress L'objet DeliveryAddress à envoyer au backend.
-   */
+  getDeliveryAddress(
+    userId: number,
+    addressId: number
+  ): Observable<DeliveryAddress> {
+    return this.httpClient
+      .get<DeliveryAddress>(
+        `${this.apiUrl}/deliveryAddresses/${userId}/${addressId}`
+      )
+      .pipe(
+        tap((address) => {
+          console.log('Adresse de livraison récupérée:', address);
+        }),
+        catchError(this.handleError)
+      );
+  }
+
   addDeliveryAddress(
     userId: number,
     deliveryAddress: DeliveryAddress
@@ -35,14 +45,14 @@ export class OrderService {
       )
       .pipe(
         tap((newAddress) => {
-          // Met à jour le BehaviorSubject avec la nouvelle adresse ajoutée
-          const currentAddresses = this.deliveryAddressSubject.value;
-          this.deliveryAddressSubject.next([...currentAddresses, newAddress]);
+          console.log('Nouvelle adresse ajoutée avec succès:', newAddress);
         }),
-        catchError((error: HttpErrorResponse) => {
-          console.error('Error adding delivery address:', error);
-          return throwError(() => error);
-        })
+        catchError(this.handleError)
       );
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    console.error('Une erreur est survenue:', error);
+    return throwError(() => error);
   }
 }

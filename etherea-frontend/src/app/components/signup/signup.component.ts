@@ -11,7 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css'],
 })
-export class SignupComponent implements OnInit {
+export class SignupComponent {
   errorMessage: string = ''; // Message d'erreur pour afficher les erreurs
   signupForm!: FormGroup; // Formulaire d'inscription
   submitted = false; // Indicateur pour savoir si le formulaire a été soumis

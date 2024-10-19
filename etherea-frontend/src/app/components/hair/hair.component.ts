@@ -17,7 +17,7 @@ import { HairProduct } from '../models';
   templateUrl: './hair.component.html',
   styleUrls: ['./hair.component.css'],
 })
-export class HairComponent implements OnInit {
+export class HairComponent {
   products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
   private destroyRef = inject(DestroyRef); // Inject DestroyRef

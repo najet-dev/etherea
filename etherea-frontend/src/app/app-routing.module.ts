@@ -16,21 +16,18 @@ const routes: Routes = [
     path: '',
     component: HomeComponent,
   },
-
   { path: 'productDetails/:id', component: ProductDetailsComponent },
   {
     path: 'cart',
     component: CartComponent,
   },
-
   { path: 'profile', component: ProfileComponent },
   { path: 'forbidden', component: AccesComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'signin', component: SigninComponent },
   { path: 'favorites', component: FavoriteComponent },
   { path: 'order', component: OrderComponent },
-  { path: 'deliveryMethod', component: DeliveryMethodComponent },
-
+  { path: 'deliveryMethod/:addressId', component: DeliveryMethodComponent },
   {
     path: 'cream',
     loadChildren: () =>
@@ -43,7 +40,6 @@ const routes: Routes = [
   },
   {
     path: 'new',
-
     loadChildren: () =>
       import('./components/new/new.module').then((m) => m.NewModule),
   },

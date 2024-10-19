@@ -83,6 +83,12 @@ export class AppFacade {
     return this.productService.getProductById(id);
   }
   //DeliveryAddress
+  getDeliveryAddress(
+    userId: number,
+    addressId: number
+  ): Observable<DeliveryAddress> {
+    return this.orderService.getDeliveryAddress(userId, addressId);
+  }
   addDeliveryAddress(
     userId: number,
     deliveryAddress: DeliveryAddress

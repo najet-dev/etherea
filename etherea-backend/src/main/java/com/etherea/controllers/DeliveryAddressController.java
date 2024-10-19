@@ -1,7 +1,7 @@
 package com.etherea.controllers;
 
 import com.etherea.dtos.DeliveryAddressDTO;
-import com.etherea.models.DeliveryAddress;
+import com.etherea.exception.UserNotFoundException;
 import com.etherea.services.DeliveryAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,35 +22,32 @@ public class DeliveryAddressController {
      * Retrieves a delivery address by user ID and address ID.
      *
      * @param userId the ID of the user.
-     * @param id     the ID of the delivery address.
+     * @param addressId the ID of the delivery address.
      * @return ResponseEntity containing the DeliveryAddressDTO if found.
      */
-    @GetMapping("/{userId}/{id}")
-    public ResponseEntity<DeliveryAddressDTO> getDeliveryAddress(@PathVariable Long userId, @PathVariable Long id) {
-
-        DeliveryAddressDTO deliveryAddressDTO = deliveryAddressService.getDeliveryAddressByIdAndUserId(userId, id);
-
+    @GetMapping("/{userId}/{addressId}")
+    public ResponseEntity<DeliveryAddressDTO> getDeliveryAddress(@PathVariable Long userId, @PathVariable Long addressId) {
+        DeliveryAddressDTO deliveryAddressDTO = deliveryAddressService.getDeliveryAddressByIdAndUserId(userId, addressId);
         return ResponseEntity.ok(deliveryAddressDTO);
     }
+
     /**
      * Adds a delivery address for a given user.
      *
-     * @param userId             the ID of the user.
+     * @param userId the ID of the user.
      * @param deliveryAddressDTO the delivery address to add.
      * @return ResponseEntity containing a message and status of the operation.
      */
     @PostMapping("/{userId}")
-    public ResponseEntity<Map<String, Object>> addDeliveryAddress(@PathVariable Long userId, @RequestBody DeliveryAddressDTO deliveryAddressDTO) {
-        Map<String, Object> response = new HashMap<>();
+    public ResponseEntity<DeliveryAddressDTO> addDeliveryAddress(@PathVariable Long userId, @RequestBody DeliveryAddressDTO deliveryAddressDTO) {
         try {
-            deliveryAddressService.addDeliveryAddress(userId, deliveryAddressDTO);
-            response.put("message", "Delivery address added successfully.");
-            response.put("status", HttpStatus.OK.value());
-            return ResponseEntity.ok(response);
+            DeliveryAddressDTO newAddress = deliveryAddressService.addDeliveryAddress(userId, deliveryAddressDTO);
+            return ResponseEntity.ok(newAddress);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
-            response.put("message", "Error adding delivery address: " + e.getMessage());
-            response.put("status", HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
 }

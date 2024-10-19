@@ -15,7 +15,7 @@ export class CartService {
   >([]);
   public carts$ = this.cartItemsSubject.asObservable(); // Observable pour les composants abonnés
 
-  cartUpdated: EventEmitter<void> = new EventEmitter<void>(); // Événement pour indiquer la mise à jour du panier
+  cartUpdated: EventEmitter<void> = new EventEmitter<void>();
 
   constructor(private httpClient: HttpClient) {}
 

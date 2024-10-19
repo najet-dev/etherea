@@ -1,13 +1,12 @@
 import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, forkJoin, of, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { Cart } from '../models/cart.model';
-import { forkJoin, of } from 'rxjs';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 
 @Component({
@@ -73,21 +72,51 @@ export class OrderComponent implements OnInit {
   onSubmit() {
     this.submitted = true;
 
+    // Vérifiez si le formulaire est invalide avant de procéder
     if (this.deliveryAddressForm.invalid) {
+      this.errorMessage =
+        'Veuillez remplir correctement tous les champs requis.';
       return;
     }
 
+    // Vérifiez si l'utilisateur est connecté
     if (this.userId) {
-      const deliveryAddress: DeliveryAddress = this.deliveryAddressForm.value;
+      const deliveryAddress: DeliveryAddress = {
+        ...this.deliveryAddressForm.value,
+        userId: this.userId, // Ajoutez l'ID de l'utilisateur ici si nécessaire
+      };
+
       this.appFacade
         .addDeliveryAddress(this.userId, deliveryAddress)
         .pipe(
           tap({
-            next: () => {
-              this.router.navigate(['/deliveryMethod']);
-              this.deliveryAddressForm.reset();
+            next: (response: DeliveryAddress) => {
+              // Vérifiez si la réponse contient un ID valide
+              if (response && response.id) {
+                console.log("ID de l'adresse de livraison:", response.id);
+                // Naviguer avec l'ID vers la page de choix de méthode de livraison
+                this.router
+                  .navigate(['/deliveryMethod', response.id])
+                  .then((navigated) => {
+                    if (navigated) {
+                      // Réinitialiser le formulaire après la navigation réussie
+                      this.deliveryAddressForm.reset();
+                      this.submitted = false; // Réinitialiser l'état de soumission
+                      this.errorMessage = ''; // Réinitialiser les messages d'erreur
+                    } else {
+                      // Gérer le cas où la navigation échoue
+                      this.errorMessage =
+                        'Échec de la navigation vers la page de livraison.';
+                    }
+                  });
+              } else {
+                // Afficher un message d'erreur si l'ID est indéfini
+                this.errorMessage =
+                  "Erreur: L'ID de l'adresse de livraison est indéfini.";
+              }
             },
             error: () => {
+              // Afficher un message d'erreur en cas d'échec de la requête
               this.errorMessage =
                 'Une erreur est survenue. Veuillez réessayer plus tard.';
             },
@@ -96,6 +125,7 @@ export class OrderComponent implements OnInit {
         )
         .subscribe();
     } else {
+      // Afficher un message d'erreur si l'utilisateur n'est pas trouvé
       this.errorMessage = 'Utilisateur non trouvé. Veuillez vous reconnecter.';
     }
   }

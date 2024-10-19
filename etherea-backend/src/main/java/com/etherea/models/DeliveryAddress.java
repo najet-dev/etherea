@@ -13,16 +13,18 @@ public class DeliveryAddress {
     private String city;
     private String country;
     private String phoneNumber;
+    private boolean isDefault;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     public DeliveryAddress() {}
-    public DeliveryAddress(String address, int zipCode, String city, String country, String phoneNumber, User user) {
+    public DeliveryAddress(String address, int zipCode, String city, String country, String phoneNumber, boolean isDefault, User user) {
         this.address = address;
         this.zipCode = zipCode;
         this.city = city;
         this.country = country;
         this.phoneNumber = phoneNumber;
+        this.isDefault = isDefault;
         this.user = user;
     }
 
@@ -62,6 +64,12 @@ public class DeliveryAddress {
     }
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+    public boolean isDefault() {
+        return isDefault;
+    }
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
     }
     public User getUser() {
         return user;
