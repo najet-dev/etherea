@@ -8,6 +8,8 @@ import { Favorite } from '../components/models/favorite.model';
 import { Product } from '../components/models/Product.model';
 import { DeliveryAddress } from '../components/models/DeliveryAddress.model';
 import { OrderService } from './order.service';
+import { SignupRequest } from '../components/models/SignupRequest.model';
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +19,8 @@ export class AppFacade {
     public cartService: CartService,
     public favoriteService: FavoriteService,
     private productService: ProductService,
-    private orderService: OrderService
+    private orderService: OrderService,
+    private userService: UserService
   ) {}
 
   // cart
@@ -94,5 +97,12 @@ export class AppFacade {
     deliveryAddress: DeliveryAddress
   ): Observable<DeliveryAddress> {
     return this.orderService.addDeliveryAddress(userId, deliveryAddress);
+  }
+  //User
+  getUserDetails(userId: number): Observable<SignupRequest | null> {
+    return this.userService.getUserDetails(userId);
+  }
+  getCurrentUserId(): Observable<number | null> {
+    return this.userService.getCurrentUserId();
   }
 }

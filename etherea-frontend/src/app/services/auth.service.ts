@@ -97,7 +97,6 @@ export class AuthService {
    * @returns Un observable de l'utilisateur actuel
    */
   getCurrentUser(): Observable<SigninRequest | null> {
-    // Remplacer par un appel réel à votre API si nécessaire
     return this.AuthenticatedUser$.asObservable().pipe(
       tap((user) => {
         if (!user) {
