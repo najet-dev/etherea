@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { OrderService } from 'src/app/services/order.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { ActivatedRoute } from '@angular/router';
 import { switchMap, filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-delivery-method',
@@ -14,6 +15,10 @@ export class DeliveryMethodComponent implements OnInit {
   deliveryAddress: DeliveryAddress | null = null;
   userId: number | null = null;
   addressId: number | null = null;
+  firstName: string | null = null;
+  lastName: string | null = null;
+
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private orderService: OrderService,
@@ -21,7 +26,7 @@ export class DeliveryMethodComponent implements OnInit {
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.route.paramMap
       .pipe(
         filter((params) => !!params.get('addressId')),
@@ -29,21 +34,26 @@ export class DeliveryMethodComponent implements OnInit {
           const addressId = +params.get('addressId')!;
           this.addressId = addressId;
           return this.authService.getCurrentUser().pipe(
-            filter((user) => user !== null && user.id !== undefined), // Vérification explicite
+            filter((user) => user !== null && user.id !== undefined),
             switchMap((user) => {
-              this.userId = user!.id; // Utilisation de l'opérateur "!" pour affirmer que user n'est pas null
+              this.userId = user!.id;
               return this.orderService.getDeliveryAddress(
                 this.userId,
                 addressId
               );
             })
           );
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: (address) => {
           this.deliveryAddress = address;
-          console.log('Adresse de livraison récupérée :', address);
+
+          if (address.user && address.user.firstName && address.user.lastName) {
+            this.firstName = address.user.firstName;
+            this.lastName = address.user.lastName;
+          }
         },
         error: (error) => {
           console.error(

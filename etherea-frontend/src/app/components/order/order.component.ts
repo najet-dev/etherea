@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
-import { AuthService } from 'src/app/services/auth.service';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { Cart } from '../models/cart.model';
 import { ProductTypeService } from 'src/app/services/product-type.service';
+import { SignupRequest } from '../models/SignupRequest.model';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-order',
@@ -39,25 +40,61 @@ export class OrderComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private authService: AuthService,
     private appFacade: AppFacade,
     private router: Router,
     public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit() {
-    this.authService.AuthenticatedUser$.pipe(
-      tap((user) => {
-        if (user) {
-          this.userId = user.id;
-          this.loadCartItems();
-        } else {
-          this.userId = null;
-        }
-      }),
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe();
+    // Récupérer l'utilisateur connecté
+    this.appFacade
+      .getCurrentUserId()
+      .pipe(
+        tap((userId) => {
+          if (userId) {
+            this.userId = userId;
 
+            // Récupérer les détails de l'utilisateur
+            this.appFacade
+              .getUserDetails(userId)
+              .pipe(
+                tap((user: SignupRequest | null) => {
+                  if (user) {
+                    // Remplir le formulaire avec les données de l'utilisateur
+                    this.deliveryAddressForm.patchValue({
+                      firstName: user.firstName,
+                      lastName: user.lastName,
+                    });
+
+                    // Charger les articles du panier
+                    this.loadCartItems();
+                  }
+                }),
+                takeUntilDestroyed(this.destroyRef),
+                catchError((error) => {
+                  console.error(
+                    "Erreur lors de la récupération des détails de l'utilisateur :",
+                    error
+                  );
+                  return of(null);
+                })
+              )
+              .subscribe();
+          } else {
+            this.userId = null;
+          }
+        }),
+        catchError((error) => {
+          console.error(
+            "Erreur lors de la récupération de l'ID de l'utilisateur :",
+            error
+          );
+          return of(null);
+        })
+      )
+      .subscribe();
+
+    // Initialisation du formulaire
     this.deliveryAddressForm = this.formBuilder.group({
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
@@ -68,7 +105,6 @@ export class OrderComponent implements OnInit {
       phoneNumber: ['', [Validators.required]],
     });
   }
-
   onSubmit() {
     this.submitted = true;
 
@@ -83,7 +119,7 @@ export class OrderComponent implements OnInit {
     if (this.userId) {
       const deliveryAddress: DeliveryAddress = {
         ...this.deliveryAddressForm.value,
-        userId: this.userId, // Ajoutez l'ID de l'utilisateur ici si nécessaire
+        userId: this.userId, // Ajoutez l'ID de l'utilisateur
       };
 
       this.appFacade
