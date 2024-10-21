@@ -1,6 +1,7 @@
 package com.etherea.controllers;
 
 import com.etherea.dtos.DeliveryAddressDTO;
+import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.services.DeliveryAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,5 +50,24 @@ public class DeliveryAddressController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+    /**
+     * Updates a delivery address for a given user.
+     *
+     * @param userId the ID of the user.
+     * @param deliveryAddressDTO the delivery address to update.
+     * @return ResponseEntity containing the updated DeliveryAddressDTO if successful.
+     */
+    @PutMapping("/{userId}")
+    public ResponseEntity<DeliveryAddressDTO> updateDeliveryAddress(@PathVariable Long userId, @RequestBody DeliveryAddressDTO deliveryAddressDTO) {
+        try {
+            DeliveryAddressDTO updatedAddress = deliveryAddressService.updateDeliveryAddress(userId, deliveryAddressDTO);
+            return ResponseEntity.ok(updatedAddress);
+        } catch (UserNotFoundException | DeliveryAddressNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
 
 }
