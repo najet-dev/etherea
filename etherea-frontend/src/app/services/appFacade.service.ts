@@ -49,6 +49,7 @@ export class AppFacade {
   deleteCartItem(id: number): Observable<void> {
     return this.cartService.deleteCartItem(id);
   }
+
   // Favorite
   getUserFavorites(userId: number): Observable<Favorite[]> {
     return this.favoriteService.getUserFavorites(userId);
@@ -69,6 +70,7 @@ export class AppFacade {
   productsFavorites(products: Product[]): Observable<Product[]> {
     return this.favoriteService.productsFavorites(products);
   }
+
   // Products
   getProducts(limit?: number): Observable<Product[]> {
     return this.productService.getProducts(limit);
@@ -85,23 +87,38 @@ export class AppFacade {
   getProductById(id: number): Observable<Product> {
     return this.productService.getProductById(id);
   }
-  //DeliveryAddress
+
+  // DeliveryAddress
+  getUserDeliveryAddresses(userId: number): Observable<DeliveryAddress[]> {
+    return this.orderService.getUserDeliveryAddresses(userId);
+  }
+
   getDeliveryAddress(
     userId: number,
     addressId: number
   ): Observable<DeliveryAddress> {
     return this.orderService.getDeliveryAddress(userId, addressId);
   }
+
   addDeliveryAddress(
     userId: number,
     deliveryAddress: DeliveryAddress
   ): Observable<DeliveryAddress> {
     return this.orderService.addDeliveryAddress(userId, deliveryAddress);
   }
-  //User
+
+  updateDeliveryAddress(
+    userId: number,
+    deliveryAddress: DeliveryAddress
+  ): Observable<DeliveryAddress> {
+    return this.orderService.updateDeliveryAddress(userId, deliveryAddress);
+  }
+
+  // User
   getUserDetails(userId: number): Observable<SignupRequest | null> {
     return this.userService.getUserDetails(userId);
   }
+
   getCurrentUserId(): Observable<number | null> {
     return this.userService.getCurrentUserId();
   }

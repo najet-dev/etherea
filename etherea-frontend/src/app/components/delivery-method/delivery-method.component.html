@@ -3,21 +3,35 @@
     <div class="card mb-4 d-flex flex-column">
       <div class="card-body d-flex flex-column">
         <h2 class="card-title">1. Adresse de livraison</h2>
-        <div *ngIf="deliveryAddress">
-          <p class="card-text">
-            {{ deliveryAddress.user.firstName }}
-            {{ deliveryAddress.user.lastName }}
-          </p>
-          <p class="card-text">{{ deliveryAddress.address }}</p>
-          <p class="card-text">{{ deliveryAddress.zipCode }}</p>
-          <p class="card-text">{{ deliveryAddress.city }}</p>
-          <p class="card-text">{{ deliveryAddress.country }}</p>
+
+        <!-- Indicateur de chargement -->
+        <div *ngIf="isLoading">
+          <p class="card-text">Chargement de l'adresse...</p>
         </div>
-        <div *ngIf="!deliveryAddress && !userId">
-          <p class="card-text">Adresse non trouvée.</p>
-        </div>
-        <div *ngIf="!deliveryAddress && userId">
-          <p class="card-text">Aucune adresse associée à cet utilisateur.</p>
+
+        <div *ngIf="!isLoading">
+          <div *ngIf="deliveryAddress">
+            <p class="card-text">
+              {{ deliveryAddress.user.firstName }}
+              {{ deliveryAddress.user.lastName }}
+            </p>
+            <p class="card-text">{{ deliveryAddress.address }}</p>
+            <p class="card-text">{{ deliveryAddress.zipCode }}</p>
+            <p class="card-text">{{ deliveryAddress.city }}</p>
+            <p class="card-text">{{ deliveryAddress.country }}</p>
+            <p class="card-text">{{ deliveryAddress.phoneNumber }}</p>
+
+            <!-- Bouton pour modifier l'adresse -->
+            <button class="btn btn-link mt-3" (click)="onEditAddress()">
+              Modifier
+            </button>
+          </div>
+          <div *ngIf="!deliveryAddress && !userId">
+            <p class="card-text">Adresse non trouvée.</p>
+          </div>
+          <div *ngIf="!deliveryAddress && userId">
+            <p class="card-text">Aucune adresse associée à cet utilisateur.</p>
+          </div>
         </div>
       </div>
     </div>

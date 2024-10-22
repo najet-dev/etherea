@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,6 +19,25 @@ import java.util.Map;
 public class DeliveryAddressController {
     @Autowired
     private DeliveryAddressService deliveryAddressService;
+
+    /**
+     * Retrieves all delivery addresses for a given user.
+     *
+     * @param userId the ID of the user.
+     * @return ResponseEntity containing the list of DeliveryAddressDTOs.
+     */
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<DeliveryAddressDTO>> getAllDeliveryAddresses(@PathVariable Long userId) {
+        try {
+            List<DeliveryAddressDTO> addresses = deliveryAddressService.getAllDeliveryAddresses(userId);
+            return ResponseEntity.ok(addresses);
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+
 
     /**
      * Retrieves a delivery address by user ID and address ID.

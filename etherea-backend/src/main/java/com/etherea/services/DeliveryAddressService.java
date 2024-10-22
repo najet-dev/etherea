@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DeliveryAddressService {
@@ -18,6 +19,28 @@ public class DeliveryAddressService {
     private DeliveryAddressRepository deliveryAddressRepository;
     @Autowired
     private UserRepository userRepository;
+
+    /**
+     * Retrieves all delivery addresses for a given user.
+     *
+     * @param userId the ID of the user.
+     * @return a list of DeliveryAddressDTO representing all delivery addresses.
+     * @throws UserNotFoundException if the user is not found.
+     */
+    public List<DeliveryAddressDTO> getAllDeliveryAddresses(Long userId) {
+        // Vérifier que l'utilisateur existe
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+
+        // Récupérer toutes les adresses associées à l'utilisateur
+        List<DeliveryAddress> addresses = deliveryAddressRepository.findByUserId(userId);
+
+        // Convertir les adresses en DTO et les retourner
+        return addresses.stream()
+                .map(DeliveryAddressDTO::fromDeliveryAddress)
+                .collect(Collectors.toList());
+    }
+
 
     /**
      * Retrieves a delivery address by its ID and the user's ID.
