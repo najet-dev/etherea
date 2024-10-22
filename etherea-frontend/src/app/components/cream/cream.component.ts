@@ -18,7 +18,7 @@ import { FaceProduct } from '../models'; // Assurez-vous que ce modèle est corr
   templateUrl: './cream.component.html',
   styleUrls: ['./cream.component.css'],
 })
-export class CreamComponent {
+export class CreamComponent implements OnInit {
   products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
   private destroyRef = inject(DestroyRef);

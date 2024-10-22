@@ -18,6 +18,22 @@ export class OrderService {
     private authService: AuthService
   ) {}
 
+  getUserDeliveryAddresses(userId: number): Observable<DeliveryAddress[]> {
+    return this.httpClient
+      .get<DeliveryAddress[]>(`${this.apiUrl}/deliveryAddresses/${userId}`)
+      .pipe(
+        catchError((error) => {
+          console.error(
+            'Erreur lors de la récupération des adresses de livraison:',
+            error
+          );
+          return throwError(
+            () => new Error('Erreur lors de la récupération des adresses.')
+          );
+        })
+      );
+  }
+
   getDeliveryAddress(
     userId: number,
     addressId: number
@@ -51,8 +67,33 @@ export class OrderService {
       );
   }
 
+  updateDeliveryAddress(
+    userId: number,
+    deliveryAddress: DeliveryAddress
+  ): Observable<DeliveryAddress> {
+    return this.httpClient
+      .put<DeliveryAddress>(
+        `${this.apiUrl}/deliveryAddresses/${userId}`,
+        deliveryAddress
+      )
+      .pipe(
+        tap((updatedAddress) => {
+          console.log('Adresse modifiée avec succès:', updatedAddress);
+        }),
+        catchError(this.handleError)
+      );
+  }
+
   private handleError(error: HttpErrorResponse): Observable<never> {
-    console.error('Une erreur est survenue:', error);
-    return throwError(() => error);
+    let errorMessage: string;
+    if (error.error instanceof ErrorEvent) {
+      // Une erreur côté client ou un problème de réseau
+      errorMessage = `Erreur: ${error.error.message}`;
+    } else {
+      // L'erreur est retournée par le backend
+      errorMessage = `Code d'erreur: ${error.status}, Message: ${error.message}`;
+    }
+    console.error('Une erreur est survenue:', errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 }

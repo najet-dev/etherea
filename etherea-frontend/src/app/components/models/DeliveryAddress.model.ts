@@ -6,5 +6,6 @@ export interface DeliveryAddress {
   zipCode: number;
   city: string;
   country: string;
+  phoneNumber: number;
   user: SignupRequest;
 }
