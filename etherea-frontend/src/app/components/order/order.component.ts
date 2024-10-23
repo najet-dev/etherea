@@ -198,7 +198,8 @@ export class OrderComponent implements OnInit {
             existing.address === address.address &&
             existing.zipCode === address.zipCode &&
             existing.city === address.city &&
-            existing.country === address.country
+            existing.country === address.country &&
+            existing.phoneNumber == address.phoneNumber
         );
         return existingAddress ? existingAddress.id : null;
       }),
