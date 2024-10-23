@@ -3,6 +3,8 @@ package com.etherea.models;
 import com.etherea.enums.DeliveryOption;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 public class DeliveryMethod {
     @Id
@@ -10,11 +12,17 @@ public class DeliveryMethod {
     private Long id;
     @Enumerated(EnumType.STRING)
     private DeliveryOption deliveryOption;
+    @ManyToOne
+    @JoinColumn(name = "pickup_point_id")
+    private PickupPoint pickupPoint;
+    private LocalDate expectedDeliveryDate;
     public DeliveryMethod() {}
-    public DeliveryMethod(DeliveryOption deliveryOption) {
+    public DeliveryMethod(Long id, DeliveryOption deliveryOption, PickupPoint pickupPoint, LocalDate expectedDeliveryDate) {
+        this.id = id;
         this.deliveryOption = deliveryOption;
+        this.pickupPoint = pickupPoint;
+        this.expectedDeliveryDate = expectedDeliveryDate;
     }
-    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -26,5 +34,17 @@ public class DeliveryMethod {
     }
     public void setDeliveryOption(DeliveryOption deliveryOption) {
         this.deliveryOption = deliveryOption;
+    }
+    public PickupPoint getPickupPoint() {
+        return pickupPoint;
+    }
+    public void setPickupPoint(PickupPoint pickupPoint) {
+        this.pickupPoint = pickupPoint;
+    }
+    public LocalDate getExpectedDeliveryDate() {
+        return expectedDeliveryDate;
+    }
+    public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
+        this.expectedDeliveryDate = expectedDeliveryDate;
     }
 }
