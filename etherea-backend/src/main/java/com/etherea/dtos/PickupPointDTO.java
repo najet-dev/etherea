@@ -1,8 +1,6 @@
 package com.etherea.dtos;
 
-import com.etherea.models.DeliveryAddress;
 import com.etherea.models.PickupPoint;
-import com.etherea.models.Volume;
 
 public class PickupPointDTO {
     private Long id;
@@ -10,9 +8,7 @@ public class PickupPointDTO {
     private String address;
     private Double latitude;
     private Double longitude;
-
-    public PickupPointDTO() {
-    }
+    public PickupPointDTO() {}
     public PickupPointDTO(Long id, String name, String address, Double latitude, Double longitude) {
         this.id = id;
         this.name = name;
@@ -20,19 +16,15 @@ public class PickupPointDTO {
         this.latitude = latitude;
         this.longitude = longitude;
     }
-
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -54,7 +46,8 @@ public class PickupPointDTO {
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
-    // Méthode de conversion de l'entité vers le DTO
+
+    // Conversion de l'entité vers le DTO
     public static PickupPointDTO fromPickupPoint(PickupPoint pickupPoint) {
         return new PickupPointDTO(
                 pickupPoint.getId(),
@@ -64,7 +57,8 @@ public class PickupPointDTO {
                 pickupPoint.getLongitude()
         );
     }
-    // Méthode de conversion du DTO vers l'entité
+
+    // Conversion du DTO vers l'entité
     public PickupPoint toPickupPoint() {
         PickupPoint pickupPoint = new PickupPoint();
         pickupPoint.setId(this.id);
@@ -74,5 +68,4 @@ public class PickupPointDTO {
         pickupPoint.setLongitude(this.longitude);
         return pickupPoint;
     }
-
 }

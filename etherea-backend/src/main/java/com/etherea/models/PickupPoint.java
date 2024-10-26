@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 @Entity
 public class PickupPoint {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -12,7 +13,16 @@ public class PickupPoint {
     private Double latitude;
     private Double longitude;
 
-    // Getters et Setters
+    // Constructeur sans argument pour JPA
+    public PickupPoint() {}
+    public PickupPoint(String name, String address, Double latitude, Double longitude) {
+        this.name = name;
+        this.address = address;
+        setLatitude(latitude);
+        setLongitude(longitude);
+    }
+
+    // Getters et Setters avec validation
     public Long getId() {
         return id;
     }
@@ -35,12 +45,18 @@ public class PickupPoint {
         return latitude;
     }
     public void setLatitude(Double latitude) {
+        if (latitude != null && (latitude < -90 || latitude > 90)) {
+            throw new IllegalArgumentException("Latitude must be between -90 and 90.");
+        }
         this.latitude = latitude;
     }
     public Double getLongitude() {
         return longitude;
     }
     public void setLongitude(Double longitude) {
+        if (longitude != null && (longitude < -180 || longitude > 180)) {
+            throw new IllegalArgumentException("Longitude must be between -180 and 180.");
+        }
         this.longitude = longitude;
     }
 }
