@@ -3,25 +3,32 @@ package com.etherea.dtos;
 import com.etherea.enums.DeliveryOption;
 import com.etherea.models.DeliveryMethod;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DeliveryMethodDTO {
     private Long id;
     private DeliveryOption deliveryOption;
-    private PickupPointDTO pickupPoint;
+    private List<PickupPointDTO> pickupPoints;
     private LocalDate expectedDeliveryDate;
     private Double cost;
     private Double minimumAmountForFreeDelivery;
+
     public DeliveryMethodDTO() {}
-    public DeliveryMethodDTO(Long id, DeliveryOption deliveryOption, PickupPointDTO pickupPoint, LocalDate expectedDeliveryDate, Double cost, Double  minimumAmountForFreeDelivery) {
+
+    public DeliveryMethodDTO(Long id, DeliveryOption deliveryOption, List<PickupPointDTO> pickupPoints,
+                             LocalDate expectedDeliveryDate, Double cost, Double minimumAmountForFreeDelivery) {
         this.id = id;
         this.deliveryOption = deliveryOption;
-        this.pickupPoint = pickupPoint;
+        this.pickupPoints = Optional.ofNullable(pickupPoints).orElse(Collections.emptyList());
         this.expectedDeliveryDate = expectedDeliveryDate;
         this.cost = cost;
         this.minimumAmountForFreeDelivery = minimumAmountForFreeDelivery;
     }
 
-    // Getters et Setters
+    // Getters et Setters ...
     public Long getId() {
         return id;
     }
@@ -34,11 +41,11 @@ public class DeliveryMethodDTO {
     public void setDeliveryOption(DeliveryOption deliveryOption) {
         this.deliveryOption = deliveryOption;
     }
-    public PickupPointDTO getPickupPoint() {
-        return pickupPoint;
+    public List<PickupPointDTO> getPickupPoints() {
+        return pickupPoints;
     }
-    public void setPickupPoint(PickupPointDTO pickupPoint) {
-        this.pickupPoint = pickupPoint;
+    public void setPickupPoints(List<PickupPointDTO> pickupPoints) {
+        this.pickupPoints = pickupPoints;
     }
     public LocalDate getExpectedDeliveryDate() {
         return expectedDeliveryDate;
@@ -59,23 +66,39 @@ public class DeliveryMethodDTO {
         this.minimumAmountForFreeDelivery = minimumAmountForFreeDelivery;
     }
 
-    // Conversion de l'entité vers le DTO
+    /**
+     * Convertit une entité DeliveryMethod en DeliveryMethodDTO.
+     * @param deliveryMethod l'entité DeliveryMethod
+     * @return un DeliveryMethodDTO correspondant
+     */
     public static DeliveryMethodDTO fromDeliveryMethod(DeliveryMethod deliveryMethod) {
+        List<PickupPointDTO> pickupPointDTOs = Optional.ofNullable(deliveryMethod.getPickupPoints())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(PickupPointDTO::fromPickupPoint)
+                .collect(Collectors.toList());
+
         return new DeliveryMethodDTO(
                 deliveryMethod.getId(),
                 deliveryMethod.getDeliveryOption(),
-                deliveryMethod.getPickupPoint() != null ? PickupPointDTO.fromPickupPoint(deliveryMethod.getPickupPoint()) : null,
+                pickupPointDTOs,
                 deliveryMethod.getExpectedDeliveryDate(),
                 deliveryMethod.getCost(),
                 deliveryMethod.getMinimumAmountForFreeDelivery()
         );
     }
-    // Conversion du DTO vers l'entité
+
+    /**
+     * Convertit ce DeliveryMethodDTO en entité DeliveryMethod.
+     * @return l'entité DeliveryMethod correspondante
+     */
     public DeliveryMethod toDeliveryMethod() {
         DeliveryMethod deliveryMethod = new DeliveryMethod();
         deliveryMethod.setId(this.id);
         deliveryMethod.setDeliveryOption(this.deliveryOption);
-        deliveryMethod.setPickupPoint(this.pickupPoint != null ? this.pickupPoint.toPickupPoint() : null);
+        deliveryMethod.setPickupPoints(this.pickupPoints.stream()
+                .map(PickupPointDTO::toPickupPoint)
+                .collect(Collectors.toList()));
         deliveryMethod.setExpectedDeliveryDate(this.expectedDeliveryDate);
         deliveryMethod.setCost(this.cost);
         deliveryMethod.setMinimumAmountForFreeDelivery(this.minimumAmountForFreeDelivery);

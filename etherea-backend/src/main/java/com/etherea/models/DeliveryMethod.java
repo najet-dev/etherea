@@ -3,18 +3,21 @@ package com.etherea.models;
 import com.etherea.enums.DeliveryOption;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 public class DeliveryMethod {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Enumerated(EnumType.STRING)
     private DeliveryOption deliveryOption;
-    @ManyToOne
-    @JoinColumn(name = "pickup_point_id")
-    private PickupPoint pickupPoint;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_method_id")
+    private List<PickupPoint> pickupPoints;
+
     private LocalDate expectedDeliveryDate;
     private Double cost;
     private Double minimumAmountForFreeDelivery;
@@ -22,74 +25,69 @@ public class DeliveryMethod {
     // Constructeur sans argument pour JPA
     public DeliveryMethod() {}
 
-    // Constructeur principal avec paramètres
-    public DeliveryMethod(Long id, DeliveryOption deliveryOption, PickupPoint pickupPoint, LocalDate expectedDeliveryDate, Double cost, Double minimumAmountForFreeDelivery) {
-        this.id = id;
+    // Constructeur principal
+    public DeliveryMethod(DeliveryOption deliveryOption, List<PickupPoint> pickupPoints,
+                          LocalDate expectedDeliveryDate, Double cost,
+                          Double minimumAmountForFreeDelivery) {
         this.deliveryOption = deliveryOption;
-        this.pickupPoint = pickupPoint;
+        this.pickupPoints = pickupPoints;
         this.expectedDeliveryDate = expectedDeliveryDate;
-        this.cost = cost;
-        this.minimumAmountForFreeDelivery = minimumAmountForFreeDelivery;
-        validateDeliveryMethod();
+        setCost(cost);
+        setMinimumAmountForFreeDelivery(minimumAmountForFreeDelivery);
     }
 
-    // Validation de la méthode de livraison
-    private void validateDeliveryMethod() {
-        if (deliveryOption == DeliveryOption.PICKUP_POINT && pickupPoint == null) {
-            throw new IllegalArgumentException("PickupPoint must be provided for PICKUP_POINT delivery option.");
-        }
-        if ((deliveryOption == DeliveryOption.HOME_STANDARD || deliveryOption == DeliveryOption.HOME_EXPRESS) && pickupPoint != null) {
-            throw new IllegalArgumentException("PickupPoint must be null for home delivery options.");
-        }
-        validateExpectedDeliveryDate();
-    }
-
-    // Validation de la date de livraison
-    private void validateExpectedDeliveryDate() {
-        if (expectedDeliveryDate != null && expectedDeliveryDate.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Expected delivery date cannot be in the past.");
-        }
-    }
-
-    // Getters et setters avec validation
+    // Getters et Setters
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public DeliveryOption getDeliveryOption() {
         return deliveryOption;
     }
+
     public void setDeliveryOption(DeliveryOption deliveryOption) {
         this.deliveryOption = deliveryOption;
-        validateDeliveryMethod();
     }
-    public PickupPoint getPickupPoint() {
-        return pickupPoint;
+
+    public List<PickupPoint> getPickupPoints() {
+        return pickupPoints;
     }
-    public void setPickupPoint(PickupPoint pickupPoint) {
-        this.pickupPoint = pickupPoint;
-        validateDeliveryMethod();
+
+    public void setPickupPoints(List<PickupPoint> pickupPoints) {
+        this.pickupPoints = pickupPoints;
     }
+
     public LocalDate getExpectedDeliveryDate() {
         return expectedDeliveryDate;
     }
+
     public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
-        validateExpectedDeliveryDate();
     }
+
     public Double getCost() {
         return cost;
     }
+
     public void setCost(Double cost) {
+        if (cost != null && cost < 0) {
+            throw new IllegalArgumentException("Cost must be non-negative.");
+        }
         this.cost = cost;
     }
+
     public Double getMinimumAmountForFreeDelivery() {
         return minimumAmountForFreeDelivery;
     }
+
     public void setMinimumAmountForFreeDelivery(Double minimumAmountForFreeDelivery) {
+        if (minimumAmountForFreeDelivery != null && minimumAmountForFreeDelivery < 0) {
+            throw new IllegalArgumentException("Minimum amount for free delivery must be non-negative.");
+        }
         this.minimumAmountForFreeDelivery = minimumAmountForFreeDelivery;
     }
-
 }

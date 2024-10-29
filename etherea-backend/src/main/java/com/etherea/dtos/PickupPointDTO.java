@@ -8,7 +8,9 @@ public class PickupPointDTO {
     private String address;
     private Double latitude;
     private Double longitude;
+
     public PickupPointDTO() {}
+
     public PickupPointDTO(Long id, String name, String address, Double latitude, Double longitude) {
         this.id = id;
         this.name = name;
@@ -16,38 +18,55 @@ public class PickupPointDTO {
         this.latitude = latitude;
         this.longitude = longitude;
     }
+
+    // Getters et Setters ...
+
+
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     public String getAddress() {
         return address;
     }
+
     public void setAddress(String address) {
         this.address = address;
     }
+
     public Double getLatitude() {
         return latitude;
     }
+
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
+
     public Double getLongitude() {
         return longitude;
     }
+
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
-    // Conversion de l'entité vers le DTO
+    /**
+     * Convertit une entité PickupPoint en PickupPointDTO.
+     * @param pickupPoint l'entité PickupPoint
+     * @return un PickupPointDTO correspondant
+     */
     public static PickupPointDTO fromPickupPoint(PickupPoint pickupPoint) {
         return new PickupPointDTO(
                 pickupPoint.getId(),
@@ -57,8 +76,10 @@ public class PickupPointDTO {
                 pickupPoint.getLongitude()
         );
     }
-
-    // Conversion du DTO vers l'entité
+    /**
+     * Convertit ce PickupPointDTO en entité PickupPoint.
+     * @return l'entité PickupPoint correspondante
+     */
     public PickupPoint toPickupPoint() {
         PickupPoint pickupPoint = new PickupPoint();
         pickupPoint.setId(this.id);
