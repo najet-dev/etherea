@@ -18,11 +18,9 @@ import java.util.Map;
 @Service
 public class GeocodingService {
     private final RestTemplate restTemplate;
-
     public GeocodingService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
-
     public Map<String, Double> getCoordinates(String address) {
         String url = "https://us1.locationiq.com/v1/search.php?key=pk.f7749adbb572df4d741f1032664f787f&q="
                 + URLEncoder.encode(address, StandardCharsets.UTF_8)
@@ -33,7 +31,6 @@ public class GeocodingService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
-            // Respectez la limite de 1 requête par seconde
             Thread.sleep(1000);
 
             ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
@@ -44,7 +41,6 @@ public class GeocodingService {
             if (response == null || response.isEmpty()) {
                 throw new RuntimeException("Réponse vide de LocationIQ pour l'adresse : " + address);
             }
-
             JSONArray results = new JSONArray(response);
             if (results.length() > 0) {
                 JSONObject firstResult = results.getJSONObject(0);

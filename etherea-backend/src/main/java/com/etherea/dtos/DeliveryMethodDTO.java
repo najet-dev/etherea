@@ -15,9 +15,7 @@ public class DeliveryMethodDTO {
     private LocalDate expectedDeliveryDate;
     private Double cost;
     private Double minimumAmountForFreeDelivery;
-
     public DeliveryMethodDTO() {}
-
     public DeliveryMethodDTO(Long id, DeliveryOption deliveryOption, List<PickupPointDTO> pickupPoints,
                              LocalDate expectedDeliveryDate, Double cost, Double minimumAmountForFreeDelivery) {
         this.id = id;
@@ -27,7 +25,6 @@ public class DeliveryMethodDTO {
         this.cost = cost;
         this.minimumAmountForFreeDelivery = minimumAmountForFreeDelivery;
     }
-
     // Getters et Setters ...
     public Long getId() {
         return id;
@@ -65,7 +62,6 @@ public class DeliveryMethodDTO {
     public void setMinimumAmountForFreeDelivery(Double minimumAmountForFreeDelivery) {
         this.minimumAmountForFreeDelivery = minimumAmountForFreeDelivery;
     }
-
     /**
      * Convertit une entité DeliveryMethod en DeliveryMethodDTO.
      * @param deliveryMethod l'entité DeliveryMethod

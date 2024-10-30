@@ -12,16 +12,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class PickupPointService {
-
     @Autowired
     private DeliveryAddressService deliveryAddressService;
-
     @Autowired
     private GeocodingService geocodingService;
-
     @Autowired
     private OverpassService overpassService;
-
     public List<PickupPointDTO> findNearestPickupPoints(Long userId, double radius) {
         // Récupérer l'adresse par défaut de l'utilisateur
         DeliveryAddressDTO deliveryAddress = deliveryAddressService.getAllDeliveryAddresses(userId).stream()

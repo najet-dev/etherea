@@ -9,26 +9,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 @RestController
 @RequestMapping("/pickupPoints")
 public class PickupPointController {
     private final PickupPointService pickupPointService;
+
     @Autowired
     public PickupPointController(PickupPointService pickupPointService) {
         this.pickupPointService = pickupPointService;
     }
+
     @GetMapping("/nearest")
     public ResponseEntity<?> getNearestPickupPoints(
-            @RequestParam(required = false) Long userId,
-            @RequestParam(required = false, defaultValue = "0") double radius) {
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "1000") double radius) {  // Rayon par défaut de 1000 mètres
 
-        // Validation des paramètres
         if (userId == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("L'ID de l'utilisateur doit être fourni.");
         }
-
         if (radius <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Le rayon doit être supérieur à 0.");
@@ -43,7 +42,6 @@ public class PickupPointController {
                     .body("Aucune adresse de livraison trouvée pour l'utilisateur avec ID : " + userId);
 
         } catch (Exception e) {
-            // Log de l'exception pour le débogage
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Erreur lors de la récupération des points relais : " + e.getMessage());
