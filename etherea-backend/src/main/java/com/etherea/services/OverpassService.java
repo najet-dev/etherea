@@ -1,5 +1,8 @@
 package com.etherea.services;
 
+import com.etherea.exception.GeocodingApiException;
+import com.etherea.exception.PickupPointNotFoundException;
+import com.etherea.interfaces.IOverpass;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,12 +12,14 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 @Service
-public class OverpassService {
+public class OverpassService implements IOverpass {
     private final RestTemplate restTemplate;
+
     @Autowired
     public OverpassService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
+
     public List<Map<String, Object>> getNearbyPickupPoints(double latitude, double longitude, double radius) {
         // Vérification des valeurs pour s'assurer qu'elles sont dans les limites acceptées
         if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
@@ -42,11 +47,15 @@ public class OverpassService {
             System.out.println("URL de la requête Overpass : " + url);
 
             String response = restTemplate.getForObject(url, String.class);
-            JSONObject jsonResponse = new JSONObject(Objects.requireNonNull(response));
+            if (response == null) {
+                throw new PickupPointNotFoundException("Aucune réponse de l'API Overpass pour les coordonnées fournies.");
+            }
+
+            JSONObject jsonResponse = new JSONObject(response);
             JSONArray elements = jsonResponse.optJSONArray("elements");
 
             List<Map<String, Object>> pickupPoints = new ArrayList<>();
-            if (elements != null) {
+            if (elements != null && elements.length() > 0) {
                 for (int i = 0; i < elements.length(); i++) {
                     JSONObject element = elements.getJSONObject(i);
 
@@ -79,21 +88,27 @@ public class OverpassService {
                         }
                     }
                 }
+            } else {
+                throw new PickupPointNotFoundException("Aucun point relais trouvé dans la réponse de l'API Overpass.");
             }
             return pickupPoints;
         } catch (Exception e) {
-            throw new RuntimeException("Erreur lors de la récupération des points relais : " + e.getMessage(), e);
+            throw new PickupPointNotFoundException("Erreur lors de la récupération des points relais : " + e.getMessage(), e);
         }
     }
+
     public String getCompleteAddress(double latitude, double longitude) {
         try {
             String url = "https://us1.locationiq.com/v1/reverse.php?key=pk.f7749adbb572df4d741f1032664f787f&lat="
                     + latitude + "&lon=" + longitude + "&format=json";
             String response = restTemplate.getForObject(url, String.class);
-            JSONObject jsonResponse = new JSONObject(Objects.requireNonNull(response));
+            if (response == null) {
+                throw new GeocodingApiException("Erreur de l'API de géocodage : réponse vide.");
+            }
+            JSONObject jsonResponse = new JSONObject(response);
             return jsonResponse.optString("display_name", "Adresse non trouvée");
         } catch (Exception e) {
-            return "Erreur lors de la récupération de l'adresse : " + e.getMessage();
+            throw new GeocodingApiException("Erreur lors de la récupération de l'adresse : " + e.getMessage(), e);
         }
     }
 }

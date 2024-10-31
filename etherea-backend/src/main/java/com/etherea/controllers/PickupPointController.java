@@ -1,6 +1,6 @@
 package com.etherea.controllers;
 
-import com.etherea.dtos.PickupPointDTO;
+import com.etherea.dtos.PickupPointDeliveryDTO;
 import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.services.PickupPointService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,6 @@ public class PickupPointController {
     public PickupPointController(PickupPointService pickupPointService) {
         this.pickupPointService = pickupPointService;
     }
-
     @GetMapping("/nearest")
     public ResponseEntity<?> getNearestPickupPoints(
             @RequestParam Long userId,
@@ -34,7 +33,7 @@ public class PickupPointController {
         }
 
         try {
-            List<PickupPointDTO> pickupPoints = pickupPointService.findNearestPickupPoints(userId, radius);
+            List<PickupPointDeliveryDTO> pickupPoints = pickupPointService.findNearestPickupPoints(userId, radius);
             return ResponseEntity.ok(pickupPoints);
 
         } catch (DeliveryAddressNotFoundException e) {
