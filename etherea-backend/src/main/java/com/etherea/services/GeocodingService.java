@@ -1,7 +1,6 @@
 package com.etherea.services;
 
 import com.etherea.exception.GeocodingApiException; // Importation de l'exception personnalisée
-import com.etherea.interfaces.IGeocoding;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
-public class GeocodingService implements IGeocoding {
+public class GeocodingService {
     private final RestTemplate restTemplate;
 
     public GeocodingService(RestTemplate restTemplate) {

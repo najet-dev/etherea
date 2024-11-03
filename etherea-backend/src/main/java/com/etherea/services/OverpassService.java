@@ -2,7 +2,6 @@ package com.etherea.services;
 
 import com.etherea.exception.GeocodingApiException;
 import com.etherea.exception.PickupPointNotFoundException;
-import com.etherea.interfaces.IOverpass;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.*;
 
 @Service
-public class OverpassService implements IOverpass {
+public class OverpassService {
     private final RestTemplate restTemplate;
 
     @Autowired
@@ -21,80 +20,66 @@ public class OverpassService implements IOverpass {
     }
 
     public List<Map<String, Object>> getNearbyPickupPoints(double latitude, double longitude, double radius) {
-        // Vérification des valeurs pour s'assurer qu'elles sont dans les limites acceptées
+        validateCoordinates(latitude, longitude);
+
+        int radiusInt = (int) Math.round(radius);
+        String url = buildOverpassUrl(latitude, longitude, radiusInt);
+
+        String response = restTemplate.getForObject(url, String.class);
+        if (response == null) {
+            throw new PickupPointNotFoundException("No response from Overpass API for the provided coordinates.");
+        }
+
+        return parsePickupPoints(response, latitude, longitude);
+    }
+
+    private void validateCoordinates(double latitude, double longitude) {
         if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-            throw new IllegalArgumentException("Valeurs de latitude ou longitude incorrectes : " +
+            throw new IllegalArgumentException("Invalid latitude or longitude values: " +
                     "latitude = " + latitude + ", longitude = " + longitude);
         }
+    }
 
-        try {
-            // Arrondir le rayon à l'entier le plus proche
-            int radiusInt = (int) Math.round(radius);
+    private String buildOverpassUrl(double latitude, double longitude, int radius) {
+        return String.format(
+                Locale.ROOT,
+                "https://overpass-api.de/api/interpreter?data=[out:json];" +
+                        "(node[\"amenity\"=\"post_office\"](around:%d,%.6f,%.6f);" +
+                        "node[\"amenity\"=\"parcel_locker\"](around:%d,%.6f,%.6f);" +
+                        "node[\"shop\"](around:%d,%.6f,%.6f);" +
+                        ");out;",
+                radius, latitude, longitude,
+                radius, latitude, longitude,
+                radius, latitude, longitude
+        );
+    }
 
-            // Reformater la requête Overpass pour inclure les coordonnées correctement formatées
-            String url = String.format(
-                    Locale.ROOT,
-                    "https://overpass-api.de/api/interpreter?data=[out:json];" +
-                            "(node[\"amenity\"=\"post_office\"](around:%d,%.6f,%.6f);" +
-                            "node[\"amenity\"=\"parcel_locker\"](around:%d,%.6f,%.6f);" +
-                            "node[\"shop\"](around:%d,%.6f,%.6f);" +
-                            ");out;",
-                    radiusInt, latitude, longitude,
-                    radiusInt, latitude, longitude,
-                    radiusInt, latitude, longitude
-            );
+    private List<Map<String, Object>> parsePickupPoints(String response, double latitude, double longitude) {
+        JSONObject jsonResponse = new JSONObject(response);
+        JSONArray elements = jsonResponse.optJSONArray("elements");
 
-            System.out.println("URL de la requête Overpass : " + url);
-
-            String response = restTemplate.getForObject(url, String.class);
-            if (response == null) {
-                throw new PickupPointNotFoundException("Aucune réponse de l'API Overpass pour les coordonnées fournies.");
-            }
-
-            JSONObject jsonResponse = new JSONObject(response);
-            JSONArray elements = jsonResponse.optJSONArray("elements");
-
-            List<Map<String, Object>> pickupPoints = new ArrayList<>();
-            if (elements != null && elements.length() > 0) {
-                for (int i = 0; i < elements.length(); i++) {
-                    JSONObject element = elements.getJSONObject(i);
-
-                    // Vérification et filtrage des points avec des coordonnées valides
-                    if (element.has("lat") && element.has("lon")) {
-                        double lat = element.getDouble("lat");
-                        double lon = element.getDouble("lon");
-
-                        if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
-                            Map<String, Object> point = new HashMap<>();
-                            point.put("id", element.getLong("id"));
-                            point.put("lat", lat);
-                            point.put("lon", lon);
-
-                            // Gestion des tags pour obtenir le nom
-                            if (element.has("tags")) {
-                                JSONObject tags = element.getJSONObject("tags");
-                                point.put("name", tags.optString("name", "Nom non disponible"));
-                            } else {
-                                point.put("name", "Nom non disponible");
-                            }
-
-                            // Récupérer l'adresse complète
-                            String address = getCompleteAddress(lat, lon);
-                            point.put("address", address);
-
-                            pickupPoints.add(point);
-                        } else {
-                            System.err.println("Coordonnées invalides détectées pour l'élément " + element);
-                        }
-                    }
-                }
-            } else {
-                throw new PickupPointNotFoundException("Aucun point relais trouvé dans la réponse de l'API Overpass.");
-            }
-            return pickupPoints;
-        } catch (Exception e) {
-            throw new PickupPointNotFoundException("Erreur lors de la récupération des points relais : " + e.getMessage(), e);
+        if (elements == null || elements.length() == 0) {
+            throw new PickupPointNotFoundException("No pickup points found in the Overpass API response.");
         }
+
+        List<Map<String, Object>> pickupPoints = new ArrayList<>();
+        for (int i = 0; i < elements.length(); i++) {
+            JSONObject element = elements.getJSONObject(i);
+            if (element.has("lat") && element.has("lon")) {
+                double lat = element.getDouble("lat");
+                double lon = element.getDouble("lon");
+
+                Map<String, Object> point = new HashMap<>();
+                point.put("id", element.getLong("id"));
+                point.put("lat", lat);
+                point.put("lon", lon);
+                point.put("name", element.optJSONObject("tags").optString("name", "No name available"));
+                point.put("address", getCompleteAddress(lat, lon));
+
+                pickupPoints.add(point);
+            }
+        }
+        return pickupPoints;
     }
 
     public String getCompleteAddress(double latitude, double longitude) {
@@ -103,12 +88,12 @@ public class OverpassService implements IOverpass {
                     + latitude + "&lon=" + longitude + "&format=json";
             String response = restTemplate.getForObject(url, String.class);
             if (response == null) {
-                throw new GeocodingApiException("Erreur de l'API de géocodage : réponse vide.");
+                throw new GeocodingApiException("Empty response from geocoding API.");
             }
             JSONObject jsonResponse = new JSONObject(response);
-            return jsonResponse.optString("display_name", "Adresse non trouvée");
+            return jsonResponse.optString("display_name", "Address not found");
         } catch (Exception e) {
-            throw new GeocodingApiException("Erreur lors de la récupération de l'adresse : " + e.getMessage(), e);
+            throw new GeocodingApiException("Error retrieving address: " + e.getMessage(), e);
         }
     }
 }

@@ -9,35 +9,52 @@ import com.etherea.models.PickupPointDelivery;
 public class DeliveryMethodFactory {
 
     /**
-     * Creates a DeliveryMethod based on the specified DeliveryOption.
-     * @param option The type of delivery option to create.
+     * Creates a DeliveryMethod instance based on the specified DeliveryOption.
+     *
+     * @param option The delivery option type to create.
+     * @param orderAmount The order amount to calculate delivery cost.
      * @return An instance of the appropriate DeliveryMethod.
      * @throws IllegalArgumentException if the delivery option is unsupported.
      */
-    public static DeliveryMethod createDeliveryMethod(DeliveryOption option) {
-        return switch (option) {
-            case HOME_EXPRESS -> new HomeExpressDelivery();
-            case HOME_STANDARD -> new HomeStandardDelivery();
-            case PICKUP_POINT -> new PickupPointDelivery();
-            default -> throw new IllegalArgumentException("Unsupported delivery option: " + option);
-        };
+    public static DeliveryMethod createDeliveryMethod(DeliveryOption option, Double orderAmount) {
+        switch (option) {
+            case HOME_EXPRESS:
+                return new HomeExpressDelivery(orderAmount);
+            case HOME_STANDARD:
+                return new HomeStandardDelivery(orderAmount);
+            case PICKUP_POINT:
+                throw new IllegalArgumentException("For PICKUP_POINT, please provide pickup location details.");
+            default:
+                throw new IllegalArgumentException("Unsupported delivery option: " + option);
+        }
     }
 
     /**
-     * Overloaded factory method to create PickupPointDelivery with additional parameters.
-     * @param option The type of delivery option to create.
+     * Creates a PickupPointDelivery with additional details about the pickup location.
+     *
+     * @param option The delivery option type to create.
      * @param name The name of the pickup point (for PICKUP_POINT only).
      * @param address The address of the pickup point (for PICKUP_POINT only).
      * @param latitude Latitude for the pickup point location.
      * @param longitude Longitude for the pickup point location.
-     * @return An instance of the appropriate DeliveryMethod.
-     * @throws IllegalArgumentException if the delivery option or parameters are unsupported.
+     * @param orderAmount The order amount to calculate delivery cost.
+     * @return An instance of PickupPointDelivery initialized with the specified details.
+     * @throws IllegalArgumentException if the delivery option is not PICKUP_POINT or parameters are invalid.
      */
-    public static DeliveryMethod createDeliveryMethod(DeliveryOption option, String name, String address, Double latitude, Double longitude) {
-        if (option == DeliveryOption.PICKUP_POINT) {
-            return new PickupPointDelivery(name, address, latitude, longitude);
-        } else {
-            throw new IllegalArgumentException("Additional parameters only supported for PICKUP_POINT delivery option.");
+    public static DeliveryMethod createPickupPointDelivery(
+            DeliveryOption option,
+            String name,
+            String address,
+            Double latitude,
+            Double longitude,
+            Double orderAmount
+    ) {
+        if (option != DeliveryOption.PICKUP_POINT) {
+            throw new IllegalArgumentException("Additional parameters are only supported for PICKUP_POINT delivery option.");
         }
+        if (name == null || name.isEmpty() || address == null || address.isEmpty()) {
+            throw new IllegalArgumentException("Name and address are required for pickup point delivery.");
+        }
+        return new PickupPointDelivery(name, address, latitude, longitude, orderAmount);
     }
 }
