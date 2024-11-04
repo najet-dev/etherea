@@ -12,12 +12,10 @@ public class DeliveryMethodDTO {
     private DeliveryOption deliveryOption;
     private LocalDate expectedDeliveryDate;
     private Double cost;
-
     private String name;
     private String address;
     private Double latitude;
     private Double longitude;
-
     public DeliveryMethodDTO() {}
 
     public DeliveryMethodDTO(Long id, DeliveryOption deliveryOption, LocalDate expectedDeliveryDate, Double cost,

@@ -12,20 +12,17 @@ public class HomeExpressDelivery extends DeliveryMethod {
     private static final Double EXPRESS_SHIPPING_COST = 8.0;
     private static final int DELIVERY_DAYS = 2;
 
-    // Constructeur initialisant le coût basé sur le montant de la commande
     public HomeExpressDelivery(Double orderAmount) {
         super(DeliveryOption.HOME_EXPRESS, orderAmount);
     }
-
     @Override
     public LocalDate calculateExpectedDeliveryDate() {
         return LocalDate.now().plusDays(DELIVERY_DAYS);
     }
-
     @Override
     public Double calculateCost(Double orderAmount) {
         if (orderAmount == null || orderAmount < 0) {
-            throw new IllegalArgumentException("Order amount must be non-negative.");
+            throw new IllegalArgumentException("Le montant de la commande doit être non négatif.");
         }
         return (orderAmount < FREE_SHIPPING_THRESHOLD) ? EXPRESS_SHIPPING_COST : 0.0;
     }

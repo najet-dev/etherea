@@ -3,6 +3,7 @@ package com.etherea.models;
 import com.etherea.enums.DeliveryOption;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -15,20 +16,18 @@ public abstract class DeliveryMethod {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DeliveryOption deliveryOption;
-
     private LocalDate expectedDeliveryDate;
     private Double cost;
 
-    // Constructeur par défaut requis par JPA
     public DeliveryMethod() {}
 
     public DeliveryMethod(DeliveryOption deliveryOption, Double orderAmount) {
-        this.deliveryOption = deliveryOption;
+        this.deliveryOption = Objects.requireNonNull(deliveryOption, "DeliveryOption ne peut pas être nul.");
         this.expectedDeliveryDate = calculateExpectedDeliveryDate();
         this.cost = calculateCost(orderAmount);
     }
 
-    // Méthodes abstraites pour le calcul de la date de livraison et du coût
+    // Méthodes abstraites pour calculer la date de livraison et le coût
     public abstract LocalDate calculateExpectedDeliveryDate();
     public abstract Double calculateCost(Double orderAmount);
 
@@ -42,7 +41,7 @@ public abstract class DeliveryMethod {
     public LocalDate getExpectedDeliveryDate() { return expectedDeliveryDate; }
     public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
         if (expectedDeliveryDate == null || expectedDeliveryDate.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Expected delivery date must be in the future.");
+            throw new IllegalArgumentException("La date de livraison prévue doit être dans le futur.");
         }
         this.expectedDeliveryDate = expectedDeliveryDate;
     }
@@ -50,7 +49,7 @@ public abstract class DeliveryMethod {
     public Double getCost() { return cost; }
     public void setCost(Double cost) {
         if (cost == null || cost < 0) {
-            throw new IllegalArgumentException("Cost must be non-negative.");
+            throw new IllegalArgumentException("Le coût doit être non négatif.");
         }
         this.cost = cost;
     }

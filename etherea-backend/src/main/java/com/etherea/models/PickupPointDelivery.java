@@ -3,6 +3,7 @@ package com.etherea.models;
 import com.etherea.enums.DeliveryOption;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Entity
 @DiscriminatorValue("PICKUP_POINT")
@@ -26,24 +27,10 @@ public class PickupPointDelivery extends DeliveryMethod {
 
     public PickupPointDelivery(String name, String address, Double latitude, Double longitude, Double orderAmount) {
         super(DeliveryOption.PICKUP_POINT, orderAmount); // Passer le montant de la commande à la classe parente
-        this.name = name;
-        this.address = address;
+        this.name = Objects.requireNonNull(name, "Le nom ne peut pas être nul.");
+        this.address = Objects.requireNonNull(address, "L'adresse ne peut pas être nulle.");
         setLatitude(latitude);
         setLongitude(longitude);
-    }
-
-    @Override
-    public LocalDate calculateExpectedDeliveryDate() {
-        return LocalDate.now().plusDays(DELIVERY_DAYS); // Retourne la date de livraison prévue
-    }
-
-    @Override
-    public Double calculateCost(Double orderAmount) {
-        // Retourne le coût de la livraison basé sur le montant de la commande
-        if (orderAmount != null) {
-            return (orderAmount < FREE_SHIPPING_THRESHOLD) ? SHIPPING_COST : 0.0;
-        }
-        return 0.0; // Si orderAmount est nul, on peut retourner 0.0 par défaut
     }
 
     // Getters et Setters
@@ -56,16 +43,26 @@ public class PickupPointDelivery extends DeliveryMethod {
     public Double getLatitude() { return latitude; }
     public void setLatitude(Double latitude) {
         if (latitude != null && (latitude < -90 || latitude > 90)) {
-            throw new IllegalArgumentException("Latitude must be between -90 and 90.");
+            throw new IllegalArgumentException("La latitude doit être comprise entre -90 et 90.");
         }
         this.latitude = latitude;
     }
-
     public Double getLongitude() { return longitude; }
     public void setLongitude(Double longitude) {
         if (longitude != null && (longitude < -180 || longitude > 180)) {
-            throw new IllegalArgumentException("Longitude must be between -180 and 180.");
+            throw new IllegalArgumentException("La longitude doit être comprise entre -180 et 180.");
         }
         this.longitude = longitude;
+    }
+    @Override
+    public LocalDate calculateExpectedDeliveryDate() {
+        return LocalDate.now().plusDays(DELIVERY_DAYS); // Retourne la date de livraison prévue
+    }
+    @Override
+    public Double calculateCost(Double orderAmount) {
+        if (orderAmount == null || orderAmount < 0) {
+            throw new IllegalArgumentException("Le montant de la commande doit être non négatif.");
+        }
+        return (orderAmount < FREE_SHIPPING_THRESHOLD) ? SHIPPING_COST : 0.0; // Retourne le coût basé sur le montant de la commande
     }
 }

@@ -12,20 +12,17 @@ public class HomeStandardDelivery extends DeliveryMethod {
     private static final Double STANDARD_SHIPPING_COST = 5.0;
     private static final int DELIVERY_DAYS = 7;
 
-    // Constructeur initialisant le coût basé sur le montant de la commande
     public HomeStandardDelivery(Double orderAmount) {
         super(DeliveryOption.HOME_STANDARD, orderAmount);
     }
-
     @Override
     public LocalDate calculateExpectedDeliveryDate() {
         return LocalDate.now().plusDays(DELIVERY_DAYS);
     }
-
     @Override
     public Double calculateCost(Double orderAmount) {
         if (orderAmount == null || orderAmount < 0) {
-            throw new IllegalArgumentException("Order amount must be non-negative.");
+            throw new IllegalArgumentException("Le montant de la commande doit être non négatif.");
         }
         return (orderAmount < FREE_SHIPPING_THRESHOLD) ? STANDARD_SHIPPING_COST : 0.0;
     }
