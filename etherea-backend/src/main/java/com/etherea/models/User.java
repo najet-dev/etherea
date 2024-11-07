@@ -15,24 +15,33 @@ public class User {
     private String lastName;
     private String username;
     private String password;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CartItem> cartItems = new ArrayList<>();
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Command> commands = new ArrayList<>();
 
-    public User() {
-    }
+    // Ajout de la relation avec les DeliveryAddress
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<DeliveryAddress> addresses = new ArrayList<>();
+
+    public User() {}
+
     public User(String firstName, String lastName, String username, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.password = password;
     }
+
+    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -80,5 +89,21 @@ public class User {
     }
     public void setCommands(List<Command> commands) {
         this.commands = commands;
+    }
+
+    // Getter et Setter pour les addresses
+    public List<DeliveryAddress> getAddresses() {
+        return addresses;
+    }
+    public void setAddresses(List<DeliveryAddress> addresses) {
+        this.addresses = addresses;
+    }
+
+    // Méthode pour obtenir l'adresse par défaut
+    public DeliveryAddress getDefaultAddress() {
+        return this.getAddresses().stream()
+                .filter(DeliveryAddress::isDefault)
+                .findFirst()
+                .orElse(null);
     }
 }

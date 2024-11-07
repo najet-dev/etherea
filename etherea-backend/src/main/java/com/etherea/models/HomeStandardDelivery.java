@@ -1,29 +1,53 @@
 package com.etherea.models;
 
 import com.etherea.enums.DeliveryOption;
-import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import java.time.LocalDate;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
-@DiscriminatorValue("HOME_STANDARD")
 public class HomeStandardDelivery extends DeliveryMethod {
-    private static final Double FREE_SHIPPING_THRESHOLD = 50.0;
-    private static final Double STANDARD_SHIPPING_COST = 5.0;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_address_id", nullable = false)
+    private DeliveryAddress deliveryAddress;
+
+    private static final double FREE_SHIPPING_THRESHOLD = 50.0;
+    private static final double STANDARD_SHIPPING_COST = 5.0;
     private static final int DELIVERY_DAYS = 7;
 
-    public HomeStandardDelivery(Double orderAmount) {
-        super(DeliveryOption.HOME_STANDARD, orderAmount);
+    public HomeStandardDelivery() {}
+
+    public HomeStandardDelivery(DeliveryAddress deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
+
     @Override
-    public LocalDate calculateExpectedDeliveryDate() {
-        return LocalDate.now().plusDays(DELIVERY_DAYS);
+    public double calculateCost(double orderAmount) {
+        return orderAmount < FREE_SHIPPING_THRESHOLD ? STANDARD_SHIPPING_COST : 0.0;
     }
+
     @Override
-    public Double calculateCost(Double orderAmount) {
-        if (orderAmount == null || orderAmount < 0) {
-            throw new IllegalArgumentException("Le montant de la commande doit être non négatif.");
-        }
-        return (orderAmount < FREE_SHIPPING_THRESHOLD) ? STANDARD_SHIPPING_COST : 0.0;
+    public int calculateDeliveryTime() {
+        return DELIVERY_DAYS;  // Délai en jours ouvrés
+    }
+
+    @Override
+    public DeliveryOption getDeliveryOption() {
+        return DeliveryOption.HOME_STANDARD;
+    }
+
+    @Override
+    public String getDescription() {
+        return "Livraison à domicile standard";
+    }
+
+    public DeliveryAddress getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
 }
