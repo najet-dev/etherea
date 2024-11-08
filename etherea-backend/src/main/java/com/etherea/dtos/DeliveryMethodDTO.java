@@ -2,68 +2,159 @@ package com.etherea.dtos;
 
 import com.etherea.enums.DeliveryOption;
 import com.etherea.models.DeliveryMethod;
-import com.etherea.models.PickupPoint;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.etherea.models.DeliveryAddress;
+import com.etherea.models.HomeExpressDelivery;
+import com.etherea.models.HomeStandardDelivery;
+import com.etherea.models.PickupPointDelivery;
+import com.etherea.utils.DeliveryDateCalculator;
 
 import java.time.LocalDate;
 
 public class DeliveryMethodDTO {
     private Long id;
     private DeliveryOption deliveryOption;
-    private PickupPointDTO pickupPoint; // Utilisation du DTO pour PickupPoint
     private LocalDate expectedDeliveryDate;
+    private Double cost;
+    private DeliveryAddressDTO deliveryAddress; // pour les livraisons à domicile
+    private String pickupPointName;  // pour les points relais
+    private String pickupPointAddress; // pour les points relais
+    private Double pickupPointLatitude;  // pour les points relais
+    private Double pickupPointLongitude; // pour les points relais
+
     public DeliveryMethodDTO() {}
-    public DeliveryMethodDTO(Long id, DeliveryOption deliveryOption, PickupPointDTO pickupPoint, LocalDate expectedDeliveryDate) {
+
+    public DeliveryMethodDTO(Long id, DeliveryOption deliveryOption, LocalDate expectedDeliveryDate, Double cost,
+                             DeliveryAddressDTO deliveryAddress, String pickupPointName, String pickupPointAddress,
+                             Double pickupPointLatitude, Double pickupPointLongitude) {
         this.id = id;
         this.deliveryOption = deliveryOption;
-        this.pickupPoint = pickupPoint;
         this.expectedDeliveryDate = expectedDeliveryDate;
+        this.cost = cost;
+        this.deliveryAddress = deliveryAddress;
+        this.pickupPointName = pickupPointName;
+        this.pickupPointAddress = pickupPointAddress;
+        this.pickupPointLatitude = pickupPointLatitude;
+        this.pickupPointLongitude = pickupPointLongitude;
     }
 
-    // Getters et Setters
+    // Getters et setters
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public DeliveryOption getDeliveryOption() {
         return deliveryOption;
     }
+
     public void setDeliveryOption(DeliveryOption deliveryOption) {
         this.deliveryOption = deliveryOption;
     }
-    public PickupPointDTO getPickupPoint() {
-        return pickupPoint;
-    }
-    public void setPickupPoint(PickupPointDTO pickupPoint) {
-        this.pickupPoint = pickupPoint;
-    }
+
     public LocalDate getExpectedDeliveryDate() {
         return expectedDeliveryDate;
     }
+
     public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
     }
-    // Méthode de conversion de l'entité vers le DTO
-    public static DeliveryMethodDTO fromDeliveryMethod(DeliveryMethod deliveryMethod) {
-        return new DeliveryMethodDTO(
-                deliveryMethod.getId(),
-                deliveryMethod.getDeliveryOption(),
-                deliveryMethod.getPickupPoint() != null ? PickupPointDTO.fromPickupPoint(deliveryMethod.getPickupPoint()) : null,
-                deliveryMethod.getExpectedDeliveryDate()
-        );
+
+    public Double getCost() {
+        return cost;
     }
-    // Méthode de conversion du DTO vers l'entité
-    public DeliveryMethod toDeliveryMethod() {
-        DeliveryMethod deliveryMethod = new DeliveryMethod();
-        deliveryMethod.setId(this.id);
-        deliveryMethod.setDeliveryOption(this.deliveryOption);
-        deliveryMethod.setPickupPoint(this.pickupPoint != null ? this.pickupPoint.toPickupPoint() : null);
-        deliveryMethod.setExpectedDeliveryDate(this.expectedDeliveryDate);
-        return deliveryMethod;
+
+    public void setCost(Double cost) {
+        this.cost = cost;
+    }
+
+    public DeliveryAddressDTO getDeliveryAddress() {
+        return deliveryAddress;
+    }
+
+    public void setDeliveryAddress(DeliveryAddressDTO deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
+    }
+
+    public String getPickupPointName() {
+        return pickupPointName;
+    }
+
+    public void setPickupPointName(String pickupPointName) {
+        this.pickupPointName = pickupPointName;
+    }
+
+    public String getPickupPointAddress() {
+        return pickupPointAddress;
+    }
+
+    public void setPickupPointAddress(String pickupPointAddress) {
+        this.pickupPointAddress = pickupPointAddress;
+    }
+
+    public Double getPickupPointLatitude() {
+        return pickupPointLatitude;
+    }
+
+    public void setPickupPointLatitude(Double pickupPointLatitude) {
+        this.pickupPointLatitude = pickupPointLatitude;
+    }
+
+    public Double getPickupPointLongitude() {
+        return pickupPointLongitude;
+    }
+
+    public void setPickupPointLongitude(Double pickupPointLongitude) {
+        this.pickupPointLongitude = pickupPointLongitude;
+    }
+
+    // Méthode de conversion depuis DeliveryMethod
+    public static DeliveryMethodDTO fromDeliveryMethod(
+            DeliveryMethod deliveryMethod,
+            DeliveryAddress userAddress,
+            LocalDate startDate,
+            double orderAmount,
+            DeliveryDateCalculator calculator
+    ) {
+        DeliveryAddressDTO addressDTO = userAddress != null ? DeliveryAddressDTO.fromDeliveryAddress(userAddress) : null;
+        int deliveryDays = deliveryMethod.calculateDeliveryTime();
+        LocalDate expectedDeliveryDate = calculator.calculateDeliveryDate(startDate, deliveryDays);
+        Double cost = deliveryMethod.calculateCost(orderAmount);
+
+        if (deliveryMethod instanceof PickupPointDelivery pickupPoint) {
+            return new DeliveryMethodDTO(
+                    pickupPoint.getId(),
+                    DeliveryOption.PICKUP_POINT,
+                    expectedDeliveryDate,
+                    cost,
+                    null,
+                    pickupPoint.getPickupPointName(),
+                    pickupPoint.getPickupPointAddress(),
+                    pickupPoint.getPickupPointLatitude(),
+                    pickupPoint.getPickupPointLongitude()
+            );
+        } else if (deliveryMethod instanceof HomeStandardDelivery standardDelivery) {
+            return new DeliveryMethodDTO(
+                    standardDelivery.getId(),
+                    DeliveryOption.HOME_STANDARD,
+                    expectedDeliveryDate,
+                    cost,
+                    addressDTO,
+                    null, null, null, null
+            );
+        } else if (deliveryMethod instanceof HomeExpressDelivery expressDelivery) {
+            return new DeliveryMethodDTO(
+                    expressDelivery.getId(),
+                    DeliveryOption.HOME_EXPRESS,
+                    expectedDeliveryDate,
+                    cost,
+                    addressDTO,
+                    null, null, null, null
+            );
+        } else {
+            throw new IllegalArgumentException("Type de méthode de livraison non pris en charge");
+        }
     }
 }

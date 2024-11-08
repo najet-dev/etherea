@@ -19,7 +19,7 @@ public class CartItemTest {
         Product product = new Product();
 
         // Initialize the Volume with a volume size, price, and associate it with the Product
-        Volume volume = new Volume("100ml", new BigDecimal("10.0"), product); // Correct order and types
+        Volume volume = new Volume(100, new BigDecimal("10.0"), product); // Correct order and types
 
         // Initialize the Cart
         Cart cart = new Cart();
@@ -44,12 +44,12 @@ public class CartItemTest {
     public void testCalculateTotalPrice() {
         // Initialize products, volumes, cart, and cart items
         Product product1 = new Product();
-        Volume volume1 = new Volume("100ml", new BigDecimal("10.0"), product1);
+        Volume volume1 = new Volume(100, new BigDecimal("10.0"), product1);
         Cart cart = new Cart();
         CartItem cartItem1 = new CartItem(1L, 10, product1, volume1, cart);
 
         Product product2 = new Product();
-        Volume volume2 = new Volume("200ml", new BigDecimal("15.0"), product2);
+        Volume volume2 = new Volume(200, new BigDecimal("15.0"), product2);
         CartItem cartItem2 = new CartItem(2L, 5, product2, volume2, cart);
 
         // Calculate total price

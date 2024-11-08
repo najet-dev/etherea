@@ -3,48 +3,25 @@ package com.etherea.models;
 import com.etherea.enums.DeliveryOption;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
-
 @Entity
-public class DeliveryMethod {
+@Table(name = "deliveryMethod")
+@Inheritance(strategy=InheritanceType.JOINED)
+public abstract class DeliveryMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Enumerated(EnumType.STRING)
-    private DeliveryOption deliveryOption;
-    @ManyToOne
-    @JoinColumn(name = "pickup_point_id")
-    private PickupPoint pickupPoint;
-    private LocalDate expectedDeliveryDate;
-    public DeliveryMethod() {}
-    public DeliveryMethod(Long id, DeliveryOption deliveryOption, PickupPoint pickupPoint, LocalDate expectedDeliveryDate) {
-        this.id = id;
-        this.deliveryOption = deliveryOption;
-        this.pickupPoint = pickupPoint;
-        this.expectedDeliveryDate = expectedDeliveryDate;
-    }
+    private Long id; // Champ ID pour la gestion des identifiants JPA
     public Long getId() {
         return id;
     }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public DeliveryOption getDeliveryOption() {
-        return deliveryOption;
-    }
-    public void setDeliveryOption(DeliveryOption deliveryOption) {
-        this.deliveryOption = deliveryOption;
-    }
-    public PickupPoint getPickupPoint() {
-        return pickupPoint;
-    }
-    public void setPickupPoint(PickupPoint pickupPoint) {
-        this.pickupPoint = pickupPoint;
-    }
-    public LocalDate getExpectedDeliveryDate() {
-        return expectedDeliveryDate;
-    }
-    public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
-        this.expectedDeliveryDate = expectedDeliveryDate;
-    }
+    // Méthode abstraite pour calculer le coût de livraison
+    public abstract double calculateCost(double orderAmount);
+
+    // Méthode abstraite pour calculer le temps de livraison
+    public abstract int calculateDeliveryTime(); // en jours ouvrés
+
+    // Méthode abstraite pour récupérer l'option de livraison
+    public abstract DeliveryOption getDeliveryOption();
+
+    // Méthode abstraite pour obtenir la description de la livraison
+    public abstract String getDescription();
 }

@@ -11,6 +11,7 @@ public class DeliveryAddressDTO {
     private String phoneNumber;
     private UserDTO user;
     private boolean isDefault;
+
     public DeliveryAddressDTO() {}
     public DeliveryAddressDTO(Long id, String address, String city, int zipCode, String country, String phoneNumber, boolean isDefault, UserDTO user) {
         this.id = id;
@@ -102,4 +103,8 @@ public class DeliveryAddressDTO {
         }
         return deliveryAddress;
     }
+    public String getFullAddress() {
+        return address + ", " + city + ", " + zipCode + ", " + country;
+    }
+
 }
