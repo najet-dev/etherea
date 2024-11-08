@@ -17,11 +17,10 @@ public class DeliveryMethodDTO {
     private Double cost;
     private DeliveryAddressDTO deliveryAddress; // pour les livraisons à domicile
     private String pickupPointName;  // pour les points relais
-    private String pickupPointAddress;
-    private Double pickupPointLatitude;
-    private Double pickupPointLongitude;
+    private String pickupPointAddress; // pour les points relais
+    private Double pickupPointLatitude;  // pour les points relais
+    private Double pickupPointLongitude; // pour les points relais
 
-    // Constructeurs
     public DeliveryMethodDTO() {}
 
     public DeliveryMethodDTO(Long id, DeliveryOption deliveryOption, LocalDate expectedDeliveryDate, Double cost,

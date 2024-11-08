@@ -10,7 +10,6 @@ public abstract class DeliveryMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // Champ ID pour la gestion des identifiants JPA
-
     public Long getId() {
         return id;
     }

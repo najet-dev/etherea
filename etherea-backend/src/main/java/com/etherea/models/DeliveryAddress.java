@@ -95,4 +95,9 @@ public class DeliveryAddress {
     public void setStandardDeliveries(List<HomeStandardDelivery> standardDeliveries) {
         this.standardDeliveries = standardDeliveries;
     }
+    // Dans DeliveryAddress.java
+    public String getFullAddress() {
+        return address + ", " + city + ", " + zipCode + ", " + country;
+    }
+
 }

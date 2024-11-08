@@ -10,13 +10,10 @@ public class PickupPointDelivery extends DeliveryMethod {
     private static final double FREE_SHIPPING_THRESHOLD = 50.0; // Seuil pour livraison gratuite
     private static final double SHIPPING_COST = 3.0; // Coût de livraison standard
     private static final int DELIVERY_DAYS = 8; // Délai de livraison standard
-
     @Column(nullable = false)
     private String pickupPointName;
-
     @Column(nullable = false)
     private String pickupPointAddress;
-
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
 
