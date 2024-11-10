@@ -17,7 +17,7 @@ import java.util.Locale;
 @Service
 public class PickupPointService {
     private static final String OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
-    private static final String NOMINATIM_API_URL = "https://nominatim.openstreetmap.org/search";
+    private static final String NOMINATIM_API_URL = "https://nominatim.openstreetmap.org/reverse";
 
     @Autowired
     private DeliveryAddressRepository deliveryAddressRepository;
@@ -34,10 +34,10 @@ public class PickupPointService {
         double longitude;
         try {
             String geocodeUrl = String.format("%s?q=%s&format=json&limit=1",
-                    NOMINATIM_API_URL, userAddress.getFullAddress().replace(" ", "+"));
+                    NOMINATIM_API_URL.replace("/reverse", "/search"), userAddress.getFullAddress().replace(" ", "+"));
             JsonNode geocodeResponse = restTemplate.getForObject(geocodeUrl, JsonNode.class);
 
-            if (geocodeResponse != null && geocodeResponse.size() > 0) {
+            if (geocodeResponse != null && !geocodeResponse.isEmpty()) {
                 latitude = geocodeResponse.get(0).path("lat").asDouble();
                 longitude = geocodeResponse.get(0).path("lon").asDouble();
             } else {
@@ -65,14 +65,38 @@ public class PickupPointService {
                 dto.setUserId(userId);
                 dto.setDeliveryOption(DeliveryOption.PICKUP_POINT);
                 dto.setPickupPointName(node.path("tags").path("name").asText("Unknown Pickup Point"));
-                dto.setPickupPointAddress(node.path("tags").path("addr:street").asText("Address not available"));
                 dto.setPickupPointLatitude(node.path("lat").asDouble());
                 dto.setPickupPointLongitude(node.path("lon").asDouble());
+
+                // Enrichir l'adresse complète via reverse geocoding Nominatim
+                String fullAddress = getFullAddressFromCoordinates(dto.getPickupPointLatitude(), dto.getPickupPointLongitude());
+                dto.setPickupPointAddress(fullAddress != null ? fullAddress : "Address not available");
+
                 pickupPoints.add(dto);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch pickup points from Overpass API", e);
         }
         return pickupPoints;
+    }
+    private String getFullAddressFromCoordinates(double latitude, double longitude) {
+        try {
+            // Formater les coordonnées en précisant les décimales
+            String reverseGeocodeUrl = String.format(Locale.ROOT, "%s?lat=%.6f&lon=%.6f&format=json", NOMINATIM_API_URL, latitude, longitude);
+
+            // Appeler Nominatim avec les coordonnées formatées
+            JsonNode reverseGeocodeResponse = restTemplate.getForObject(reverseGeocodeUrl, JsonNode.class);
+
+            // Log de la réponse pour vérifier ce qui est renvoyé par Nominatim
+            System.out.println("Réponse de Nominatim pour (" + latitude + ", " + longitude + "): " + reverseGeocodeResponse);
+
+            // Extraire l'adresse complète si disponible
+            return reverseGeocodeResponse != null && reverseGeocodeResponse.has("display_name")
+                    ? reverseGeocodeResponse.path("display_name").asText()
+                    : "Adresse non disponible";
+        } catch (Exception e) {
+            System.err.println("Erreur lors du reverse geocoding pour (" + latitude + ", " + longitude + "): " + e.getMessage());
+            return "Erreur d'obtention de l'adresse";
+        }
     }
 }

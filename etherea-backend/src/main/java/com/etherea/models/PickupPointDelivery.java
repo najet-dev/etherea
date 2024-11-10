@@ -1,8 +1,7 @@
 package com.etherea.models;
 
 import com.etherea.enums.DeliveryOption;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 
 @Entity
 public class PickupPointDelivery extends DeliveryMethod {
@@ -16,6 +15,9 @@ public class PickupPointDelivery extends DeliveryMethod {
     private String pickupPointAddress;
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public PickupPointDelivery() {}
 
@@ -26,56 +28,50 @@ public class PickupPointDelivery extends DeliveryMethod {
         this.pickupPointLatitude = pickupPointLatitude;
         this.pickupPointLongitude = pickupPointLongitude;
     }
-
     @Override
     public double calculateCost(double orderAmount) {
         return orderAmount < FREE_SHIPPING_THRESHOLD ? SHIPPING_COST : 0.0;
     }
-
     @Override
     public int calculateDeliveryTime() {
         return DELIVERY_DAYS;  // Délai en jours ouvrés
     }
-
     @Override
     public DeliveryOption getDeliveryOption() {
         return DeliveryOption.PICKUP_POINT;
     }
-
     @Override
     public String getDescription() {
         return "Livraison au point relais";
     }
-
     public String getPickupPointName() {
         return pickupPointName;
     }
-
     public void setPickupPointName(String pickupPointName) {
         this.pickupPointName = pickupPointName;
     }
-
     public String getPickupPointAddress() {
         return pickupPointAddress;
     }
-
     public void setPickupPointAddress(String pickupPointAddress) {
         this.pickupPointAddress = pickupPointAddress;
     }
-
     public Double getPickupPointLatitude() {
         return pickupPointLatitude;
     }
-
     public void setPickupPointLatitude(Double pickupPointLatitude) {
         this.pickupPointLatitude = pickupPointLatitude;
     }
-
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
-
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
+    }
+    public User getUser() {
+        return user;
+    }
+    public void setUser(User user) {
+        this.user = user;
     }
 }
