@@ -18,12 +18,10 @@ import java.util.Locale;
 public class PickupPointService {
     private static final String OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
     private static final String NOMINATIM_API_URL = "https://nominatim.openstreetmap.org/reverse";
-
     @Autowired
     private DeliveryAddressRepository deliveryAddressRepository;
     @Autowired
     private RestTemplate restTemplate;
-
     public List<AddDeliveryMethodRequestDTO> findPickupPoints(Long userId) {
         // Récupérer l'adresse de l'utilisateur
         DeliveryAddress userAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(userId)

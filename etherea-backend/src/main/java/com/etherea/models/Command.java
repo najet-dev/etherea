@@ -2,6 +2,8 @@ package com.etherea.models;
 
 import com.etherea.enums.CommandStatus;
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,28 +14,37 @@ public class Command {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDateTime commandDate;
+
     @Enumerated(EnumType.STRING)
     private CommandStatus status;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_method_id")
     private DeliveryMethod deliveryMethod;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
     @OneToMany(mappedBy = "command", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandItem> commandItems = new ArrayList<>();
+
     public Command() {}
+
     public Command(LocalDateTime commandDate, CommandStatus status, DeliveryAddress deliveryAddress) {
         this.commandDate = commandDate;
         this.status = status;
         this.deliveryAddress = deliveryAddress;
     }
+
     // Getters et Setters
     public Long getId() {
         return id;

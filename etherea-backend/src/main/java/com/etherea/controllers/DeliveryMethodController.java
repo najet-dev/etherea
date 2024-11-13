@@ -15,32 +15,28 @@ import java.util.List;
 @RequestMapping("/deliveryMethods")
 @CrossOrigin(origins = "*")
 public class DeliveryMethodController {
-
     @Autowired
     private DeliveryMethodService deliveryMethodService;
-
     @Autowired
     private PickupPointService pickupPointService;
-
     @GetMapping("/{userId}/{deliveryMethodId}")
     public ResponseEntity<DeliveryMethodDTO> getDeliveryMethod(
             @PathVariable Long userId,
             @PathVariable Long deliveryMethodId) {
 
-        // Appel au service pour récupérer la méthode de livraison existante
         DeliveryMethodDTO deliveryMethodDTO = deliveryMethodService.getDeliveryMethod(userId, deliveryMethodId);
         return ResponseEntity.ok(deliveryMethodDTO);
     }
 
-    @GetMapping("/{userId}")
+    // Récupération des points de collecte disponibles
+    @GetMapping("/{userId}/pickupPoints")
     public ResponseEntity<List<AddDeliveryMethodRequestDTO>> getPickupPoints(@PathVariable Long userId) {
         List<AddDeliveryMethodRequestDTO> pickupPoints = pickupPointService.findPickupPoints(userId);
         return ResponseEntity.ok(pickupPoints);
     }
-
     @PostMapping
     public ResponseEntity<DeliveryMethodDTO> addDeliveryMethod(@RequestBody AddDeliveryMethodRequestDTO request) {
-        // Validation selon le type de mode de livraison
+        // Validation des informations nécessaires pour la livraison en point relais
         if (request.getDeliveryOption() == DeliveryOption.PICKUP_POINT) {
             if (request.getPickupPointName() == null || request.getPickupPointAddress() == null ||
                     request.getPickupPointLatitude() == null || request.getPickupPointLongitude() == null) {
@@ -48,6 +44,7 @@ public class DeliveryMethodController {
             }
         }
 
+        // Appel du service pour ajouter une méthode de livraison
         DeliveryMethodDTO deliveryMethodDTO = deliveryMethodService.addDeliveryMethod(request);
         return ResponseEntity.ok(deliveryMethodDTO);
     }

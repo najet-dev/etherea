@@ -11,7 +11,6 @@ public class AddDeliveryMethodRequestDTO {
     private Double pickupPointLongitude;
     private double orderAmount;
 
-    // Getters et Setters
     public Long getUserId() {
         return userId;
     }

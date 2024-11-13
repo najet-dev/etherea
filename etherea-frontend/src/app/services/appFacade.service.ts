@@ -10,6 +10,7 @@ import { DeliveryAddress } from '../components/models/DeliveryAddress.model';
 import { OrderService } from './order.service';
 import { SignupRequest } from '../components/models/SignupRequest.model';
 import { UserService } from './user.service';
+import { DeliveryAddressService } from './delivery-address.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,7 @@ export class AppFacade {
     public cartService: CartService,
     public favoriteService: FavoriteService,
     private productService: ProductService,
-    private orderService: OrderService,
+    private deliveryAddressService: DeliveryAddressService,
     private userService: UserService
   ) {}
 
@@ -90,28 +91,34 @@ export class AppFacade {
 
   // DeliveryAddress
   getUserDeliveryAddresses(userId: number): Observable<DeliveryAddress[]> {
-    return this.orderService.getUserDeliveryAddresses(userId);
+    return this.deliveryAddressService.getUserDeliveryAddresses(userId);
   }
 
   getDeliveryAddress(
     userId: number,
     addressId: number
   ): Observable<DeliveryAddress> {
-    return this.orderService.getDeliveryAddress(userId, addressId);
+    return this.deliveryAddressService.getDeliveryAddress(userId, addressId);
   }
 
   addDeliveryAddress(
     userId: number,
     deliveryAddress: DeliveryAddress
   ): Observable<DeliveryAddress> {
-    return this.orderService.addDeliveryAddress(userId, deliveryAddress);
+    return this.deliveryAddressService.addDeliveryAddress(
+      userId,
+      deliveryAddress
+    );
   }
 
   updateDeliveryAddress(
     userId: number,
     deliveryAddress: DeliveryAddress
   ): Observable<DeliveryAddress> {
-    return this.orderService.updateDeliveryAddress(userId, deliveryAddress);
+    return this.deliveryAddressService.updateDeliveryAddress(
+      userId,
+      deliveryAddress
+    );
   }
 
   // User

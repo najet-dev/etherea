@@ -5,36 +5,37 @@ import jakarta.persistence.*;
 
 @Entity
 public class PickupPointDelivery extends DeliveryMethod {
-
-    private static final double FREE_SHIPPING_THRESHOLD = 50.0; // Seuil pour livraison gratuite
-    private static final double SHIPPING_COST = 3.0; // Coût de livraison standard
-    private static final int DELIVERY_DAYS = 8; // Délai de livraison standard
+    private static final double SHIPPING_COST = 3.0; // Coût de livraison pour un point relais
+    private static final int DELIVERY_DAYS = 8; // Délai de livraison en jours ouvrés
     @Column(nullable = false)
     private String pickupPointName;
     @Column(nullable = false)
     private String pickupPointAddress;
-    private Double pickupPointLatitude;
-    private Double pickupPointLongitude;
+    @Column(nullable = false)
+    private Double pickupPointLatitude = 0.0;
+    @Column(nullable = false)
+    private Double pickupPointLongitude = 0.0;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
     public PickupPointDelivery() {}
-
     public PickupPointDelivery(String pickupPointName, String pickupPointAddress,
-                               Double pickupPointLatitude, Double pickupPointLongitude) {
+                               Double pickupPointLatitude, Double pickupPointLongitude, User user) {
         this.pickupPointName = pickupPointName;
         this.pickupPointAddress = pickupPointAddress;
-        this.pickupPointLatitude = pickupPointLatitude;
-        this.pickupPointLongitude = pickupPointLongitude;
+        this.pickupPointLatitude = pickupPointLatitude != null ? pickupPointLatitude : 0.0;
+        this.pickupPointLongitude = pickupPointLongitude != null ? pickupPointLongitude : 0.0;
+        this.user = user;
     }
     @Override
     public double calculateCost(double orderAmount) {
-        return orderAmount < FREE_SHIPPING_THRESHOLD ? SHIPPING_COST : 0.0;
+        // Utilise la méthode isFreeShipping pour déterminer si la livraison est gratuite
+        return isFreeShipping(orderAmount) ? 0.0 : SHIPPING_COST;
     }
     @Override
     public int calculateDeliveryTime() {
-        return DELIVERY_DAYS;  // Délai en jours ouvrés
+        // Retourne le nombre de jours ouvrés pour la livraison en point relais
+        return DELIVERY_DAYS;
     }
     @Override
     public DeliveryOption getDeliveryOption() {
@@ -42,8 +43,11 @@ public class PickupPointDelivery extends DeliveryMethod {
     }
     @Override
     public String getDescription() {
+        // Retourne la description de cette méthode de livraison
         return "Livraison au point relais";
     }
+
+    // Getters et Setters
     public String getPickupPointName() {
         return pickupPointName;
     }
@@ -62,6 +66,7 @@ public class PickupPointDelivery extends DeliveryMethod {
     public void setPickupPointLatitude(Double pickupPointLatitude) {
         this.pickupPointLatitude = pickupPointLatitude;
     }
+
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }

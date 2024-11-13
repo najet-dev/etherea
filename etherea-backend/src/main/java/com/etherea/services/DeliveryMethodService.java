@@ -32,8 +32,12 @@ public class DeliveryMethodService {
 
     @Autowired
     private PickupPointDeliveryRepository pickupPointDeliveryRepository;
+
     @Autowired
     private DeliveryMethodRepository deliveryMethodRepository;
+
+    @Autowired
+    private CartRepository cartRepository;
 
     public DeliveryMethodDTO getDeliveryMethod(Long userId, Long deliveryMethodId) {
         userRepository.findById(userId)
@@ -48,7 +52,16 @@ public class DeliveryMethodService {
                         ((HomeExpressDelivery) deliveryMethod).getDeliveryAddress() :
                         null;
 
-        return DeliveryMethodDTO.fromDeliveryMethod(deliveryMethod, deliveryAddress, LocalDate.now(), 0, deliveryDateCalculator);
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Panier introuvable pour l'utilisateur avec l'ID : " + userId));
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Le panier est vide pour l'utilisateur avec l'ID : " + userId);
+        }
+
+        double deliveryCost = calculateDeliveryCost(cart.calculateTotalAmount().doubleValue());
+
+        return DeliveryMethodDTO.fromDeliveryMethod(deliveryMethod, deliveryAddress, LocalDate.now(), deliveryCost, deliveryDateCalculator);
     }
 
     public DeliveryMethodDTO addDeliveryMethod(AddDeliveryMethodRequestDTO request) {
@@ -57,6 +70,15 @@ public class DeliveryMethodService {
 
         DeliveryAddress userAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Aucune adresse trouvée pour l'utilisateur avec l'ID : " + request.getUserId()));
+
+        Cart cart = cartRepository.findByUserId(request.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Panier introuvable pour l'utilisateur avec l'ID : " + request.getUserId()));
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Le panier est vide pour l'utilisateur avec l'ID : " + request.getUserId());
+        }
+
+        double deliveryCost = calculateDeliveryCost(cart.calculateTotalAmount().doubleValue());
 
         DeliveryMethod deliveryMethod;
         LocalDate startDate = LocalDate.now();
@@ -84,16 +106,19 @@ public class DeliveryMethodService {
                         request.getPickupPointName(),
                         request.getPickupPointAddress(),
                         request.getPickupPointLatitude(),
-                        request.getPickupPointLongitude()
+                        request.getPickupPointLongitude(),
+                        user
                 );
-                pickupPointDelivery.setUser(user);  // Associer le point relais à l'utilisateur
                 deliveryMethod = pickupPointDeliveryRepository.save(pickupPointDelivery);
                 break;
 
             default:
-                throw new IllegalArgumentException("Option de livraison invalide");
+                throw new IllegalArgumentException("Option de livraison invalide.");
         }
 
-        return DeliveryMethodDTO.fromDeliveryMethod(deliveryMethod, userAddress, startDate, request.getOrderAmount(), deliveryDateCalculator);
+        return DeliveryMethodDTO.fromDeliveryMethod(deliveryMethod, userAddress, startDate, deliveryCost, deliveryDateCalculator);
+    }
+    private double calculateDeliveryCost(double cartTotalAmount) {
+        return cartTotalAmount >= 50 ? 0 : (cartTotalAmount * 0.05);
     }
 }

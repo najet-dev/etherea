@@ -18,9 +18,13 @@ public class DeliveryDateCalculator {
 
     // Méthode pour calculer la date de livraison à partir de la méthode de livraison et d'une date de commande
     public LocalDate calculateDeliveryDate(LocalDate startDate, DeliveryMethod deliveryMethod) {
-        int deliveryDays = deliveryMethod.calculateDeliveryTime(); // Récupère le temps de livraison
+        if (startDate.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("La date de début ne peut pas être dans le passé");
+        }
+        int deliveryDays = deliveryMethod.calculateDeliveryTime();
         return calculateDeliveryDate(startDate, deliveryDays);
     }
+
 
     // Calcul de la date de livraison en fonction de jours ouvrés et fériés
     public LocalDate calculateDeliveryDate(LocalDate startDate, int deliveryDays) {
@@ -43,4 +47,5 @@ public class DeliveryDateCalculator {
                 date.getDayOfWeek() != DayOfWeek.SUNDAY &&
                 (publicHolidays == null || !publicHolidays.contains(date));
     }
+
 }

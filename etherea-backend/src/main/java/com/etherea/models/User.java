@@ -21,6 +21,8 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Cart cart;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CartItem> cartItems = new ArrayList<>();
@@ -28,12 +30,9 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Command> commands = new ArrayList<>();
 
-    // Ajout de la relation avec les DeliveryAddress
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<DeliveryAddress> addresses = new ArrayList<>();
-
     public User() {}
-
     public User(String firstName, String lastName, String username, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -74,6 +73,12 @@ public class User {
     }
     public Set<Role> getRoles() {
         return roles;
+    }
+    public Cart getCart() {
+        return cart;
+    }
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
     public void setRoles(Set<Role> roles) {
         this.roles = roles;

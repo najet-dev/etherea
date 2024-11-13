@@ -9,10 +9,7 @@ import com.etherea.dtos.ProductDTO;
 import com.etherea.dtos.UserDTO;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UserNotFoundException;
-import com.etherea.repositories.CartItemRepository;
-import com.etherea.repositories.ProductRepository;
-import com.etherea.repositories.UserRepository;
-import com.etherea.repositories.VolumeRepository;
+import com.etherea.repositories.*;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,59 +30,26 @@ public class CartItemService {
     private ProductRepository productRepository;
     @Autowired
     private VolumeRepository volumeRepository;
+    @Autowired
+    private CartRepository cartRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
 
-    /**
-     * Retrieves a list of cart items for a specific user by their ID.
-     * Filters the items to only include products of type HAIR or FACE.
-     *
-     * @param userId the ID of the user.
-     * @return A list of CartItemDTOs.
-     */
     public List<CartItemDTO> getCartItemsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
-        List<CartItem> cartItems = user.getCartItems();
-        logger.info("Cart items for user {}: {}", userId, cartItems);
-        logger.info("Number of items in the cart for user {}: {}", userId, cartItems.size());
+        List<CartItem> cartItems = user.getCartItems().stream()
+                .filter(cartItem -> {
+                    ProductType type = cartItem.getProduct().getType();
+                    return type == ProductType.HAIR || type == ProductType.FACE;
+                })
+                .toList();
 
-        // Log product types before filtering
-        cartItems.forEach(cartItem ->
-                logger.info("Product type before filtering: {}", cartItem.getProduct().getType()));
+        logger.info("Filtered cart items for user {}: {}", userId, cartItems.size());
 
-        // Filter items of type HAIR or FACE
-        cartItems = cartItems.stream()
-                .filter(cartItem ->
-                        cartItem.getProduct() != null &&
-                                (ProductType.HAIR.equals(cartItem.getProduct().getType()) ||
-                                        ProductType.FACE.equals(cartItem.getProduct().getType())))
-                .collect(Collectors.toList());
-
-        logger.info("Filtered cart items count for user {}: {}", userId, cartItems.size());
-
-        // Log filtered items
-        cartItems.forEach(cartItem ->
-                logger.info("Filtered product: {}", cartItem.getProduct().getType()));
-
-        // Convert to DTO
-        List<CartItemDTO> cartItemDTOs = cartItems.stream()
-                .map(CartItemDTO::fromCartItem)
-                .collect(Collectors.toList());
-
-        return cartItemDTOs;
+        return cartItems.stream().map(CartItemDTO::fromCartItem).collect(Collectors.toList());
     }
-
-    /**
-     * Adds a product to the user's cart, taking into account the product's volume and quantity.
-     * If the item already exists, it updates the quantity.
-     *
-     * @param userId the ID of the user.
-     * @param productId the ID of the product.
-     * @param volumeId  the ID of the volume (if applicable).
-     * @param quantity  the quantity to add.
-     */
     @Transactional
     public void addProductToUserCart(Long userId, Long productId, Long volumeId, int quantity) {
         if (quantity <= 0) {
@@ -96,100 +58,66 @@ public class CartItemService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
-
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
-        logger.info("User found: {}, Product found: {}", user, product);
+        // Créer ou récupérer le panier de l'utilisateur
+        Cart cart = user.getCart();
+        if (cart == null) {
+            cart = new Cart();
+            cart.setUser(user);
+            cartRepository.save(cart);
+        }
 
-        CartItem existingCartItem = null;
+        CartItem existingCartItem;
+        Volume volume = null;
 
-        // Check product type
         if (product.getType() == ProductType.HAIR) {
             if (volumeId == null) {
                 throw new IllegalArgumentException("HAIR products require a volume.");
             }
-
-            Volume volume = volumeRepository.findById(volumeId)
+            volume = volumeRepository.findById(volumeId)
                     .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID: " + volumeId));
-
-            logger.info("Volume found: {}", volume);
-            existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
-        } else if (product.getType() == ProductType.FACE) {
-            if (volumeId != null) {
-                throw new IllegalArgumentException("FACE products should not have a volume.");
-            }
-            existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, null);
-        } else {
-            throw new IllegalArgumentException("Unsupported product type: " + product.getType());
+        } else if (product.getType() == ProductType.FACE && volumeId != null) {
+            throw new IllegalArgumentException("FACE products should not have a volume.");
         }
 
-        // Add or update cart item
+        existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
+
         if (existingCartItem != null) {
-            BigDecimal newQuantity = BigDecimal.valueOf(existingCartItem.getQuantity()).add(BigDecimal.valueOf(quantity));
-            existingCartItem.setQuantity(newQuantity.intValue());
-            existingCartItem.setSubTotal(existingCartItem.calculateSubtotal()); // Update subtotal
-            logger.info("Updated existing cart item quantity to {}", newQuantity);
+            existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
+            existingCartItem.setSubTotal(existingCartItem.calculateSubtotal());
         } else {
             CartItem newCartItem = new CartItem();
             newCartItem.setUser(user);
             newCartItem.setProduct(product);
-            newCartItem.setVolume(product.getType() == ProductType.HAIR ? volumeRepository.findById(volumeId).orElse(null) : null);
+            newCartItem.setVolume(volume);
             newCartItem.setQuantity(quantity);
-
-            // Calculate subtotal for FACE products
-            BigDecimal subTotal;
-            if (product.getType() == ProductType.FACE) {
-                subTotal = product.getBasePrice().multiply(BigDecimal.valueOf(quantity));
-            } else {
-                Volume volume = volumeRepository.findById(volumeId).orElseThrow(() -> new VolumeNotFoundException("Volume not found"));
-                subTotal = volume.getPrice().multiply(BigDecimal.valueOf(quantity));
-            }
-
-            newCartItem.setSubTotal(subTotal);
-            logger.info("Adding new cart item: {}", newCartItem);
-
-            try {
-                cartItemRepository.save(newCartItem);
-                logger.info("New cart item saved successfully.");
-            } catch (Exception e) {
-                logger.error("Error saving cart item: {}", e.getMessage());
-                throw new RuntimeException("Error saving cart item", e);
-            }
+            newCartItem.setSubTotal(calculateSubtotal(product, volume, quantity));
+            newCartItem.setCart(cart);  // Lier l'élément au panier
+            cartItemRepository.save(newCartItem);
         }
 
-        // Update cart total
         updateCartTotal(userId);
-        logger.info("Cart total updated.");
     }
-
-    /**
-     * Updates the total and subtotal for all items in the user's cart.
-     *
-     * @param userId the ID of the user.
-     */
+    private BigDecimal calculateSubtotal(Product product, Volume volume, int quantity) {
+        if (product.getType() == ProductType.FACE) {
+            return product.getBasePrice().multiply(BigDecimal.valueOf(quantity));
+        } else if (product.getType() == ProductType.HAIR && volume != null) {
+            return volume.getPrice().multiply(BigDecimal.valueOf(quantity));
+        }
+        throw new IllegalArgumentException("Invalid product or volume for subtotal calculation.");
+    }
     private void updateCartTotal(Long userId) {
         List<CartItem> userCartItems = cartItemRepository.findByUserId(userId);
         BigDecimal cartTotal = CartItem.calculateTotalPrice(userCartItems);
 
-        for (CartItem cartItem : userCartItems) {
+        userCartItems.forEach(cartItem -> {
             cartItem.setTotal(cartTotal);
-            cartItem.setSubTotal(cartItem.calculateSubtotal()); // Ensure this method is implemented correctly
-            logger.info("Saving cart item: {}", cartItem);
+            cartItem.setSubTotal(cartItem.calculateSubtotal());
             cartItemRepository.save(cartItem);
-        }
-
-        logger.info("Cart total updated to {}", cartTotal);
+        });
     }
-
-    /**
-     * Updates the quantity of a specific cart item in the user's cart.
-     *
-     * @param userId    the ID of the user.
-     * @param productId the ID of the product.
-     * @param volumeId  the ID of the volume (if applicable).
-     * @param quantity  the new quantity to set.
-     */
     @Transactional
     public void updateCartItemQuantity(Long userId, Long productId, Long volumeId, int quantity) {
         if (quantity <= 0) {
@@ -198,72 +126,33 @@ public class CartItemService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
-
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
-        // Check for HAIR products
         Volume volume = null;
-        if (product.getType() == ProductType.HAIR) {
+        if (product.getType() == ProductType.HAIR && volumeId != null) {
             volume = volumeRepository.findById(volumeId)
                     .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID: " + volumeId));
-        } else if (product.getType() == ProductType.FACE && volumeId != null) {
-            throw new IllegalArgumentException("FACE products should not have a volume.");
         }
 
         CartItem existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
 
         if (existingCartItem != null) {
-            logger.info("Updating quantity for cart item: {}", existingCartItem);
-
-            // Update cart item quantity
             existingCartItem.setQuantity(quantity);
-
-            // Recalculate subtotal
-            BigDecimal subtotal = existingCartItem.calculateSubtotal();
-            existingCartItem.setSubTotal(subtotal);
-
-            // Save updated cart item
-            logger.info("Saving cart item with new quantity: {}", quantity);
+            existingCartItem.setSubTotal(existingCartItem.calculateSubtotal());
             cartItemRepository.save(existingCartItem);
-
-            // Update cart total
-            updateCartTotal(userId);
-            logger.info("Cart total updated.");
+            updateCartTotal(userId); // Recalculer le total du panier
         } else {
-            logger.error("Cart item not found for user ID {} and product ID {}", userId, productId);
             throw new CartItemNotFoundException("Cart item not found for user ID " + userId + " and product ID " + productId);
         }
     }
-
-    /**
-     * Deletes a cart item by its ID and updates the cart totals.
-     *
-     * @param id the ID of the cart item to delete.
-     */
     public void deleteCartItem(Long id) {
-        Optional<CartItem> existingCartItem = cartItemRepository.findById(id);
+        CartItem cartItemToDelete = cartItemRepository.findById(id)
+                .orElseThrow(() -> new CartItemNotFoundException("CartItem with id " + id + " not found"));
 
-        if (existingCartItem.isPresent()) {
-            // Delete the specific cart item
-            CartItem cartItemToDelete = existingCartItem.get();
-            Long userId = cartItemToDelete.getUser().getId();
-            cartItemRepository.deleteById(id);
+        Long userId = cartItemToDelete.getUser().getId();
+        cartItemRepository.delete(cartItemToDelete);
 
-            // Update the cart's total and subtotals
-            List<CartItem> userCartItems = cartItemRepository.findByUserId(userId);
-            BigDecimal cartTotal = CartItem.calculateTotalPrice(userCartItems);
-
-            // Update the total field for all remaining items
-            for (CartItem cartItem : userCartItems) {
-                cartItem.setTotal(cartTotal);
-                cartItem.setSubTotal(cartItem.calculateSubtotal());
-                cartItemRepository.save(cartItem);
-            }
-        } else {
-            // If the cart item doesn't exist, throw an exception
-            logger.warn("CartItem with id {} not found", id);
-            throw new CartItemNotFoundException("CartItem with id " + id + " not found");
-        }
+        updateCartTotal(userId); // Recalculer le total du panier après suppression
     }
 }
