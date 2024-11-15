@@ -9,7 +9,6 @@ import com.etherea.models.PickupPointDelivery;
 import com.etherea.models.User;
 
 public class DeliveryMethodFactory {
-
     public static DeliveryMethod createDeliveryMethod(
             DeliveryOption option,
             Double orderAmount,
@@ -18,7 +17,7 @@ public class DeliveryMethodFactory {
             String pickupPointAddress,
             Double latitude,
             Double longitude,
-            User user // Ajout du paramètre `user`
+            User user
     ) {
         if (orderAmount == null || orderAmount < 0) {
             throw new IllegalArgumentException("Le montant de la commande doit être non négatif.");

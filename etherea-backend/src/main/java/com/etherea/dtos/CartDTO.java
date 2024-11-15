@@ -4,6 +4,7 @@ import com.etherea.dtos.CartItemDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
 import com.etherea.models.Cart;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ public class CartDTO {
     public void setItems(List<CartItemDTO> items) {
         this.items = items;
     }
-    public double TotalAmount() {
+    public double getTotalAmount() {
         return totalAmount;
     }
     public void setTotalAmount(double totalAmount) {
@@ -54,12 +55,16 @@ public class CartDTO {
 
     // Méthode pour convertir Cart en CartDTO
     public static CartDTO fromCart(Cart cart, DeliveryMethodDTO deliveryMethodDTO) {
+        BigDecimal totalAmount = cart.calculateTotalAmount();
+        double deliveryCost = cart.calculateDeliveryCost();
+
         return new CartDTO(
                 cart.getId(),
                 cart.getItems().stream().map(CartItemDTO::fromCartItem).collect(Collectors.toList()),
-                cart.calculateTotalAmount().doubleValue(),
-                cart.calculateDeliveryCost(),
+                totalAmount.doubleValue(),  // Convertit en double après les calculs
+                deliveryCost,
                 deliveryMethodDTO
         );
     }
+
 }

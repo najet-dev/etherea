@@ -2,6 +2,7 @@ package com.etherea.models;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,15 +50,29 @@ public class Cart {
         this.deliveryMethod = deliveryMethod;
     }
     public BigDecimal calculateTotalAmount() {
-        return items.stream()
+        BigDecimal total = items.stream()
                 .map(CartItem::calculateSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        System.out.println("Total du panier : " + total); // Log pour debug
+        return total;
     }
+
     public double calculateDeliveryCost() {
-        if (deliveryMethod != null) {
-            double totalAmount = calculateTotalAmount().doubleValue();
-            return deliveryMethod.isFreeShipping(totalAmount) ? 0.0 : deliveryMethod.calculateCost(totalAmount);
+        if (deliveryMethod == null) {
+            System.out.println("Aucune méthode de livraison sélectionnée."); // Log pour debug
+            return 0.0;
         }
-        return 0.0;
+
+        double totalAmount = calculateTotalAmount().doubleValue();
+        double deliveryCost = deliveryMethod.isFreeShipping(totalAmount)
+                ? 0.0
+                : deliveryMethod.calculateCost(totalAmount);
+
+        System.out.println("Type de livraison : " + deliveryMethod.getClass().getSimpleName());
+        System.out.println("Montant total du panier : " + totalAmount);
+        System.out.println(deliveryCost == 0.0 ? "Livraison gratuite appliquée." : "Coût de livraison : " + deliveryCost);
+
+        return deliveryCost;
     }
+
 }

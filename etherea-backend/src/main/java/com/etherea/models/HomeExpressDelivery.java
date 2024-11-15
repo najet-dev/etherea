@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 
 @Entity
 public class HomeExpressDelivery extends DeliveryMethod {
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
@@ -16,8 +15,8 @@ public class HomeExpressDelivery extends DeliveryMethod {
         this.deliveryAddress = deliveryAddress;
     }
     @Override
-    public double calculateCost(double orderAmount) {
-        return isFreeShipping(orderAmount) ? 0.0 : EXPRESS_SHIPPING_COST;
+    public double calculateCost(double totalAmount) {
+        return isFreeShipping(totalAmount) ? 0.0 : EXPRESS_SHIPPING_COST;
     }
     @Override
     public int calculateDeliveryTime() {

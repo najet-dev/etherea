@@ -10,11 +10,13 @@ import com.etherea.utils.DeliveryDateCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Service
 public class DeliveryMethodService {
 
+    // Dépendances injectées
     @Autowired
     private UserRepository userRepository;
 
@@ -40,18 +42,22 @@ public class DeliveryMethodService {
     private CartRepository cartRepository;
 
     public DeliveryMethodDTO getDeliveryMethod(Long userId, Long deliveryMethodId) {
+        // Vérifier l'utilisateur
         userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable avec l'ID : " + userId));
 
+        // Récupérer le mode de livraison
         DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
-                .orElseThrow(() -> new IllegalArgumentException("No delivery method found with ID: " + deliveryMethodId));
+                .orElseThrow(() -> new IllegalArgumentException("Mode de livraison introuvable avec l'ID : " + deliveryMethodId));
 
+        // Déterminer l'adresse de livraison si applicable
         DeliveryAddress deliveryAddress = deliveryMethod instanceof HomeStandardDelivery ?
                 ((HomeStandardDelivery) deliveryMethod).getDeliveryAddress() :
                 deliveryMethod instanceof HomeExpressDelivery ?
                         ((HomeExpressDelivery) deliveryMethod).getDeliveryAddress() :
                         null;
 
+        // Récupérer le panier
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Panier introuvable pour l'utilisateur avec l'ID : " + userId));
 
@@ -59,18 +65,22 @@ public class DeliveryMethodService {
             throw new IllegalArgumentException("Le panier est vide pour l'utilisateur avec l'ID : " + userId);
         }
 
-        double deliveryCost = calculateDeliveryCost(cart.calculateTotalAmount().doubleValue());
+        // Calculer le coût de livraison
+        double deliveryCost = calculateDeliveryCost(cart.calculateTotalAmount().doubleValue(), deliveryMethod);
 
         return DeliveryMethodDTO.fromDeliveryMethod(deliveryMethod, deliveryAddress, LocalDate.now(), deliveryCost, deliveryDateCalculator);
     }
 
     public DeliveryMethodDTO addDeliveryMethod(AddDeliveryMethodRequestDTO request) {
+        // Vérification de l'utilisateur
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable avec l'ID : " + request.getUserId()));
 
+        // Récupération de l'adresse
         DeliveryAddress userAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Aucune adresse trouvée pour l'utilisateur avec l'ID : " + request.getUserId()));
 
+        // Récupération du panier
         Cart cart = cartRepository.findByUserId(request.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("Panier introuvable pour l'utilisateur avec l'ID : " + request.getUserId()));
 
@@ -78,9 +88,9 @@ public class DeliveryMethodService {
             throw new IllegalArgumentException("Le panier est vide pour l'utilisateur avec l'ID : " + request.getUserId());
         }
 
-        double deliveryCost = calculateDeliveryCost(cart.calculateTotalAmount().doubleValue());
-
+        // Calcul du coût de livraison en fonction de l'option
         DeliveryMethod deliveryMethod;
+        double deliveryCost;
         LocalDate startDate = LocalDate.now();
 
         switch (request.getDeliveryOption()) {
@@ -88,12 +98,14 @@ public class DeliveryMethodService {
                 HomeStandardDelivery standardDelivery = new HomeStandardDelivery();
                 standardDelivery.setDeliveryAddress(userAddress);
                 deliveryMethod = homeStandardDeliveryRepository.save(standardDelivery);
+                deliveryCost = calculateDeliveryCost(cart.calculateTotalAmount().doubleValue(), standardDelivery);
                 break;
 
             case HOME_EXPRESS:
                 HomeExpressDelivery expressDelivery = new HomeExpressDelivery();
                 expressDelivery.setDeliveryAddress(userAddress);
                 deliveryMethod = homeExpressDeliveryRepository.save(expressDelivery);
+                deliveryCost = calculateDeliveryCost(cart.calculateTotalAmount().doubleValue(), expressDelivery);
                 break;
 
             case PICKUP_POINT:
@@ -110,15 +122,39 @@ public class DeliveryMethodService {
                         user
                 );
                 deliveryMethod = pickupPointDeliveryRepository.save(pickupPointDelivery);
+                deliveryCost = calculateDeliveryCost(cart.calculateTotalAmount().doubleValue(), pickupPointDelivery);
                 break;
 
             default:
                 throw new IllegalArgumentException("Option de livraison invalide.");
         }
 
+        // Associer le mode de livraison au panier
+        cart.setDeliveryMethod(deliveryMethod);
+        cartRepository.save(cart);
+
         return DeliveryMethodDTO.fromDeliveryMethod(deliveryMethod, userAddress, startDate, deliveryCost, deliveryDateCalculator);
     }
-    private double calculateDeliveryCost(double cartTotalAmount) {
-        return cartTotalAmount >= 50 ? 0 : (cartTotalAmount * 0.05);
+
+    private double calculateDeliveryCost(double cartTotalAmount, DeliveryMethod deliveryMethod) {
+        System.out.println("Montant total du panier : " + cartTotalAmount);
+        System.out.println("Type de livraison : " + deliveryMethod.getClass().getSimpleName());
+
+        if (cartTotalAmount >= 50.0) {
+            System.out.println("Livraison gratuite appliquée.");
+            return 0.0;
+        }
+        if (deliveryMethod instanceof HomeStandardDelivery) {
+            return 5.0;
+        }
+        if (deliveryMethod instanceof HomeExpressDelivery) {
+            return 8.0;
+        }
+        if (deliveryMethod instanceof PickupPointDelivery) {
+            return 3.0;
+        }
+        throw new IllegalArgumentException("Type de livraison inconnu.");
     }
+
+
 }

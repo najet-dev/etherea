@@ -19,6 +19,7 @@ public class PickupPointDelivery extends DeliveryMethod {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     public PickupPointDelivery() {}
+
     public PickupPointDelivery(String pickupPointName, String pickupPointAddress,
                                Double pickupPointLatitude, Double pickupPointLongitude, User user) {
         this.pickupPointName = pickupPointName;
@@ -28,13 +29,11 @@ public class PickupPointDelivery extends DeliveryMethod {
         this.user = user;
     }
     @Override
-    public double calculateCost(double orderAmount) {
-        // Utilise la méthode isFreeShipping pour déterminer si la livraison est gratuite
-        return isFreeShipping(orderAmount) ? 0.0 : SHIPPING_COST;
+    public double calculateCost(double totalAmount) {
+        return isFreeShipping(totalAmount) ? 0.0 : SHIPPING_COST;
     }
     @Override
     public int calculateDeliveryTime() {
-        // Retourne le nombre de jours ouvrés pour la livraison en point relais
         return DELIVERY_DAYS;
     }
     @Override
@@ -43,10 +42,8 @@ public class PickupPointDelivery extends DeliveryMethod {
     }
     @Override
     public String getDescription() {
-        // Retourne la description de cette méthode de livraison
         return "Livraison au point relais";
     }
-
     // Getters et Setters
     public String getPickupPointName() {
         return pickupPointName;
@@ -66,7 +63,6 @@ public class PickupPointDelivery extends DeliveryMethod {
     public void setPickupPointLatitude(Double pickupPointLatitude) {
         this.pickupPointLatitude = pickupPointLatitude;
     }
-
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }

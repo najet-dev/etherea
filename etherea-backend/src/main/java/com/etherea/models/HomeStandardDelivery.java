@@ -15,8 +15,8 @@ public class HomeStandardDelivery extends DeliveryMethod {
         this.deliveryAddress = deliveryAddress;
     }
     @Override
-    public double calculateCost(double orderAmount) {
-        return isFreeShipping(orderAmount) ? 0.0 : STANDARD_SHIPPING_COST;
+    public double calculateCost(double totalAmount) {
+        return isFreeShipping(totalAmount) ? 0.0 : STANDARD_SHIPPING_COST;
     }
     @Override
     public int calculateDeliveryTime() {
