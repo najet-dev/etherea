@@ -28,7 +28,7 @@ public class HomeStandardDelivery extends DeliveryMethod {
     }
     @Override
     public String getDescription() {
-        return "Livraison à domicile standard";
+        return "Standard home delivery (7 working days)";
     }
     public DeliveryAddress getDeliveryAddress() {
         return deliveryAddress;

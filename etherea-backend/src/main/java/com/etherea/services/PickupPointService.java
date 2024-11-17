@@ -23,11 +23,11 @@ public class PickupPointService {
     @Autowired
     private RestTemplate restTemplate;
     public List<AddDeliveryMethodRequestDTO> findPickupPoints(Long userId) {
-        // Récupérer l'adresse de l'utilisateur
+        // Retrieve user address
         DeliveryAddress userAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(userId)
                 .orElseThrow(() -> new IllegalArgumentException("No address found for user with ID: " + userId));
 
-        // Obtenir les coordonnées géographiques (latitude et longitude)
+        // Get geographic coordinates (latitude and longitude)
         double latitude;
         double longitude;
         try {
@@ -45,19 +45,19 @@ public class PickupPointService {
             throw new RuntimeException("Error while geocoding the user's address", e);
         }
 
-        // Construire la requête pour Overpass API
+        // Building the request for Overpass API
         String query = String.format(Locale.ROOT,
                 "[out:json];node(around:5000,%.6f,%.6f)[\"amenity\"~\"parcel_pickup|post_office\"];out;",
                 latitude, longitude);
         String url = OVERPASS_API_URL + "?data=" + query;
 
-        // Récupérer les points de retrait à partir de Overpass API
+        // Retrieve pick-up points from Overpass API
         List<AddDeliveryMethodRequestDTO> pickupPoints = new ArrayList<>();
         try {
             String response = restTemplate.getForObject(url, String.class);
             JsonNode nodes = new ObjectMapper().readTree(response).path("elements");
 
-            // Traitement de chaque point de retrait trouvé
+            // Treatment of each withdrawal point found
             for (JsonNode node : nodes) {
                 AddDeliveryMethodRequestDTO dto = new AddDeliveryMethodRequestDTO();
                 dto.setUserId(userId);
@@ -66,7 +66,7 @@ public class PickupPointService {
                 dto.setPickupPointLatitude(node.path("lat").asDouble());
                 dto.setPickupPointLongitude(node.path("lon").asDouble());
 
-                // Enrichir l'adresse complète via reverse geocoding Nominatim
+                // Enrich complete address via reverse geocoding Nominatim
                 String fullAddress = getFullAddressFromCoordinates(dto.getPickupPointLatitude(), dto.getPickupPointLongitude());
                 dto.setPickupPointAddress(fullAddress != null ? fullAddress : "Address not available");
 
@@ -79,22 +79,22 @@ public class PickupPointService {
     }
     private String getFullAddressFromCoordinates(double latitude, double longitude) {
         try {
-            // Formater les coordonnées en précisant les décimales
+            // Format coordinates with decimals
             String reverseGeocodeUrl = String.format(Locale.ROOT, "%s?lat=%.6f&lon=%.6f&format=json", NOMINATIM_API_URL, latitude, longitude);
 
-            // Appeler Nominatim avec les coordonnées formatées
+            // Call Nominatim with formatted contact details
             JsonNode reverseGeocodeResponse = restTemplate.getForObject(reverseGeocodeUrl, JsonNode.class);
 
-            // Log de la réponse pour vérifier ce qui est renvoyé par Nominatim
-            System.out.println("Réponse de Nominatim pour (" + latitude + ", " + longitude + "): " + reverseGeocodeResponse);
+            // Log the response to check what is returned by Nominatim
+            System.out.println("Reply from Nominatim for (" + latitude + ", " + longitude + "): " + reverseGeocodeResponse);
 
-            // Extraire l'adresse complète si disponible
+            // Extract full address if available
             return reverseGeocodeResponse != null && reverseGeocodeResponse.has("display_name")
                     ? reverseGeocodeResponse.path("display_name").asText()
-                    : "Adresse non disponible";
+                    : "Address not available";
         } catch (Exception e) {
-            System.err.println("Erreur lors du reverse geocoding pour (" + latitude + ", " + longitude + "): " + e.getMessage());
-            return "Erreur d'obtention de l'adresse";
+            System.err.println("Reverse geocoding error for (" + latitude + ", " + longitude + "): " + e.getMessage());
+            return "Error obtaining address";
         }
     }
 }

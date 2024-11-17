@@ -15,10 +15,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-
     @Autowired
     private UserRepository userRepository;
-
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     /**

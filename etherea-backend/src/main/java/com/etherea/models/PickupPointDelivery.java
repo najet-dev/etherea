@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 
 @Entity
 public class PickupPointDelivery extends DeliveryMethod {
-    private static final double SHIPPING_COST = 3.0; // Coût de livraison pour un point relais
-    private static final int DELIVERY_DAYS = 8; // Délai de livraison en jours ouvrés
+    private static final double SHIPPING_COST = 3.0;
+    private static final int DELIVERY_DAYS = 8;
     @Column(nullable = false)
     private String pickupPointName;
     @Column(nullable = false)
@@ -19,7 +19,6 @@ public class PickupPointDelivery extends DeliveryMethod {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     public PickupPointDelivery() {}
-
     public PickupPointDelivery(String pickupPointName, String pickupPointAddress,
                                Double pickupPointLatitude, Double pickupPointLongitude, User user) {
         this.pickupPointName = pickupPointName;
@@ -42,9 +41,8 @@ public class PickupPointDelivery extends DeliveryMethod {
     }
     @Override
     public String getDescription() {
-        return "Livraison au point relais";
+        return "Livraison au point relais (8 jours ouvrés)";
     }
-    // Getters et Setters
     public String getPickupPointName() {
         return pickupPointName;
     }

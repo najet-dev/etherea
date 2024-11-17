@@ -8,15 +8,12 @@ import java.time.LocalDate;
 import java.util.Set;
 @Component
 public class DeliveryDateCalculator {
-
     private final Set<LocalDate> publicHolidays;
-
-    // Constructeur pour injecter les jours fériés, rend la classe plus flexible
     public DeliveryDateCalculator(Set<LocalDate> publicHolidays) {
         this.publicHolidays = publicHolidays;
     }
 
-    // Méthode pour calculer la date de livraison à partir de la méthode de livraison et d'une date de commande
+    // Method for calculating delivery date from delivery method and order date
     public LocalDate calculateDeliveryDate(LocalDate startDate, DeliveryMethod deliveryMethod) {
         if (startDate.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La date de début ne peut pas être dans le passé");
@@ -25,8 +22,7 @@ public class DeliveryDateCalculator {
         return calculateDeliveryDate(startDate, deliveryDays);
     }
 
-
-    // Calcul de la date de livraison en fonction de jours ouvrés et fériés
+    // Calculation of delivery date based on working days and public holidays
     public LocalDate calculateDeliveryDate(LocalDate startDate, int deliveryDays) {
         LocalDate deliveryDate = startDate;
         int addedDays = 0;
@@ -41,11 +37,10 @@ public class DeliveryDateCalculator {
         return deliveryDate;
     }
 
-    // Méthode pour vérifier si une date est un jour ouvré
+    // Method to check if a date is a working day
     private boolean isWorkingDay(LocalDate date) {
         return date.getDayOfWeek() != DayOfWeek.SATURDAY &&
                 date.getDayOfWeek() != DayOfWeek.SUNDAY &&
                 (publicHolidays == null || !publicHolidays.contains(date));
     }
-
 }

@@ -14,18 +14,15 @@ public abstract class DeliveryMethod {
     public Long getId() {
         return id;
     }
-    // Méthode abstraite pour calculer le coût de livraison
-    public abstract double calculateCost(double totalAmount);
 
-    // Méthode abstraite pour calculer le temps de livraison
-    public abstract int calculateDeliveryTime(); // en jours ouvrés
-
-    // Méthode abstraite pour récupérer l'option de livraison
-    public abstract DeliveryOption getDeliveryOption();
-
-    // Méthode abstraite pour obtenir la description de la livraison
-    public abstract String getDescription();
+    // Method to check if delivery is free
     public boolean isFreeShipping(double totalAmount) {
         return totalAmount >= FREE_SHIPPING_THRESHOLD;
     }
+
+    // Abstract methods
+    public abstract double calculateCost(double totalAmount);
+    public abstract int calculateDeliveryTime();
+    public abstract DeliveryOption getDeliveryOption();
+    public abstract String getDescription();
 }

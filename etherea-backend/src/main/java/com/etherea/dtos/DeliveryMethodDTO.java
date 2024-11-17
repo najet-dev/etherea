@@ -15,7 +15,7 @@ public class DeliveryMethodDTO {
     private DeliveryOption deliveryOption;
     private LocalDate expectedDeliveryDate;
     private Double cost;
-    private DeliveryAddressDTO deliveryAddress; // pour les livraisons à domicile
+    private DeliveryAddressDTO deliveryAddress; // for home delivery
     private String pickupPointName;
     private String pickupPointAddress;
     private Double pickupPointLatitude;

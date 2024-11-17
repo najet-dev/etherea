@@ -28,7 +28,7 @@ public class HomeExpressDelivery extends DeliveryMethod {
     }
     @Override
     public String getDescription() {
-        return "Livraison à domicile express";
+        return "Express home delivery (2 working days)";
     }
     public DeliveryAddress getDeliveryAddress() {
         return deliveryAddress;

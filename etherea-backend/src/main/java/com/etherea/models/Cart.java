@@ -2,7 +2,6 @@ package com.etherea.models;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,12 +18,12 @@ public class Cart {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_method_id")
     private DeliveryMethod deliveryMethod;
-    public Cart() {
-    }
+    public Cart() {}
     public Cart(User user) {
         this.user = user;
     }
-    // Getters et Setters
+
+    // Getters et setters
     public Long getId() {
         return id;
     }
@@ -49,30 +48,31 @@ public class Cart {
     public void setDeliveryMethod(DeliveryMethod deliveryMethod) {
         this.deliveryMethod = deliveryMethod;
     }
+    // Method for calculating the total number of products in the cart shopping
     public BigDecimal calculateTotalAmount() {
-        BigDecimal total = items.stream()
-                .map(CartItem::calculateSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-        System.out.println("Total du panier : " + total); // Log pour debug
+        // Calls CartItem's static method to calculate the total
+        BigDecimal total = CartItem.calculateTotalPrice(items);
+        System.out.println("Total calculated cart shopping: " + total);
         return total;
     }
 
+    // Method for calculating delivery costs
     public double calculateDeliveryCost() {
         if (deliveryMethod == null) {
-            System.out.println("Aucune méthode de livraison sélectionnée."); // Log pour debug
-            return 0.0;
+            throw new IllegalStateException("No delivery method is selected.");
         }
 
         double totalAmount = calculateTotalAmount().doubleValue();
-        double deliveryCost = deliveryMethod.isFreeShipping(totalAmount)
-                ? 0.0
-                : deliveryMethod.calculateCost(totalAmount);
 
-        System.out.println("Type de livraison : " + deliveryMethod.getClass().getSimpleName());
-        System.out.println("Montant total du panier : " + totalAmount);
-        System.out.println(deliveryCost == 0.0 ? "Livraison gratuite appliquée." : "Coût de livraison : " + deliveryCost);
+        // Vérification si la livraison est gratuite
+        if (deliveryMethod.isFreeShipping(totalAmount)) {
+            System.out.println("Free delivery applied.");
+            return 0.0;
+        }
 
+        // Sinon, calcul du coût selon la méthode de livraison
+        double deliveryCost = deliveryMethod.calculateCost(totalAmount);
+        System.out.println("Calculated delivery cost : " + deliveryCost);
         return deliveryCost;
     }
-
 }
