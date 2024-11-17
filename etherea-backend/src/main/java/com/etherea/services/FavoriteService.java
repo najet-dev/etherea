@@ -41,7 +41,6 @@ public class FavoriteService {
                 .map(this::convertToFavoriteDTO)
                 .collect(Collectors.toList());
     }
-
     private FavoriteDTO convertToFavoriteDTO(Favorite favorite) {
         FavoriteDTO favoriteDTO = new FavoriteDTO();
         favoriteDTO.setFavoriteId(favorite.getId());

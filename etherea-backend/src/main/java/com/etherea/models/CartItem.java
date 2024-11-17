@@ -51,18 +51,15 @@ public class CartItem {
     public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
-
     public User getUser() {
         return user;
     }
-
     public void setUser(User user) {
         this.user = user;
     }
     public Product getProduct() {
         return product;
     }
-
     public void setProduct(Product product) {
         this.product = product;
     }
@@ -72,11 +69,9 @@ public class CartItem {
     public void setVolume(Volume volume) {
         this.volume = volume;
     }
-
     public Cart getCart() {
         return cart;
     }
-
     public void setCart(Cart cart) {
         this.cart = cart;
     }
@@ -92,18 +87,18 @@ public class CartItem {
     public void setTotal(BigDecimal total) {
         this.total = total;
     }
-    // Méthode pour calculer le sous-total
+    // Method for calculating the subtotal
     public BigDecimal calculateSubtotal() {
         if (product.getType() == ProductType.FACE) {
-            // Utiliser basePrice pour les produits de type FACE
+            // Use basePrice for FACE products
             return product.getBasePrice().multiply(BigDecimal.valueOf(quantity));
         } else if (volume != null && volume.getPrice() != null) {
-            // Utiliser le prix du volume pour les produits de type HAIR
+            // Use volume pricing for HAIR products
             return volume.getPrice().multiply(BigDecimal.valueOf(quantity));
         }
-        return BigDecimal.ZERO; // Retourne 0 si aucune condition n'est remplie
+        return BigDecimal.ZERO; // // Returns 0 if no condition is met
     }
-    // Méthode pour calculer le prix total de tous les produits dans le panier
+    // Method for calculating the total price of all products in the cart shopping
     public static BigDecimal calculateTotalPrice(List<CartItem> items) {
         return items.stream()
                 .map(CartItem::calculateSubtotal)

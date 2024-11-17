@@ -74,7 +74,7 @@ public class DeliveryAddressDTO {
         this.isDefault = isDefault;
     }
 
-    // Convertir un objet DeliveryAddress en DeliveryAddressDTO
+    // Convert a DeliveryAddress object to DeliveryAddressDTO
     public static DeliveryAddressDTO fromDeliveryAddress(DeliveryAddress deliveryAddress) {
         return new DeliveryAddressDTO(
                 deliveryAddress.getId(),
@@ -83,11 +83,11 @@ public class DeliveryAddressDTO {
                 deliveryAddress.getZipCode(),
                 deliveryAddress.getCountry(),
                 deliveryAddress.getPhoneNumber(),
-                deliveryAddress.isDefault(), // Récupérer la valeur de isDefault
-                UserDTO.fromUser(deliveryAddress.getUser())  // Conversion de User vers UserDTO
+                deliveryAddress.isDefault(),
+                UserDTO.fromUser(deliveryAddress.getUser())  // Converting User to UserDTO
         );
     }
-    // Convertir un objet DeliveryAddressDTO en DeliveryAddress
+    // Convert a DeliveryAddressDTO object to DeliveryAddress
     public DeliveryAddress toDeliveryAddress() {
         DeliveryAddress deliveryAddress = new DeliveryAddress();
         deliveryAddress.setId(this.id);
@@ -97,7 +97,7 @@ public class DeliveryAddressDTO {
         deliveryAddress.setCountry(this.country);
         deliveryAddress.setPhoneNumber(this.phoneNumber);
         deliveryAddress.setDefault(this.isDefault);
-        // Si user n'est pas null, l'associer à l'adresse de livraison
+        // If user is not null, associate it with the delivery address
         if (this.user != null) {
             deliveryAddress.setUser(this.user.toUser());
         }

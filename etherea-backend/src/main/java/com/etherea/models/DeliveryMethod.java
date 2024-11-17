@@ -4,24 +4,25 @@ import com.etherea.enums.DeliveryOption;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "deliveryMethod")
-@Inheritance(strategy=InheritanceType.JOINED)
+@Table(name = "delivery_method")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class DeliveryMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Champ ID pour la gestion des identifiants JPA
+    private Long id;
+    protected static final double FREE_SHIPPING_THRESHOLD = 50.0;
     public Long getId() {
         return id;
     }
-    // Méthode abstraite pour calculer le coût de livraison
-    public abstract double calculateCost(double orderAmount);
 
-    // Méthode abstraite pour calculer le temps de livraison
-    public abstract int calculateDeliveryTime(); // en jours ouvrés
+    // Method to check if delivery is free
+    public boolean isFreeShipping(double totalAmount) {
+        return totalAmount >= FREE_SHIPPING_THRESHOLD;
+    }
 
-    // Méthode abstraite pour récupérer l'option de livraison
+    // Abstract methods
+    public abstract double calculateCost(double totalAmount);
+    public abstract int calculateDeliveryTime();
     public abstract DeliveryOption getDeliveryOption();
-
-    // Méthode abstraite pour obtenir la description de la livraison
     public abstract String getDescription();
 }

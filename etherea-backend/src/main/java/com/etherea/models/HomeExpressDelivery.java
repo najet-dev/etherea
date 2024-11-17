@@ -8,21 +8,19 @@ public class HomeExpressDelivery extends DeliveryMethod {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
-    private static final double FREE_SHIPPING_THRESHOLD = 50.0;
     private static final double EXPRESS_SHIPPING_COST = 8.0;
     private static final int DELIVERY_DAYS = 2;
-
     public HomeExpressDelivery() {}
     public HomeExpressDelivery(DeliveryAddress deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
     @Override
-    public double calculateCost(double orderAmount) {
-        return orderAmount < FREE_SHIPPING_THRESHOLD ? EXPRESS_SHIPPING_COST : 0.0;
+    public double calculateCost(double totalAmount) {
+        return isFreeShipping(totalAmount) ? 0.0 : EXPRESS_SHIPPING_COST;
     }
     @Override
     public int calculateDeliveryTime() {
-        return DELIVERY_DAYS;  // Délai en jours ouvrés
+        return DELIVERY_DAYS;
     }
     @Override
     public DeliveryOption getDeliveryOption() {
@@ -30,7 +28,7 @@ public class HomeExpressDelivery extends DeliveryMethod {
     }
     @Override
     public String getDescription() {
-        return "Livraison à domicile express";
+        return "Express home delivery (2 working days)";
     }
     public DeliveryAddress getDeliveryAddress() {
         return deliveryAddress;

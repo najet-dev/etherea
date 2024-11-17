@@ -1,52 +1,46 @@
 package com.etherea.factories;
 
 import com.etherea.enums.DeliveryOption;
-import com.etherea.models.DeliveryMethod;
-import com.etherea.models.DeliveryAddress;
-import com.etherea.models.HomeExpressDelivery;
-import com.etherea.models.HomeStandardDelivery;
-import com.etherea.models.PickupPointDelivery;
+import com.etherea.models.*;
 
 public class DeliveryMethodFactory {
-
     public static DeliveryMethod createDeliveryMethod(
             DeliveryOption option,
-            Double orderAmount,
+            Double cartTotalAmount,
             DeliveryAddress deliveryAddress,
             String pickupPointName,
             String pickupPointAddress,
             Double latitude,
-            Double longitude
+            Double longitude,
+            User user
     ) {
-        if (orderAmount == null || orderAmount < 0) {
-            throw new IllegalArgumentException("Le montant de la commande doit être non négatif.");
+        if (cartTotalAmount == null || cartTotalAmount < 0) {
+            throw new IllegalArgumentException("The cart shopping amount must not be negative.");
         }
-
         switch (option) {
             case HOME_EXPRESS:
                 if (deliveryAddress == null) {
-                    throw new IllegalArgumentException("L'adresse de livraison est requise pour la livraison express.");
+                    throw new IllegalArgumentException("Delivery address required for express home delivery.");
                 }
                 return new HomeExpressDelivery(deliveryAddress);
 
             case HOME_STANDARD:
                 if (deliveryAddress == null) {
-                    throw new IllegalArgumentException("L'adresse de livraison est requise pour la livraison standard.");
+                    throw new IllegalArgumentException("Delivery address required for standard home delivery.");
                 }
                 return new HomeStandardDelivery(deliveryAddress);
 
             case PICKUP_POINT:
                 if (pickupPointName == null || pickupPointName.isEmpty() ||
-                        pickupPointAddress == null || pickupPointAddress.isEmpty()) {
-                    throw new IllegalArgumentException("Le nom et l'adresse sont requis pour la livraison au point de retrait.");
+                        pickupPointAddress == null || pickupPointAddress.isEmpty() ||
+                        latitude == null || longitude == null ||
+                        user == null) {
+                    throw new IllegalArgumentException("The relay point information is incomplete.");
                 }
-                if (latitude == null || longitude == null || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
-                    throw new IllegalArgumentException("Les coordonnées de latitude et longitude doivent être valides.");
-                }
-                return new PickupPointDelivery(pickupPointName, pickupPointAddress, latitude, longitude);
+                return new PickupPointDelivery(pickupPointName, pickupPointAddress, latitude, longitude, user);
 
             default:
-                throw new IllegalArgumentException("Option de livraison non supportée : " + option);
+                throw new IllegalArgumentException("Delivery option not supported : " + option);
         }
     }
 }

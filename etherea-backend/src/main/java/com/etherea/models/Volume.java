@@ -16,8 +16,6 @@ public class Volume {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
-
-    // Constructeurs
     public Volume() {
     }
     public Volume(int volume, BigDecimal price, Product product) {

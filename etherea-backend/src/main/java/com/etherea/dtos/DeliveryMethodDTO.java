@@ -15,14 +15,12 @@ public class DeliveryMethodDTO {
     private DeliveryOption deliveryOption;
     private LocalDate expectedDeliveryDate;
     private Double cost;
-    private DeliveryAddressDTO deliveryAddress; // pour les livraisons à domicile
-    private String pickupPointName;  // pour les points relais
-    private String pickupPointAddress; // pour les points relais
-    private Double pickupPointLatitude;  // pour les points relais
-    private Double pickupPointLongitude; // pour les points relais
-
+    private DeliveryAddressDTO deliveryAddress; // for home delivery
+    private String pickupPointName;
+    private String pickupPointAddress;
+    private Double pickupPointLatitude;
+    private Double pickupPointLongitude;
     public DeliveryMethodDTO() {}
-
     public DeliveryMethodDTO(Long id, DeliveryOption deliveryOption, LocalDate expectedDeliveryDate, Double cost,
                              DeliveryAddressDTO deliveryAddress, String pickupPointName, String pickupPointAddress,
                              Double pickupPointLatitude, Double pickupPointLongitude) {
@@ -36,81 +34,60 @@ public class DeliveryMethodDTO {
         this.pickupPointLatitude = pickupPointLatitude;
         this.pickupPointLongitude = pickupPointLongitude;
     }
-
-    // Getters et setters
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public DeliveryOption getDeliveryOption() {
         return deliveryOption;
     }
-
     public void setDeliveryOption(DeliveryOption deliveryOption) {
         this.deliveryOption = deliveryOption;
     }
-
     public LocalDate getExpectedDeliveryDate() {
         return expectedDeliveryDate;
     }
-
     public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
     }
-
     public Double getCost() {
         return cost;
     }
-
     public void setCost(Double cost) {
         this.cost = cost;
     }
-
     public DeliveryAddressDTO getDeliveryAddress() {
         return deliveryAddress;
     }
-
     public void setDeliveryAddress(DeliveryAddressDTO deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
-
     public String getPickupPointName() {
         return pickupPointName;
     }
-
     public void setPickupPointName(String pickupPointName) {
         this.pickupPointName = pickupPointName;
     }
-
     public String getPickupPointAddress() {
         return pickupPointAddress;
     }
-
     public void setPickupPointAddress(String pickupPointAddress) {
         this.pickupPointAddress = pickupPointAddress;
     }
-
     public Double getPickupPointLatitude() {
         return pickupPointLatitude;
     }
-
     public void setPickupPointLatitude(Double pickupPointLatitude) {
         this.pickupPointLatitude = pickupPointLatitude;
     }
-
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
-
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }
-
-    // Méthode de conversion depuis DeliveryMethod
     public static DeliveryMethodDTO fromDeliveryMethod(
             DeliveryMethod deliveryMethod,
             DeliveryAddress userAddress,
@@ -121,7 +98,7 @@ public class DeliveryMethodDTO {
         DeliveryAddressDTO addressDTO = userAddress != null ? DeliveryAddressDTO.fromDeliveryAddress(userAddress) : null;
         int deliveryDays = deliveryMethod.calculateDeliveryTime();
         LocalDate expectedDeliveryDate = calculator.calculateDeliveryDate(startDate, deliveryDays);
-        Double cost = deliveryMethod.calculateCost(orderAmount);
+        Double cost = deliveryMethod.isFreeShipping(orderAmount) ? 0.0 : deliveryMethod.calculateCost(orderAmount);
 
         if (deliveryMethod instanceof PickupPointDelivery pickupPoint) {
             return new DeliveryMethodDTO(
@@ -157,4 +134,5 @@ public class DeliveryMethodDTO {
             throw new IllegalArgumentException("Type de méthode de livraison non pris en charge");
         }
     }
+
 }

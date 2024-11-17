@@ -5,11 +5,9 @@ import jakarta.persistence.*;
 
 @Entity
 public class HomeStandardDelivery extends DeliveryMethod {
-
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
-    private static final double FREE_SHIPPING_THRESHOLD = 50.0;
     private static final double STANDARD_SHIPPING_COST = 5.0;
     private static final int DELIVERY_DAYS = 7;
     public HomeStandardDelivery() {}
@@ -17,12 +15,12 @@ public class HomeStandardDelivery extends DeliveryMethod {
         this.deliveryAddress = deliveryAddress;
     }
     @Override
-    public double calculateCost(double orderAmount) {
-        return orderAmount < FREE_SHIPPING_THRESHOLD ? STANDARD_SHIPPING_COST : 0.0;
+    public double calculateCost(double totalAmount) {
+        return isFreeShipping(totalAmount) ? 0.0 : STANDARD_SHIPPING_COST;
     }
     @Override
     public int calculateDeliveryTime() {
-        return DELIVERY_DAYS;  // Délai en jours ouvrés
+        return DELIVERY_DAYS;
     }
     @Override
     public DeliveryOption getDeliveryOption() {
@@ -30,7 +28,7 @@ public class HomeStandardDelivery extends DeliveryMethod {
     }
     @Override
     public String getDescription() {
-        return "Livraison à domicile standard";
+        return "Standard home delivery (7 working days)";
     }
     public DeliveryAddress getDeliveryAddress() {
         return deliveryAddress;

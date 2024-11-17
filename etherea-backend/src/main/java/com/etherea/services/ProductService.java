@@ -145,17 +145,14 @@ public class ProductService {
                     }).collect(Collectors.toList());
             product.setVolumes(volumes);
         }
-
         // Save the product
         productRepository.save(product);
         return ResponseEntity.ok("Product saved successfully");
     }
-
     private Product convertToProduct(ProductDTO productDTO) {
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(productDTO, Product.class);
     }
-
     private void createUploadDirectory() {
         File uploadDirFile = new File(UPLOAD_DIR);
         if (!uploadDirFile.exists()) {
@@ -231,7 +228,6 @@ public class ProductService {
                 volumeRepository.save(newVolume);
             }
         }
-
         // Remove volumes no longer in the update
         for (Volume volumeToDelete : existingVolumeMap.values()) {
             existingProduct.getVolumes().remove(volumeToDelete);
