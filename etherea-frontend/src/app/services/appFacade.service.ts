@@ -20,7 +20,7 @@ export class AppFacade {
     public cartService: CartService,
     public favoriteService: FavoriteService,
     private productService: ProductService,
-    private deliveryAddressService: DeliveryAddressService,
+    public deliveryAddressService: DeliveryAddressService,
     private userService: UserService
   ) {}
 

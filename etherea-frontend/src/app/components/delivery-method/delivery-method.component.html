@@ -38,16 +38,16 @@
   </div>
 </div>
 <form>
-  <label>
-    <input type="radio" name="deliveryMode" value="standard" />
-    Livraison à domicile standard
-  </label>
-  <label>
-    <input type="radio" name="deliveryMode" value="express" />
-    Livraison à domicile express
-  </label>
-  <label>
-    <input type="radio" name="deliveryMode" value="pickup" />
-    Point relais
-  </label>
+  <div *ngFor="let delivery of deliveryMethod">
+    <label>
+      <input
+        type="radio"
+        name="deliveryMode"
+        [value]="delivery.deliveryOption"
+      />
+      {{ delivery.deliveryOption }} - Date :
+      {{ delivery.expectedDeliveryDate }} - Prix :
+      {{ delivery.cost | currency : "EUR" }}
+    </label>
+  </div>
 </form>

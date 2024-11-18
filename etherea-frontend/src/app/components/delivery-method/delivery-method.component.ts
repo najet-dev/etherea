@@ -1,12 +1,12 @@
 import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
+import { OrderService } from 'src/app/services/order.service';
+import { AuthService } from 'src/app/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DeliveryMethodService } from 'src/app/services/delivery-method.service';
+import { AppFacade } from 'src/app/services/appFacade.service';
 import { DeliveryMethod } from '../models/DeliveryMethod.model';
-import { DeliveryOption } from '../models/DeliveryOption.enum';
-import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-delivery-method',
@@ -19,17 +19,16 @@ export class DeliveryMethodComponent implements OnInit {
   addressId: number | null = null;
   firstName: string | null = null;
   lastName: string | null = null;
-  isLoading: boolean = true; // Indicateur de chargement
-  deliveryMethods: DeliveryMethod[] = [];
-  selectedDeliveryOption!: DeliveryOption;
+  isLoading: boolean = true; // Ajout d'un indicateur de chargement
+  deliveryMethod: DeliveryMethod[] = [];
 
   private destroyRef = inject(DestroyRef);
 
   constructor(
+    private appFacade: AppFacade,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router,
-    private deliveryMethodService: DeliveryMethodService
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -42,21 +41,26 @@ export class DeliveryMethodComponent implements OnInit {
           return this.authService.getCurrentUser().pipe(
             filter((user) => user !== null && user.id !== undefined),
             switchMap((user) => {
-              this.userId = user!.id; // Récupération dynamique de l'ID utilisateur
-              return this.deliveryMethodService.getDeliveryMethods(this.userId);
+              this.userId = user!.id;
+              return this.appFacade.getDeliveryAddress(this.userId, addressId);
             })
           );
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (methods) => {
-          this.deliveryMethods = methods;
+        next: (address) => {
+          this.deliveryAddress = address;
           this.isLoading = false; // Fin du chargement
+
+          if (address.user && address.user.firstName && address.user.lastName) {
+            this.firstName = address.user.firstName;
+            this.lastName = address.user.lastName;
+          }
         },
         error: (error) => {
           console.error(
-            'Erreur lors de la récupération des méthodes de livraison :',
+            'Erreur lors de la récupération de l’adresse de livraison :',
             error
           );
           this.isLoading = false;
@@ -70,9 +74,5 @@ export class DeliveryMethodComponent implements OnInit {
     } else {
       console.error("L'ID de l'adresse n'est pas défini.");
     }
-  }
-
-  onDeliveryOptionChange(option: DeliveryOption): void {
-    this.selectedDeliveryOption = option;
   }
 }
