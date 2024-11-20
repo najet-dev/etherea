@@ -38,16 +38,25 @@
   </div>
 </div>
 <form>
-  <div *ngFor="let delivery of deliveryMethod">
-    <label>
-      <input
-        type="radio"
-        name="deliveryMode"
-        [value]="delivery.deliveryOption"
-      />
-      {{ delivery.deliveryOption }} - Date :
-      {{ delivery.expectedDeliveryDate }} - Prix :
-      {{ delivery.cost | currency : "EUR" }}
-    </label>
+  <h2>2.Mode de livraison :</h2>
+  <div *ngIf="isLoading">
+    <p>Chargement des méthodes de livraison...</p>
+  </div>
+  <div *ngIf="!isLoading && deliveryMethod.length > 0">
+    <div *ngFor="let delivery of deliveryMethod">
+      <label>
+        <input
+          type="radio"
+          name="deliveryMode"
+          [value]="delivery.deliveryOption"
+        />
+        {{ delivery.deliveryOption }} - Date prévue :
+        {{ delivery.expectedDeliveryDate | date : "longDate" }} - Prix :
+        {{ delivery.cost | currency : "EUR" : "symbol" : "1.2-2" }}
+      </label>
+    </div>
+  </div>
+  <div *ngIf="!isLoading && deliveryMethod.length === 0">
+    <p>Aucun mode de livraison disponible.</p>
   </div>
 </form>

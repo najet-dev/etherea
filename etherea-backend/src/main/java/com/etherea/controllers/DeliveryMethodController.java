@@ -19,6 +19,13 @@ public class DeliveryMethodController {
     private DeliveryMethodService deliveryMethodService;
     @Autowired
     private PickupPointService pickupPointService;
+
+    @GetMapping("/{userId}/available")
+    public ResponseEntity<List<DeliveryMethodDTO>> getAvailableDeliveryMethods(@PathVariable Long userId) {
+        List<DeliveryMethodDTO> deliveryMethods = deliveryMethodService.getAllDeliveryMethods(userId);
+        return ResponseEntity.ok(deliveryMethods);
+    }
+
     @GetMapping("/{userId}/{deliveryMethodId}")
     public ResponseEntity<DeliveryMethodDTO> getDeliveryMethod(
             @PathVariable Long userId,

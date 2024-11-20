@@ -9,8 +9,12 @@ import com.etherea.repositories.*;
 import com.etherea.utils.DeliveryDateCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.etherea.utils.DeliveryCostCalculator;
+
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class DeliveryMethodService {
@@ -30,6 +34,29 @@ public class DeliveryMethodService {
     private DeliveryMethodRepository deliveryMethodRepository;
     @Autowired
     private CartRepository cartRepository;
+    public List<DeliveryMethodDTO> getAllDeliveryMethods(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable avec l'ID : " + userId));
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Panier introuvable pour l'utilisateur avec l'ID : " + userId));
+
+        if (cart.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Le panier est vide pour l'utilisateur avec l'ID : " + userId);
+        }
+
+        double cartTotal = cart.calculateTotalAmount().doubleValue();
+        LocalDate startDate = LocalDate.now();
+
+        List<DeliveryMethodDTO> deliveryMethods = new ArrayList<>();
+
+        for (DeliveryOption option : DeliveryOption.values()) {
+            double cost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, option); // Utilisation de la classe utilitaire
+            LocalDate deliveryDate = deliveryDateCalculator.calculateDeliveryDate(startDate, option);
+            deliveryMethods.add(new DeliveryMethodDTO(option, cost, deliveryDate));
+        }
+
+        return deliveryMethods;
+    }
     public DeliveryMethodDTO getDeliveryMethod(Long userId, Long deliveryMethodId) {
         // User existence check
         userRepository.findById(userId)

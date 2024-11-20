@@ -18,6 +18,8 @@ public class Cart {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "delivery_method_id")
     private DeliveryMethod deliveryMethod;
+    private DeliveryAddress deliveryAddress;
+
     public Cart() {}
     public Cart(User user) {
         this.user = user;
@@ -44,6 +46,13 @@ public class Cart {
     }
     public DeliveryMethod getDeliveryMethod() {
         return deliveryMethod;
+    }
+
+    public DeliveryAddress getDeliveryAddress() {
+        return deliveryAddress;
+    }
+    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
     public void setDeliveryMethod(DeliveryMethod deliveryMethod) {
         this.deliveryMethod = deliveryMethod;

@@ -20,7 +20,11 @@ public class DeliveryMethodDTO {
     private String pickupPointAddress;
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
+
+    // Constructeur par défaut
     public DeliveryMethodDTO() {}
+
+    // Constructeur avec tous les paramètres nécessaires
     public DeliveryMethodDTO(Long id, DeliveryOption deliveryOption, LocalDate expectedDeliveryDate, Double cost,
                              DeliveryAddressDTO deliveryAddress, String pickupPointName, String pickupPointAddress,
                              Double pickupPointLatitude, Double pickupPointLongitude) {
@@ -34,60 +38,88 @@ public class DeliveryMethodDTO {
         this.pickupPointLatitude = pickupPointLatitude;
         this.pickupPointLongitude = pickupPointLongitude;
     }
+
+    // Constructeur simplifié pour les cas où seules les informations essentielles sont nécessaires
+    public DeliveryMethodDTO(DeliveryOption deliveryOption, Double cost, LocalDate expectedDeliveryDate) {
+        this.deliveryOption = deliveryOption;
+        this.cost = cost;
+        this.expectedDeliveryDate = expectedDeliveryDate;
+    }
+
+    // Getters et Setters
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public DeliveryOption getDeliveryOption() {
         return deliveryOption;
     }
+
     public void setDeliveryOption(DeliveryOption deliveryOption) {
         this.deliveryOption = deliveryOption;
     }
+
     public LocalDate getExpectedDeliveryDate() {
         return expectedDeliveryDate;
     }
+
     public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
     }
+
     public Double getCost() {
         return cost;
     }
+
     public void setCost(Double cost) {
         this.cost = cost;
     }
+
     public DeliveryAddressDTO getDeliveryAddress() {
         return deliveryAddress;
     }
+
     public void setDeliveryAddress(DeliveryAddressDTO deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
+
     public String getPickupPointName() {
         return pickupPointName;
     }
+
     public void setPickupPointName(String pickupPointName) {
         this.pickupPointName = pickupPointName;
     }
+
     public String getPickupPointAddress() {
         return pickupPointAddress;
     }
+
     public void setPickupPointAddress(String pickupPointAddress) {
         this.pickupPointAddress = pickupPointAddress;
     }
+
     public Double getPickupPointLatitude() {
         return pickupPointLatitude;
     }
+
     public void setPickupPointLatitude(Double pickupPointLatitude) {
         this.pickupPointLatitude = pickupPointLatitude;
     }
+
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
+
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }
+
+    // Méthode statique pour transformer un DeliveryMethod en DeliveryMethodDTO
     public static DeliveryMethodDTO fromDeliveryMethod(
             DeliveryMethod deliveryMethod,
             DeliveryAddress userAddress,
@@ -95,18 +127,24 @@ public class DeliveryMethodDTO {
             double orderAmount,
             DeliveryDateCalculator calculator
     ) {
+        // Convertir l'adresse de l'utilisateur en DTO si elle existe
         DeliveryAddressDTO addressDTO = userAddress != null ? DeliveryAddressDTO.fromDeliveryAddress(userAddress) : null;
+
+        // Calculer la date de livraison attendue en fonction du nombre de jours
         int deliveryDays = deliveryMethod.calculateDeliveryTime();
         LocalDate expectedDeliveryDate = calculator.calculateDeliveryDate(startDate, deliveryDays);
+
+        // Calculer le coût de la livraison en fonction du montant de la commande
         Double cost = deliveryMethod.isFreeShipping(orderAmount) ? 0.0 : deliveryMethod.calculateCost(orderAmount);
 
+        // Création du DeliveryMethodDTO en fonction du type de méthode de livraison
         if (deliveryMethod instanceof PickupPointDelivery pickupPoint) {
             return new DeliveryMethodDTO(
                     pickupPoint.getId(),
                     DeliveryOption.PICKUP_POINT,
                     expectedDeliveryDate,
                     cost,
-                    null,
+                    null, // Pas d'adresse pour le point relais
                     pickupPoint.getPickupPointName(),
                     pickupPoint.getPickupPointAddress(),
                     pickupPoint.getPickupPointLatitude(),
@@ -118,8 +156,8 @@ public class DeliveryMethodDTO {
                     DeliveryOption.HOME_STANDARD,
                     expectedDeliveryDate,
                     cost,
-                    addressDTO,
-                    null, null, null, null
+                    addressDTO, // L'adresse de l'utilisateur pour la livraison à domicile
+                    null, null, null, null // Pas de point relais
             );
         } else if (deliveryMethod instanceof HomeExpressDelivery expressDelivery) {
             return new DeliveryMethodDTO(
@@ -127,12 +165,11 @@ public class DeliveryMethodDTO {
                     DeliveryOption.HOME_EXPRESS,
                     expectedDeliveryDate,
                     cost,
-                    addressDTO,
-                    null, null, null, null
+                    addressDTO, // L'adresse de l'utilisateur pour la livraison express
+                    null, null, null, null // Pas de point relais
             );
         } else {
             throw new IllegalArgumentException("Type de méthode de livraison non pris en charge");
         }
     }
-
 }
