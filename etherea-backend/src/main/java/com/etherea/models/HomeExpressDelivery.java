@@ -8,16 +8,18 @@ public class HomeExpressDelivery extends DeliveryMethod {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
-    private static final double EXPRESS_SHIPPING_COST = 8.0;
     private static final int DELIVERY_DAYS = 2;
     public HomeExpressDelivery() {}
     public HomeExpressDelivery(DeliveryAddress deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
+
     @Override
     public double calculateCost(double totalAmount) {
-        return isFreeShipping(totalAmount) ? 0.0 : EXPRESS_SHIPPING_COST;
+        // Si la livraison est gratuite (montant du panier >= 50), le coût est 0, sinon c'est le coût de base
+        return isFreeShipping(totalAmount) ? 0.0 : DeliveryOption.HOME_EXPRESS.getBaseCost();
     }
+
     @Override
     public int calculateDeliveryTime() {
         return DELIVERY_DAYS;

@@ -103,8 +103,4 @@ public class DeliveryAddressDTO {
         }
         return deliveryAddress;
     }
-    public String getFullAddress() {
-        return address + ", " + city + ", " + zipCode + ", " + country;
-    }
-
 }

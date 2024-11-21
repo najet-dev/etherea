@@ -15,10 +15,25 @@ import java.util.List;
 @RequestMapping("/deliveryMethods")
 @CrossOrigin(origins = "*")
 public class DeliveryMethodController {
+
     @Autowired
     private DeliveryMethodService deliveryMethodService;
+
     @Autowired
     private PickupPointService pickupPointService;
+
+    /**
+     * Récupère les options de livraison disponibles pour un utilisateur donné.
+     */
+    @GetMapping("/{userId}/options")
+    public ResponseEntity<List<DeliveryMethodDTO>> getAvailableDeliveryMethods(@PathVariable Long userId) {
+        List<DeliveryMethodDTO> options = deliveryMethodService.getAvailableDeliveryMethods(userId);
+        return ResponseEntity.ok(options);
+    }
+
+    /**
+     * Récupère les détails d'une méthode de livraison spécifique.
+     */
     @GetMapping("/{userId}/{deliveryMethodId}")
     public ResponseEntity<DeliveryMethodDTO> getDeliveryMethod(
             @PathVariable Long userId,
@@ -28,22 +43,20 @@ public class DeliveryMethodController {
         return ResponseEntity.ok(deliveryMethodDTO);
     }
 
-    // Récupération des points de collecte disponibles
+    /**
+     * Récupère les points de collecte disponibles pour un utilisateur donné.
+     */
     @GetMapping("/{userId}/pickupPoints")
     public ResponseEntity<List<AddDeliveryMethodRequestDTO>> getPickupPoints(@PathVariable Long userId) {
         List<AddDeliveryMethodRequestDTO> pickupPoints = pickupPointService.findPickupPoints(userId);
         return ResponseEntity.ok(pickupPoints);
     }
+
+    /**
+     * Ajoute un mode de livraison choisi par l'utilisateur.
+     */
     @PostMapping
     public ResponseEntity<DeliveryMethodDTO> addDeliveryMethod(@RequestBody AddDeliveryMethodRequestDTO request) {
-        // Validation des informations nécessaires pour la livraison en point relais
-        if (request.getDeliveryOption() == DeliveryOption.PICKUP_POINT) {
-            if (request.getPickupPointName() == null || request.getPickupPointAddress() == null ||
-                    request.getPickupPointLatitude() == null || request.getPickupPointLongitude() == null) {
-                return ResponseEntity.badRequest().body(null);
-            }
-        }
-
         // Appel du service pour ajouter une méthode de livraison
         DeliveryMethodDTO deliveryMethodDTO = deliveryMethodService.addDeliveryMethod(request);
         return ResponseEntity.ok(deliveryMethodDTO);
