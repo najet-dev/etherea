@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 
 @Entity
 public class PickupPointDelivery extends DeliveryMethod {
-    private static final double SHIPPING_COST = 3.0;
     private static final int DELIVERY_DAYS = 8;
     @Column(nullable = false)
     private String pickupPointName;
@@ -29,7 +28,8 @@ public class PickupPointDelivery extends DeliveryMethod {
     }
     @Override
     public double calculateCost(double totalAmount) {
-        return isFreeShipping(totalAmount) ? 0.0 : SHIPPING_COST;
+        // Si la livraison est gratuite (montant du panier >= 50), le coût est 0, sinon c'est le coût de base
+        return isFreeShipping(totalAmount) ? 0.0 : DeliveryOption.PICKUP_POINT.getBaseCost();
     }
     @Override
     public int calculateDeliveryTime() {

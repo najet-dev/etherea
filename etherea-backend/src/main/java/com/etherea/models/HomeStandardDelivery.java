@@ -8,7 +8,6 @@ public class HomeStandardDelivery extends DeliveryMethod {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
-    private static final double STANDARD_SHIPPING_COST = 5.0;
     private static final int DELIVERY_DAYS = 7;
     public HomeStandardDelivery() {}
     public HomeStandardDelivery(DeliveryAddress deliveryAddress) {
@@ -16,7 +15,8 @@ public class HomeStandardDelivery extends DeliveryMethod {
     }
     @Override
     public double calculateCost(double totalAmount) {
-        return isFreeShipping(totalAmount) ? 0.0 : STANDARD_SHIPPING_COST;
+        // Si la livraison est gratuite (montant du panier >= 50), le coût est 0, sinon c'est le coût de base
+        return isFreeShipping(totalAmount) ? 0.0 : DeliveryOption.HOME_STANDARD.getBaseCost();
     }
     @Override
     public int calculateDeliveryTime() {

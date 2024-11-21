@@ -1,7 +1,17 @@
 package com.etherea.enums;
 
 public enum DeliveryOption {
-    PICKUP_POINT,  // Point relais
-    HOME_STANDARD, // Livraison domicile standard
-    HOME_EXPRESS   // Livraison domicile express
+    HOME_STANDARD(5.0),
+    HOME_EXPRESS(10.0),
+    PICKUP_POINT(3.0);
+    private final double baseCost;
+
+    // Constructor
+    DeliveryOption(double baseCost) {
+        this.baseCost = baseCost;
+    }
+
+    public double getBaseCost() {
+        return this.baseCost;
+    }
 }

@@ -43,10 +43,13 @@ export class DeliveryAddressService {
         `${this.apiUrl}/deliveryAddresses/${userId}/${addressId}`
       )
       .pipe(
-        tap((address) => {
-          console.log('Adresse de livraison récupérée:', address);
-        }),
-        catchError(this.handleError)
+        tap((address) => console.log('Adresse récupérée :', address)),
+        catchError((error) => {
+          console.error('Erreur lors de la récupération de l’adresse :', error);
+          return throwError(
+            () => new Error('Impossible de récupérer l’adresse.')
+          );
+        })
       );
   }
 
@@ -63,7 +66,10 @@ export class DeliveryAddressService {
         tap((newAddress) => {
           console.log('Nouvelle adresse ajoutée avec succès:', newAddress);
         }),
-        catchError(this.handleError)
+        catchError((error) => {
+          console.error('Error adding delivery address:', error);
+          return throwError(() => error);
+        })
       );
   }
 
@@ -80,20 +86,10 @@ export class DeliveryAddressService {
         tap((updatedAddress) => {
           console.log('Adresse modifiée avec succès:', updatedAddress);
         }),
-        catchError(this.handleError)
+        catchError((error) => {
+          console.error('Error updating delivery address:', error);
+          return throwError(() => error);
+        })
       );
-  }
-
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage: string;
-    if (error.error instanceof ErrorEvent) {
-      // Une erreur côté client ou un problème de réseau
-      errorMessage = `Erreur: ${error.error.message}`;
-    } else {
-      // L'erreur est retournée par le backend
-      errorMessage = `Code d'erreur: ${error.status}, Message: ${error.message}`;
-    }
-    console.error('Une erreur est survenue:', errorMessage);
-    return throwError(() => new Error(errorMessage));
   }
 }
