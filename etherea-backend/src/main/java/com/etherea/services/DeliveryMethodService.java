@@ -1,167 +1,85 @@
 package com.etherea.services;
 
-import com.etherea.dtos.AddDeliveryMethodRequestDTO;
-import com.etherea.dtos.DeliveryAddressDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
+import com.etherea.dtos.DeliveryAddressDTO;
 import com.etherea.enums.DeliveryOption;
-import com.etherea.exception.CartNotFoundException;
-import com.etherea.exception.DeliveryAddressNotFoundException;
-import com.etherea.exception.DeliveryMethodNotFoundException;
 import com.etherea.exception.UserNotFoundException;
-import com.etherea.models.*;
-import com.etherea.repositories.*;
-import com.etherea.utils.DeliveryCostCalculator;
+import com.etherea.models.DeliveryAddress;
+import com.etherea.models.DeliveryMethod;
+import com.etherea.repositories.DeliveryMethodRepository;
+import com.etherea.repositories.UserRepository;
 import com.etherea.utils.DeliveryDateCalculator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DeliveryMethodService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private DeliveryAddressRepository deliveryAddressRepository;
+    private DeliveryMethodRepository deliveryMethodRepository;
     @Autowired
     private DeliveryDateCalculator deliveryDateCalculator;
     @Autowired
-    private HomeStandardDeliveryRepository homeStandardDeliveryRepository;
-    @Autowired
-    private HomeExpressDeliveryRepository homeExpressDeliveryRepository;
-    @Autowired
-    private PickupPointDeliveryRepository pickupPointDeliveryRepository;
-    @Autowired
-    private DeliveryMethodRepository deliveryMethodRepository;
-    @Autowired
-    private CartRepository cartRepository;
-    @Autowired
-    private PickupPointService pickupPointService;
+    private DeliveryAddressService deliveryAddressService;
 
-    public List<DeliveryMethodDTO> getAvailableDeliveryMethods(Long userId) {
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new CartNotFoundException("Shopping cart not found for user with ID: " + userId));
 
-        double cartTotal = cart.calculateTotalAmount().doubleValue();
+    /**
+     * Retourne une liste simple des options de livraison avec leurs coûts et dates estimées.
+     *
+     * @param userId L'ID de l'utilisateur (nécessaire pour les livraisons à domicile).
+     * @return Liste des options de livraison sous forme de DTOs.
+     */
+    public List<DeliveryMethodDTO> getDeliveryOptions(Long userId) {
+        // Récupérer l'adresse par défaut de l'utilisateur
+        DeliveryAddressDTO defaultAddress = deliveryAddressService.getAllDeliveryAddresses(userId)
+                .stream()
+                .filter(DeliveryAddressDTO::isDefault) // Trouver l'adresse par défaut
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Aucune adresse par défaut n'a été trouvée pour l'utilisateur."));
+
+        // Date actuelle
         LocalDate currentDate = LocalDate.now();
 
-        DeliveryAddress userAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(userId)
-                .orElseThrow(() -> new DeliveryAddressNotFoundException("No address found for user with ID: " + userId));
-
-        List<DeliveryMethodDTO> deliveryOptions = new ArrayList<>();
-
-        // Add home delivery options
-        deliveryOptions.add(createDeliveryMethodDTO(DeliveryOption.HOME_STANDARD, cartTotal, currentDate, 3, userAddress));
-        deliveryOptions.add(createDeliveryMethodDTO(DeliveryOption.HOME_EXPRESS, cartTotal, currentDate, 1, userAddress));
-
-        // Add relay points
-        List<AddDeliveryMethodRequestDTO> pickupPoints = pickupPointService.findPickupPoints(userId);
-        pickupPoints.forEach(pickupPoint ->
-                deliveryOptions.add(createPickupPointDeliveryDTO(cartTotal, currentDate, pickupPoint))
-        );
-
-        return deliveryOptions;
-    }
-    private DeliveryMethodDTO createPickupPointDeliveryDTO(double cartTotal, LocalDate currentDate, AddDeliveryMethodRequestDTO pickupPoint) {
-        return new DeliveryMethodDTO.Builder()
-                .setDeliveryOption(DeliveryOption.PICKUP_POINT)
-                .setExpectedDeliveryDate(currentDate.plusDays(5))
-                .setCost(DeliveryCostCalculator.calculateDeliveryCost(cartTotal, DeliveryOption.PICKUP_POINT))
-                .setPickupPointName(pickupPoint.getPickupPointName())
-                .setPickupPointAddress(pickupPoint.getPickupPointAddress())
-                .setPickupPointLatitude(pickupPoint.getPickupPointLatitude())
-                .setPickupPointLongitude(pickupPoint.getPickupPointLongitude())
+        // Construction des 3 options
+        DeliveryMethodDTO homeStandard = new DeliveryMethodDTO.Builder()
+                .setId(1L)
+                .setDeliveryOption(DeliveryOption.HOME_STANDARD)
+                .setExpectedDeliveryDate(currentDate.plusDays(7))
+                .setCost(5.0)
+                .setDeliveryAddress(defaultAddress)
                 .build();
-    }
-    public DeliveryMethodDTO getDeliveryMethod(Long userId, Long deliveryMethodId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User ID not found : " + userId));
 
-        // Retrieve delivery method
-        DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
-                .orElseThrow(() -> new DeliveryMethodNotFoundException("Delivery mode not found with ID : " + deliveryMethodId));
+        DeliveryMethodDTO homeExpress = new DeliveryMethodDTO.Builder()
+                .setId(2L)
+                .setDeliveryOption(DeliveryOption.HOME_EXPRESS)
+                .setExpectedDeliveryDate(currentDate.plusDays(2))
+                .setCost(10.0)
+                .setDeliveryAddress(defaultAddress) // Ajouter l'adresse utilisateur
+                .build();
 
-        // Retrieve delivery address if applicable
-        DeliveryAddress deliveryAddress = (deliveryMethod instanceof HomeStandardDelivery)
-                ? ((HomeStandardDelivery) deliveryMethod).getDeliveryAddress()
-                : (deliveryMethod instanceof HomeExpressDelivery)
-                ? ((HomeExpressDelivery) deliveryMethod).getDeliveryAddress()
-                : null;
+        DeliveryMethodDTO pickupPoint = new DeliveryMethodDTO.Builder()
+                .setId(3L)
+                .setDeliveryOption(DeliveryOption.PICKUP_POINT)
+                .setExpectedDeliveryDate(currentDate.plusDays(8))
+                .setCost(3.0)
+                // Champs vides pour point relais
+                .setPickupPointName("")
+                .setPickupPointLatitude(null)
+                .setPickupPointLongitude(null)
+                .setPickupPointAddress("")
+                .build();
 
-        // Shopping cart recovery
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new CartNotFoundException("Shopping cart not found for user with ID : " + userId));
-
-        if (cart.getItems().isEmpty()) {
-            throw new CartNotFoundException("The shopping cart is empty for the user with the ID : " + userId);
-        }
-
-        // Delivery cost calculation
-        double cartTotal = cart.calculateTotalAmount().doubleValue();
-        double deliveryCost = deliveryMethod.calculateCost(cartTotal);
-
-        return DeliveryMethodDTO.fromDeliveryMethod(deliveryMethod, deliveryAddress, LocalDate.now(), cartTotal, deliveryDateCalculator);
-    }
-    public DeliveryMethodDTO addDeliveryMethod(AddDeliveryMethodRequestDTO request) {
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User ID not found : " + request.getUserId()));
-
-        Cart cart = cartRepository.findByUserId(request.getUserId())
-                .orElseThrow(() -> new CartNotFoundException("Shopping cart not found for user with ID : " + request.getUserId()));
-
-        double cartTotal = cart.calculateTotalAmount().doubleValue();
-        DeliveryMethod deliveryMethod = switch (request.getDeliveryOption()) {
-            case HOME_STANDARD, HOME_EXPRESS -> {
-                DeliveryAddress userAddress = getUserDeliveryAddress(request.getUserId());
-                yield request.getDeliveryOption() == DeliveryOption.HOME_STANDARD
-                        ? new HomeStandardDelivery(userAddress)
-                        : new HomeExpressDelivery(userAddress);
-            }
-            case PICKUP_POINT -> new PickupPointDelivery(
-                    request.getPickupPointName(),
-                    request.getPickupPointAddress(),
-                    request.getPickupPointLatitude(),
-                    request.getPickupPointLongitude(),
-                    user
-            );
-            default -> throw new DeliveryMethodNotFoundException("Delivery method not supported.");
-        };
-
-        deliveryMethodRepository.save(deliveryMethod);
-
-        return DeliveryMethodDTO.fromDeliveryMethod(
-                deliveryMethod,
-                request.getDeliveryOption() != DeliveryOption.PICKUP_POINT ? getUserDeliveryAddress(request.getUserId()) : null,
-                LocalDate.now(),
-                cartTotal,
-                deliveryDateCalculator
-        );
-    }
-    private DeliveryAddress getUserDeliveryAddress(Long userId) {
-        return deliveryAddressRepository.findTopByUserIdOrderByIdDesc(userId)
-         .orElseThrow(() -> new DeliveryAddressNotFoundException("No delivery addresses found for user with ID: " ));
-    }
-    private DeliveryMethodDTO createDeliveryMethodDTO(
-            DeliveryOption option,
-            double cartTotal,
-            LocalDate currentDate,
-            int daysToAdd,
-            DeliveryAddress address
-    ) {
-        double deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, option);
-        LocalDate expectedDeliveryDate = currentDate.plusDays(daysToAdd);
-
-        DeliveryMethodDTO.Builder builder = new DeliveryMethodDTO.Builder()
-                .setDeliveryOption(option)
-                .setExpectedDeliveryDate(expectedDeliveryDate)
-                .setCost(deliveryCost);
-
-        if (option == DeliveryOption.HOME_STANDARD || option == DeliveryOption.HOME_EXPRESS) {
-            builder.setDeliveryAddress(DeliveryAddressDTO.fromDeliveryAddress(address));
-        }
-
-        return builder.build();
+        // Retourner les options sous forme de liste
+        return Arrays.asList(homeStandard, homeExpress, pickupPoint);
     }
 }

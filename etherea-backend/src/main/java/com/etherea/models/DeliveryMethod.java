@@ -15,13 +15,18 @@ public abstract class DeliveryMethod {
         return id;
     }
 
-    // Method to check if delivery is free
+    /**
+     * Vérifie si la livraison est gratuite.
+     *
+     * @param totalAmount Le montant total du panier.
+     * @return true si la livraison est gratuite, sinon false.
+     */
     public boolean isFreeShipping(double totalAmount) {
         return totalAmount >= FREE_SHIPPING_THRESHOLD;
     }
-
-    // Abstract methods
-    public abstract double calculateCost(double totalAmount);
+    public double calculateCost(double totalAmount) {
+        return isFreeShipping(totalAmount) ? 0.0 : getDeliveryOption().getBaseCost();
+    }
     public abstract int calculateDeliveryTime();
     public abstract DeliveryOption getDeliveryOption();
     public abstract String getDescription();

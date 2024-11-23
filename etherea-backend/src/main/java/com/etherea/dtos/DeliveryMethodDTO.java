@@ -9,6 +9,7 @@ import com.etherea.models.HomeExpressDelivery;
 import com.etherea.models.HomeStandardDelivery;
 import com.etherea.models.PickupPointDelivery;
 import com.etherea.utils.DeliveryDateCalculator;
+import com.etherea.utils.DeliveryCostCalculator;
 
 import java.time.LocalDate;
 public class DeliveryMethodDTO {
@@ -21,7 +22,6 @@ public class DeliveryMethodDTO {
     private String pickupPointAddress;
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
-
     private DeliveryMethodDTO(Builder builder) {
         if (builder.deliveryOption == DeliveryOption.PICKUP_POINT && (builder.pickupPointName == null || builder.pickupPointAddress == null)) {
             throw new DeliveryMethodNotFoundException("Les informations du point de collecte sont manquantes pour une livraison en point relais.");
@@ -40,7 +40,6 @@ public class DeliveryMethodDTO {
         this.pickupPointLatitude = builder.pickupPointLatitude;
         this.pickupPointLongitude = builder.pickupPointLongitude;
     }
-
     // Getters and setters
     public Long getId() {
         return id;
@@ -156,12 +155,17 @@ public class DeliveryMethodDTO {
             double orderAmount,
             DeliveryDateCalculator calculator
     ) {
+        // Convertir l'adresse utilisateur en DTO si elle est disponible
         DeliveryAddressDTO addressDTO = userAddress != null ? DeliveryAddressDTO.fromDeliveryAddress(userAddress) : null;
+
+        // Calcul de la date estimée de livraison
         int deliveryDays = deliveryMethod.calculateDeliveryTime();
         LocalDate expectedDeliveryDate = calculator.calculateDeliveryDate(startDate, deliveryDays);
-        Double cost = deliveryMethod.isFreeShipping(orderAmount) ? 0.0 : deliveryMethod.calculateCost(orderAmount);
 
-        // Build the DTO with the Builder according to the type of delivery
+        // Calcul du coût de livraison
+        Double cost = DeliveryCostCalculator.calculateDeliveryCost(orderAmount, deliveryMethod.getDeliveryOption());
+
+        // Construction du DTO en fonction du type de méthode de livraison
         Builder builder = new Builder()
                 .setId(deliveryMethod.getId())
                 .setExpectedDeliveryDate(expectedDeliveryDate)
@@ -173,7 +177,7 @@ public class DeliveryMethodDTO {
                     .setPickupPointAddress(pickupPoint.getPickupPointAddress())
                     .setPickupPointLatitude(pickupPoint.getPickupPointLatitude())
                     .setPickupPointLongitude(pickupPoint.getPickupPointLongitude());
-        } else if (deliveryMethod instanceof HomeStandardDelivery standardDelivery || deliveryMethod instanceof HomeExpressDelivery expressDelivery) {
+        } else if (deliveryMethod instanceof HomeStandardDelivery || deliveryMethod instanceof HomeExpressDelivery) {
             builder.setDeliveryOption(deliveryMethod instanceof HomeStandardDelivery ? DeliveryOption.HOME_STANDARD : DeliveryOption.HOME_EXPRESS)
                     .setDeliveryAddress(addressDTO);
         } else {

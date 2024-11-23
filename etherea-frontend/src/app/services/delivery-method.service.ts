@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { Observable } from 'rxjs';
+import { PickupPoint } from '../components/models/pickupPoint.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +15,12 @@ export class DeliveryMethodService {
 
   getDeliveryMethods(userId: number): Observable<DeliveryMethod[]> {
     return this.httpClient.get<DeliveryMethod[]>(
-      `${this.apiUrl}/deliveryMethods/${userId}`
+      `${this.apiUrl}/deliveryMethods/options/${userId}`
+    );
+  }
+  getPickupMethods(userId: number): Observable<PickupPoint[]> {
+    return this.httpClient.get<PickupPoint[]>(
+      `${this.apiUrl}/deliveryMethods/pickupPoints/${userId}`
     );
   }
 }
