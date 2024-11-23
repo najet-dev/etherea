@@ -10,7 +10,6 @@ public enum DeliveryOption {
     DeliveryOption(double baseCost) {
         this.baseCost = baseCost;
     }
-
     public double getBaseCost() {
         return this.baseCost;
     }

@@ -5,9 +5,4 @@ export interface DeliveryMethod {
   deliveryOption: DeliveryOption;
   expectedDeliveryDate: string;
   cost: number;
-  deliveryAddress?: string;
-  pickupPointName?: string;
-  pickupPointAddress?: string;
-  pickupPointLatitude?: number;
-  pickupPointLongitude?: number;
 }

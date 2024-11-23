@@ -11,9 +11,9 @@ public class PickupPointDelivery extends DeliveryMethod {
     @Column(nullable = false)
     private String pickupPointAddress;
     @Column(nullable = false)
-    private Double pickupPointLatitude = 0.0;
+    private Double pickupPointLatitude;
     @Column(nullable = false)
-    private Double pickupPointLongitude = 0.0;
+    private Double pickupPointLongitude;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -27,11 +27,6 @@ public class PickupPointDelivery extends DeliveryMethod {
         this.user = user;
     }
     @Override
-    public double calculateCost(double totalAmount) {
-        // Si la livraison est gratuite (montant du panier >= 50), le coût est 0, sinon c'est le coût de base
-        return isFreeShipping(totalAmount) ? 0.0 : DeliveryOption.PICKUP_POINT.getBaseCost();
-    }
-    @Override
     public int calculateDeliveryTime() {
         return DELIVERY_DAYS;
     }
@@ -41,7 +36,7 @@ public class PickupPointDelivery extends DeliveryMethod {
     }
     @Override
     public String getDescription() {
-        return "Livraison au point relais (8 jours ouvrés)";
+        return "Pickup point delivery (8 working days)";
     }
     public String getPickupPointName() {
         return pickupPointName;

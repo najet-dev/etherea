@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 @Entity
 public class HomeStandardDelivery extends DeliveryMethod {
+
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
@@ -12,11 +13,6 @@ public class HomeStandardDelivery extends DeliveryMethod {
     public HomeStandardDelivery() {}
     public HomeStandardDelivery(DeliveryAddress deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
-    }
-    @Override
-    public double calculateCost(double totalAmount) {
-        // Si la livraison est gratuite (montant du panier >= 50), le coût est 0, sinon c'est le coût de base
-        return isFreeShipping(totalAmount) ? 0.0 : DeliveryOption.HOME_STANDARD.getBaseCost();
     }
     @Override
     public int calculateDeliveryTime() {
