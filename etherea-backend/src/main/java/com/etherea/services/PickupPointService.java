@@ -5,6 +5,9 @@ import com.etherea.enums.DeliveryOption;
 import com.etherea.models.DeliveryAddress;
 import com.etherea.repositories.DeliveryAddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,6 +25,7 @@ public class PickupPointService {
     private DeliveryAddressRepository deliveryAddressRepository;
     @Autowired
     private RestTemplate restTemplate;
+    @Cacheable(value = "pickupPointsCache", key = "#userId", unless = "#result == null || #result.isEmpty()")
     public List<AddDeliveryMethodRequestDTO> findPickupPoints(Long userId) {
         // Retrieve user address
         DeliveryAddress userAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(userId)
@@ -96,5 +100,10 @@ public class PickupPointService {
             System.err.println("Reverse geocoding error for (" + latitude + ", " + longitude + "): " + e.getMessage());
             return "Error obtaining address";
         }
+    }
+    @CacheEvict(value = "pickupPointsCache", allEntries = true)
+    @Scheduled(fixedRate = 86400000) // Toutes les 24 heures (en millisecondes)
+    public void clearCacheAutomatically() {
+        System.out.println("Cache vidé automatiquement !");
     }
 }
