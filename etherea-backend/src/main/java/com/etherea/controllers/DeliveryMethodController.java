@@ -20,7 +20,6 @@ public class DeliveryMethodController {
     private DeliveryMethodService deliveryMethodService;
     @Autowired
     private PickupPointService pickupPointService;
-
     @GetMapping("/options/{userId}")
     public List<DeliveryMethodDTO> getDeliveryOptions(@PathVariable Long userId) {
         return deliveryMethodService.getDeliveryOptions(userId);
@@ -32,5 +31,9 @@ public class DeliveryMethodController {
     public ResponseEntity<List<AddDeliveryMethodRequestDTO>> getPickupPoints(@PathVariable Long userId) {
         List<AddDeliveryMethodRequestDTO> pickupPoints = pickupPointService.findPickupPoints(userId);
         return ResponseEntity.ok(pickupPoints);
+    }
+    @GetMapping("/calculate-total")
+    public double calculateTotal(@RequestParam double cartTotal, @RequestParam DeliveryOption selectedOption) {
+        return deliveryMethodService.calculateTotal(cartTotal, selectedOption);
     }
 }
