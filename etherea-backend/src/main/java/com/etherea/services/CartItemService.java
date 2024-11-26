@@ -32,9 +32,7 @@ public class CartItemService {
     private VolumeRepository volumeRepository;
     @Autowired
     private CartRepository cartRepository;
-
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
-
     public List<CartItemDTO> getCartItemsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));

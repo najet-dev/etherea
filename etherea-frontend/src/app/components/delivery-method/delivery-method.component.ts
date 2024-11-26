@@ -9,6 +9,7 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 import { DeliveryMethod } from '../models/DeliveryMethod.model';
 import { DeliveryMethodService } from 'src/app/services/delivery-method.service'; // Importer le service
 import { PickupPoint } from '../models/pickupPoint.model';
+import { Modal } from 'bootstrap';
 
 @Component({
   selector: 'app-delivery-method',
@@ -22,10 +23,11 @@ export class DeliveryMethodComponent implements OnInit {
   firstName: string | null = null;
   lastName: string | null = null;
   isLoading: boolean = true; // Indicateur de chargement
-  deliveryMethod: DeliveryMethod[] = []; // Stocker les méthodes de livraison
-  pickupPoints: PickupPoint[] = []; // Liste des points relais
+  deliveryMethod: DeliveryMethod[] = [];
+  pickupPoints: PickupPoint[] = [];
   selectedPickupPoint: PickupPoint | null = null; // Point relais sélectionné
   selectedDeliveryOption: string | null = null; // Option de livraison sélectionnée
+  confirmedPickupPoint: PickupPoint | null = null;
 
   private destroyRef = inject(DestroyRef);
 
@@ -34,7 +36,7 @@ export class DeliveryMethodComponent implements OnInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private deliveryMethodService: DeliveryMethodService // Injection du service de méthodes de livraison
+    private deliveryMethodService: DeliveryMethodService
   ) {}
 
   ngOnInit(): void {
@@ -82,11 +84,10 @@ export class DeliveryMethodComponent implements OnInit {
     if (this.userId) {
       this.isLoading = true; // Mettre en chargement les modes de livraison
       this.deliveryMethodService
-        .getDeliveryMethods(this.userId) // Appel au service pour récupérer les méthodes
+        .getDeliveryMethods(this.userId)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (methods) => {
-            console.log('Méthodes de livraison récupérées:', methods); // Débogage pour vérifier la réponse
             this.deliveryMethod = methods;
             this.isLoading = false; // Fin du chargement des méthodes de livraison
           },
@@ -132,11 +133,37 @@ export class DeliveryMethodComponent implements OnInit {
     this.selectedPickupPoint = point;
     console.log('Point relais sélectionné:', point);
   }
+  onDeliveryOptionChange() {
+    // Si un mode de livraison autre que "PICKUP_POINT" est sélectionné, réinitialisez le point relais
+    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
+      this.selectedPickupPoint = null; // Réinitialise le point relais si un autre mode est sélectionné
+    }
+  }
 
   confirmPickupPoint(): void {
     if (this.selectedPickupPoint) {
       console.log('Point relais confirmé:', this.selectedPickupPoint);
-      // Ajouter ici la logique pour associer le point relais sélectionné à l'utilisateur
+      this.confirmedPickupPoint = this.selectedPickupPoint; // Stocker le point relais confirmé
+
+      // Fermer la modale
+      const modalElement = document.getElementById('pickupPointModal');
+      if (modalElement) {
+        const modalInstance =
+          Modal.getInstance(modalElement) || new Modal(modalElement);
+        modalInstance.hide();
+      }
+
+      // Supprimer manuellement la classe "modal-open" du body si elle persiste
+      const body = document.body;
+      if (body.classList.contains('modal-open')) {
+        body.classList.remove('modal-open');
+      }
+
+      // Supprimer les divs de fond ajoutées par Bootstrap
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) {
+        backdrop.remove();
+      }
     }
   }
 }

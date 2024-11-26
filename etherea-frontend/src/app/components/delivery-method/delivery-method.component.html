@@ -52,6 +52,7 @@
                   name="deliveryMode"
                   [value]="delivery.deliveryOption"
                   [(ngModel)]="selectedDeliveryOption"
+                  (change)="onDeliveryOptionChange()"
                 />
               </div>
               <div class="ms-2">
@@ -69,19 +70,31 @@
           <div
             *ngIf="
               delivery.deliveryOption === 'PICKUP_POINT' &&
-              selectedDeliveryOption === 'PICKUP_POINT'
+              selectedDeliveryOption === 'PICKUP_POINT' &&
+              !selectedPickupPoint
             "
             class="mt-3"
           >
             <button
               type="button"
-              class="btn btn-primary btn-sm"
+              class="btn-primary btn-sm"
               data-bs-toggle="modal"
               data-bs-target="#pickupPointModal"
               (click)="showPickupPoints()"
             >
               Choisir un point relais
             </button>
+          </div>
+
+          <!-- Affichage du point relais sélectionné -->
+          <div
+            *ngIf="
+              delivery.deliveryOption === 'PICKUP_POINT' && selectedPickupPoint
+            "
+            class="mt-3"
+          >
+            <p>{{ selectedPickupPoint.pickupPointName }}</p>
+            <p>{{ selectedPickupPoint.pickupPointAddress }}</p>
           </div>
         </div>
       </div>
@@ -101,7 +114,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="pickupPointModalLabel">
-          Choisissez un point relais
+          Trouver un point de retrait
         </h5>
         <button
           type="button"
@@ -137,14 +150,11 @@
       <div class="modal-footer">
         <button
           type="button"
-          class="btn btn-primary"
+          class="btn-primary"
           (click)="confirmPickupPoint()"
           [disabled]="!selectedPickupPoint"
         >
           Choisir ce point relais
-        </button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Fermer
         </button>
       </div>
     </div>
