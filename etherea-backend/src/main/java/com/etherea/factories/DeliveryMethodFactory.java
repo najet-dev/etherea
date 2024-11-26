@@ -6,7 +6,6 @@ import com.etherea.models.*;
 public class DeliveryMethodFactory {
     public static DeliveryMethod createDeliveryMethod(
             DeliveryOption option,
-            Double cartTotalAmount,
             DeliveryAddress deliveryAddress,
             String pickupPointName,
             String pickupPointAddress,
@@ -14,9 +13,10 @@ public class DeliveryMethodFactory {
             Double longitude,
             User user
     ) {
-        if (cartTotalAmount == null || cartTotalAmount < 0) {
-            throw new IllegalArgumentException("The cart shopping amount must not be negative.");
+        if (option == null) {
+            throw new IllegalArgumentException("Delivery option must be specified.");
         }
+
         return switch (option) {
             case HOME_EXPRESS -> {
                 if (deliveryAddress == null) {
@@ -31,15 +31,15 @@ public class DeliveryMethodFactory {
                 yield new HomeStandardDelivery(deliveryAddress);
             }
             case PICKUP_POINT -> {
-                if (pickupPointName == null || pickupPointName.isEmpty() ||
-                        pickupPointAddress == null || pickupPointAddress.isEmpty() ||
+                if (pickupPointName == null || pickupPointName.isBlank() ||
+                        pickupPointAddress == null || pickupPointAddress.isBlank() ||
                         latitude == null || longitude == null ||
                         user == null) {
                     throw new IllegalArgumentException("The relay point information is incomplete.");
                 }
                 yield new PickupPointDelivery(pickupPointName, pickupPointAddress, latitude, longitude, user);
             }
-            default -> throw new IllegalArgumentException("Delivery option not supported : " + option);
+            default -> throw new IllegalArgumentException("Delivery option not supported: " + option);
         };
     }
 }
