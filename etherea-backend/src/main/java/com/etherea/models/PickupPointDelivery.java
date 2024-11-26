@@ -3,9 +3,12 @@ package com.etherea.models;
 import com.etherea.enums.DeliveryOption;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 public class PickupPointDelivery extends DeliveryMethod {
     private static final int DELIVERY_DAYS = 8;
+    private static final double DELIVERY_COST = 3.0;
     @Column(nullable = false)
     private String pickupPointName;
     @Column(nullable = false)
@@ -67,5 +70,17 @@ public class PickupPointDelivery extends DeliveryMethod {
     }
     public void setUser(User user) {
         this.user = user;
+    }
+    @Override
+    public double calculateCost(double totalAmount) {
+        if (isFreeShipping(totalAmount)) {
+            return 0.0;
+        }
+        return DELIVERY_COST;
+    }
+    @Override
+    public LocalDate calculateExpectedDeliveryDate() {
+        LocalDate currentDate = LocalDate.now();  // Date actuelle
+        return currentDate.plusDays(DELIVERY_DAYS);
     }
 }

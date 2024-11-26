@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class DeliveryAddressService {
+
     @Autowired
     private DeliveryAddressRepository deliveryAddressRepository;
     @Autowired
@@ -28,14 +29,12 @@ public class DeliveryAddressService {
      * @throws UserNotFoundException if the user is not found.
      */
     public List<DeliveryAddressDTO> getAllDeliveryAddresses(Long userId) {
-        // Vérifier que l'utilisateur existe
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+        User user = findUserById(userId);
 
-        // Récupérer toutes les adresses associées à l'utilisateur
+        // Get all addresses for the user
         List<DeliveryAddress> addresses = deliveryAddressRepository.findByUserId(userId);
 
-        // Convertir les adresses en DTO et les retourner
+        // Convert to DTO and return
         return addresses.stream()
                 .map(DeliveryAddressDTO::fromDeliveryAddress)
                 .collect(Collectors.toList());
@@ -51,6 +50,9 @@ public class DeliveryAddressService {
      * @throws DeliveryAddressNotFoundException if the address is not found or does not belong to the user
      */
     public DeliveryAddressDTO getDeliveryAddressByIdAndUserId(Long userId, Long addressId) {
+        User user = findUserById(userId);
+
+        // Retrieve the address and ensure it belongs to the user
         DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(addressId)
                 .filter(address -> address.getUser().getId().equals(userId))
                 .orElseThrow(() -> new DeliveryAddressNotFoundException(
@@ -67,26 +69,25 @@ public class DeliveryAddressService {
      * @throws UserNotFoundException if the user is not found.
      */
     public DeliveryAddressDTO addDeliveryAddress(Long userId, DeliveryAddressDTO deliveryAddressDTO) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+        User user = findUserById(userId);
 
         DeliveryAddress deliveryAddress = deliveryAddressDTO.toDeliveryAddress();
         deliveryAddress.setUser(user);
 
-        // Update all other user addresses so that they are no longer default addresses
+        // If a default address already exists, set it to false
         List<DeliveryAddress> existingAddresses = deliveryAddressRepository.findByUserId(userId);
-        for (DeliveryAddress existingAddress : existingAddresses) {
-            existingAddress.setDefault(false);
-            deliveryAddressRepository.save(existingAddress);
+        if (existingAddresses.stream().anyMatch(DeliveryAddress::isDefault)) {
+            existingAddresses.forEach(address -> address.setDefault(false));
+            deliveryAddressRepository.saveAll(existingAddresses);
         }
 
-        // Set new address as default address
+        // Set the new address as the default and save
         deliveryAddress.setDefault(true);
         DeliveryAddress savedAddress = deliveryAddressRepository.save(deliveryAddress);
 
-        // Return the DTO of the added address
         return DeliveryAddressDTO.fromDeliveryAddress(savedAddress);
     }
+
     /**
      * Updates the latest delivery address for a given user and sets it as the default address if specified.
      *
@@ -94,48 +95,48 @@ public class DeliveryAddressService {
      * @param deliveryAddressDTO The delivery address to update.
      * @return The updated DeliveryAddressDTO.
      * @throws UserNotFoundException if the user is not found.
-     * @throws DeliveryAddressNotFoundException if the address is not found, does not belong to the user,
-     *                                          or is not the latest address.
+     * @throws DeliveryAddressNotFoundException if the address is not found, does not belong to the user.
      */
     public DeliveryAddressDTO updateDeliveryAddress(Long userId, DeliveryAddressDTO deliveryAddressDTO) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+        User user = findUserById(userId);
 
         // Retrieve the last address added for the user
         DeliveryAddress latestAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(userId)
                 .orElseThrow(() -> new DeliveryAddressNotFoundException(
                         "No delivery addresses found for user with ID: " + userId));
 
-        // Check that the address to be updated is the last one added
+        // Ensure it's the latest address to be updated
         if (!latestAddress.getId().equals(deliveryAddressDTO.getId())) {
             throw new DeliveryAddressNotFoundException(
                     "The address with ID: " + deliveryAddressDTO.getId() + " is not the latest address for user with ID: " + userId);
         }
 
-        // Update existing address fields with new values
+        // Update address fields
         latestAddress.setAddress(deliveryAddressDTO.getAddress());
         latestAddress.setCity(deliveryAddressDTO.getCity());
         latestAddress.setZipCode(deliveryAddressDTO.getZipCode());
         latestAddress.setCountry(deliveryAddressDTO.getCountry());
         latestAddress.setPhoneNumber(deliveryAddressDTO.getPhoneNumber());
 
-        // Default address management
+        // Manage default address
         if (deliveryAddressDTO.isDefault()) {
-            // If the address to be updated is to be set as default, disable other addresses
             List<DeliveryAddress> userAddresses = deliveryAddressRepository.findByUserId(userId);
-            for (DeliveryAddress address : userAddresses) {
+            userAddresses.forEach(address -> {
                 if (!address.getId().equals(latestAddress.getId())) {
                     address.setDefault(false);
-                    deliveryAddressRepository.save(address);
                 }
-            }
-            // Set current address as default
+            });
             latestAddress.setDefault(true);
         }
-        // Save updated address
-        DeliveryAddress updatedAddress = deliveryAddressRepository.save(latestAddress);
 
-        // Return the updated address DTO
+        // Save and return the updated address
+        DeliveryAddress updatedAddress = deliveryAddressRepository.save(latestAddress);
         return DeliveryAddressDTO.fromDeliveryAddress(updatedAddress);
+    }
+
+    // Helper method to find user by ID
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
     }
 }

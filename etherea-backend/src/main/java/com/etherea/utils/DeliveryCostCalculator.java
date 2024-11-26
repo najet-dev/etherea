@@ -6,10 +6,7 @@ public class DeliveryCostCalculator {
 
     private static final double FREE_SHIPPING_THRESHOLD = 50.0;
 
-    private DeliveryCostCalculator() {
-        // Constructeur privé pour empêcher l'instanciation
-    }
-
+    private DeliveryCostCalculator() {}
     public static double calculateDeliveryCost(double cartTotal, DeliveryOption option) {
         if (cartTotal >= FREE_SHIPPING_THRESHOLD) {
             return 0.0;
@@ -19,7 +16,6 @@ public class DeliveryCostCalculator {
         }
         return option.getBaseCost();
     }
-
     public static boolean isFreeShipping(double cartTotal) {
         return cartTotal >= FREE_SHIPPING_THRESHOLD;
     }

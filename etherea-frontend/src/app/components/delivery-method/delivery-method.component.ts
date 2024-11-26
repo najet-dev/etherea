@@ -166,5 +166,4 @@ export class DeliveryMethodComponent implements OnInit {
       }
     }
   }
-  saveDeliveryMethod() {}
 }

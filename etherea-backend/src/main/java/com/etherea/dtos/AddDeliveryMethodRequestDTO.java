@@ -5,6 +5,7 @@ import com.etherea.enums.DeliveryOption;
 public class AddDeliveryMethodRequestDTO {
     private Long userId;
     private DeliveryOption deliveryOption;
+    private Long addressId;
     private String pickupPointName;
     private String pickupPointAddress;
     private Double pickupPointLatitude;
@@ -32,7 +33,12 @@ public class AddDeliveryMethodRequestDTO {
         }
         this.deliveryOption = deliveryOption;
     }
-
+    public Long getAddressId() {
+        return addressId;
+    }
+    public void setAddressId(Long addressId) {
+        this.addressId = addressId;
+    }
     public String getPickupPointName() {
         return pickupPointName;
     }

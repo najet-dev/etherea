@@ -2,12 +2,18 @@ package com.etherea.services;
 
 import com.etherea.dtos.DeliveryMethodDTO;
 import com.etherea.dtos.DeliveryAddressDTO;
+import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.enums.DeliveryOption;
+import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.exception.UserNotFoundException;
+import com.etherea.models.User;
+import com.etherea.models.DeliveryAddress;
 import com.etherea.models.DeliveryMethod;
 import com.etherea.repositories.CartRepository;
+import com.etherea.repositories.DeliveryAddressRepository;
 import com.etherea.repositories.DeliveryMethodRepository;
 import com.etherea.repositories.UserRepository;
+import com.etherea.factories.DeliveryMethodFactory;
 import com.etherea.utils.DeliveryCostCalculator;
 import com.etherea.utils.DeliveryDateCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +22,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.etherea.utils.DeliveryCostCalculator.calculateDeliveryCost;
 
 @Service
 public class DeliveryMethodService {
@@ -36,6 +40,8 @@ public class DeliveryMethodService {
 
     @Autowired
     private DeliveryAddressService deliveryAddressService;
+    @Autowired
+    private DeliveryAddressRepository deliveryAddressRepository;
 
     /**
      * Retourne une liste des options de livraison disponibles avec leurs coûts et dates estimées.
@@ -44,17 +50,19 @@ public class DeliveryMethodService {
      * @return Liste des options de livraison sous forme de DTOs.
      */
     public List<DeliveryMethodDTO> getDeliveryOptions(Long userId) {
-        // Récupérer l'adresse par défaut de l'utilisateur
         DeliveryAddressDTO defaultAddress = getDefaultAddress(userId);
+        double cartTotal = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("Panier introuvable pour l'utilisateur."))
+                .calculateTotalAmount().doubleValue();
 
-        // Date actuelle
+        boolean isFreeDelivery = cartTotal >= 50.0;
         LocalDate currentDate = LocalDate.now();
 
-        // Construire les options de livraison
+        // Créez les options de livraison
         return List.of(
-                createDeliveryMethodDTO(DeliveryOption.HOME_STANDARD, currentDate.plusDays(7), 5.0, defaultAddress, null),
-                createDeliveryMethodDTO(DeliveryOption.HOME_EXPRESS, currentDate.plusDays(2), 10.0, defaultAddress, null),
-                createDeliveryMethodDTO(DeliveryOption.PICKUP_POINT, currentDate.plusDays(8), 3.0, null, "")
+                createDeliveryMethodDTO(DeliveryOption.HOME_STANDARD, currentDate.plusDays(7), isFreeDelivery ? 0.0 : 5.0, defaultAddress, null),
+                createDeliveryMethodDTO(DeliveryOption.HOME_EXPRESS, currentDate.plusDays(2), isFreeDelivery ? 0.0 : 10.0, defaultAddress, null),
+                createDeliveryMethodDTO(DeliveryOption.PICKUP_POINT, currentDate.plusDays(8), isFreeDelivery ? 0.0 : 3.0, null, "")
         );
     }
 
@@ -68,20 +76,13 @@ public class DeliveryMethodService {
     private DeliveryAddressDTO getDefaultAddress(Long userId) {
         return deliveryAddressService.getAllDeliveryAddresses(userId)
                 .stream()
-                .filter(DeliveryAddressDTO::isDefault) // Trouver l'adresse par défaut
+                .filter(DeliveryAddressDTO::isDefault)
                 .findFirst()
                 .orElseThrow(() -> new UserNotFoundException("Aucune adresse par défaut n'a été trouvée pour l'utilisateur."));
     }
 
     /**
      * Crée une option de livraison de type `DeliveryMethodDTO`.
-     *
-     * @param option           Le type d'option de livraison.
-     * @param deliveryDate     La date de livraison estimée.
-     * @param cost             Le coût de livraison.
-     * @param deliveryAddress  L'adresse de livraison, peut être `null` pour un point relais.
-     * @param pickupPointName  Le nom du point relais, peut être `null` pour une livraison à domicile.
-     * @return L'objet `DeliveryMethodDTO` créé.
      */
     private DeliveryMethodDTO createDeliveryMethodDTO(
             DeliveryOption option, LocalDate deliveryDate, Double cost,
@@ -98,11 +99,88 @@ public class DeliveryMethodService {
                 .setPickupPointLongitude(null)
                 .build();
     }
+
+    /**
+     * Calcule le total du panier avec le coût de la livraison.
+     */
     public double calculateTotal(double cartTotal, DeliveryOption selectedOption) {
-        // Calculer le coût de livraison pour l'option choisie
+        if (cartTotal >= 50.0) {
+            return cartTotal; // Livraison gratuite
+        }
+
+        if (selectedOption == null) {
+            throw new IllegalArgumentException("Une option de livraison est requise.");
+        }
+
         double deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, selectedOption);
-        // Retourner le total : panier + livraison
         return cartTotal + deliveryCost;
+    }
+
+
+
+    /**
+     * Ajoute une méthode de livraison à la commande.
+     */
+    public DeliveryMethodDTO addDeliveryMethod(AddDeliveryMethodRequestDTO requestDTO) {
+        if (requestDTO == null || requestDTO.getUserId() == null || requestDTO.getDeliveryOption() == null) {
+            throw new IllegalArgumentException("Les données de la requête sont invalides.");
+        }
+
+        // Vérification de l'existence de l'utilisateur
+        User user = userRepository.findById(requestDTO.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable avec l'ID : " + requestDTO.getUserId()));
+
+        // Récupération de l'adresse de l'utilisateur (pour HOME_STANDARD ou HOME_EXPRESS)
+        DeliveryAddress userAddress = null;
+        if (requestDTO.getDeliveryOption() == DeliveryOption.HOME_STANDARD || requestDTO.getDeliveryOption() == DeliveryOption.HOME_EXPRESS) {
+            if (requestDTO.getAddressId() == null) {
+                throw new DeliveryAddressNotFoundException("L'ID de l'adresse est requis pour la livraison à domicile.");
+            }
+            userAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(requestDTO.getUserId())
+                    .orElseThrow(() -> new DeliveryAddressNotFoundException("Aucune adresse trouvée pour l'utilisateur avec l'ID : " + requestDTO.getUserId()));
+        }
+
+        // Création de la méthode de livraison via la factory
+        DeliveryMethod deliveryMethod = DeliveryMethodFactory.createDeliveryMethod(
+                requestDTO.getDeliveryOption(),
+                userAddress, // Utiliser l'adresse de l'utilisateur ici si c'est une livraison à domicile
+                requestDTO.getPickupPointName(),
+                requestDTO.getPickupPointAddress(),
+                requestDTO.getPickupPointLatitude(),
+                requestDTO.getPickupPointLongitude(),
+                user
+        );
+
+        // Calcul des coûts et des dates
+        double orderAmount = requestDTO.getOrderAmount();
+        LocalDate startDate = LocalDate.now();
+
+        // Calcul des frais et de la date de livraison selon le mode de livraison
+        if (requestDTO.getDeliveryOption() == DeliveryOption.PICKUP_POINT) {
+            // Point relais
+            deliveryMethod.setDeliveryCost(DeliveryCostCalculator.calculateDeliveryCost(orderAmount, DeliveryOption.PICKUP_POINT));
+            deliveryMethod.setExpectedDeliveryDate(
+                    deliveryDateCalculator.calculateDeliveryDate(startDate, 8) // Supposons 8 jours pour un point relais
+            );
+        } else {
+            // Livraison à domicile (standard ou express)
+            deliveryMethod.setDeliveryCost(DeliveryCostCalculator.calculateDeliveryCost(orderAmount, requestDTO.getDeliveryOption()));
+            deliveryMethod.setExpectedDeliveryDate(
+                    deliveryDateCalculator.calculateDeliveryDate(startDate, deliveryMethod.calculateDeliveryTime())
+            );
+        }
+
+        // Sauvegarde en base de données
+        DeliveryMethod savedMethod = deliveryMethodRepository.save(deliveryMethod);
+
+        // Retour du DTO avec les informations nécessaires
+        return DeliveryMethodDTO.fromDeliveryMethod(
+                savedMethod,
+                userAddress, // Passer l'adresse utilisateur pour les livraisons à domicile
+                startDate,
+                orderAmount,
+                deliveryDateCalculator
+        );
     }
 
 }
