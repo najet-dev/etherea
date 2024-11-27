@@ -8,6 +8,7 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 import { Cart } from '../models/cart.model';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { SignupRequest } from '../models/SignupRequest.model';
+import { CartCalculationService } from 'src/app/services/cart-calculation.service';
 
 @Component({
   selector: 'app-order',
@@ -45,7 +46,8 @@ export class OrderComponent implements OnInit {
     private appFacade: AppFacade,
     private router: Router,
     private route: ActivatedRoute,
-    public productTypeService: ProductTypeService
+    public productTypeService: ProductTypeService,
+    private cartCalculationService: CartCalculationService
   ) {}
 
   ngOnInit() {
@@ -244,21 +246,10 @@ export class OrderComponent implements OnInit {
     }
   }
 
-  calculateCartTotal() {
-    this.cartTotal = this.cartItems.reduce((total, item) => {
-      if (item.product) {
-        if (
-          this.productTypeService.isHairProduct(item.product) &&
-          item.selectedVolume
-        ) {
-          item.subTotal = item.selectedVolume.price * item.quantity;
-        } else if (this.productTypeService.isFaceProduct(item.product)) {
-          item.subTotal = item.product.basePrice * item.quantity;
-        }
-        return total + (item.subTotal || 0);
-      }
-      return total;
-    }, 0);
+  calculateCartTotal(): void {
+    this.cartTotal = this.cartCalculationService.calculateCartTotal(
+      this.cartItems
+    );
   }
 
   handleError(context: string, error?: unknown) {

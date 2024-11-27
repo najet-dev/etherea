@@ -23,4 +23,12 @@ export class DeliveryMethodService {
       `${this.apiUrl}/deliveryMethods/pickupPoints/${userId}`
     );
   }
+  calculateTotal(
+    cartTotal: number,
+    selectedOption: string
+  ): Observable<number> {
+    return this.httpClient.get<number>(
+      `${this.apiUrl}/deliveryMethods/calculate-total?cartTotal=${cartTotal}&selectedOption=${selectedOption}`
+    );
+  }
 }

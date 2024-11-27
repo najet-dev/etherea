@@ -102,21 +102,22 @@ public class DeliveryMethodService {
 
     /**
      * Calcule le total du panier avec le coût de la livraison.
+     * La livraison est gratuite si le montant total du panier est supérieur ou égal à 50 €.
+     *
+     * @param cartTotal       Le montant total du panier (sans livraison).
+     * @param selectedOption  L'option de livraison choisie.
+     * @return Le montant total incluant les frais de livraison.
      */
     public double calculateTotal(double cartTotal, DeliveryOption selectedOption) {
-        if (cartTotal >= 50.0) {
-            return cartTotal; // Livraison gratuite
+        if (cartTotal < 0) {
+            throw new IllegalArgumentException("Le montant du panier ne peut pas être négatif.");
         }
 
-        if (selectedOption == null) {
-            throw new IllegalArgumentException("Une option de livraison est requise.");
-        }
-
+        // Utilisation de la méthode existante pour déterminer les frais de livraison
         double deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, selectedOption);
+
         return cartTotal + deliveryCost;
     }
-
-
 
     /**
      * Ajoute une méthode de livraison à la commande.
