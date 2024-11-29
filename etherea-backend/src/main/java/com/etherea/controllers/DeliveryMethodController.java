@@ -1,6 +1,7 @@
 package com.etherea.controllers;
 
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
+import com.etherea.dtos.CartWithDeliveryDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
 import com.etherea.enums.DeliveryOption;
 import com.etherea.services.DeliveryMethodService;
@@ -45,6 +46,14 @@ public class DeliveryMethodController {
     public double calculateTotal(@RequestParam double cartTotal, @RequestParam DeliveryOption selectedOption) {
         return deliveryMethodService.calculateTotal(cartTotal, selectedOption);
     }
+    @GetMapping("/cart-with-delivery/{userId}")
+    public ResponseEntity<CartWithDeliveryDTO> getCartWithDelivery(
+            @PathVariable Long userId,
+            @RequestParam DeliveryOption selectedOption) {
+        CartWithDeliveryDTO response = deliveryMethodService.getCartWithDeliveryTotal(userId, selectedOption);
+        return ResponseEntity.ok(response);
+    }
+
 
     /**
      * Ajoute une méthode de livraison pour un utilisateur et une commande donnés.

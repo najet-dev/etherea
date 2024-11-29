@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { Observable } from 'rxjs';
 import { PickupPoint } from '../components/models/pickupPoint.model';
+import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
 
 @Injectable({
   providedIn: 'root',

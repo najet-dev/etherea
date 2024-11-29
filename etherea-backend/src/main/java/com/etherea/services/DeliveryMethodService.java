@@ -1,5 +1,6 @@
 package com.etherea.services;
 
+import com.etherea.dtos.CartWithDeliveryDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
 import com.etherea.dtos.DeliveryAddressDTO;
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
@@ -118,6 +119,17 @@ public class DeliveryMethodService {
 
         return cartTotal + deliveryCost;
     }
+    public CartWithDeliveryDTO getCartWithDeliveryTotal(Long userId, DeliveryOption selectedOption) {
+        double cartTotal = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("Panier introuvable pour l'utilisateur."))
+                .calculateTotalAmount().doubleValue();
+
+        double deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, selectedOption);
+        double total = cartTotal + deliveryCost;
+
+        return new CartWithDeliveryDTO(cartTotal, deliveryCost, total);
+    }
+
 
     /**
      * Ajoute une méthode de livraison à la commande.
