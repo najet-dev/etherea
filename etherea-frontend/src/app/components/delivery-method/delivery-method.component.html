@@ -161,3 +161,15 @@
     </div>
   </div>
 </div>
+<div *ngIf="!isLoading">
+  <h3>Résumé de votre panier</h3>
+  <p>Montant du panier : {{ cartTotal | currency }}</p>
+  <p>Frais de livraison : {{ deliveryCost | currency }}</p>
+  <p>
+    <strong>Total : {{ total | currency }}</strong>
+  </p>
+</div>
+
+<div *ngIf="isLoading">
+  <p>Chargement des informations du panier...</p>
+</div>

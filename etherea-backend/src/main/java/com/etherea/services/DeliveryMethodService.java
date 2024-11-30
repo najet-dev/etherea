@@ -7,6 +7,7 @@ import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.enums.DeliveryOption;
 import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.exception.UserNotFoundException;
+import com.etherea.models.Cart;
 import com.etherea.models.User;
 import com.etherea.models.DeliveryAddress;
 import com.etherea.models.DeliveryMethod;
@@ -120,15 +121,22 @@ public class DeliveryMethodService {
         return cartTotal + deliveryCost;
     }
     public CartWithDeliveryDTO getCartWithDeliveryTotal(Long userId, DeliveryOption selectedOption) {
-        double cartTotal = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new UserNotFoundException("Panier introuvable pour l'utilisateur."))
-                .calculateTotalAmount().doubleValue();
 
+        // Récupération et calcul du panier
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("Panier introuvable pour l'utilisateur."));
+
+        double cartTotal = cart.calculateTotalAmount().doubleValue();
+
+        // Calcul des frais de livraison
         double deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, selectedOption);
+
+        // Calcul du total
         double total = cartTotal + deliveryCost;
 
         return new CartWithDeliveryDTO(cartTotal, deliveryCost, total);
     }
+
 
 
     /**

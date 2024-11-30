@@ -28,6 +28,9 @@ export class DeliveryMethodComponent implements OnInit {
   selectedPickupPoint: PickupPoint | null = null; // Point relais sélectionné
   selectedDeliveryOption: string | null = null; // Option de livraison sélectionnée
   confirmedPickupPoint: PickupPoint | null = null;
+  cartTotal: number | null = null;
+  deliveryCost: number | null = null;
+  total: number | null = null;
 
   private destroyRef = inject(DestroyRef);
 
@@ -77,6 +80,9 @@ export class DeliveryMethodComponent implements OnInit {
           this.isLoading = false;
         },
       });
+    if (this.selectedDeliveryOption) {
+      this.loadCartWithDelivery(this.selectedDeliveryOption);
+    }
   }
 
   // Méthode pour charger les modes de livraison
@@ -133,10 +139,10 @@ export class DeliveryMethodComponent implements OnInit {
     this.selectedPickupPoint = point;
     console.log('Point relais sélectionné:', point);
   }
-  onDeliveryOptionChange() {
-    // Si un mode de livraison autre que "PICKUP_POINT" est sélectionné, réinitialisez le point relais
-    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
-      this.selectedPickupPoint = null; // Réinitialise le point relais si un autre mode est sélectionné
+
+  onDeliveryOptionChange(): void {
+    if (this.selectedDeliveryOption) {
+      this.loadCartWithDelivery(this.selectedDeliveryOption);
     }
   }
 
@@ -164,6 +170,33 @@ export class DeliveryMethodComponent implements OnInit {
       if (backdrop) {
         backdrop.remove();
       }
+    }
+  }
+  loadCartWithDelivery(selectedOption: string): void {
+    if (this.userId && selectedOption) {
+      this.isLoading = true; // Indique que le chargement est en cours
+      this.deliveryMethodService
+        .getCartWithDelivery(this.userId, selectedOption)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (data) => {
+            this.cartTotal = data.cartTotal;
+            this.deliveryCost = data.deliveryCost;
+            this.total = data.total;
+            this.isLoading = false; // Fin du chargement
+          },
+          error: (error) => {
+            console.error(
+              'Erreur lors de la récupération des informations du panier :',
+              error
+            );
+            this.isLoading = false;
+          },
+        });
+    } else {
+      console.log(
+        'User ID ou option de livraison non définis, impossible de charger les informations du panier'
+      );
     }
   }
 }

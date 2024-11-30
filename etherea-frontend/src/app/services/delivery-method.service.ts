@@ -32,4 +32,12 @@ export class DeliveryMethodService {
       `${this.apiUrl}/deliveryMethods/calculate-total?cartTotal=${cartTotal}&selectedOption=${selectedOption}`
     );
   }
+  getCartWithDelivery(
+    userId: number,
+    selectedOption: string
+  ): Observable<CartWithDelivery> {
+    return this.httpClient.get<CartWithDelivery>(
+      `${this.apiUrl}/deliveryMethods/cart-with-delivery/${userId}?selectedOption=${selectedOption}`
+    );
+  }
 }
