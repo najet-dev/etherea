@@ -14,8 +14,12 @@ export class CartCalculationService {
    * @returns Le montant total du panier.
    */
   calculateCartTotal(cartItems: Cart[]): number {
+    if (!cartItems || cartItems.length === 0) {
+      return 0; // Retourne 0 si le panier est vide ou indéfini.
+    }
+
     return cartItems.reduce((total, item) => {
-      if (item.product) {
+      if (item?.product) {
         if (
           this.productTypeService.isHairProduct(item.product) &&
           item.selectedVolume

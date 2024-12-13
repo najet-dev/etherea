@@ -4,6 +4,7 @@ import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.dtos.CartWithDeliveryDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
 import com.etherea.enums.DeliveryOption;
+import com.etherea.exception.UserNotFoundException;
 import com.etherea.services.DeliveryMethodService;
 import com.etherea.services.PickupPointService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +39,18 @@ public class DeliveryMethodController {
         List<AddDeliveryMethodRequestDTO> pickupPoints = pickupPointService.findPickupPoints(userId);
         return ResponseEntity.ok(pickupPoints);
     }
+    /**
+     * Récupère le montant total du panier d'un utilisateur.
+     */
+    @GetMapping("/cart-total/{userId}")
+    public ResponseEntity<Double> getCartTotal(@PathVariable Long userId) {
+        double cartTotal = deliveryMethodService.getCartTotal(userId);
+        return ResponseEntity.ok(cartTotal);
+    }
 
     /**
      * Calcule le total du panier en prenant en compte le coût de la livraison.
      */
-    @GetMapping("/calculate-total")
-    public double calculateTotal(@RequestParam double cartTotal, @RequestParam DeliveryOption selectedOption) {
-        return deliveryMethodService.calculateTotal(cartTotal, selectedOption);
-    }
     @GetMapping("/cart-with-delivery/{userId}")
     public ResponseEntity<CartWithDeliveryDTO> getCartWithDelivery(
             @PathVariable Long userId,
@@ -53,7 +58,6 @@ public class DeliveryMethodController {
         CartWithDeliveryDTO response = deliveryMethodService.getCartWithDeliveryTotal(userId, selectedOption);
         return ResponseEntity.ok(response);
     }
-
 
     /**
      * Ajoute une méthode de livraison pour un utilisateur et une commande donnés.

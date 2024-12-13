@@ -58,6 +58,9 @@ public class Cart {
         this.deliveryMethod = deliveryMethod;
     }
     public BigDecimal calculateTotalAmount() {
+        if (items.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
         return items.stream()
                 .map(CartItem::calculateSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);

@@ -27,19 +27,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class DeliveryMethodService {
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private DeliveryMethodRepository deliveryMethodRepository;
-
     @Autowired
     private CartRepository cartRepository;
-
     @Autowired
     private DeliveryDateCalculator deliveryDateCalculator;
-
     @Autowired
     private DeliveryAddressService deliveryAddressService;
     @Autowired
@@ -101,25 +96,6 @@ public class DeliveryMethodService {
                 .setPickupPointLongitude(null)
                 .build();
     }
-
-    /**
-     * Calcule le total du panier avec le coût de la livraison.
-     * La livraison est gratuite si le montant total du panier est supérieur ou égal à 50 €.
-     *
-     * @param cartTotal       Le montant total du panier (sans livraison).
-     * @param selectedOption  L'option de livraison choisie.
-     * @return Le montant total incluant les frais de livraison.
-     */
-    public double calculateTotal(double cartTotal, DeliveryOption selectedOption) {
-        if (cartTotal < 0) {
-            throw new IllegalArgumentException("Le montant du panier ne peut pas être négatif.");
-        }
-
-        // Utilisation de la méthode existante pour déterminer les frais de livraison
-        double deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, selectedOption);
-
-        return cartTotal + deliveryCost;
-    }
     public CartWithDeliveryDTO getCartWithDeliveryTotal(Long userId, DeliveryOption selectedOption) {
 
         // Récupération et calcul du panier
@@ -136,8 +112,17 @@ public class DeliveryMethodService {
 
         return new CartWithDeliveryDTO(cartTotal, deliveryCost, total);
     }
-
-
+    /**
+     * Récupère le montant total du panier d'un utilisateur.
+     *
+     * @param userId L'ID de l'utilisateur.
+     * @return Le montant total du panier.
+     */
+    public double getCartTotal(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("Panier introuvable pour l'utilisateur."));
+        return cart.calculateTotalAmount().doubleValue();
+    }
 
     /**
      * Ajoute une méthode de livraison à la commande.
@@ -203,5 +188,4 @@ public class DeliveryMethodService {
                 deliveryDateCalculator
         );
     }
-
 }

@@ -142,7 +142,24 @@ export class DeliveryMethodComponent implements OnInit {
 
   onDeliveryOptionChange(): void {
     if (this.selectedDeliveryOption) {
-      this.loadCartWithDelivery(this.selectedDeliveryOption);
+      this.isLoading = true;
+      this.deliveryMethodService
+        .getCartWithDelivery(this.userId!, this.selectedDeliveryOption)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (data) => {
+            this.cartTotal = data.cartTotal ?? 0;
+            this.deliveryCost = data.deliveryCost ?? 0;
+            this.total = data.total ?? this.cartTotal + this.deliveryCost;
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Erreur lors du calcul du total :', error);
+            this.isLoading = false;
+          },
+        });
+    } else {
+      console.log('Aucune option de livraison sélectionnée.');
     }
   }
 
@@ -172,18 +189,19 @@ export class DeliveryMethodComponent implements OnInit {
       }
     }
   }
+
   loadCartWithDelivery(selectedOption: string): void {
     if (this.userId && selectedOption) {
-      this.isLoading = true; // Indique que le chargement est en cours
+      this.isLoading = true;
       this.deliveryMethodService
         .getCartWithDelivery(this.userId, selectedOption)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (data) => {
-            this.cartTotal = data.cartTotal;
-            this.deliveryCost = data.deliveryCost;
-            this.total = data.total;
-            this.isLoading = false; // Fin du chargement
+            this.cartTotal = data.cartTotal ?? 0;
+            this.deliveryCost = data.deliveryCost ?? 0;
+            this.total = data.total ?? this.cartTotal + this.deliveryCost;
+            this.isLoading = false;
           },
           error: (error) => {
             console.error(
@@ -194,9 +212,7 @@ export class DeliveryMethodComponent implements OnInit {
           },
         });
     } else {
-      console.log(
-        'User ID ou option de livraison non définis, impossible de charger les informations du panier'
-      );
+      console.log('User ID ou option de livraison non définis.');
     }
   }
 }
