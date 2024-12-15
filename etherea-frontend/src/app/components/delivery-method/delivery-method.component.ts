@@ -10,6 +10,7 @@ import { DeliveryMethod } from '../models/DeliveryMethod.model';
 import { DeliveryMethodService } from 'src/app/services/delivery-method.service'; // Importer le service
 import { PickupPoint } from '../models/pickupPoint.model';
 import { Modal } from 'bootstrap';
+import { Cart } from '../models/cart.model';
 
 @Component({
   selector: 'app-delivery-method',
@@ -31,6 +32,7 @@ export class DeliveryMethodComponent implements OnInit {
   cartTotal: number | null = null;
   deliveryCost: number | null = null;
   total: number | null = null;
+  cartItems: Cart[] = [];
 
   private destroyRef = inject(DestroyRef);
 
@@ -62,14 +64,14 @@ export class DeliveryMethodComponent implements OnInit {
       .subscribe({
         next: (address) => {
           this.deliveryAddress = address;
-          this.isLoading = false; // Fin du chargement de l'adresse
+          this.isLoading = false;
 
           if (address.user && address.user.firstName && address.user.lastName) {
             this.firstName = address.user.firstName;
             this.lastName = address.user.lastName;
           }
 
-          // Appel pour récupérer les modes de livraison après avoir récupéré l'adresse
+          // Charger les modes de livraison après avoir récupéré l'adresse
           this.loadDeliveryMethods();
         },
         error: (error) => {
@@ -80,8 +82,34 @@ export class DeliveryMethodComponent implements OnInit {
           this.isLoading = false;
         },
       });
-    if (this.selectedDeliveryOption) {
-      this.loadCartWithDelivery(this.selectedDeliveryOption);
+
+    // Appeler getCartTotal pour afficher le total du panier avant la sélection
+    this.loadCartTotal();
+  }
+
+  // Nouvelle méthode pour charger uniquement le total du panier
+  loadCartTotal(): void {
+    if (this.userId) {
+      this.deliveryMethodService
+        .getCartTotal(this.userId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (total) => {
+            this.cartTotal = total ?? 0;
+            this.deliveryCost = 0; // Aucun frais de livraison initialement
+            this.total = this.cartTotal; // Initialisation du total
+          },
+          error: (error) => {
+            console.error(
+              'Erreur lors du chargement du total du panier :',
+              error
+            );
+          },
+        });
+    } else {
+      console.log(
+        'User ID non défini, impossible de récupérer le total du panier.'
+      );
     }
   }
 
