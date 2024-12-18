@@ -1,0 +1,12 @@
+.product-card {
+  width: 100%;
+}
+
+.product-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.card-title {
+  margin-bottom: 60px;
+  text-align: center;
+}

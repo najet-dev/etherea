@@ -110,12 +110,24 @@
       </div>
     </div>
 
-    <!-- Colonne de droite : Récapitulatif de la commande -->
+    <!-- Colonne de droite : Récapitulatif de la commande et liste des produits -->
     <div class="col-md-4">
-      <!-- Carte récapitulatif -->
-      <div class="card rounded summary-card">
+      <!-- Carte : Liste des produits -->
+      <div class="card mb-4 product-card">
+        <div class="card-body cardbody-color p-lg-4 product-list-container">
+          <div *ngFor="let product of cartItems" class="mb-3">
+            <app-product-display
+              [item]="product"
+              [showVolume]="true"
+            ></app-product-display>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte : Récapitulatif de la commande -->
+      <div class="card rounded">
         <div class="card-body">
-          <h3 class="card-title">Récapitulatif de la Commande</h3>
+          <h4 class="card-title">Récapitulatif de la Commande</h4>
           <div class="summary-item">
             <p>
               Total : <span>{{ cartTotal | number : ".2-2" }} €</span>

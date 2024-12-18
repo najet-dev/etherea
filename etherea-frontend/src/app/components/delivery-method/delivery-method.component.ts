@@ -3,14 +3,18 @@ import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { OrderService } from 'src/app/services/order.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { switchMap, filter } from 'rxjs/operators';
+import { switchMap, filter, tap, catchError } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { DeliveryMethod } from '../models/DeliveryMethod.model';
-import { DeliveryMethodService } from 'src/app/services/delivery-method.service'; // Importer le service
+import { DeliveryMethodService } from 'src/app/services/delivery-method.service';
 import { PickupPoint } from '../models/pickupPoint.model';
 import { Modal } from 'bootstrap';
 import { Cart } from '../models/cart.model';
+import { forkJoin, of } from 'rxjs';
+import { ProductTypeService } from 'src/app/services/product-type.service';
+import { CartCalculationService } from 'src/app/services/cart-calculation.service';
+import { CartItemService } from 'src/app/services/cart-item.service';
 
 @Component({
   selector: 'app-delivery-method',
@@ -19,20 +23,22 @@ import { Cart } from '../models/cart.model';
 })
 export class DeliveryMethodComponent implements OnInit {
   deliveryAddress: DeliveryAddress | null = null;
-  userId: number | null = null;
+  userId: number = 0;
   addressId: number | null = null;
   firstName: string | null = null;
   lastName: string | null = null;
-  isLoading: boolean = true; // Indicateur de chargement
+  isLoading: boolean = true;
   deliveryMethod: DeliveryMethod[] = [];
   pickupPoints: PickupPoint[] = [];
-  selectedPickupPoint: PickupPoint | null = null; // Point relais sélectionné
-  selectedDeliveryOption: string | null = null; // Option de livraison sélectionnée
+  selectedPickupPoint: PickupPoint | null = null;
+  selectedDeliveryOption: string | null = null;
   confirmedPickupPoint: PickupPoint | null = null;
   cartTotal: number | null = null;
   deliveryCost: number | null = null;
   total: number | null = null;
   cartItems: Cart[] = [];
+  isCartEmpty: boolean = true;
+  errorMessage: string = '';
 
   private destroyRef = inject(DestroyRef);
 
@@ -40,11 +46,23 @@ export class DeliveryMethodComponent implements OnInit {
     private appFacade: AppFacade,
     private authService: AuthService,
     private route: ActivatedRoute,
+    private cartItemService: CartItemService,
     private router: Router,
-    private deliveryMethodService: DeliveryMethodService
+    private deliveryMethodService: DeliveryMethodService,
+    public productTypeService: ProductTypeService,
+    private cartCalculationService: CartCalculationService
   ) {}
 
   ngOnInit(): void {
+    this.loadUserAndAddress();
+    this.loadCartTotal();
+    this.loadCartItems();
+  }
+
+  /**
+   * Charge l'utilisateur connecté et l'adresse associée.
+   */
+  private loadUserAndAddress(): void {
     this.route.paramMap
       .pipe(
         filter((params) => !!params.get('addressId')),
@@ -52,7 +70,7 @@ export class DeliveryMethodComponent implements OnInit {
           const addressId = +params.get('addressId')!;
           this.addressId = addressId;
           return this.authService.getCurrentUser().pipe(
-            filter((user) => user !== null && user.id !== undefined),
+            filter((user) => !!user?.id),
             switchMap((user) => {
               this.userId = user!.id;
               return this.appFacade.getDeliveryAddress(this.userId, addressId);
@@ -64,82 +82,74 @@ export class DeliveryMethodComponent implements OnInit {
       .subscribe({
         next: (address) => {
           this.deliveryAddress = address;
+          this.firstName = address.user?.firstName || null;
+          this.lastName = address.user?.lastName || null;
           this.isLoading = false;
-
-          if (address.user && address.user.firstName && address.user.lastName) {
-            this.firstName = address.user.firstName;
-            this.lastName = address.user.lastName;
-          }
-
-          // Charger les modes de livraison après avoir récupéré l'adresse
           this.loadDeliveryMethods();
         },
-        error: (error) => {
-          console.error(
-            'Erreur lors de la récupération de l’adresse de livraison :',
-            error
-          );
+        error: (error) => this.handleError('récupération de l’adresse', error),
+      });
+  }
+
+  /**
+   * Charge la liste des articles du panier.
+   */
+  private loadCartItems(): void {
+    this.cartItemService.loadCartItems(this.userId).subscribe({
+      next: (cartItems) => {
+        this.cartItems = cartItems;
+        this.isCartEmpty = !cartItems.length;
+      },
+      error: (err) => {
+        this.errorMessage = 'Impossible de charger les articles du panier.';
+        console.error(err);
+      },
+    });
+  }
+
+  /**
+   * Charge le total du panier sans détails supplémentaires.
+   */
+  private loadCartTotal(): void {
+    if (!this.userId) return;
+
+    this.deliveryMethodService
+      .getCartTotal(this.userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (total) => {
+          this.cartTotal = total || 0;
+          this.deliveryCost = 0;
+          this.total = this.cartTotal;
+        },
+        error: (error) =>
+          this.handleError('chargement du total du panier', error),
+      });
+  }
+
+  /**
+   * Charge les modes de livraison.
+   */
+  private loadDeliveryMethods(): void {
+    if (!this.userId) return;
+
+    this.isLoading = true;
+    this.deliveryMethodService
+      .getDeliveryMethods(this.userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (methods) => {
+          this.deliveryMethod = methods;
           this.isLoading = false;
         },
+        error: (error) =>
+          this.handleError('chargement des modes de livraison', error),
       });
-
-    // Appeler getCartTotal pour afficher le total du panier avant la sélection
-    this.loadCartTotal();
   }
 
-  // Nouvelle méthode pour charger uniquement le total du panier
-  loadCartTotal(): void {
-    if (this.userId) {
-      this.deliveryMethodService
-        .getCartTotal(this.userId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (total) => {
-            this.cartTotal = total ?? 0;
-            this.deliveryCost = 0; // Aucun frais de livraison initialement
-            this.total = this.cartTotal; // Initialisation du total
-          },
-          error: (error) => {
-            console.error(
-              'Erreur lors du chargement du total du panier :',
-              error
-            );
-          },
-        });
-    } else {
-      console.log(
-        'User ID non défini, impossible de récupérer le total du panier.'
-      );
-    }
-  }
-
-  // Méthode pour charger les modes de livraison
-  loadDeliveryMethods(): void {
-    if (this.userId) {
-      this.isLoading = true; // Mettre en chargement les modes de livraison
-      this.deliveryMethodService
-        .getDeliveryMethods(this.userId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (methods) => {
-            this.deliveryMethod = methods;
-            this.isLoading = false; // Fin du chargement des méthodes de livraison
-          },
-          error: (error) => {
-            console.error(
-              'Erreur lors du chargement des méthodes de livraison :',
-              error
-            );
-            this.isLoading = false;
-          },
-        });
-    } else {
-      console.log(
-        'User ID non défini, impossible de récupérer les modes de livraison'
-      );
-    }
-  }
-
+  /**
+   * Gestionnaire pour la modification de l’adresse.
+   */
   onEditAddress(): void {
     if (this.addressId) {
       this.router.navigate(['/order', this.addressId]);
@@ -147,100 +157,90 @@ export class DeliveryMethodComponent implements OnInit {
       console.error("L'ID de l'adresse n'est pas défini.");
     }
   }
+
+  /**
+   * Affiche les points relais disponibles.
+   */
   showPickupPoints(): void {
-    if (this.userId) {
-      this.deliveryMethodService
-        .getPickupMethods(this.userId)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (points) => (this.pickupPoints = points),
-          error: (error) =>
-            console.error(
-              'Erreur lors de la récupération des points relais:',
-              error
-            ),
-        });
-    }
+    if (!this.userId) return;
+
+    this.deliveryMethodService
+      .getPickupMethods(this.userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (points) => (this.pickupPoints = points),
+        error: (error) =>
+          this.handleError('récupération des points relais', error),
+      });
   }
 
+  /**
+   * Sélectionne un point relais.
+   */
   selectPickupPoint(point: PickupPoint): void {
     this.selectedPickupPoint = point;
-    console.log('Point relais sélectionné:', point);
   }
 
+  /**
+   * Gère le changement de l'option de livraison.
+   */
   onDeliveryOptionChange(): void {
-    if (this.selectedDeliveryOption) {
-      this.isLoading = true;
-      this.deliveryMethodService
-        .getCartWithDelivery(this.userId!, this.selectedDeliveryOption)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (data) => {
-            this.cartTotal = data.cartTotal ?? 0;
-            this.deliveryCost = data.deliveryCost ?? 0;
-            this.total = data.total ?? this.cartTotal + this.deliveryCost;
-            this.isLoading = false;
-          },
-          error: (error) => {
-            console.error('Erreur lors du calcul du total :', error);
-            this.isLoading = false;
-          },
-        });
-    } else {
-      console.log('Aucune option de livraison sélectionnée.');
-    }
+    if (!this.selectedDeliveryOption) return;
+
+    this.loadCartWithDelivery(this.selectedDeliveryOption);
   }
 
+  /**
+   * Charge les informations du panier avec les coûts de livraison.
+   */
+  private loadCartWithDelivery(selectedOption: string): void {
+    if (!this.userId) return;
+
+    this.isLoading = true;
+    this.deliveryMethodService
+      .getCartWithDelivery(this.userId, selectedOption)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.cartTotal = data.cartTotal || 0;
+          this.deliveryCost = data.deliveryCost || 0;
+          this.total = data.total || this.cartTotal + this.deliveryCost;
+          this.isLoading = false;
+        },
+        error: (error) =>
+          this.handleError('calcul des coûts de livraison', error),
+      });
+  }
+
+  /**
+   * Confirme le point relais sélectionné.
+   */
   confirmPickupPoint(): void {
-    if (this.selectedPickupPoint) {
-      console.log('Point relais confirmé:', this.selectedPickupPoint);
-      this.confirmedPickupPoint = this.selectedPickupPoint; // Stocker le point relais confirmé
+    if (!this.selectedPickupPoint) return;
 
-      // Fermer la modale
-      const modalElement = document.getElementById('pickupPointModal');
-      if (modalElement) {
-        const modalInstance =
-          Modal.getInstance(modalElement) || new Modal(modalElement);
-        modalInstance.hide();
-      }
+    this.confirmedPickupPoint = this.selectedPickupPoint;
 
-      // Supprimer manuellement la classe "modal-open" du body si elle persiste
-      const body = document.body;
-      if (body.classList.contains('modal-open')) {
-        body.classList.remove('modal-open');
-      }
-
-      // Supprimer les divs de fond ajoutées par Bootstrap
-      const backdrop = document.querySelector('.modal-backdrop');
-      if (backdrop) {
-        backdrop.remove();
-      }
+    // Fermer la modale
+    const modalElement = document.getElementById('pickupPointModal');
+    if (modalElement) {
+      const modalInstance =
+        Modal.getInstance(modalElement) || new Modal(modalElement);
+      modalInstance.hide();
     }
   }
 
-  loadCartWithDelivery(selectedOption: string): void {
-    if (this.userId && selectedOption) {
-      this.isLoading = true;
-      this.deliveryMethodService
-        .getCartWithDelivery(this.userId, selectedOption)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe({
-          next: (data) => {
-            this.cartTotal = data.cartTotal ?? 0;
-            this.deliveryCost = data.deliveryCost ?? 0;
-            this.total = data.total ?? this.cartTotal + this.deliveryCost;
-            this.isLoading = false;
-          },
-          error: (error) => {
-            console.error(
-              'Erreur lors de la récupération des informations du panier :',
-              error
-            );
-            this.isLoading = false;
-          },
-        });
+  /**
+   * Gère les erreurs de manière uniforme.
+   */
+  handleError(context: string, error?: unknown) {
+    if (error instanceof Error) {
+      console.error(`Erreur lors de ${context}:`, error.message);
     } else {
-      console.log('User ID ou option de livraison non définis.');
+      console.error(`Erreur lors de ${context}:`, error);
     }
+
+    this.errorMessage =
+      'Une erreur est survenue. Veuillez réessayer plus tard.';
+    return of(null);
   }
 }
