@@ -42,39 +42,30 @@ public class AddDeliveryMethodRequestDTO {
     public String getPickupPointName() {
         return pickupPointName;
     }
-
     public void setPickupPointName(String pickupPointName) {
         this.pickupPointName = pickupPointName;
     }
-
     public String getPickupPointAddress() {
         return pickupPointAddress;
     }
-
     public void setPickupPointAddress(String pickupPointAddress) {
         this.pickupPointAddress = pickupPointAddress;
     }
-
     public Double getPickupPointLatitude() {
         return pickupPointLatitude;
     }
-
     public void setPickupPointLatitude(Double pickupPointLatitude) {
         this.pickupPointLatitude = pickupPointLatitude;
     }
-
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
-
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }
-
     public double getOrderAmount() {
         return orderAmount;
     }
-
     public void setOrderAmount(double orderAmount) {
         if (orderAmount < 0) {
             throw new IllegalArgumentException("Order amount cannot be negative.");

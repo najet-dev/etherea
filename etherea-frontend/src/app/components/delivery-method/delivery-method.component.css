@@ -1,14 +1,12 @@
-.row,
-.container,
-.card {
-  max-width: 100%; /* Empêche les éléments de dépasser */
-  overflow: hidden; /* Cache les débordements */
-}
-.container,
-.row {
-  padding-bottom: 20px; /* Ajoute un espace au bas du conteneur */
+.product-card {
+  width: 100%;
 }
 
-.delivery-card {
-  max-width: 50%;
+.product-list-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+.card-title {
+  margin-bottom: 60px;
+  text-align: center;
 }
