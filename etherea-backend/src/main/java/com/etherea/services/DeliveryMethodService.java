@@ -1,11 +1,13 @@
 package com.etherea.services;
 
+import com.etherea.dtos.CartWithDeliveryDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
 import com.etherea.dtos.DeliveryAddressDTO;
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.enums.DeliveryOption;
 import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.exception.UserNotFoundException;
+import com.etherea.models.Cart;
 import com.etherea.models.User;
 import com.etherea.models.DeliveryAddress;
 import com.etherea.models.DeliveryMethod;
@@ -25,19 +27,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class DeliveryMethodService {
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private DeliveryMethodRepository deliveryMethodRepository;
-
     @Autowired
     private CartRepository cartRepository;
-
     @Autowired
     private DeliveryDateCalculator deliveryDateCalculator;
-
     @Autowired
     private DeliveryAddressService deliveryAddressService;
     @Autowired
@@ -99,24 +96,33 @@ public class DeliveryMethodService {
                 .setPickupPointLongitude(null)
                 .build();
     }
+    public CartWithDeliveryDTO getCartWithDeliveryTotal(Long userId, DeliveryOption selectedOption) {
 
-    /**
-     * Calcule le total du panier avec le coût de la livraison.
-     */
-    public double calculateTotal(double cartTotal, DeliveryOption selectedOption) {
-        if (cartTotal >= 50.0) {
-            return cartTotal; // Livraison gratuite
-        }
+        // Récupération et calcul du panier
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("Panier introuvable pour l'utilisateur."));
 
-        if (selectedOption == null) {
-            throw new IllegalArgumentException("Une option de livraison est requise.");
-        }
+        double cartTotal = cart.calculateTotalAmount().doubleValue();
 
+        // Calcul des frais de livraison
         double deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, selectedOption);
-        return cartTotal + deliveryCost;
+
+        // Calcul du total
+        double total = cartTotal + deliveryCost;
+
+        return new CartWithDeliveryDTO(cartTotal, deliveryCost, total);
     }
-
-
+    /**
+     * Récupère le montant total du panier d'un utilisateur.
+     *
+     * @param userId L'ID de l'utilisateur.
+     * @return Le montant total du panier.
+     */
+    public double getCartTotal(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("Panier introuvable pour l'utilisateur."));
+        return cart.calculateTotalAmount().doubleValue();
+    }
 
     /**
      * Ajoute une méthode de livraison à la commande.
@@ -182,5 +188,4 @@ public class DeliveryMethodService {
                 deliveryDateCalculator
         );
     }
-
 }

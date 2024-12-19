@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { Observable } from 'rxjs';
 import { PickupPoint } from '../components/models/pickupPoint.model';
+import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,19 @@ export class DeliveryMethodService {
   getPickupMethods(userId: number): Observable<PickupPoint[]> {
     return this.httpClient.get<PickupPoint[]>(
       `${this.apiUrl}/deliveryMethods/pickupPoints/${userId}`
+    );
+  }
+  getCartWithDelivery(
+    userId: number,
+    selectedOption: string
+  ): Observable<CartWithDelivery> {
+    return this.httpClient.get<CartWithDelivery>(
+      `${this.apiUrl}/deliveryMethods/cart-with-delivery/${userId}?selectedOption=${selectedOption}`
+    );
+  }
+  getCartTotal(userId: number): Observable<number> {
+    return this.httpClient.get<number>(
+      `${this.apiUrl}/deliveryMethods/cart-total/${userId}`
     );
   }
 }

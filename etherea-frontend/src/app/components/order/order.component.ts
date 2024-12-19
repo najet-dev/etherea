@@ -1,13 +1,12 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { catchError, forkJoin, map, of, tap } from 'rxjs';
+import { catchError, map, of, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { Cart } from '../models/cart.model';
-import { ProductTypeService } from 'src/app/services/product-type.service';
-import { SignupRequest } from '../models/SignupRequest.model';
+import { CartItemService } from 'src/app/services/cart-item.service';
 
 @Component({
   selector: 'app-order',
@@ -45,7 +44,7 @@ export class OrderComponent implements OnInit {
     private appFacade: AppFacade,
     private router: Router,
     private route: ActivatedRoute,
-    public productTypeService: ProductTypeService
+    public cartItemService: CartItemService
   ) {}
 
   ngOnInit() {
@@ -79,14 +78,14 @@ export class OrderComponent implements OnInit {
     this.appFacade
       .getUserDetails(userId)
       .pipe(
-        tap((user: SignupRequest | null) => {
+        tap((user) => {
           if (user) {
             this.deliveryAddressForm.patchValue({
               firstName: user.firstName,
               lastName: user.lastName,
             });
             this.loadExistingAddresses(userId);
-            this.loadCartItems();
+            this.loadCartData(userId);
           }
         }),
         takeUntilDestroyed(this.destroyRef),
@@ -120,6 +119,20 @@ export class OrderComponent implements OnInit {
       city: address.city,
       country: address.country,
       phoneNumber: address.phoneNumber,
+    });
+  }
+
+  loadCartData(userId: number) {
+    this.cartItemService.loadCartItems(userId).subscribe({
+      next: () => {
+        // abonnement au BehaviorSubject pour obtenir le total à jour
+        this.cartItemService.cartTotal.subscribe((total) => {
+          this.cartTotal = total;
+        });
+        this.cartItems = this.cartItemService.cartItems;
+        this.isCartEmpty = !this.cartItems.length;
+      },
+      error: () => this.handleError('Chargement du panier'),
     });
   }
 
@@ -205,60 +218,6 @@ export class OrderComponent implements OnInit {
       }),
       catchError(() => of(null))
     );
-  }
-
-  loadCartItems() {
-    if (!this.userId) return;
-
-    this.appFacade.getCartItems(this.userId).subscribe((cartItems) => {
-      this.cartItems = cartItems;
-      this.isCartEmpty = !cartItems.length;
-
-      const productObservables = cartItems.map((item) =>
-        this.appFacade.getProductById(item.productId).pipe(
-          tap((product) => {
-            item.product = product;
-            if (product) this.initializeSelectedVolume(item);
-          }),
-          catchError((error) => this.handleError('Récupération produit', error))
-        )
-      );
-
-      forkJoin(productObservables).subscribe(() => this.calculateCartTotal());
-    });
-  }
-
-  initializeSelectedVolume(item: Cart) {
-    if (!item.selectedVolume && item.volume) {
-      item.selectedVolume = { ...item.volume };
-    }
-
-    if (
-      this.productTypeService.isHairProduct(item.product) &&
-      item.selectedVolume
-    ) {
-      const selectedVol = item.product.volumes?.find(
-        (vol) => vol.id === item.selectedVolume?.id
-      );
-      item.selectedVolume = selectedVol || item.selectedVolume;
-    }
-  }
-
-  calculateCartTotal() {
-    this.cartTotal = this.cartItems.reduce((total, item) => {
-      if (item.product) {
-        if (
-          this.productTypeService.isHairProduct(item.product) &&
-          item.selectedVolume
-        ) {
-          item.subTotal = item.selectedVolume.price * item.quantity;
-        } else if (this.productTypeService.isFaceProduct(item.product)) {
-          item.subTotal = item.product.basePrice * item.quantity;
-        }
-        return total + (item.subTotal || 0);
-      }
-      return total;
-    }, 0);
   }
 
   handleError(context: string, error?: unknown) {

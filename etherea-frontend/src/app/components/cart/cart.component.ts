@@ -11,6 +11,7 @@ import { ProductVolume } from '../models/ProductVolume.model';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { HairProduct } from '../models/HairProduct.model';
+import { CartCalculationService } from 'src/app/services/cart-calculation.service';
 
 @Component({
   selector: 'app-cart',
@@ -30,7 +31,8 @@ export class CartComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
-    public productTypeService: ProductTypeService
+    public productTypeService: ProductTypeService,
+    private cartCalculationService: CartCalculationService
   ) {
     this.appFacade.cartService.cartUpdated.subscribe(() => {
       this.loadCartItems();
@@ -123,24 +125,9 @@ export class CartComponent implements OnInit {
   }
 
   calculateCartTotal(): void {
-    this.cartTotal = this.cartItems.reduce((total, item) => {
-      if (item.product) {
-        if (
-          this.productTypeService.isHairProduct(item.product) &&
-          item.selectedVolume
-        ) {
-          item.subTotal = item.selectedVolume.price * item.quantity;
-        } else if (
-          this.productTypeService.isFaceProduct(item.product) &&
-          item.product.basePrice !== undefined
-        ) {
-          item.subTotal = item.product.basePrice * item.quantity;
-        }
-
-        return total + (item.subTotal || 0);
-      }
-      return total;
-    }, 0);
+    this.cartTotal = this.cartCalculationService.calculateCartTotal(
+      this.cartItems
+    );
   }
 
   incrementQuantity(item: Cart): void {
