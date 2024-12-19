@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, forkJoin, of } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ProductTypeService } from './product-type.service';
 import { AppFacade } from './appFacade.service';
@@ -10,8 +10,8 @@ import { CartCalculationService } from './cart-calculation.service';
   providedIn: 'root',
 })
 export class CartItemService {
-  cartItems: Cart[] = []; // Stocke les articles du panier
-  cartTotal: number = 0; // Stocke le total du panier
+  cartItems: Cart[] = [];
+  cartTotal: BehaviorSubject<number> = new BehaviorSubject<number>(0); // Utilisation de BehaviorSubject pour notifier la mise à jour du total
 
   constructor(
     private appFacade: AppFacade,
@@ -27,10 +27,9 @@ export class CartItemService {
   loadCartItems(userId: number): Observable<Cart[]> {
     return this.appFacade.getCartItems(userId).pipe(
       tap((cartItems) => {
-        console.log('Articles récupérés depuis l’API:', cartItems); // Debug: Vérifie les articles reçus
-        this.cartItems = cartItems; // Met à jour le tableau `cartItems`
+        this.cartItems = cartItems; // Met à jour les articles
 
-        // Pour chaque article, récupère les détails du produit
+        // Récupérer les produits associés aux articles
         const productObservables = cartItems.map((item) =>
           this.appFacade.getProductById(item.productId).pipe(
             tap((product) => {
@@ -43,8 +42,10 @@ export class CartItemService {
           )
         );
 
-        // Une fois tous les produits récupérés, calcule le total
-        forkJoin(productObservables).subscribe(() => this.calculateCartTotal());
+        // Une fois tous les produits récupérés, calculer le total
+        forkJoin(productObservables).subscribe(() => {
+          this.calculateCartTotal();
+        });
       }),
       catchError((error) =>
         this.handleError('Chargement des articles du panier', error)
@@ -53,12 +54,13 @@ export class CartItemService {
   }
 
   /**
-   * Calcule le total du panier.
+   * Calcule le total du panier et met à jour le BehaviorSubject.
    */
   calculateCartTotal(): void {
-    this.cartTotal = this.cartCalculationService.calculateCartTotal(
+    const total = this.cartCalculationService.calculateCartTotal(
       this.cartItems
     );
+    this.cartTotal.next(total); // Mise à jour du total via BehaviorSubject
   }
 
   /**
