@@ -19,7 +19,6 @@ import java.util.List;
 public class DeliveryMethodController {
     @Autowired
     private DeliveryMethodService deliveryMethodService;
-
     @Autowired
     private PickupPointService pickupPointService;
 

@@ -1,48 +1,39 @@
 <div class="container my-4">
   <div class="row">
-    <!-- Colonne de gauche : Adresse de livraison et modes de livraison -->
+    <!-- Colonne gauche : Adresse et modes de livraison -->
     <div class="col-md-8">
-      <!-- Carte : Adresse de livraison -->
-      <div class="card mb-4">
-        <div class="card-body">
-          <h2 class="card-title">1. Adresse de livraison</h2>
-
-          <!-- Indicateur de chargement -->
-          <div *ngIf="isLoading">
-            <p class="card-text">Chargement de l'adresse...</p>
-          </div>
-
-          <div *ngIf="!isLoading">
-            <div *ngIf="deliveryAddress">
-              <p class="card-text">
-                {{ deliveryAddress.user.firstName }}
-                {{ deliveryAddress.user.lastName }}
-              </p>
-              <p class="card-text">{{ deliveryAddress.address }}</p>
-              <p class="card-text">{{ deliveryAddress.zipCode }}</p>
-              <p class="card-text">{{ deliveryAddress.city }}</p>
-              <p class="card-text">{{ deliveryAddress.country }}</p>
-              <p class="card-text">{{ deliveryAddress.phoneNumber }}</p>
-
-              <!-- Bouton pour modifier l'adresse -->
-              <button class="btn btn-link mt-3" (click)="onEditAddress()">
-                Modifier
-              </button>
-            </div>
-            <div *ngIf="!deliveryAddress && !userId">
-              <p class="card-text">Adresse non trouvée.</p>
-            </div>
-            <div *ngIf="!deliveryAddress && userId">
-              <p class="card-text">
-                Aucune adresse associée à cet utilisateur.
-              </p>
+      <!-- Adresse de livraison -->
+      <section>
+        <h2 class="title-Adress">1. Adresse de livraison</h2>
+        <div *ngIf="!isLoading">
+          <div class="card mb-4">
+            <div class="card-body">
+              <ng-container *ngIf="deliveryAddress">
+                <p>
+                  {{ deliveryAddress.user.firstName }}
+                  {{ deliveryAddress.user.lastName }}
+                </p>
+                <p>{{ deliveryAddress.address }}</p>
+                <p>{{ deliveryAddress.zipCode }} {{ deliveryAddress.city }}</p>
+                <p>{{ deliveryAddress.country }}</p>
+                <p class="d-flex align-items-center custom-phone">
+                  <span>{{ deliveryAddress.phoneNumber }}</span>
+                  <button
+                    class="btn btn-link ms-auto"
+                    (click)="onEditAddress()"
+                  >
+                    Modifier
+                  </button>
+                </p>
+              </ng-container>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Modes de livraison disponibles -->
-      <div *ngIf="!isLoading && deliveryMethod.length > 0">
+      <!-- Modes de livraison -->
+      <section *ngIf="!isLoading && deliveryMethod.length > 0">
+        <h2>2. Mode de livraison</h2>
         <form>
           <div *ngFor="let delivery of deliveryMethod" class="mb-3">
             <div class="card">
@@ -60,10 +51,8 @@
                       />
                     </div>
                     <div class="ms-2">
-                      <h5 class="card-title mb-1">
-                        {{ delivery.deliveryOption }}
-                      </h5>
-                      <p class="card-text text-muted mb-0">
+                      <h5 class="mb-1">{{ delivery.deliveryOption }}</h5>
+                      <p class="text-muted mb-0">
                         Livraison à partir du :
                         {{ delivery.expectedDeliveryDate | date : "longDate" }}
                       </p>
@@ -72,71 +61,138 @@
                   <p class="card-text mb-0 text-end">{{ delivery.cost }} €</p>
                 </div>
 
-                <!-- Contenu conditionnel pour "Point Relais" -->
-                <div
-                  *ngIf="
-                    delivery.deliveryOption === 'PICKUP_POINT' &&
-                    selectedDeliveryOption === 'PICKUP_POINT' &&
-                    !selectedPickupPoint
-                  "
-                  class="mt-3"
+                <!-- Point Relais -->
+                <ng-container
+                  *ngIf="delivery.deliveryOption === 'PICKUP_POINT'"
                 >
-                  <button
-                    type="button"
-                    class="btn-primary btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#pickupPointModal"
-                    (click)="showPickupPoints()"
-                  >
-                    Choisir un point relais
-                  </button>
-                </div>
-
-                <!-- Affichage du point relais sélectionné -->
-                <div
-                  *ngIf="
-                    delivery.deliveryOption === 'PICKUP_POINT' &&
-                    selectedPickupPoint
-                  "
-                  class="mt-3"
-                >
-                  <p>{{ selectedPickupPoint.pickupPointName }}</p>
-                  <p>{{ selectedPickupPoint.pickupPointAddress }}</p>
-                </div>
+                  <div *ngIf="!selectedPickupPoint" class="mt-3">
+                    <button
+                      type="button"
+                      class="btn-primary btn-sm"
+                      data-bs-toggle="modal"
+                      data-bs-target="#pickupPointModal"
+                      (click)="showPickupPoints()"
+                    >
+                      Choisir un point relais
+                    </button>
+                  </div>
+                  <div *ngIf="selectedPickupPoint" class="mt-3">
+                    <p>{{ selectedPickupPoint.pickupPointName }}</p>
+                    <p>{{ selectedPickupPoint.pickupPointAddress }}</p>
+                  </div>
+                </ng-container>
               </div>
             </div>
           </div>
         </form>
-      </div>
+      </section>
     </div>
 
-    <!-- Colonne de droite : Récapitulatif de la commande et liste des produits -->
+    <!-- Colonne droite : Récapitulatif et produits -->
     <div class="col-md-4">
-      <!-- Carte : Liste des produits -->
-      <div class="card mb-4 product-card">
-        <div class="card-body cardbody-color p-lg-4 product-list-container">
-          <div *ngFor="let product of cartItems" class="mb-3">
-            <app-product-display
-              [item]="product"
-              [showVolume]="true"
-            ></app-product-display>
+      <!-- Liste des produits -->
+      <section>
+        <div class="card mb-4 product-card">
+          <div class="card-body cardbody-color p-lg-4 product-list-container">
+            <div *ngFor="let product of cartItems" class="mb-3">
+              <app-product-display
+                [item]="product"
+                [showVolume]="true"
+              ></app-product-display>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Carte : Récapitulatif de la commande -->
-      <div class="card rounded">
-        <div class="card-body">
-          <h4 class="card-title">Récapitulatif de la Commande</h4>
-          <div class="summary-item">
-            <p>
-              Total : <span>{{ cartTotal | number : ".2-2" }} €</span>
-            </p>
-            <p>Frais de livraison : {{ deliveryCost }} €</p>
-            <p>Total à payer : {{ total }} €</p>
+      <!-- Récapitulatif commande -->
+      <section>
+        <div class="card rounded">
+          <div class="card-body">
+            <h4 class="title-order">Récapitulatif de la Commande</h4>
+            <div class="summary-item">
+              <div class="d-flex justify-content-between mb-2">
+                <span>Total</span>
+                <span>{{ cartTotal | number : ".2-2" }} €</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Frais de livraison</span>
+                <span>{{ deliveryCost }} €</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Total à payer</span>
+                <span>{{ total }} €</span>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Choix Point Relais -->
+<div
+  class="modal fade"
+  id="pickupPointModal"
+  tabindex="-1"
+  aria-labelledby="pickupPointModalLabel"
+  aria-hidden="true"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="pickupPointModalLabel">
+          Choisir un point relais
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="pickupPoints.length > 0">
+          <div *ngFor="let point of pickupPoints" class="list-group">
+            <button
+              type="button"
+              class="list-group-item list-group-item-action"
+              (click)="selectPickupPoint(point)"
+            >
+              {{ point.pickupPointName }} - {{ point.pickupPointAddress }}
+            </button>
+          </div>
+        </div>
+        <p *ngIf="pickupPoints.length === 0">Aucun point relais disponible.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-primary" data-bs-dismiss="modal">
+          Annuler
+        </button>
+        <button
+          type="button"
+          class="btn-primary"
+          (click)="confirmPickupPoint()"
+          [disabled]="!selectedPickupPoint"
+        >
+          Confirmer
+        </button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Bouton de confirmation -->
+<button
+  type="button"
+  class="btn-primary"
+  [disabled]="
+    !selectedDeliveryOption ||
+    (selectedDeliveryOption === 'PICKUP_POINT' && !selectedPickupPoint)
+  "
+  (click)="confirmDeliveryOption()"
+>
+  Continuer vers le paiement
+</button>

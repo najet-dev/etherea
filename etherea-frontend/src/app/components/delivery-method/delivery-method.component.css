@@ -7,6 +7,62 @@
   overflow-y: auto;
 }
 .card-title {
+  margin-bottom: 20px;
+}
+.cart-text {
+  text-decoration: none;
+}
+
+/* Ajuste les marges spécifiques */
+.custom-phone {
+  margin-top: 10px; /* Ajustement spécifique si nécessaire */
+}
+
+/* Style du bouton Modifier */
+.btn-link {
+  font-weight: bold;
+  color: var(--bg-color);
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  font-weight: bold;
+  color: var(--main-color);
+}
+
+p {
+  margin: 0;
+}
+
+.title-order {
   margin-bottom: 60px;
   text-align: center;
+}
+.summary-item {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.summary-item .d-flex {
+  margin-bottom: 8px;
+}
+
+.summary-item span:last-child {
+  font-weight: 500;
+}
+/* Style par défaut pour les boutons radio */
+.form-check-input {
+  transition: all 0.3s ease; /* Transition douce pour l'animation */
+}
+
+/* Lorsque le bouton radio est sélectionné, on change la couleur */
+.form-check-input:checked {
+  background-color: var(--main-color); /* Couleur de fond verte */
+  border-color: var(--main-color); /* Bordure verte */
+  outline: none; /* Éviter l'effet de focus par défaut */
+}
+
+/* Pour ajouter un effet visuel lorsque l'élément est coché */
+.form-check-input:checked:focus {
+  box-shadow: 0 0 0 0.25rem var(--main-color); /* Ombre verte autour */
 }

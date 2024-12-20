@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
-import { Observable } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { PickupPoint } from '../components/models/pickupPoint.model';
 import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
 
@@ -36,5 +36,24 @@ export class DeliveryMethodService {
     return this.httpClient.get<number>(
       `${this.apiUrl}/deliveryMethods/cart-total/${userId}`
     );
+  }
+
+  addDeliveryMethod(
+    selectedMethod: DeliveryMethod
+  ): Observable<DeliveryMethod> {
+    return this.httpClient
+      .post<DeliveryMethod>(
+        `${this.apiUrl}/deliveryMethods/add/`,
+        selectedMethod
+      )
+      .pipe(
+        tap((response) => {
+          console.log('Nouvelle adresse ajoutée avec succès:', response);
+        }),
+        catchError((error) => {
+          console.error('Error adding delivery address:', error);
+          return throwError(() => error);
+        })
+      );
   }
 }
