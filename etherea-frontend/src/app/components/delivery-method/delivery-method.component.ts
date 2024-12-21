@@ -19,6 +19,8 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartCalculationService } from 'src/app/services/cart-calculation.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
+import { DeliveryOption } from '../models/DeliveryOption.enum';
+import { AddDeliveryMethodRequestDTO } from '../models/AddDeliveryMethodRequestDTO .model';
 
 @Component({
   selector: 'app-delivery-method',
@@ -230,5 +232,28 @@ export class DeliveryMethodComponent implements OnInit {
     }
   }
 
-  confirmDeliveryOption(): void {}
+  confirmDeliveryOption() {
+    const request: AddDeliveryMethodRequestDTO = {
+      userId: this.userId,
+      deliveryOption: this.selectedDeliveryOption ?? '',
+      addressId: this.addressId ?? undefined,
+      pickupPointName: '',
+      pickupPointAddress: '',
+      pickupPointLatitude: 0,
+      pickupPointLongitude: 0,
+      orderAmount: 0,
+    };
+
+    this.deliveryMethodService.addDeliveryMethod(request).subscribe(
+      (response) => {
+        console.log('Méthode de livraison ajoutée avec succès :', response);
+      },
+      (error) => {
+        console.error(
+          "Erreur lors de l'ajout de la méthode de livraison :",
+          error
+        );
+      }
+    );
+  }
 }

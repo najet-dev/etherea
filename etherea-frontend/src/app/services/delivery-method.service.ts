@@ -5,6 +5,8 @@ import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { PickupPoint } from '../components/models/pickupPoint.model';
 import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
+import { DeliveryMethodDTO } from '../components/models/DeliveryMethodDTO.model';
+import { AddDeliveryMethodRequestDTO } from '../components/models/AddDeliveryMethodRequestDTO .model';
 
 @Injectable({
   providedIn: 'root',
@@ -38,22 +40,33 @@ export class DeliveryMethodService {
     );
   }
 
+  // addDeliveryMethod(
+  //   selectedMethod: DeliveryMethod
+  // ): Observable<DeliveryMethod> {
+  //   return this.httpClient
+  //     .post<DeliveryMethod>(
+  //       `${this.apiUrl}/deliveryMethods/add/`,
+  //       selectedMethod
+  //     )
+  //     .pipe(
+  //       tap((response) => {
+  //         console.log('Méthode de livraison ajoutée avec succès:', response);
+  //       }),
+  //       catchError((error) => {
+  //         console.error(
+  //           "Erreur lors de l'ajout de la méthode de livraison:",
+  //           error
+  //         );
+  //         return throwError(() => error);
+  //       })
+  //     );
+  // }
   addDeliveryMethod(
-    selectedMethod: DeliveryMethod
-  ): Observable<DeliveryMethod> {
-    return this.httpClient
-      .post<DeliveryMethod>(
-        `${this.apiUrl}/deliveryMethods/add/`,
-        selectedMethod
-      )
-      .pipe(
-        tap((response) => {
-          console.log('Nouvelle adresse ajoutée avec succès:', response);
-        }),
-        catchError((error) => {
-          console.error('Error adding delivery address:', error);
-          return throwError(() => error);
-        })
-      );
+    request: AddDeliveryMethodRequestDTO
+  ): Observable<DeliveryMethodDTO> {
+    return this.httpClient.post<DeliveryMethodDTO>(
+      `${environment.apiUrl}/deliveryMethods/add`,
+      request
+    );
   }
 }

@@ -190,7 +190,10 @@
   class="btn-primary"
   [disabled]="
     !selectedDeliveryOption ||
-    (selectedDeliveryOption === 'PICKUP_POINT' && !selectedPickupPoint)
+    (selectedDeliveryOption === 'PICKUP_POINT' && !selectedPickupPoint) ||
+    ((selectedDeliveryOption === 'STANDARD' ||
+      selectedDeliveryOption === 'EXPRESS') &&
+      !deliveryAddress)
   "
   (click)="confirmDeliveryOption()"
 >

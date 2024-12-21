@@ -1,3 +1,4 @@
+import { DeliveryAddress } from './DeliveryAddress.model';
 import { DeliveryOption } from './DeliveryOption.enum';
 
 export interface DeliveryMethod {
@@ -5,4 +6,9 @@ export interface DeliveryMethod {
   deliveryOption: DeliveryOption;
   expectedDeliveryDate: string;
   cost: number;
+  deliveryAddress?: DeliveryAddress;
+  pickupPointName?: string;
+  pickupPointAddress?: string;
+  pickupPointLatitude?: number;
+  pickupPointLongitude?: number;
 }
