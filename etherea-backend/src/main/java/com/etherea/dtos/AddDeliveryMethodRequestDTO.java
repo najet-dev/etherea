@@ -15,14 +15,12 @@ public class AddDeliveryMethodRequestDTO {
     public Long getUserId() {
         return userId;
     }
-
     public void setUserId(Long userId) {
         if (userId == null || userId <= 0) {
             throw new IllegalArgumentException("User ID must be a positive number.");
         }
         this.userId = userId;
     }
-
     public DeliveryOption getDeliveryOption() {
         return deliveryOption;
     }
