@@ -62,6 +62,7 @@ public class PickupPointDelivery extends DeliveryMethod {
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
+
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }
@@ -80,7 +81,7 @@ public class PickupPointDelivery extends DeliveryMethod {
     }
     @Override
     public LocalDate calculateExpectedDeliveryDate() {
-        LocalDate currentDate = LocalDate.now();  // Date actuelle
+        LocalDate currentDate = LocalDate.now();
         return currentDate.plusDays(DELIVERY_DAYS);
     }
 }

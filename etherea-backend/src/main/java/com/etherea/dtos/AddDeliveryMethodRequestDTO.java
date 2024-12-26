@@ -24,7 +24,6 @@ public class AddDeliveryMethodRequestDTO {
     public DeliveryOption getDeliveryOption() {
         return deliveryOption;
     }
-
     public void setDeliveryOption(DeliveryOption deliveryOption) {
         if (deliveryOption == null) {
             throw new IllegalArgumentException("Delivery option must not be null.");

@@ -46,75 +46,57 @@ public class DeliveryMethodDTO {
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public DeliveryOption getDeliveryOption() {
         return deliveryOption;
     }
-
     public void setDeliveryOption(DeliveryOption deliveryOption) {
         this.deliveryOption = deliveryOption;
     }
-
     public LocalDate getExpectedDeliveryDate() {
         return expectedDeliveryDate;
     }
-
     public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
     }
-
     public Double getCost() {
         return cost;
     }
-
     public void setCost(Double cost) {
         this.cost = cost;
     }
-
     public DeliveryAddressDTO getDeliveryAddress() {
         return deliveryAddress;
     }
-
     public void setDeliveryAddress(DeliveryAddressDTO deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
-
     public String getPickupPointName() {
         return pickupPointName;
     }
-
     public void setPickupPointName(String pickupPointName) {
         this.pickupPointName = pickupPointName;
     }
-
     public String getPickupPointAddress() {
         return pickupPointAddress;
     }
-
     public void setPickupPointAddress(String pickupPointAddress) {
         this.pickupPointAddress = pickupPointAddress;
     }
-
     public Double getPickupPointLatitude() {
         return pickupPointLatitude;
     }
-
     public void setPickupPointLatitude(Double pickupPointLatitude) {
         this.pickupPointLatitude = pickupPointLatitude;
     }
-
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
-
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }
-
     // Builder class
     public static class Builder {
         private Long id;
@@ -131,47 +113,38 @@ public class DeliveryMethodDTO {
             this.id = id;
             return this;
         }
-
         public Builder setDeliveryOption(DeliveryOption deliveryOption) {
             this.deliveryOption = deliveryOption;
             return this;
         }
-
         public Builder setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
             this.expectedDeliveryDate = expectedDeliveryDate;
             return this;
         }
-
         public Builder setCost(Double cost) {
             this.cost = cost;
             return this;
         }
-
         public Builder setDeliveryAddress(DeliveryAddressDTO deliveryAddress) {
             this.deliveryAddress = deliveryAddress;
             return this;
         }
-
         public Builder setPickupPointName(String pickupPointName) {
             this.pickupPointName = pickupPointName;
             return this;
         }
-
         public Builder setPickupPointAddress(String pickupPointAddress) {
             this.pickupPointAddress = pickupPointAddress;
             return this;
         }
-
         public Builder setPickupPointLatitude(Double pickupPointLatitude) {
             this.pickupPointLatitude = pickupPointLatitude;
             return this;
         }
-
         public Builder setPickupPointLongitude(Double pickupPointLongitude) {
             this.pickupPointLongitude = pickupPointLongitude;
             return this;
         }
-
         public DeliveryMethodDTO build() {
             return new DeliveryMethodDTO(this);
         }

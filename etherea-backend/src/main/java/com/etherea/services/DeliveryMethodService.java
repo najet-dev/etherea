@@ -153,51 +153,71 @@ public class DeliveryMethodService {
      */
     @Transactional
     public DeliveryMethodDTO addDeliveryMethod(AddDeliveryMethodRequestDTO requestDTO) {
-        if (requestDTO == null || requestDTO.getUserId() == null || requestDTO.getDeliveryOption() == null) {
-            throw new IllegalArgumentException("The query data is invalid.");
+        if (requestDTO == null) {
+            throw new IllegalArgumentException("Request cannot be null.");
+        }
+        if (requestDTO.getUserId() == null) {
+            throw new IllegalArgumentException("User ID must be provided.");
+        }
+        if (requestDTO.getDeliveryOption() == null) {
+            throw new IllegalArgumentException("Delivery option must be provided.");
         }
 
-        // User verification
+        // Retrieve and validate user
         User user = userRepository.findById(requestDTO.getUserId())
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID : " + requestDTO.getUserId()));
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + requestDTO.getUserId()));
 
-        // Retrieve the address if necessary
-        DeliveryAddress userAddress = null;
+        // Retrieve address if applicable
+        DeliveryAddress deliveryAddress = null;
         if (requestDTO.getDeliveryOption() == DeliveryOption.HOME_STANDARD || requestDTO.getDeliveryOption() == DeliveryOption.HOME_EXPRESS) {
             if (requestDTO.getAddressId() == null) {
                 throw new DeliveryAddressNotFoundException("Address ID is required for home delivery.");
             }
-            userAddress = deliveryAddressRepository.findById(requestDTO.getAddressId())
-                    .orElseThrow(() -> new DeliveryAddressNotFoundException("Address not found with ID : " + requestDTO.getAddressId()));
+            deliveryAddress = deliveryAddressRepository.findById(requestDTO.getAddressId())
+                    .orElseThrow(() -> new DeliveryAddressNotFoundException("Address not found with ID: " + requestDTO.getAddressId()));
         }
 
-        // Create the DeliveryMethod
+        // Create delivery method
         DeliveryMethod deliveryMethod = DeliveryMethodFactory.createDeliveryMethod(
                 requestDTO.getDeliveryOption(),
-                userAddress,
+                deliveryAddress,
                 requestDTO.getPickupPointName(),
                 requestDTO.getPickupPointAddress(),
                 requestDTO.getPickupPointLatitude(),
                 requestDTO.getPickupPointLongitude(),
-                user
+                user // Ajout de l'utilisateur
         );
 
-        // Calculate costs and dates
+        // Set delivery option explicitly
+        deliveryMethod.setDeliveryOption(requestDTO.getDeliveryOption());
+
+        // Set the user
+        deliveryMethod.setUser(user);
+
+        // Calculate delivery cost and expected date
         double orderAmount = requestDTO.getOrderAmount();
         LocalDate startDate = LocalDate.now();
         deliveryMethod.setDeliveryCost(DeliveryCostCalculator.calculateDeliveryCost(orderAmount, requestDTO.getDeliveryOption()));
         deliveryMethod.setExpectedDeliveryDate(deliveryDateCalculator.calculateDeliveryDate(startDate, deliveryMethod.calculateDeliveryTime()));
 
-        // Save the DeliveryMethod
-        DeliveryMethod savedMethod = deliveryMethodRepository.save(deliveryMethod);
+        // Save delivery method
+        DeliveryMethod savedDeliveryMethod = deliveryMethodRepository.save(deliveryMethod);
 
-        // Associate DeliveryMethod with Cart
+        // Associate delivery method with the user's cart
         Cart cart = cartRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new CartNotFoundException("Shopping cart not found for user with ID : " + user.getId()));
-        cart.setDeliveryMethod(savedMethod);
+                .orElseThrow(() -> new CartNotFoundException("Shopping cart not found for user with ID: " + user.getId()));
+        cart.setDeliveryMethod(savedDeliveryMethod);
         cartRepository.save(cart);
 
-        // Return DTO
-        return DeliveryMethodDTO.fromDeliveryMethod(savedMethod, userAddress, startDate, orderAmount, deliveryDateCalculator);
+        // Return the DTO
+        return DeliveryMethodDTO.fromDeliveryMethod(
+                savedDeliveryMethod,
+                deliveryAddress,
+                startDate,
+                orderAmount,
+                deliveryDateCalculator
+        );
     }
+
+
 }
