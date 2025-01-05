@@ -33,6 +33,15 @@ public class CartItemService {
     @Autowired
     private CartRepository cartRepository;
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
+
+    /**
+     * Retrieves all cart items for a specific user.
+     * Only cart items related to HAIR or FACE product types are included.
+     *
+     * @param userId The ID of the user.
+     * @return A list of CartItemDTOs representing the user's cart items.
+     * @throws UserNotFoundException If no user is found with the given ID.
+     */
     public List<CartItemDTO> getCartItemsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -48,6 +57,20 @@ public class CartItemService {
 
         return cartItems.stream().map(CartItemDTO::fromCartItem).collect(Collectors.toList());
     }
+
+    /**
+     * Adds a product to the user's cart.
+     * If the product already exists in the cart, its quantity is updated.
+     *
+     * @param userId   The ID of the user.
+     * @param productId The ID of the product.
+     * @param volumeId The ID of the volume, if applicable.
+     * @param quantity The quantity to add to the cart.
+     * @throws IllegalArgumentException If the quantity is less than or equal to 0, or if the product type is inconsistent with the volume.
+     * @throws UserNotFoundException If no user is found with the given ID.
+     * @throws ProductNotFoundException If no product is found with the given ID.
+     * @throws VolumeNotFoundException If no volume is found with the given ID.
+     */
     @Transactional
     public void addProductToUserCart(Long userId, Long productId, Long volumeId, int quantity) {
         if (quantity <= 0) {
@@ -59,7 +82,7 @@ public class CartItemService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
-        // Créer ou récupérer le panier de l'utilisateur
+        // Create or retrieve the user's cart
         Cart cart = user.getCart();
         if (cart == null) {
             cart = new Cart();
@@ -92,12 +115,22 @@ public class CartItemService {
             newCartItem.setVolume(volume);
             newCartItem.setQuantity(quantity);
             newCartItem.setSubTotal(calculateSubtotal(product, volume, quantity));
-            newCartItem.setCart(cart);  // Lier l'élément au panier
+            newCartItem.setCart(cart);  // Link the item to the cart
             cartItemRepository.save(newCartItem);
         }
 
         updateCartTotal(userId);
     }
+
+    /**
+     * Calculates the subtotal for a cart item based on the product, volume, and quantity.
+     *
+     * @param product The product to calculate the subtotal for.
+     * @param volume The volume associated with the product, if applicable.
+     * @param quantity The quantity of the product.
+     * @return The calculated subtotal for the item.
+     * @throws IllegalArgumentException If the product or volume is invalid for subtotal calculation.
+     */
     private BigDecimal calculateSubtotal(Product product, Volume volume, int quantity) {
         if (product.getType() == ProductType.FACE) {
             return product.getBasePrice().multiply(BigDecimal.valueOf(quantity));
@@ -106,6 +139,12 @@ public class CartItemService {
         }
         throw new IllegalArgumentException("Invalid product or volume for subtotal calculation.");
     }
+
+    /**
+     * Updates the total price of the user's cart.
+     *
+     * @param userId The ID of the user.
+     */
     private void updateCartTotal(Long userId) {
         List<CartItem> userCartItems = cartItemRepository.findByUserId(userId);
         BigDecimal cartTotal = CartItem.calculateTotalPrice(userCartItems);
@@ -116,6 +155,20 @@ public class CartItemService {
             cartItemRepository.save(cartItem);
         });
     }
+
+    /**
+     * Updates the quantity of a specific cart item.
+     *
+     * @param userId   The ID of the user.
+     * @param productId The ID of the product.
+     * @param volumeId The ID of the volume, if applicable.
+     * @param quantity The new quantity to update to.
+     * @throws IllegalArgumentException If the quantity is less than or equal to 0, or if the product type is inconsistent with the volume.
+     * @throws CartItemNotFoundException If the cart item cannot be found.
+     * @throws UserNotFoundException If no user is found with the given ID.
+     * @throws ProductNotFoundException If no product is found with the given ID.
+     * @throws VolumeNotFoundException If no volume is found with the given ID.
+     */
     @Transactional
     public void updateCartItemQuantity(Long userId, Long productId, Long volumeId, int quantity) {
         if (quantity <= 0) {
@@ -139,11 +192,18 @@ public class CartItemService {
             existingCartItem.setQuantity(quantity);
             existingCartItem.setSubTotal(existingCartItem.calculateSubtotal());
             cartItemRepository.save(existingCartItem);
-            updateCartTotal(userId); // Recalculer le total du panier
+            updateCartTotal(userId); // Recalculate the cart total
         } else {
             throw new CartItemNotFoundException("Cart item not found for user ID " + userId + " and product ID " + productId);
         }
     }
+
+    /**
+     * Deletes a specific cart item from the user's cart.
+     *
+     * @param id The ID of the cart item to delete.
+     * @throws CartItemNotFoundException If no cart item is found with the given ID.
+     */
     public void deleteCartItem(Long id) {
         CartItem cartItemToDelete = cartItemRepository.findById(id)
                 .orElseThrow(() -> new CartItemNotFoundException("CartItem with id " + id + " not found"));
@@ -151,6 +211,6 @@ public class CartItemService {
         Long userId = cartItemToDelete.getUser().getId();
         cartItemRepository.delete(cartItemToDelete);
 
-        updateCartTotal(userId); // Recalculer le total du panier après suppression
+        updateCartTotal(userId); // Recalculate the cart total after deletion
     }
 }

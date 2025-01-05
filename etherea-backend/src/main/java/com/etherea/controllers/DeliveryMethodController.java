@@ -4,12 +4,22 @@ import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.dtos.CartWithDeliveryDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
 import com.etherea.enums.DeliveryOption;
+import com.etherea.exception.CartNotFoundException;
+import com.etherea.exception.DeliveryAddressNotFoundException;
+import com.etherea.exception.DeliveryMethodNotFoundException;
 import com.etherea.exception.UserNotFoundException;
+import com.etherea.models.DeliveryMethod;
 import com.etherea.services.DeliveryMethodService;
 import com.etherea.services.PickupPointService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
 
 import java.util.List;
 
@@ -19,9 +29,9 @@ import java.util.List;
 public class DeliveryMethodController {
     @Autowired
     private DeliveryMethodService deliveryMethodService;
-
     @Autowired
     private PickupPointService pickupPointService;
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
 
     /**
      * Récupère les options de livraison disponibles pour un utilisateur donné.
@@ -39,6 +49,7 @@ public class DeliveryMethodController {
         List<AddDeliveryMethodRequestDTO> pickupPoints = pickupPointService.findPickupPoints(userId);
         return ResponseEntity.ok(pickupPoints);
     }
+
     /**
      * Récupère le montant total du panier d'un utilisateur.
      */
