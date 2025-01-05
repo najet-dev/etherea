@@ -13,12 +13,10 @@
   text-decoration: none;
 }
 
-/* Ajuste les marges spécifiques */
 .custom-phone {
-  margin-top: 10px; /* Ajustement spécifique si nécessaire */
+  margin-top: 10px;
 }
 
-/* Style du bouton Modifier */
 .btn-link {
   font-weight: bold;
   color: var(--bg-color);
@@ -50,7 +48,7 @@ p {
 .summary-item span:last-child {
   font-weight: 500;
 }
-/* Style par défaut pour les boutons radio */
+
 .form-check-input {
   transition: all 0.3s ease;
 }
@@ -59,25 +57,20 @@ p {
 .form-check-input:checked {
   background-color: var(--main-color);
   border-color: var(--main-color);
-  outline: none; /* Éviter l'effet de focus par défaut */
+  outline: none;
 }
 
 /* Pour ajouter un effet visuel lorsque l'élément est coché */
 .form-check-input:checked:focus {
-  box-shadow: 0 0 0 0.25rem var(--main-color); /* Ombre verte autour */
+  box-shadow: 0 0 0 0.25rem var(--main-color);
 }
 
 .btn-paiement {
   display: flex;
   justify-content: center;
-  width: 100%; /* Largeur adaptative */
-  max-width: 300px; /* Limiter la largeur si nécessaire */
+  width: 100%;
+  max-width: 300px;
   margin-top: 25px;
   align-self: center;
-  min-width: 200px; /* Largeur minimale pour éviter le "découpage" */
   transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.btn-paiement[disabled] {
-  opacity: 0.5;
-  visibility: visible; /* Assurez-vous que le bouton reste visible même désactivé */
 }

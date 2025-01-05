@@ -40,27 +40,6 @@ export class DeliveryMethodService {
     );
   }
 
-  // addDeliveryMethod(
-  //   selectedMethod: DeliveryMethod
-  // ): Observable<DeliveryMethod> {
-  //   return this.httpClient
-  //     .post<DeliveryMethod>(
-  //       `${this.apiUrl}/deliveryMethods/add/`,
-  //       selectedMethod
-  //     )
-  //     .pipe(
-  //       tap((response) => {
-  //         console.log('Méthode de livraison ajoutée avec succès:', response);
-  //       }),
-  //       catchError((error) => {
-  //         console.error(
-  //           "Erreur lors de l'ajout de la méthode de livraison:",
-  //           error
-  //         );
-  //         return throwError(() => error);
-  //       })
-  //     );
-  // }
   addDeliveryMethod(
     request: AddDeliveryMethodRequestDTO
   ): Observable<DeliveryMethodDTO> {

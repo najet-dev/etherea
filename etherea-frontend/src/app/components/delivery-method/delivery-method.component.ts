@@ -23,7 +23,6 @@ import { AddDeliveryMethodRequestDTO } from '../models/AddDeliveryMethodRequestD
   styleUrls: ['./delivery-method.component.css'],
 })
 export class DeliveryMethodComponent implements OnInit {
-  // Variables de classe
   deliveryAddress: DeliveryAddress | null = null;
   userId: number = 0;
   addressId: number | null = null;
@@ -56,7 +55,6 @@ export class DeliveryMethodComponent implements OnInit {
     public productTypeService: ProductTypeService
   ) {}
 
-  // Initialisation
   ngOnInit(): void {
     this.loadUserAndAddress();
     this.loadCartTotal();
@@ -64,7 +62,6 @@ export class DeliveryMethodComponent implements OnInit {
     this.showPickupPoints();
   }
 
-  // Méthodes privées
   private loadUserAndAddress(): void {
     this.route.paramMap
       .pipe(
@@ -172,7 +169,6 @@ export class DeliveryMethodComponent implements OnInit {
     return of(null);
   }
 
-  // Méthodes publiques
   onEditAddress(): void {
     if (this.addressId) {
       this.router.navigate(['/order', this.addressId]);
@@ -182,7 +178,7 @@ export class DeliveryMethodComponent implements OnInit {
   }
 
   showPickupPoints(): void {
-    this.pickupPoints = []; // Réinitialise la liste pour éviter un affichage obsolète.
+    this.pickupPoints = [];
     if (!this.userId) return;
 
     this.deliveryMethodService
@@ -211,14 +207,14 @@ export class DeliveryMethodComponent implements OnInit {
       this.selectedPickupPoint = null;
     }
 
-    // Recharger les points relais uniquement si nécessaire
+    // Recharger les points relais
     if (this.selectedDeliveryOption === 'PICKUP_POINT') {
-      this.showPickupPoints(); // Charge ou recharge la liste des points relais
+      this.showPickupPoints();
     }
 
     // Charger les coûts associés au mode sélectionné
     this.loadCartWithDelivery(this.selectedDeliveryOption);
-    // Forcer Angular à détecter les modifications
+
     setTimeout(() => {
       this.selectedPickupPoint = this.selectedPickupPoint;
     });
@@ -258,23 +254,39 @@ export class DeliveryMethodComponent implements OnInit {
       userId: this.userId,
       deliveryOption: this.selectedDeliveryOption ?? '',
       addressId: this.addressId ?? undefined,
-      pickupPointName: '',
-      pickupPointAddress: '',
-      pickupPointLatitude: 0,
-      pickupPointLongitude: 0,
-      orderAmount: 0,
+      pickupPointName:
+        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedPickupPoint
+          ? this.selectedPickupPoint.pickupPointName
+          : '',
+      pickupPointAddress:
+        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedPickupPoint
+          ? this.selectedPickupPoint.pickupPointAddress
+          : '',
+      pickupPointLatitude:
+        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedPickupPoint
+          ? this.selectedPickupPoint.pickupPointLatitude
+          : 0,
+      pickupPointLongitude:
+        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedPickupPoint
+          ? this.selectedPickupPoint.pickupPointLongitude
+          : 0,
+      orderAmount: this.total ?? 0,
     };
 
-    this.deliveryMethodService.addDeliveryMethod(request).subscribe(
-      (response) => {
+    this.deliveryMethodService.addDeliveryMethod(request).subscribe({
+      next: (response) => {
         console.log('Méthode de livraison ajoutée avec succès :', response);
       },
-      (error) => {
+      error: (error) => {
         console.error(
           "Erreur lors de l'ajout de la méthode de livraison :",
           error
         );
-      }
-    );
+      },
+    });
   }
 }
