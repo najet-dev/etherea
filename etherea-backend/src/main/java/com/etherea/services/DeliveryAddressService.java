@@ -7,6 +7,7 @@ import com.etherea.models.DeliveryAddress;
 import com.etherea.models.User;
 import com.etherea.repositories.DeliveryAddressRepository;
 import com.etherea.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -97,6 +98,7 @@ public class DeliveryAddressService {
      * @throws UserNotFoundException if the user is not found.
      * @throws DeliveryAddressNotFoundException if the address is not found, does not belong to the user.
      */
+    @Transactional
     public DeliveryAddressDTO updateDeliveryAddress(Long userId, DeliveryAddressDTO deliveryAddressDTO) {
         User user = findUserById(userId);
 

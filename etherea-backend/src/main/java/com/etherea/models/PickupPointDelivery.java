@@ -17,9 +17,6 @@ public class PickupPointDelivery extends DeliveryMethod {
     private Double pickupPointLatitude;
     @Column(nullable = false)
     private Double pickupPointLongitude;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
     public PickupPointDelivery() {}
     public PickupPointDelivery(String pickupPointName, String pickupPointAddress,
                                Double pickupPointLatitude, Double pickupPointLongitude, User user) {
@@ -27,7 +24,6 @@ public class PickupPointDelivery extends DeliveryMethod {
         this.pickupPointAddress = pickupPointAddress;
         this.pickupPointLatitude = pickupPointLatitude != null ? pickupPointLatitude : 0.0;
         this.pickupPointLongitude = pickupPointLongitude != null ? pickupPointLongitude : 0.0;
-        this.user = user;
     }
     @Override
     public int calculateDeliveryTime() {
@@ -62,14 +58,9 @@ public class PickupPointDelivery extends DeliveryMethod {
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
+
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
-    }
-    public User getUser() {
-        return user;
-    }
-    public void setUser(User user) {
-        this.user = user;
     }
     @Override
     public double calculateCost(double totalAmount) {
@@ -80,7 +71,7 @@ public class PickupPointDelivery extends DeliveryMethod {
     }
     @Override
     public LocalDate calculateExpectedDeliveryDate() {
-        LocalDate currentDate = LocalDate.now();  // Date actuelle
+        LocalDate currentDate = LocalDate.now();
         return currentDate.plusDays(DELIVERY_DAYS);
     }
 }

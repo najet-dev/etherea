@@ -2,9 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
-import { Observable } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 import { PickupPoint } from '../components/models/pickupPoint.model';
 import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
+import { DeliveryMethodDTO } from '../components/models/DeliveryMethodDTO.model';
+import { AddDeliveryMethodRequestDTO } from '../components/models/AddDeliveryMethodRequestDTO .model';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +37,15 @@ export class DeliveryMethodService {
   getCartTotal(userId: number): Observable<number> {
     return this.httpClient.get<number>(
       `${this.apiUrl}/deliveryMethods/cart-total/${userId}`
+    );
+  }
+
+  addDeliveryMethod(
+    request: AddDeliveryMethodRequestDTO
+  ): Observable<DeliveryMethodDTO> {
+    return this.httpClient.post<DeliveryMethodDTO>(
+      `${environment.apiUrl}/deliveryMethods/add`,
+      request
     );
   }
 }

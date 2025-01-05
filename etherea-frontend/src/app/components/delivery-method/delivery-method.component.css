@@ -7,6 +7,70 @@
   overflow-y: auto;
 }
 .card-title {
+  margin-bottom: 20px;
+}
+.cart-text {
+  text-decoration: none;
+}
+
+.custom-phone {
+  margin-top: 10px;
+}
+
+.btn-link {
+  font-weight: bold;
+  color: var(--bg-color);
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  font-weight: bold;
+  color: var(--main-color);
+}
+
+p {
+  margin: 0;
+}
+
+.title-order {
   margin-bottom: 60px;
   text-align: center;
+}
+.summary-item {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.summary-item .d-flex {
+  margin-bottom: 8px;
+}
+
+.summary-item span:last-child {
+  font-weight: 500;
+}
+
+.form-check-input {
+  transition: all 0.3s ease;
+}
+
+/* Lorsque le bouton radio est sélectionné, on change la couleur */
+.form-check-input:checked {
+  background-color: var(--main-color);
+  border-color: var(--main-color);
+  outline: none;
+}
+
+/* Pour ajouter un effet visuel lorsque l'élément est coché */
+.form-check-input:checked:focus {
+  box-shadow: 0 0 0 0.25rem var(--main-color);
+}
+
+.btn-paiement {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 25px;
+  align-self: center;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
