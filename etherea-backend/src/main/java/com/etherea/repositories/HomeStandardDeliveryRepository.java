@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface HomeStandardDeliveryRepository extends JpaRepository<HomeStandardDelivery, Long> {
+
 }

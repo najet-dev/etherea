@@ -16,7 +16,6 @@ public class DeliveryMethodFactory {
         if (option == null) {
             throw new IllegalArgumentException("Delivery option must be specified.");
         }
-
         return switch (option) {
             case HOME_EXPRESS -> {
                 if (deliveryAddress == null) {

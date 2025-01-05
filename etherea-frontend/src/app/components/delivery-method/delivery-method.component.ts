@@ -2,24 +2,19 @@ import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { switchMap, filter, tap, catchError } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin, of } from 'rxjs';
+import { of } from 'rxjs';
 import { Modal } from 'bootstrap';
 
-// Modèles
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { DeliveryMethod } from '../models/DeliveryMethod.model';
 import { PickupPoint } from '../models/pickupPoint.model';
 import { Cart } from '../models/cart.model';
 
-// Services
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { OrderService } from 'src/app/services/order.service';
 import { DeliveryMethodService } from 'src/app/services/delivery-method.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
-import { CartCalculationService } from 'src/app/services/cart-calculation.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
-import { DeliveryOption } from '../models/DeliveryOption.enum';
 import { AddDeliveryMethodRequestDTO } from '../models/AddDeliveryMethodRequestDTO .model';
 
 @Component({
@@ -187,13 +182,19 @@ export class DeliveryMethodComponent implements OnInit {
   }
 
   showPickupPoints(): void {
+    this.pickupPoints = []; // Réinitialise la liste pour éviter un affichage obsolète.
     if (!this.userId) return;
 
     this.deliveryMethodService
       .getPickupMethods(this.userId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (points) => (this.pickupPoints = points),
+        next: (points) => {
+          this.pickupPoints = points;
+          if (this.pickupPoints.length === 0) {
+            console.log('Aucun point relais disponible.');
+          }
+        },
         error: (error) =>
           this.handleError('récupération des points relais', error),
       });
@@ -202,17 +203,32 @@ export class DeliveryMethodComponent implements OnInit {
   selectPickupPoint(point: PickupPoint): void {
     this.selectedPickupPoint = point;
   }
-
   onDeliveryOptionChange(): void {
     if (!this.selectedDeliveryOption) return;
 
+    // Réinitialiser le point relais si le mode change
+    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
+      this.selectedPickupPoint = null;
+    }
+
+    // Recharger les points relais uniquement si nécessaire
+    if (this.selectedDeliveryOption === 'PICKUP_POINT') {
+      this.showPickupPoints(); // Charge ou recharge la liste des points relais
+    }
+
+    // Charger les coûts associés au mode sélectionné
     this.loadCartWithDelivery(this.selectedDeliveryOption);
+    // Forcer Angular à détecter les modifications
+    setTimeout(() => {
+      this.selectedPickupPoint = this.selectedPickupPoint;
+    });
   }
 
   confirmPickupPoint(): void {
     if (this.selectedPickupPoint) {
       this.confirmedPickupPoint = this.selectedPickupPoint;
 
+      // Masquer le modal
       const modalElement = document.getElementById('pickupPointModal');
       if (modalElement) {
         const modalInstance =
@@ -220,6 +236,7 @@ export class DeliveryMethodComponent implements OnInit {
         modalInstance.hide();
       }
 
+      // Fermer les styles du modal
       const body = document.body;
       if (body.classList.contains('modal-open')) {
         body.classList.remove('modal-open');
@@ -229,6 +246,10 @@ export class DeliveryMethodComponent implements OnInit {
       if (backdrop) {
         backdrop.remove();
       }
+
+      // Mettre à jour le point relais sélectionné dans le DOM
+      // Cela garantit que l'affichage est bien mis à jour
+      this.selectedPickupPoint = this.selectedPickupPoint;
     }
   }
 

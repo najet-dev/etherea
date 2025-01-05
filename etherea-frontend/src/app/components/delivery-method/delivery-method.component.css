@@ -52,17 +52,32 @@ p {
 }
 /* Style par défaut pour les boutons radio */
 .form-check-input {
-  transition: all 0.3s ease; /* Transition douce pour l'animation */
+  transition: all 0.3s ease;
 }
 
 /* Lorsque le bouton radio est sélectionné, on change la couleur */
 .form-check-input:checked {
-  background-color: var(--main-color); /* Couleur de fond verte */
-  border-color: var(--main-color); /* Bordure verte */
+  background-color: var(--main-color);
+  border-color: var(--main-color);
   outline: none; /* Éviter l'effet de focus par défaut */
 }
 
 /* Pour ajouter un effet visuel lorsque l'élément est coché */
 .form-check-input:checked:focus {
   box-shadow: 0 0 0 0.25rem var(--main-color); /* Ombre verte autour */
+}
+
+.btn-paiement {
+  display: flex;
+  justify-content: center;
+  width: 100%; /* Largeur adaptative */
+  max-width: 300px; /* Limiter la largeur si nécessaire */
+  margin-top: 25px;
+  align-self: center;
+  min-width: 200px; /* Largeur minimale pour éviter le "découpage" */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.btn-paiement[disabled] {
+  opacity: 0.5;
+  visibility: visible; /* Assurez-vous que le bouton reste visible même désactivé */
 }

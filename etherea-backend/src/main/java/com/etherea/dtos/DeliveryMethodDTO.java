@@ -46,9 +46,11 @@ public class DeliveryMethodDTO {
     public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
+
     public DeliveryOption getDeliveryOption() {
         return deliveryOption;
     }
@@ -97,6 +99,7 @@ public class DeliveryMethodDTO {
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }
+
     // Builder class
     public static class Builder {
         private Long id;

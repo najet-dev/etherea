@@ -7,24 +7,25 @@ import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.enums.DeliveryOption;
 import com.etherea.exception.CartNotFoundException;
 import com.etherea.exception.DeliveryAddressNotFoundException;
+import com.etherea.exception.DeliveryMethodNotFoundException;
 import com.etherea.exception.UserNotFoundException;
-import com.etherea.models.Cart;
-import com.etherea.models.User;
-import com.etherea.models.DeliveryAddress;
-import com.etherea.models.DeliveryMethod;
-import com.etherea.repositories.CartRepository;
-import com.etherea.repositories.DeliveryAddressRepository;
-import com.etherea.repositories.DeliveryMethodRepository;
-import com.etherea.repositories.UserRepository;
+import com.etherea.models.*;
+import com.etherea.repositories.*;
 import com.etherea.factories.DeliveryMethodFactory;
 import com.etherea.utils.DeliveryCostCalculator;
 import com.etherea.utils.DeliveryDateCalculator;
+import com.etherea.utils.HolidayProvider;
 import jakarta.transaction.Transactional;
+import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 public class DeliveryMethodService {
@@ -34,13 +35,23 @@ public class DeliveryMethodService {
     @Autowired
     private DeliveryMethodRepository deliveryMethodRepository;
     @Autowired
+    private HomeExpressDeliveryRepository homeExpressDeliveryRepository;
+    @Autowired
+    private HomeStandardDeliveryRepository homeStandardDeliveryRepository;
+    @Autowired
+    private PickupPointDeliveryRepository pickupPointDeliveryRepository;
+    @Autowired
     private CartRepository cartRepository;
     @Autowired
-    private DeliveryDateCalculator deliveryDateCalculator;
+    private final DeliveryDateCalculator deliveryDateCalculator;
+    public DeliveryMethodService(HolidayProvider holidayProvider) {
+        this.deliveryDateCalculator = new DeliveryDateCalculator(holidayProvider.getPublicHolidays());
+    }
     @Autowired
     private DeliveryAddressService deliveryAddressService;
     @Autowired
     private DeliveryAddressRepository deliveryAddressRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
 
     /**
      * Retrieves a list of available delivery options with their costs and estimated dates.
@@ -218,6 +229,4 @@ public class DeliveryMethodService {
                 deliveryDateCalculator
         );
     }
-
-
 }

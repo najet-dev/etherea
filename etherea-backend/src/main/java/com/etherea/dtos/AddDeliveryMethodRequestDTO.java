@@ -1,6 +1,7 @@
 package com.etherea.dtos;
 
 import com.etherea.enums.DeliveryOption;
+import com.etherea.models.*;
 
 public class AddDeliveryMethodRequestDTO {
     private Long userId;
@@ -11,7 +12,9 @@ public class AddDeliveryMethodRequestDTO {
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
     private double orderAmount;
-
+    public AddDeliveryMethodRequestDTO() {
+    }
+    // Getters et Setters
     public Long getUserId() {
         return userId;
     }
@@ -34,6 +37,9 @@ public class AddDeliveryMethodRequestDTO {
         return addressId;
     }
     public void setAddressId(Long addressId) {
+        if (addressId == null || addressId <= 0) {
+            throw new IllegalArgumentException("Delivery address ID must be a positive number.");
+        }
         this.addressId = addressId;
     }
     public String getPickupPointName() {
@@ -48,15 +54,19 @@ public class AddDeliveryMethodRequestDTO {
     public void setPickupPointAddress(String pickupPointAddress) {
         this.pickupPointAddress = pickupPointAddress;
     }
+
     public Double getPickupPointLatitude() {
         return pickupPointLatitude;
     }
+
     public void setPickupPointLatitude(Double pickupPointLatitude) {
         this.pickupPointLatitude = pickupPointLatitude;
     }
+
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
+
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }

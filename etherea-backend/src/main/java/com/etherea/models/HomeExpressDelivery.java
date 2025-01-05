@@ -12,7 +12,6 @@ public class HomeExpressDelivery extends DeliveryMethod {
     private static final int DELIVERY_DAYS = 2;
     private static final double DELIVERY_COST = 10.0;
     public HomeExpressDelivery() {}
-
     public HomeExpressDelivery(DeliveryAddress deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
