@@ -19,11 +19,6 @@ public class DeliveryAddress {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @OneToMany(mappedBy = "deliveryAddress", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HomeExpressDelivery> expressDeliveries = new ArrayList<>();
-
-    @OneToMany(mappedBy = "deliveryAddress", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HomeStandardDelivery> standardDeliveries = new ArrayList<>();
     public DeliveryAddress() {}
     public DeliveryAddress(String address, int zipCode, String city, String country, String phoneNumber, boolean isDefault, User user) {
         this.address = address;
@@ -83,18 +78,7 @@ public class DeliveryAddress {
     public void setUser(User user) {
         this.user = user;
     }
-    public List<HomeExpressDelivery> getExpressDeliveries() {
-        return expressDeliveries;
-    }
-    public void setExpressDeliveries(List<HomeExpressDelivery> expressDeliveries) {
-        this.expressDeliveries = expressDeliveries;
-    }
-    public List<HomeStandardDelivery> getStandardDeliveries() {
-        return standardDeliveries;
-    }
-    public void setStandardDeliveries(List<HomeStandardDelivery> standardDeliveries) {
-        this.standardDeliveries = standardDeliveries;
-    }
+
     // Dans DeliveryAddress.java
     public String getFullAddress() {
         return address + ", " + city + ", " + zipCode + ", " + country;

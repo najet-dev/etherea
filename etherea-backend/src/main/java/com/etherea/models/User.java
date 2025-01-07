@@ -23,14 +23,13 @@ public class User {
     private Set<Role> roles = new HashSet<>();
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Cart cart;
-
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CartItem> cartItems = new ArrayList<>();
-
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<Favorite> favorites = new ArrayList<>();
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Command> commands = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private List<DeliveryAddress> addresses = new ArrayList<>();
     public User() {}
     public User(String firstName, String lastName, String username, String password) {
@@ -85,6 +84,12 @@ public class User {
     }
     public List<CartItem> getCartItems() {
         return cartItems;
+    }
+    public List<Favorite> getFavorites() {
+        return favorites;
+    }
+    public void setFavorites(List<Favorite> favorites) {
+        this.favorites = favorites;
     }
     public void setCartItems(List<CartItem> cartItems) {
         this.cartItems = cartItems;

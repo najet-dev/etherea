@@ -18,7 +18,7 @@ public abstract class DeliveryMethod {
     @Enumerated(EnumType.STRING)
     private DeliveryOption deliveryOption;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", nullable = false) // Ajout de la relation avec User
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     // Getters et Setters
@@ -62,6 +62,7 @@ public abstract class DeliveryMethod {
         return getDeliveryOption().getBaseCost();
     }
     public abstract int calculateDeliveryTime();
+    public abstract String getFullAddress();
     public abstract String getDescription();
     public abstract LocalDate calculateExpectedDeliveryDate();
 }
