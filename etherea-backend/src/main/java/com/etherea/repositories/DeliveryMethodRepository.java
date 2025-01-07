@@ -1,5 +1,6 @@
 package com.etherea.repositories;
 
+import com.etherea.models.DeliveryAddress;
 import com.etherea.models.DeliveryMethod;
 import io.micrometer.common.lang.NonNullApi;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,5 +13,4 @@ import java.util.Optional;
 @Repository
 public interface DeliveryMethodRepository extends JpaRepository<DeliveryMethod, Long> {
     Optional<DeliveryMethod> findById(Long id);
-
 }

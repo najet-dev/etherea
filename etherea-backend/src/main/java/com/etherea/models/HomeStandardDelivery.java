@@ -7,8 +7,8 @@ import java.time.LocalDate;
 
 @Entity
 public class HomeStandardDelivery extends DeliveryMethod {
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "delivery_address_id")
+    @OneToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "delivery_address_id", referencedColumnName = "id")
     private DeliveryAddress deliveryAddress;
     private static final int DELIVERY_DAYS = 7;
     private static final double DELIVERY_COST = 5.0;
@@ -39,6 +39,10 @@ public class HomeStandardDelivery extends DeliveryMethod {
     public LocalDate calculateExpectedDeliveryDate() {
         LocalDate currentDate = LocalDate.now();
         return currentDate.plusDays(DELIVERY_DAYS);
+    }
+    @Override
+    public String getFullAddress() {
+        return deliveryAddress.getFullAddress();
     }
     public DeliveryAddress getDeliveryAddress() {
         return deliveryAddress;

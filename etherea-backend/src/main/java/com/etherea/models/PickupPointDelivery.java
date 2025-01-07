@@ -9,13 +9,9 @@ import java.time.LocalDate;
 public class PickupPointDelivery extends DeliveryMethod {
     private static final int DELIVERY_DAYS = 8;
     private static final double DELIVERY_COST = 3.0;
-    @Column(nullable = false)
     private String pickupPointName;
-    @Column(nullable = false)
     private String pickupPointAddress;
-    @Column(nullable = false)
     private Double pickupPointLatitude;
-    @Column(nullable = false)
     private Double pickupPointLongitude;
     public PickupPointDelivery() {}
     public PickupPointDelivery(String pickupPointName, String pickupPointAddress,
@@ -73,5 +69,10 @@ public class PickupPointDelivery extends DeliveryMethod {
     public LocalDate calculateExpectedDeliveryDate() {
         LocalDate currentDate = LocalDate.now();
         return currentDate.plusDays(DELIVERY_DAYS);
+    }
+    @Override
+    public String getFullAddress() {
+        return String.format("%s, %s [Lat: %f, Lon: %f]",
+                pickupPointName, pickupPointAddress, pickupPointLatitude, pickupPointLongitude);
     }
 }
