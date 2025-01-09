@@ -3,6 +3,7 @@ package com.etherea.controllers;
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.dtos.CartWithDeliveryDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
+import com.etherea.dtos.UpdateDeliveryMethodRequestDTO;
 import com.etherea.enums.DeliveryOption;
 import com.etherea.exception.CartNotFoundException;
 import com.etherea.exception.DeliveryAddressNotFoundException;
@@ -11,6 +12,7 @@ import com.etherea.exception.UserNotFoundException;
 import com.etherea.models.DeliveryMethod;
 import com.etherea.services.DeliveryMethodService;
 import com.etherea.services.PickupPointService;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,4 +80,26 @@ public class DeliveryMethodController {
         DeliveryMethodDTO savedDeliveryMethod = deliveryMethodService.addDeliveryMethod(requestDTO);
         return ResponseEntity.ok(savedDeliveryMethod);
     }
+    /**
+     * Met à jour une méthode de livraison existante.
+     */
+    @PutMapping("/update")
+    public ResponseEntity<String> updateDeliveryMethod(@RequestBody UpdateDeliveryMethodRequestDTO requestDTO) {
+        try {
+            deliveryMethodService.updateDeliveryMethod(requestDTO);
+            return ResponseEntity.ok("Delivery method updated successfully.");
+        } catch (EntityNotFoundException e) {
+            logger.error("Delivery method or user not found: " + requestDTO.getDeliveryMethodId(), e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Delivery method or user not found.");
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid update request for delivery method: " + requestDTO.getDeliveryMethodId(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error updating delivery method: " + requestDTO.getDeliveryMethodId(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the delivery method.");
+        }
+    }
+
 }
+
+

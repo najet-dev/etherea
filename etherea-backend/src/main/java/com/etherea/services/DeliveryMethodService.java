@@ -1,9 +1,6 @@
 package com.etherea.services;
 
-import com.etherea.dtos.CartWithDeliveryDTO;
-import com.etherea.dtos.DeliveryMethodDTO;
-import com.etherea.dtos.DeliveryAddressDTO;
-import com.etherea.dtos.AddDeliveryMethodRequestDTO;
+import com.etherea.dtos.*;
 import com.etherea.enums.DeliveryOption;
 import com.etherea.exception.CartNotFoundException;
 import com.etherea.exception.DeliveryAddressNotFoundException;
@@ -15,6 +12,7 @@ import com.etherea.factories.DeliveryMethodFactory;
 import com.etherea.utils.DeliveryCostCalculator;
 import com.etherea.utils.DeliveryDateCalculator;
 import com.etherea.utils.HolidayProvider;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
@@ -44,9 +42,11 @@ public class DeliveryMethodService {
     private CartRepository cartRepository;
     @Autowired
     private final DeliveryDateCalculator deliveryDateCalculator;
+
     public DeliveryMethodService(HolidayProvider holidayProvider) {
         this.deliveryDateCalculator = new DeliveryDateCalculator(holidayProvider.getPublicHolidays());
     }
+
     @Autowired
     private DeliveryAddressService deliveryAddressService;
     @Autowired
@@ -94,9 +94,9 @@ public class DeliveryMethodService {
     /**
      * Creates a delivery method option of type `DeliveryMethodDTO`.
      *
-     * @param option The delivery option type.
-     * @param deliveryDate The expected delivery date.
-     * @param cost The delivery cost.
+     * @param option          The delivery option type.
+     * @param deliveryDate    The expected delivery date.
+     * @param cost            The delivery cost.
      * @param deliveryAddress The delivery address, if applicable.
      * @param pickupPointName The name of the pickup point, if applicable.
      * @return The `DeliveryMethodDTO` instance.
@@ -120,7 +120,7 @@ public class DeliveryMethodService {
     /**
      * Retrieves the cart and calculates the total with delivery costs based on the selected option.
      *
-     * @param userId The user ID.
+     * @param userId         The user ID.
      * @param selectedOption The selected delivery option.
      * @return A `CartWithDeliveryDTO` containing the cart total, delivery cost, and final total.
      */
@@ -158,8 +158,8 @@ public class DeliveryMethodService {
      *
      * @param requestDTO The DTO containing the delivery method details.
      * @return The DTO of the saved delivery method.
-     * @throws IllegalArgumentException If the request data is invalid.
-     * @throws UserNotFoundException If the user is not found.
+     * @throws IllegalArgumentException         If the request data is invalid.
+     * @throws UserNotFoundException            If the user is not found.
      * @throws DeliveryAddressNotFoundException If the address is not found for home delivery options.
      */
     @Transactional
@@ -196,7 +196,7 @@ public class DeliveryMethodService {
                 requestDTO.getPickupPointAddress(),
                 requestDTO.getPickupPointLatitude(),
                 requestDTO.getPickupPointLongitude(),
-                user // Ajout de l'utilisateur
+                user
         );
 
         // Set delivery option explicitly
@@ -229,4 +229,101 @@ public class DeliveryMethodService {
                 deliveryDateCalculator
         );
     }
+    @Transactional
+    public void updateDeliveryMethod(UpdateDeliveryMethodRequestDTO requestDTO) {
+        logger.info("Received request to update delivery method: {}", requestDTO);
+
+        if (requestDTO == null) {
+            logger.error("RequestDTO is null");
+            throw new IllegalArgumentException("RequestDTO must not be null");
+        }
+
+        if (requestDTO.getDeliveryMethodId() == null) {
+            logger.error("Delivery Method ID is null in the request: {}", requestDTO);
+            throw new IllegalArgumentException("Delivery Method ID must not be null");
+        }
+
+        Long deliveryMethodId = requestDTO.getDeliveryMethodId();
+        logger.info("Delivery Method ID: {}", deliveryMethodId);
+
+        // Récupérer le mode de livraison existant
+        DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
+                .orElseThrow(() -> {
+                    logger.error("Delivery method not found with ID: {}", deliveryMethodId);
+                    return new DeliveryMethodNotFoundException("Delivery method not found with ID: " + deliveryMethodId);
+                });
+        logger.info("Found delivery method: {}", deliveryMethod);
+
+        // Recherche de l'adresse si nécessaire
+        DeliveryAddress deliveryAddress = null;
+        if (requestDTO.getDeliveryOption() == DeliveryOption.HOME_STANDARD || requestDTO.getDeliveryOption() == DeliveryOption.HOME_EXPRESS) {
+            logger.info("Home delivery selected, checking address ID.");
+
+            Long addressId = requestDTO.getAddressId();  // Utilisez l'ID de l'adresse à partir du DTO
+            logger.info("Address ID from request: {}", addressId);
+
+            if (addressId == null) {
+                // Si l'adresse est nulle, associer l'adresse existante du mode de livraison actuel
+                logger.info("Address ID is null in request, using the existing address for delivery method: {}", deliveryMethod.getDeliveryAddress().getId());
+                deliveryAddress = deliveryMethod.getDeliveryAddress();  // Utilisez l'adresse déjà associée au mode de livraison
+            } else {
+                // Recherche de l'adresse si l'ID est présent dans le DTO
+                deliveryAddress = deliveryAddressRepository.findById(addressId)
+                        .orElseThrow(() -> {
+                            logger.error("Delivery address not found with ID: {}", addressId);
+                            return new DeliveryAddressNotFoundException("Address not found with ID: " + addressId);
+                        });
+                logger.info("Found delivery address: {}", deliveryAddress);
+            }
+        }
+
+        // Mise à jour du mode de livraison en fonction de l'option choisie
+        deliveryMethod.setDeliveryOption(requestDTO.getDeliveryOption());
+        deliveryMethod.setDeliveryAddress(deliveryAddress);  // Mettre à jour l'adresse du mode de livraison
+
+        // Mise à jour des informations spécifiques selon le mode de livraison
+        if (requestDTO.getDeliveryOption() == DeliveryOption.HOME_STANDARD) {
+            logger.info("Switching to HOME_STANDARD delivery");
+            if (deliveryMethod instanceof HomeExpressDelivery) {
+                HomeExpressDelivery homeExpressDelivery = (HomeExpressDelivery) deliveryMethod;
+                homeExpressDelivery.setDeliveryAddress(deliveryAddress);
+                homeExpressDelivery.setUser(deliveryMethod.getUser());
+                homeExpressDelivery.setDeliveryOption(requestDTO.getDeliveryOption());  // Mise à jour du type
+                homeExpressDeliveryRepository.save(homeExpressDelivery); // Sauvegarde l'entité enfant avec l'entité parente
+                logger.info("Updated HOME_STANDARD delivery method: {}", homeExpressDelivery);
+            } else {
+                logger.error("Delivery method is not of type HomeExpressDelivery, cannot switch to HOME_STANDARD");
+            }
+
+        } else if (requestDTO.getDeliveryOption() == DeliveryOption.HOME_EXPRESS) {
+            logger.info("Switching to HOME_EXPRESS delivery");
+            if (deliveryMethod instanceof HomeStandardDelivery homeStandardDelivery) {
+                homeStandardDelivery.setDeliveryAddress(deliveryAddress);
+                homeStandardDelivery.setUser(deliveryMethod.getUser());
+                homeStandardDelivery.setDeliveryOption(requestDTO.getDeliveryOption());
+                homeStandardDeliveryRepository.save(homeStandardDelivery);
+                logger.info("Updated HOME_EXPRESS delivery method: {}", homeStandardDelivery);
+            } else {
+                logger.error("Delivery method is not of type HomeStandardDelivery, cannot switch to HOME_EXPRESS");
+            }
+
+        } else if (requestDTO.getDeliveryOption() == DeliveryOption.PICKUP_POINT) {
+            logger.info("Switching to PICKUP_POINT delivery");
+            if (deliveryMethod instanceof PickupPointDelivery pickupPointDelivery) {
+                pickupPointDelivery.setPickupPointName("New Pickup Point");
+                pickupPointDelivery.setUser(deliveryMethod.getUser());
+                pickupPointDelivery.setDeliveryAddress(deliveryAddress);
+                pickupPointDelivery.setDeliveryOption(requestDTO.getDeliveryOption());
+                pickupPointDeliveryRepository.save(pickupPointDelivery);
+                logger.info("Updated PICKUP_POINT delivery method: {}", pickupPointDelivery);
+            } else {
+                logger.error("Delivery method is not of type PickupPointDelivery, cannot switch to PICKUP_POINT");
+            }
+        }
+
+        // Sauvegarde du livraison avec l'adresse mise à jour
+        deliveryMethodRepository.save(deliveryMethod);
+        logger.info("Successfully updated delivery method with ID: {}", deliveryMethodId);
+    }
+
 }

@@ -6,14 +6,16 @@ import java.time.LocalDate;
 
 @Entity
 public class HomeExpressDelivery extends DeliveryMethod {
-    @OneToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "delivery_address_id", referencedColumnName = "id")
-    private DeliveryAddress deliveryAddress;
     private static final int DELIVERY_DAYS = 2;
     private static final double DELIVERY_COST = 10.0;
-    public HomeExpressDelivery() {}
-    public HomeExpressDelivery(DeliveryAddress deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
+    public HomeExpressDelivery() {
+        super();
+    }
+    public HomeExpressDelivery(DeliveryAddress deliveryAddress, User user) {
+        super();
+        this.setDeliveryAddress(deliveryAddress);
+        this.setUser(user);
+        this.setDeliveryOption(DeliveryOption.HOME_EXPRESS);
     }
     @Override
     public int calculateDeliveryTime() {
@@ -38,15 +40,5 @@ public class HomeExpressDelivery extends DeliveryMethod {
     public LocalDate calculateExpectedDeliveryDate() {
         LocalDate currentDate = LocalDate.now();
         return currentDate.plusDays(DELIVERY_DAYS);
-    }
-    @Override
-    public String getFullAddress() {
-        return deliveryAddress.getFullAddress();
-    }
-    public DeliveryAddress getDeliveryAddress() {
-        return deliveryAddress;
-    }
-    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
     }
 }

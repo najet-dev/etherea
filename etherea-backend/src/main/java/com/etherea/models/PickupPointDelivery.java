@@ -13,13 +13,19 @@ public class PickupPointDelivery extends DeliveryMethod {
     private String pickupPointAddress;
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
-    public PickupPointDelivery() {}
+    public PickupPointDelivery() {
+        super();
+    }
     public PickupPointDelivery(String pickupPointName, String pickupPointAddress,
-                               Double pickupPointLatitude, Double pickupPointLongitude, User user) {
+                               double pickupPointLatitude, double pickupPointLongitude,
+                               User user) {
+        super();
         this.pickupPointName = pickupPointName;
         this.pickupPointAddress = pickupPointAddress;
-        this.pickupPointLatitude = pickupPointLatitude != null ? pickupPointLatitude : 0.0;
-        this.pickupPointLongitude = pickupPointLongitude != null ? pickupPointLongitude : 0.0;
+        this.pickupPointLatitude = pickupPointLatitude;
+        this.pickupPointLongitude = pickupPointLongitude;
+        this.setUser(user);
+        this.setDeliveryOption(DeliveryOption.PICKUP_POINT);
     }
     @Override
     public int calculateDeliveryTime() {

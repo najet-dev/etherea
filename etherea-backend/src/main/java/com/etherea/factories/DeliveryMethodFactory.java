@@ -21,13 +21,13 @@ public class DeliveryMethodFactory {
                 if (deliveryAddress == null) {
                     throw new IllegalArgumentException("Delivery address required for express home delivery.");
                 }
-                yield new HomeExpressDelivery(deliveryAddress);
+                yield new HomeExpressDelivery(deliveryAddress, user);
             }
             case HOME_STANDARD -> {
                 if (deliveryAddress == null) {
                     throw new IllegalArgumentException("Delivery address required for standard home delivery.");
                 }
-                yield new HomeStandardDelivery(deliveryAddress);
+                yield new HomeStandardDelivery(deliveryAddress, user);
             }
             case PICKUP_POINT -> {
                 if (pickupPointName == null || pickupPointName.isBlank() ||
