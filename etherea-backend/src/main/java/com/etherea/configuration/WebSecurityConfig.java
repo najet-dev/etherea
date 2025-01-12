@@ -58,7 +58,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/favorites/**").permitAll()
                                 .requestMatchers("/deliveryAddresses/**").permitAll()
                                 .requestMatchers("/deliveryMethods/**").permitAll()
-
+                                .requestMatchers("/payments/**").permitAll()
                                 .anyRequest().authenticated()
                 );
         http.authenticationProvider(authenticationProvider());
