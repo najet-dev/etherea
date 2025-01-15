@@ -3,6 +3,10 @@ package com.etherea.models;
 import com.etherea.enums.PaymentOption;
 import com.etherea.enums.PaymentStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
 
 @Entity
 public class PaymentMethod {
@@ -14,11 +18,16 @@ public class PaymentMethod {
     private String transactionId;      // ID de transaction
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
     public PaymentMethod() {}
     public PaymentMethod(PaymentOption paymentOption, String transactionId, PaymentStatus paymentStatus) {
         this.paymentOption = paymentOption;
-        this.paymentStatus = paymentStatus;
         this.transactionId = transactionId;
+        this.paymentStatus = paymentStatus;
     }
     // Getters et Setters
     public Long getId() {

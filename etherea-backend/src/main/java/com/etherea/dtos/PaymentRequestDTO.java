@@ -1,49 +1,40 @@
 package com.etherea.dtos;
 
-import com.etherea.enums.PaymentOption;
+import jakarta.validation.constraints.NotNull;
 
 public class PaymentRequestDTO {
-    private PaymentOption paymentOption;
-    private String currency;
-    private Long amount;
-    private String paymentMethodId;
-    public PaymentRequestDTO() {}
-    public PaymentRequestDTO(PaymentOption paymentOption, String currency, Long amount) {
-        this.paymentOption = paymentOption;
-        this.currency = currency;
-        this.amount = amount;
-    }
+    @NotNull
+    private String cardNumber;
+    @NotNull
+    private String expiryDate;
+    @NotNull
+    private String cvc;
+    @NotNull
+    private Long cartId;
 
     // Getters et Setters
-    public PaymentOption getPaymentOption() {
-        return paymentOption;
+    public String getCardNumber() {
+        return cardNumber;
     }
-
-    public void setPaymentOption(PaymentOption paymentOption) {
-        this.paymentOption = paymentOption;
+    public void setCardNumber(String cardNumber) {
+        this.cardNumber = cardNumber;
     }
-
-    public String getCurrency() {
-        return currency;
+    public String getExpiryDate() {
+        return expiryDate;
     }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
+    public void setExpiryDate(String expiryDate) {
+        this.expiryDate = expiryDate;
     }
-
-    public Long getAmount() {
-        return amount;
+    public String getCvc() {
+        return cvc;
     }
-
-    public void setAmount(Long amount) {
-        this.amount = amount;
+    public void setCvc(String cvc) {
+        this.cvc = cvc;
     }
-
-    public String getPaymentMethodId() {
-        return paymentMethodId;
+    public Long getCartId() {
+        return cartId;
     }
-
-    public void setPaymentMethodId(String paymentMethodId) {
-        this.paymentMethodId = paymentMethodId;
+    public void setCartId(Long cartId) {
+        this.cartId = cartId;
     }
 }
