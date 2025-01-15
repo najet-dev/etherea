@@ -20,7 +20,7 @@ public class DeliveryMethodDTO {
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
     private DeliveryMethodDTO(Builder builder) {
-        // Validation spécifique au type de livraison
+        // Delivery type-specific validation
         if (builder.deliveryOption == DeliveryOption.PICKUP_POINT) {
             if (builder.pickupPointName == null || builder.pickupPointAddress == null) {
                 throw new DeliveryMethodNotFoundException("Les informations du point de collecte sont manquantes pour une livraison en point relais.");
@@ -30,7 +30,6 @@ public class DeliveryMethodDTO {
                 throw new DeliveryAddressNotFoundException("L'adresse de livraison est obligatoire pour une livraison à domicile.");
             }
         }
-
         this.id = builder.id;
         this.deliveryOption = builder.deliveryOption;
         this.expectedDeliveryDate = builder.expectedDeliveryDate;

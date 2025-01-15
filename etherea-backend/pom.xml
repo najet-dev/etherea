@@ -113,27 +113,12 @@
 			<artifactId>caffeine</artifactId>
 			<version>3.1.8</version>
 		</dependency>
-
-
-
-
-
-		<!-- Swagger 2 pour la documentation de l'API -->
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger2</artifactId>
-			<version>2.10.5</version>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>28.2.0</version>
 		</dependency>
-
-		<!-- Swagger UI pour la visualisation de l'API -->
-		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-swagger-ui</artifactId>
-			<version>2.10.4</version>
-		</dependency>
-
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>

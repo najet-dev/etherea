@@ -11,22 +11,17 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_method_id")
     private DeliveryMethod deliveryMethod;
 
     // Constructors, getters, and setters...
-
     public Cart() {}
-
     public Cart(Long id, List<CartItem> items, User user, DeliveryMethod deliveryMethod) {
         this.id = id;
         this.items = items;
