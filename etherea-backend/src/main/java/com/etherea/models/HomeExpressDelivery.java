@@ -8,22 +8,25 @@ import java.time.LocalDate;
 public class HomeExpressDelivery extends DeliveryMethod {
     private static final int DELIVERY_DAYS = 2;
     private static final double DELIVERY_COST = 10.0;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "delivery_address_id", nullable = false)
+    private DeliveryAddress deliveryAddress;
     public HomeExpressDelivery() {
         super();
     }
     public HomeExpressDelivery(DeliveryAddress deliveryAddress, User user) {
-        super();
-        this.setDeliveryAddress(deliveryAddress);
-        this.setUser(user);
-        this.setDeliveryOption(DeliveryOption.HOME_EXPRESS);
+        super(user, DeliveryOption.HOME_EXPRESS);
+        this.deliveryAddress = deliveryAddress;
+    }
+    public DeliveryAddress getDeliveryAddress() {
+        return deliveryAddress;
+    }
+    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
     @Override
     public int calculateDeliveryTime() {
         return DELIVERY_DAYS;
-    }
-    @Override
-    public DeliveryOption getDeliveryOption() {
-        return DeliveryOption.HOME_EXPRESS;
     }
     @Override
     public String getDescription() {
@@ -31,14 +34,10 @@ public class HomeExpressDelivery extends DeliveryMethod {
     }
     @Override
     public double calculateCost(double totalAmount) {
-        if (isFreeShipping(totalAmount)) {
-            return 0.0;
-        }
-        return DELIVERY_COST;
+        return isFreeShipping(totalAmount) ? 0.0 : DELIVERY_COST;
     }
     @Override
     public LocalDate calculateExpectedDeliveryDate() {
-        LocalDate currentDate = LocalDate.now();
-        return currentDate.plusDays(DELIVERY_DAYS);
+        return LocalDate.now().plusDays(DELIVERY_DAYS);
     }
 }

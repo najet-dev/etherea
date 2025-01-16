@@ -38,7 +38,6 @@ public class User {
         this.username = username;
         this.password = password;
     }
-
     // Getters et Setters
     public Long getId() {
         return id;
@@ -100,8 +99,6 @@ public class User {
     public void setCommands(List<Command> commands) {
         this.commands = commands;
     }
-
-    // Getter et Setter pour les addresses
     public List<DeliveryAddress> getAddresses() {
         return addresses;
     }
@@ -109,7 +106,7 @@ public class User {
         this.addresses = addresses;
     }
 
-    // Méthode pour obtenir l'adresse par défaut
+    // Default address method
     public DeliveryAddress getDefaultAddress() {
         return this.getAddresses().stream()
                 .filter(DeliveryAddress::isDefault)
