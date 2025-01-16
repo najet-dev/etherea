@@ -7,13 +7,22 @@ import java.time.LocalDate;
 
 @Entity
 public class HomeStandardDelivery extends DeliveryMethod {
-    @OneToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "delivery_address_id", referencedColumnName = "id")
-    private DeliveryAddress deliveryAddress;
     private static final int DELIVERY_DAYS = 7;
     private static final double DELIVERY_COST = 5.0;
-    public HomeStandardDelivery() {}
-    public HomeStandardDelivery(DeliveryAddress deliveryAddress) {
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "delivery_address_id", nullable = false)
+    private DeliveryAddress deliveryAddress;
+    public HomeStandardDelivery() {
+        super();
+    }
+    public HomeStandardDelivery(DeliveryAddress deliveryAddress, User user) {
+        super(user, DeliveryOption.HOME_STANDARD);
+        this.deliveryAddress = deliveryAddress;
+    }
+    public DeliveryAddress getDeliveryAddress() {
+        return deliveryAddress;
+    }
+    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
     }
     @Override
@@ -21,33 +30,15 @@ public class HomeStandardDelivery extends DeliveryMethod {
         return DELIVERY_DAYS;
     }
     @Override
-    public DeliveryOption getDeliveryOption() {
-        return DeliveryOption.HOME_STANDARD;
-    }
-    @Override
     public String getDescription() {
         return "Standard home delivery (7 working days)";
     }
     @Override
     public double calculateCost(double totalAmount) {
-        if (isFreeShipping(totalAmount)) {
-            return 0.0;
-        }
-        return DELIVERY_COST;
+        return isFreeShipping(totalAmount) ? 0.0 : DELIVERY_COST;
     }
     @Override
     public LocalDate calculateExpectedDeliveryDate() {
-        LocalDate currentDate = LocalDate.now();
-        return currentDate.plusDays(DELIVERY_DAYS);
-    }
-    @Override
-    public String getFullAddress() {
-        return deliveryAddress.getFullAddress();
-    }
-    public DeliveryAddress getDeliveryAddress() {
-        return deliveryAddress;
-    }
-    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
+        return LocalDate.now().plusDays(DELIVERY_DAYS);
     }
 }

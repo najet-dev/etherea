@@ -16,29 +16,44 @@ public class DeliveryMethodFactory {
         if (option == null) {
             throw new IllegalArgumentException("Delivery option must be specified.");
         }
+
         return switch (option) {
             case HOME_EXPRESS -> {
                 if (deliveryAddress == null) {
-                    throw new IllegalArgumentException("Delivery address required for express home delivery.");
+                    throw new IllegalArgumentException("Delivery address is required for express home delivery.");
                 }
-                yield new HomeExpressDelivery(deliveryAddress);
+                if (user == null) {
+                    throw new IllegalArgumentException("User must be specified for express home delivery.");
+                }
+                yield new HomeExpressDelivery(deliveryAddress, user);
             }
             case HOME_STANDARD -> {
                 if (deliveryAddress == null) {
-                    throw new IllegalArgumentException("Delivery address required for standard home delivery.");
+                    throw new IllegalArgumentException("Delivery address is required for standard home delivery.");
                 }
-                yield new HomeStandardDelivery(deliveryAddress);
+                if (user == null) {
+                    throw new IllegalArgumentException("User must be specified for standard home delivery.");
+                }
+                yield new HomeStandardDelivery(deliveryAddress, user);
             }
             case PICKUP_POINT -> {
                 if (pickupPointName == null || pickupPointName.isBlank() ||
                         pickupPointAddress == null || pickupPointAddress.isBlank() ||
-                        latitude == null || longitude == null ||
-                        user == null) {
-                    throw new IllegalArgumentException("The relay point information is incomplete.");
+                        latitude == null || longitude == null) {
+                    throw new IllegalArgumentException("Relay point information is incomplete.");
                 }
-                yield new PickupPointDelivery(pickupPointName, pickupPointAddress, latitude, longitude, user);
+                if (user == null) {
+                    throw new IllegalArgumentException("User must be specified for pickup point delivery.");
+                }
+                yield new PickupPointDelivery(
+                        pickupPointName,
+                        pickupPointAddress,
+                        latitude,
+                        longitude,
+                        user
+                );
             }
-            default -> throw new IllegalArgumentException("Delivery option not supported: " + option);
+            default -> throw new IllegalArgumentException("Unsupported delivery option: " + option);
         };
     }
 }

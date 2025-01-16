@@ -13,13 +13,17 @@ public class PickupPointDelivery extends DeliveryMethod {
     private String pickupPointAddress;
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
-    public PickupPointDelivery() {}
+    public PickupPointDelivery() {
+        super();
+    }
     public PickupPointDelivery(String pickupPointName, String pickupPointAddress,
-                               Double pickupPointLatitude, Double pickupPointLongitude, User user) {
+                               double pickupPointLatitude, double pickupPointLongitude,
+                               User user) {
+        super(user, DeliveryOption.PICKUP_POINT);
         this.pickupPointName = pickupPointName;
         this.pickupPointAddress = pickupPointAddress;
-        this.pickupPointLatitude = pickupPointLatitude != null ? pickupPointLatitude : 0.0;
-        this.pickupPointLongitude = pickupPointLongitude != null ? pickupPointLongitude : 0.0;
+        this.pickupPointLatitude = pickupPointLatitude;
+        this.pickupPointLongitude = pickupPointLongitude;
     }
     @Override
     public int calculateDeliveryTime() {
@@ -54,7 +58,6 @@ public class PickupPointDelivery extends DeliveryMethod {
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
-
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }
@@ -69,10 +72,5 @@ public class PickupPointDelivery extends DeliveryMethod {
     public LocalDate calculateExpectedDeliveryDate() {
         LocalDate currentDate = LocalDate.now();
         return currentDate.plusDays(DELIVERY_DAYS);
-    }
-    @Override
-    public String getFullAddress() {
-        return String.format("%s, %s [Lat: %f, Lon: %f]",
-                pickupPointName, pickupPointAddress, pickupPointLatitude, pickupPointLongitude);
     }
 }

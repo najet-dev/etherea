@@ -13,10 +13,7 @@ public class CartDTO {
     private double deliveryCost;
     private boolean freeShipping;
     private DeliveryMethodDTO deliveryMethod;
-
-    // Constructeurs
     public CartDTO() {}
-
     public CartDTO(Long cartId, List<CartItemDTO> items, double totalAmount, double deliveryCost, boolean freeShipping, DeliveryMethodDTO deliveryMethod) {
         this.cartId = cartId;
         this.items = items;

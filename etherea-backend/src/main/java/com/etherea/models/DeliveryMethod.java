@@ -17,11 +17,22 @@ public abstract class DeliveryMethod {
     private static final double FREE_SHIPPING_THRESHOLD = 50.0;
     @Enumerated(EnumType.STRING)
     private DeliveryOption deliveryOption;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    protected DeliveryMethod() {}
+    public DeliveryMethod(User user, DeliveryOption deliveryOption) {
+        if (user == null) {
+            throw new IllegalArgumentException("User cannot be null.");
+        }
+        if (deliveryOption == null) {
+            throw new IllegalArgumentException("Delivery option cannot be null.");
+        }
+        this.user = user;
+        this.deliveryOption = deliveryOption;
+    }
 
-    // Getters et Setters
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -56,13 +67,9 @@ public abstract class DeliveryMethod {
         return totalAmount >= FREE_SHIPPING_THRESHOLD;
     }
     public double calculateCost(double totalAmount) {
-        if (isFreeShipping(totalAmount)) {
-            return 0.0;
-        }
-        return getDeliveryOption().getBaseCost();
+        return isFreeShipping(totalAmount) ? 0.0 : getDeliveryOption().getBaseCost();
     }
     public abstract int calculateDeliveryTime();
-    public abstract String getFullAddress();
     public abstract String getDescription();
     public abstract LocalDate calculateExpectedDeliveryDate();
 }
