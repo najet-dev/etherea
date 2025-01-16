@@ -12,9 +12,14 @@ public class HomeStandardDelivery extends DeliveryMethod {
     private DeliveryAddress deliveryAddress;
     private static final int DELIVERY_DAYS = 7;
     private static final double DELIVERY_COST = 5.0;
-    public HomeStandardDelivery() {}
-    public HomeStandardDelivery(DeliveryAddress deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
+    public HomeStandardDelivery() {
+        super();
+    }
+    public HomeStandardDelivery(DeliveryAddress deliveryAddress, User user) {
+        super();
+        this.setDeliveryAddress(deliveryAddress);
+        this.setUser(user);
+        this.setDeliveryOption(DeliveryOption.HOME_STANDARD);
     }
     @Override
     public int calculateDeliveryTime() {
@@ -39,15 +44,5 @@ public class HomeStandardDelivery extends DeliveryMethod {
     public LocalDate calculateExpectedDeliveryDate() {
         LocalDate currentDate = LocalDate.now();
         return currentDate.plusDays(DELIVERY_DAYS);
-    }
-    @Override
-    public String getFullAddress() {
-        return deliveryAddress.getFullAddress();
-    }
-    public DeliveryAddress getDeliveryAddress() {
-        return deliveryAddress;
-    }
-    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
     }
 }

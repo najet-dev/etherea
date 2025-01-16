@@ -21,6 +21,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -125,19 +127,24 @@ public class DeliveryMethodService {
      * @return A `CartWithDeliveryDTO` containing the cart total, delivery cost, and final total.
      */
     public CartWithDeliveryDTO getCartWithDeliveryTotal(Long userId, DeliveryOption selectedOption) {
-
         // Retrieve and calculate shopping cart
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException("Shopping cart not found for user."));
 
+        // Calculate cart total (items total)
         double cartTotal = cart.calculateTotalAmount().doubleValue();
 
         // Calculate delivery costs
         double deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, selectedOption);
 
-        // Calculate total
+        // Calculate total with delivery
         double total = cartTotal + deliveryCost;
 
+        // Update the finalTotal in the cart (including the delivery cost)
+        cart.setFinalTotal(BigDecimal.valueOf(total));  // Assuming finalTotal is of type BigDecimal
+        cartRepository.save(cart);  // Don't forget to save the updated cart
+
+        // Return the DTO with the updated totals
         return new CartWithDeliveryDTO(cartTotal, deliveryCost, total);
     }
 
@@ -196,7 +203,7 @@ public class DeliveryMethodService {
                 requestDTO.getPickupPointAddress(),
                 requestDTO.getPickupPointLatitude(),
                 requestDTO.getPickupPointLongitude(),
-                user // Ajout de l'utilisateur
+                user
         );
 
         // Set delivery option explicitly

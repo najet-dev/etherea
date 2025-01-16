@@ -18,9 +18,18 @@ public abstract class DeliveryMethod {
     @Enumerated(EnumType.STRING)
     private DeliveryOption deliveryOption;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
-
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_address_id", referencedColumnName = "id")
+    private DeliveryAddress deliveryAddress;
+    DeliveryMethod(){}
+    public DeliveryAddress getDeliveryAddress() {
+        return deliveryAddress;
+    }
+    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
+    }
     // Getters et Setters
     public Long getId() {
         return id;
@@ -62,7 +71,8 @@ public abstract class DeliveryMethod {
         return getDeliveryOption().getBaseCost();
     }
     public abstract int calculateDeliveryTime();
-    public abstract String getFullAddress();
-    public abstract String getDescription();
+    public String getFullAddress() {
+        return deliveryAddress != null ? deliveryAddress.getFullAddress() : "No address available";
+    }    public abstract String getDescription();
     public abstract LocalDate calculateExpectedDeliveryDate();
 }

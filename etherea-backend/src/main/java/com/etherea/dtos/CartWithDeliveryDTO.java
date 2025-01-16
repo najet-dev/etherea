@@ -4,7 +4,6 @@ public class CartWithDeliveryDTO {
     private double cartTotal;
     private double deliveryCost;
     private double total;
-
     public CartWithDeliveryDTO(double cartTotal, double deliveryCost, double total) {
         this.cartTotal = cartTotal;
         this.deliveryCost = deliveryCost;

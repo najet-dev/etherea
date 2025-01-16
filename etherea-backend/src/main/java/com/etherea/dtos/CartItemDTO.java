@@ -76,7 +76,7 @@ public class CartItemDTO {
     }
     public CartItem toCartItem(User user, Product product, Volume volume) {
         CartItem cartItem = new CartItem();
-        cartItem.setId(this.id);  // Optionnel pour mise à jour
+        cartItem.setId(this.id);
         cartItem.setQuantity(this.quantity);
         cartItem.setUser(user);
         cartItem.setProduct(product);
