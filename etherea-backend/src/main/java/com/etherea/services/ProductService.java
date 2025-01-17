@@ -64,6 +64,7 @@ public class ProductService {
                 .map(ProductDTO::fromProduct)
                 .collect(Collectors.toList());
     }
+
     public ProductDTO getProductById(Long id) {
         return productRepository.findById(id)
                 .map(ProductDTO::fromProduct)
@@ -84,7 +85,6 @@ public class ProductService {
         }
 
         Product product = convertToProduct(productDTO);
-        product.updateStockStatus(); // Mise à jour du statut du stock avant la sauvegarde
         productRepository.save(product);
 
         return ResponseEntity.ok("Product saved successfully");
@@ -102,16 +102,8 @@ public class ProductService {
                 existingProduct.setImage(uploadedImagePath);
             }
         }
-        existingProduct.updateStockStatus(); // Dynamic stock status update
-        productRepository.save(existingProduct);
-    }
-    @Transactional
-    public void decrementProductStock(Long productId, int quantity) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("No product found with ID: " + productId));
 
-        product.decrementStock(quantity); // Decrement and automatically update status
-        productRepository.save(product);
+        productRepository.save(existingProduct);
     }
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
@@ -183,8 +175,6 @@ public class ProductService {
         }
     }
     private Product convertToProduct(ProductDTO productDTO) {
-        Product product = modelMapper.map(productDTO, Product.class);
-        product.updateStockStatus(); // Initialize stock status on conversion
-        return product;
+        return modelMapper.map(productDTO, Product.class);
     }
 }

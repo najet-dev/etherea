@@ -45,7 +45,6 @@ public class Product {
         this.ingredients = ingredients;
         this.characteristics = characteristics;
         this.image = image;
-        updateStockStatus(); // Update stock status
     }
     // Getters and Setters
     public Long getId() { return id; }
@@ -61,7 +60,6 @@ public class Product {
     public int getStockQuantity() { return stockQuantity; }
     public void setStockQuantity(int stockQuantity) {
         this.stockQuantity = stockQuantity;
-        updateStockStatus();  // Dynamic update of stock status
     }
     public StockStatus getStockStatus() { return stockStatus; }
     private void setStockStatus(StockStatus stockStatus) { this.stockStatus = stockStatus; }
@@ -90,21 +88,5 @@ public class Product {
     public void updateVolumes(List<Volume> newVolumes) {
         this.volumes.clear();
         newVolumes.forEach(this::addVolume);
-    }
-
-    // Méthodes pour gérer le stock
-    public void decrementStock(int quantity) {
-        if (stockQuantity < quantity) {
-            throw new IllegalArgumentException("Not enough stock available");
-        }
-        this.stockQuantity -= quantity;
-        updateStockStatus();
-    }
-    public void updateStockStatus() {
-        this.stockStatus = (this.stockQuantity > 0) ? StockStatus.AVAILABLE : StockStatus.OUT_OF_STOCK;
-    }
-    // Check if the product is available
-    public boolean isAvailable() {
-        return this.stockStatus == StockStatus.AVAILABLE;
     }
 }

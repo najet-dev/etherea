@@ -60,34 +60,43 @@ public class CartItemService {
 
     /**
      * Adds a product to the user's cart.
-     * If the product already exists in the cart, its quantity is updated.
+     * If the product already exists in the cart, its quantity is updated by adding the new quantity to the existing one.
      *
-     * @param userId   The ID of the user.
-     * @param productId The ID of the product.
-     * @param volumeId The ID of the volume, if applicable.
-     * @param quantity The quantity to add to the cart.
-     * @throws IllegalArgumentException If the quantity is less than or equal to 0, or if the product type is inconsistent with the volume.
-     * @throws UserNotFoundException If no user is found with the given ID.
-     * @throws ProductNotFoundException If no product is found with the given ID.
-     * @throws VolumeNotFoundException If no volume is found with the given ID.
+     * @param cartItemDTO The DTO containing the details of the cart item to be added, including the user ID, product ID, volume ID (if applicable), and the quantity to add.
+     * @throws IllegalArgumentException If the quantity is less than or equal to 0, if there is insufficient stock for the product, or if the product type is inconsistent with the volume.
+     * @throws UserNotFoundException If no user is found with the given user ID.
+     * @throws ProductNotFoundException If no product is found with the given product ID.
+     * @throws VolumeNotFoundException If no volume is found with the given volume ID for hair products.
      */
     @Transactional
-    public void addProductToUserCart(Long userId, Long productId, Long volumeId, int quantity) {
-        if (quantity <= 0) {
+    public void addProductToUserCart(CartItemDTO cartItemDTO) {
+        if (cartItemDTO.getQuantity() <= 0) {
             throw new IllegalArgumentException("Quantity must be greater than 0.");
         }
+
+        Long userId = cartItemDTO.getUserId();
+        Long productId = cartItemDTO.getProductId();
+        Long volumeId = cartItemDTO.getVolumeId();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
-        // Vérifier la disponibilité du stock
-        if (product.getStockQuantity() < quantity) {
+        // Vérification de la quantité en stock
+        if (product.getStockQuantity() < cartItemDTO.getQuantity()) {
             throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
         }
 
-        // Create or retrieve the user's cart
+        Volume volume = null;
+        if (product.getType() == ProductType.HAIR) {
+            if (volumeId == null) {
+                throw new IllegalArgumentException("HAIR products require a volume.");
+            }
+            volume = volumeRepository.findById(volumeId)
+                    .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID: " + volumeId));
+        }
+
         Cart cart = user.getCart();
         if (cart == null) {
             cart = new Cart();
@@ -95,43 +104,33 @@ public class CartItemService {
             cartRepository.save(cart);
         }
 
-        CartItem existingCartItem;
-        Volume volume = null;
-
-        if (product.getType() == ProductType.HAIR) {
-            if (volumeId == null) {
-                throw new IllegalArgumentException("HAIR products require a volume.");
-            }
-            volume = volumeRepository.findById(volumeId)
-                    .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID: " + volumeId));
-        } else if (product.getType() == ProductType.FACE && volumeId != null) {
-            throw new IllegalArgumentException("FACE products should not have a volume.");
-        }
-
-        existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
+        CartItem existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
 
         if (existingCartItem != null) {
-            int totalQuantity = existingCartItem.getQuantity() + quantity;
+            // Mise à jour de la quantité (et du stock)
+            int previousQuantity = existingCartItem.getQuantity();
+            int newQuantity = previousQuantity + cartItemDTO.getQuantity();
 
-            // Vérifier si la quantité totale dépasse le stock disponible
-            if (product.getStockQuantity() < totalQuantity) {
+            if (product.getStockQuantity() < newQuantity - previousQuantity) {
                 throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
             }
 
-            existingCartItem.setQuantity(totalQuantity);
-            existingCartItem.setSubTotal(existingCartItem.calculateSubtotal());
+            product.setStockQuantity(product.getStockQuantity() - (newQuantity - previousQuantity));
+            existingCartItem.setQuantity(newQuantity);
+            existingCartItem.setSubTotal(calculateSubtotal(product, volume, newQuantity));
         } else {
-            CartItem newCartItem = new CartItem();
-            newCartItem.setUser(user);
+            // Ajouter un nouvel article et ajuster le stock
+            product.setStockQuantity(product.getStockQuantity() - cartItemDTO.getQuantity());
+            CartItem newCartItem = cartItemDTO.toCartItem();
             newCartItem.setProduct(product);
             newCartItem.setVolume(volume);
-            newCartItem.setQuantity(quantity);
-            newCartItem.setSubTotal(calculateSubtotal(product, volume, quantity));
-            newCartItem.setCart(cart); // Link the item to the cart
+            newCartItem.setCart(cart);
+            newCartItem.setSubTotal(calculateSubtotal(product, volume, cartItemDTO.getQuantity()));
             cartItemRepository.save(newCartItem);
         }
 
-        updateCartTotal(userId);
+        productRepository.save(product); // Enregistrer la mise à jour du stock
+        updateCartTotal(userId); // Mettre à jour le total du panier
     }
 
     /**
@@ -171,21 +170,22 @@ public class CartItemService {
     /**
      * Updates the quantity of a specific cart item.
      *
-     * @param userId   The ID of the user.
-     * @param productId The ID of the product.
-     * @param volumeId The ID of the volume, if applicable.
-     * @param quantity The new quantity to update to.
-     * @throws IllegalArgumentException If the quantity is less than or equal to 0, or if the product type is inconsistent with the volume.
-     * @throws CartItemNotFoundException If the cart item cannot be found.
-     * @throws UserNotFoundException If no user is found with the given ID.
-     * @throws ProductNotFoundException If no product is found with the given ID.
-     * @throws VolumeNotFoundException If no volume is found with the given ID.
+     * @param cartItemDTO The DTO containing the cart item details, including the user ID, product ID, volume ID (if applicable), and the new quantity.
+     * @throws IllegalArgumentException If the quantity is less than or equal to 0, or if the product stock is insufficient for the requested quantity.
+     * @throws CartItemNotFoundException If the cart item for the specified user, product, and volume (if applicable) cannot be found.
+     * @throws UserNotFoundException If no user is found with the given user ID.
+     * @throws ProductNotFoundException If no product is found with the given product ID.
+     * @throws VolumeNotFoundException If the volume (for hair products) cannot be found with the given volume ID.
      */
     @Transactional
-    public void updateCartItemQuantity(Long userId, Long productId, Long volumeId, int quantity) {
-        if (quantity <= 0) {
+    public void updateCartItemQuantity(CartItemDTO cartItemDTO) {
+        if (cartItemDTO.getQuantity() <= 0) {
             throw new IllegalArgumentException("Quantity must be greater than 0.");
         }
+
+        Long userId = cartItemDTO.getUserId();
+        Long productId = cartItemDTO.getProductId();
+        Long volumeId = cartItemDTO.getVolumeId();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -200,34 +200,48 @@ public class CartItemService {
 
         CartItem existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
 
-        if (existingCartItem != null) {
-            // Vérifier la disponibilité du stock
-            if (product.getStockQuantity() < quantity) {
-                throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
-            }
-
-            existingCartItem.setQuantity(quantity);
-            existingCartItem.setSubTotal(existingCartItem.calculateSubtotal());
-            cartItemRepository.save(existingCartItem);
-            updateCartTotal(userId); // Recalculate the cart total
-        } else {
+        if (existingCartItem == null) {
             throw new CartItemNotFoundException("Cart item not found for user ID " + userId + " and product ID " + productId);
         }
-    }
 
+        int previousQuantity = existingCartItem.getQuantity();
+        int newQuantity = cartItemDTO.getQuantity();
+
+        if (product.getStockQuantity() + previousQuantity < newQuantity) {
+            throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
+        }
+
+        product.setStockQuantity(product.getStockQuantity() + previousQuantity - newQuantity);
+        existingCartItem.setQuantity(newQuantity);
+        existingCartItem.setSubTotal(calculateSubtotal(product, volume, newQuantity));
+
+        productRepository.save(product); // Enregistrer la mise à jour du stock
+        cartItemRepository.save(existingCartItem);
+
+        updateCartTotal(userId); // Mettre à jour le total du panier
+    }
     /**
      * Deletes a specific cart item from the user's cart.
      *
      * @param id The ID of the cart item to delete.
      * @throws CartItemNotFoundException If no cart item is found with the given ID.
      */
+    @Transactional
     public void deleteCartItem(Long id) {
         CartItem cartItemToDelete = cartItemRepository.findById(id)
                 .orElseThrow(() -> new CartItemNotFoundException("CartItem with id " + id + " not found"));
 
+        Product product = cartItemToDelete.getProduct();
+        int quantity = cartItemToDelete.getQuantity();
+
+        // Rétablissement du stock
+        product.setStockQuantity(product.getStockQuantity() + quantity);
+        productRepository.save(product);
+
         Long userId = cartItemToDelete.getUser().getId();
         cartItemRepository.delete(cartItemToDelete);
 
-        updateCartTotal(userId); // Recalculate the cart total after deletion
+        updateCartTotal(userId); // Recalculer le total du panier
     }
+
 }

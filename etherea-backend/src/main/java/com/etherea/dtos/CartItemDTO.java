@@ -13,11 +13,7 @@ public class CartItemDTO {
     private Long productId;
     private Long volumeId;
     private Long userId;
-    private BigDecimal subTotal; 
-
-    // Constructeurs
     public CartItemDTO() {}
-
     public CartItemDTO(Long id, int quantity, Long productId, Long volumeId, Long userId) {
         this.id = id;
         this.quantity = quantity;
@@ -57,12 +53,6 @@ public class CartItemDTO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-    public BigDecimal getSubTotal() {
-        return subTotal;
-    }
-    public void setSubTotal(BigDecimal subTotal) {
-        this.subTotal = subTotal;
-    }
 
     // Conversion de CartItem vers CartItemDTO
     public static CartItemDTO fromCartItem(CartItem cartItem) {
@@ -95,7 +85,6 @@ public class CartItemDTO {
             cartItem.setVolume(volume);
         }
 
-        // Assigner l'utilisateur
         User user = new User();
         user.setId(this.userId);
         cartItem.setUser(user);

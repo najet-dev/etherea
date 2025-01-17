@@ -42,12 +42,9 @@ public class CartItemController {
         }
     }
     @PostMapping("/addToCart")
-    public ResponseEntity<Map<String, String>> addToCart(@RequestParam Long userId,
-                                                         @RequestParam Long productId,
-                                                         @RequestParam(required = false) Long volumeId,
-                                                         @RequestParam int quantity) {
+    public ResponseEntity<Map<String, String>> addToCart(@RequestBody CartItemDTO cartItemDTO) {
         try {
-            cartItemService.addProductToUserCart(userId, productId, volumeId, quantity);
+            cartItemService.addProductToUserCart(cartItemDTO);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Product added to cart successfully.");
             return ResponseEntity.ok(response);
@@ -65,17 +62,13 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
     @PutMapping("/{userId}/products/{productId}/volume/{volumeId}")
-    public ResponseEntity<Map<String, String>> updateCartItemQuantity(
-            @PathVariable Long userId,
-            @PathVariable Long productId,
-            @PathVariable Long volumeId,
-            @RequestParam int quantity) {
+    public ResponseEntity<Map<String, String>> updateCartItemQuantityForHair(@RequestBody CartItemDTO cartItemDTO) {
         try {
-            cartItemService.updateCartItemQuantity(userId, productId, volumeId, quantity);
+            // Spécifique aux produits de type HAIR (avec volume)
+            cartItemService.updateCartItemQuantity(cartItemDTO);
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Quantity of cart item updated successfully.");
+            response.put("message", "Quantity of HAIR product cart item updated successfully.");
             return ResponseEntity.ok(response);
         } catch (UserNotFoundException | ProductNotFoundException | CartItemNotFoundException |
                  VolumeNotFoundException e) {
@@ -92,13 +85,12 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
     @PutMapping("/{userId}/products/{productId}")
-    public ResponseEntity<Map<String, String>> updateCartItemQuantityForFace(
-            @PathVariable Long userId,
-            @PathVariable Long productId,
-            @RequestParam int quantity) {
+    public ResponseEntity<Map<String, String>> updateCartItemQuantityForFace(@RequestBody CartItemDTO cartItemDTO) {
         try {
-            cartItemService.updateCartItemQuantity(userId, productId, null, quantity);
+            // Spécifique aux produits de type FACE (sans volume)
+            cartItemService.updateCartItemQuantity(cartItemDTO);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Quantity of FACE product cart item updated successfully.");
             return ResponseEntity.ok(response);
