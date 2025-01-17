@@ -65,6 +65,7 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
     @PutMapping("/{userId}/products/{productId}/volume/{volumeId}")
     public ResponseEntity<Map<String, String>> updateCartItemQuantity(
             @PathVariable Long userId,
@@ -83,7 +84,7 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (IllegalArgumentException e) {
             Map<String, String> response = new HashMap<>();
-            response.put("error", "Invalid quantity: " + e.getMessage());
+            response.put("error", "Stock issue: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();

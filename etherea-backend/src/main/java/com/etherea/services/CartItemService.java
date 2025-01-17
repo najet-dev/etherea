@@ -82,6 +82,11 @@ public class CartItemService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
+        // Vérifier la disponibilité du stock
+        if (product.getStockQuantity() < quantity) {
+            throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
+        }
+
         // Create or retrieve the user's cart
         Cart cart = user.getCart();
         if (cart == null) {
@@ -106,7 +111,14 @@ public class CartItemService {
         existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
 
         if (existingCartItem != null) {
-            existingCartItem.setQuantity(existingCartItem.getQuantity() + quantity);
+            int totalQuantity = existingCartItem.getQuantity() + quantity;
+
+            // Vérifier si la quantité totale dépasse le stock disponible
+            if (product.getStockQuantity() < totalQuantity) {
+                throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
+            }
+
+            existingCartItem.setQuantity(totalQuantity);
             existingCartItem.setSubTotal(existingCartItem.calculateSubtotal());
         } else {
             CartItem newCartItem = new CartItem();
@@ -115,7 +127,7 @@ public class CartItemService {
             newCartItem.setVolume(volume);
             newCartItem.setQuantity(quantity);
             newCartItem.setSubTotal(calculateSubtotal(product, volume, quantity));
-            newCartItem.setCart(cart);  // Link the item to the cart
+            newCartItem.setCart(cart); // Link the item to the cart
             cartItemRepository.save(newCartItem);
         }
 
@@ -189,6 +201,11 @@ public class CartItemService {
         CartItem existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
 
         if (existingCartItem != null) {
+            // Vérifier la disponibilité du stock
+            if (product.getStockQuantity() < quantity) {
+                throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
+            }
+
             existingCartItem.setQuantity(quantity);
             existingCartItem.setSubTotal(existingCartItem.calculateSubtotal());
             cartItemRepository.save(existingCartItem);

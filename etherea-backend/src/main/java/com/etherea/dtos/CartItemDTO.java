@@ -2,8 +2,8 @@ package com.etherea.dtos;
 
 import com.etherea.models.CartItem;
 import com.etherea.models.Product;
-import com.etherea.models.User;
 import com.etherea.models.Volume;
+import com.etherea.models.User;
 
 import java.math.BigDecimal;
 
@@ -11,17 +11,19 @@ public class CartItemDTO {
     private Long id;
     private int quantity;
     private Long productId;
-    private VolumeDTO volume;
+    private Long volumeId;
     private Long userId;
-    private BigDecimal subTotal;
+    private BigDecimal subTotal; 
+
+    // Constructeurs
     public CartItemDTO() {}
-    public CartItemDTO(Long id, int quantity, Long productId, VolumeDTO volume, Long userId, BigDecimal subTotal) {
+
+    public CartItemDTO(Long id, int quantity, Long productId, Long volumeId, Long userId) {
         this.id = id;
         this.quantity = quantity;
         this.productId = productId;
-        this.volume = volume;
+        this.volumeId = volumeId;
         this.userId = userId;
-        this.subTotal = subTotal;
     }
 
     // Getters et Setters
@@ -43,11 +45,11 @@ public class CartItemDTO {
     public void setProductId(Long productId) {
         this.productId = productId;
     }
-    public VolumeDTO getVolume() {
-        return volume;
+    public Long getVolumeId() {
+        return volumeId;
     }
-    public void setVolume(VolumeDTO volume) {
-        this.volume = volume;
+    public void setVolumeId(Long volumeId) {
+        this.volumeId = volumeId;
     }
     public Long getUserId() {
         return userId;
@@ -61,27 +63,43 @@ public class CartItemDTO {
     public void setSubTotal(BigDecimal subTotal) {
         this.subTotal = subTotal;
     }
-    public static CartItemDTO fromCartItem(CartItem cartItem) {
-        if (cartItem == null) return null;
 
-        BigDecimal subTotal = cartItem.calculateSubtotal();
+    // Conversion de CartItem vers CartItemDTO
+    public static CartItemDTO fromCartItem(CartItem cartItem) {
+        if (cartItem == null) {
+            return null;
+        }
         return new CartItemDTO(
                 cartItem.getId(),
                 cartItem.getQuantity(),
                 cartItem.getProduct() != null ? cartItem.getProduct().getId() : null,
-                VolumeDTO.fromVolume(cartItem.getVolume()),
-                cartItem.getUser() != null ? cartItem.getUser().getId() : null,
-                subTotal
+                cartItem.getVolume() != null ? cartItem.getVolume().getId() : null,
+                cartItem.getUser() != null ? cartItem.getUser().getId() : null
         );
     }
-    public CartItem toCartItem(User user, Product product, Volume volume) {
+
+    // Conversion de CartItemDTO vers CartItem
+    public CartItem toCartItem() {
         CartItem cartItem = new CartItem();
         cartItem.setId(this.id);
         cartItem.setQuantity(this.quantity);
-        cartItem.setUser(user);
+
+        Product product = new Product();
+        product.setId(this.productId);
         cartItem.setProduct(product);
-        cartItem.setVolume(volume);
-        cartItem.setSubTotal(cartItem.calculateSubtotal());
+
+        Volume volume = null;
+        if (this.volumeId != null) {
+            volume = new Volume();
+            volume.setId(this.volumeId);
+            cartItem.setVolume(volume);
+        }
+
+        // Assigner l'utilisateur
+        User user = new User();
+        user.setId(this.userId);
+        cartItem.setUser(user);
+
         return cartItem;
     }
 }
