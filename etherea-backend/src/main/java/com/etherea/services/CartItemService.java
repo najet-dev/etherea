@@ -1,6 +1,7 @@
 package com.etherea.services;
 
 import com.etherea.dtos.CartItemDTO;
+import com.etherea.dtos.VolumeDTO;
 import com.etherea.enums.ProductType;
 import com.etherea.exception.CartItemNotFoundException;
 import com.etherea.exception.VolumeNotFoundException;
@@ -76,25 +77,20 @@ public class CartItemService {
 
         Long userId = cartItemDTO.getUserId();
         Long productId = cartItemDTO.getProductId();
-        Long volumeId = cartItemDTO.getVolumeId();
+        VolumeDTO volumeDTO = cartItemDTO.getVolume();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
-        // Vérification de la quantité en stock
-        if (product.getStockQuantity() < cartItemDTO.getQuantity()) {
-            throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
-        }
-
         Volume volume = null;
         if (product.getType() == ProductType.HAIR) {
-            if (volumeId == null) {
+            if (volumeDTO == null) {
                 throw new IllegalArgumentException("HAIR products require a volume.");
             }
-            volume = volumeRepository.findById(volumeId)
-                    .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID: " + volumeId));
+            volume = volumeRepository.findById(volumeDTO.getId())
+                    .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID: " + volumeDTO.getId()));
         }
 
         Cart cart = user.getCart();
@@ -107,11 +103,10 @@ public class CartItemService {
         CartItem existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
 
         if (existingCartItem != null) {
-            // Mise à jour de la quantité (et du stock)
             int previousQuantity = existingCartItem.getQuantity();
             int newQuantity = previousQuantity + cartItemDTO.getQuantity();
 
-            if (product.getStockQuantity() < newQuantity - previousQuantity) {
+            if (product.getStockQuantity() < (newQuantity - previousQuantity)) {
                 throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
             }
 
@@ -119,7 +114,6 @@ public class CartItemService {
             existingCartItem.setQuantity(newQuantity);
             existingCartItem.setSubTotal(calculateSubtotal(product, volume, newQuantity));
         } else {
-            // Ajouter un nouvel article et ajuster le stock
             product.setStockQuantity(product.getStockQuantity() - cartItemDTO.getQuantity());
             CartItem newCartItem = cartItemDTO.toCartItem();
             newCartItem.setProduct(product);
@@ -129,8 +123,8 @@ public class CartItemService {
             cartItemRepository.save(newCartItem);
         }
 
-        productRepository.save(product); // Enregistrer la mise à jour du stock
-        updateCartTotal(userId); // Mettre à jour le total du panier
+        productRepository.save(product);
+        updateCartTotal(userId);
     }
 
     /**
@@ -185,7 +179,7 @@ public class CartItemService {
 
         Long userId = cartItemDTO.getUserId();
         Long productId = cartItemDTO.getProductId();
-        Long volumeId = cartItemDTO.getVolumeId();
+        VolumeDTO volumeDTO = cartItemDTO.getVolume();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -193,32 +187,31 @@ public class CartItemService {
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
         Volume volume = null;
-        if (product.getType() == ProductType.HAIR && volumeId != null) {
-            volume = volumeRepository.findById(volumeId)
-                    .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID: " + volumeId));
+        if (product.getType() == ProductType.HAIR && volumeDTO != null) {
+            volume = volumeRepository.findById(volumeDTO.getId())
+                    .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID: " + volumeDTO.getId()));
         }
 
-        CartItem existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
-
-        if (existingCartItem == null) {
-            throw new CartItemNotFoundException("Cart item not found for user ID " + userId + " and product ID " + productId);
+        CartItem cartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
+        if (cartItem == null) {
+            throw new CartItemNotFoundException("Cart item not found for user ID: " + userId +
+                    ", product ID: " + productId + ", and volume ID: " + (volumeDTO != null ? volumeDTO.getId() : "null"));
         }
 
-        int previousQuantity = existingCartItem.getQuantity();
+        int previousQuantity = cartItem.getQuantity();
         int newQuantity = cartItemDTO.getQuantity();
 
-        if (product.getStockQuantity() + previousQuantity < newQuantity) {
+        if (product.getStockQuantity() < (newQuantity - previousQuantity)) {
             throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
         }
 
-        product.setStockQuantity(product.getStockQuantity() + previousQuantity - newQuantity);
-        existingCartItem.setQuantity(newQuantity);
-        existingCartItem.setSubTotal(calculateSubtotal(product, volume, newQuantity));
+        product.setStockQuantity(product.getStockQuantity() - (newQuantity - previousQuantity));
+        cartItem.setQuantity(newQuantity);
+        cartItem.setSubTotal(calculateSubtotal(product, volume, newQuantity));
 
-        productRepository.save(product); // Enregistrer la mise à jour du stock
-        cartItemRepository.save(existingCartItem);
-
-        updateCartTotal(userId); // Mettre à jour le total du panier
+        cartItemRepository.save(cartItem);
+        productRepository.save(product);
+        updateCartTotal(userId);
     }
     /**
      * Deletes a specific cart item from the user's cart.

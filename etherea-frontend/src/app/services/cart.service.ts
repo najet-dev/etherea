@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -10,53 +10,47 @@ import { Cart } from '../components/models/cart.model';
 })
 export class CartService {
   private apiUrl = environment.apiUrl;
-  private cartItemsSubject: BehaviorSubject<Cart[]> = new BehaviorSubject<
-    Cart[]
-  >([]);
-  public carts$ = this.cartItemsSubject.asObservable(); // Observable pour les composants abonnés
+  private cartItemsSubject = new BehaviorSubject<Cart[]>([]);
+  public carts$ = this.cartItemsSubject.asObservable();
 
-  cartUpdated: EventEmitter<void> = new EventEmitter<void>();
+  cartUpdated = new EventEmitter<void>();
 
   constructor(private httpClient: HttpClient) {}
 
-  // Récupérer les articles du panier d'un utilisateur et mettre à jour le BehaviorSubject
   getCartItems(userId: number): Observable<Cart[]> {
     return this.httpClient.get<Cart[]>(`${this.apiUrl}/cart/${userId}`).pipe(
-      tap((cartItems: Cart[]) => {
-        this.cartItemsSubject.next(cartItems); // Met à jour le BehaviorSubject avec les nouveaux éléments du panier
-      }),
+      tap((cartItems) => this.cartItemsSubject.next(cartItems)),
       catchError((error) => {
-        console.error('Error fetching cart items:', error);
-        return throwError(() => error);
+        console.error(
+          'Erreur lors de la récupération des articles du panier :',
+          error
+        );
+        return throwError(
+          () => new Error('Impossible de récupérer les articles du panier.')
+        );
       })
     );
   }
 
-  // Ajouter un article au panier
   addToCart(cart: Cart): Observable<Cart> {
-    let params = new HttpParams()
-      .set('userId', cart.userId.toString())
-      .set('productId', cart.productId.toString())
-      .set('quantity', cart.quantity.toString());
-
-    if (cart.product.type === 'HAIR' && cart.selectedVolume) {
-      params = params.set('volumeId', cart.selectedVolume.id.toString());
-    }
+    const body = {
+      userId: cart.userId,
+      productId: cart.productId,
+      quantity: cart.quantity,
+      volume: cart.product.type === 'HAIR' ? cart.selectedVolume : null,
+    };
 
     return this.httpClient
-      .post<Cart>(`${this.apiUrl}/cart/addToCart`, null, { params })
+      .post<Cart>(`${this.apiUrl}/cart/addToCart`, body)
       .pipe(
-        tap((newCartItem: Cart) => {
-          this.refreshCart(cart.userId); // Actualise le panier après ajout
-        }),
+        tap(() => this.refreshCart(cart.userId)),
         catchError((error) => {
-          console.error('Error adding product to cart:', error);
-          return throwError(() => error);
+          console.error('Erreur lors de l’ajout au panier :', error);
+          return throwError(() => new Error('Échec de l’ajout au panier.'));
         })
       );
   }
 
-  // Mettre à jour un article du panier
   updateCartItem(
     userId: number,
     productId: number,
@@ -64,46 +58,52 @@ export class CartService {
     volumeId?: number
   ): Observable<Cart> {
     if (newQuantity <= 0) {
-      return throwError(() => new Error('Quantity must be greater than 0.'));
+      return throwError(
+        () => new Error('La quantité doit être supérieure à 0.')
+      );
     }
 
     const url = volumeId
       ? `${this.apiUrl}/cart/${userId}/products/${productId}/volume/${volumeId}`
       : `${this.apiUrl}/cart/${userId}/products/${productId}`;
 
-    const params = new HttpParams().set('quantity', newQuantity.toString());
+    // Corps de la requête
+    const body = {
+      userId: userId,
+      productId: productId,
+      quantity: newQuantity,
+      ...(volumeId && { volumeId: volumeId }),
+    };
 
-    return this.httpClient.put<Cart>(url, null, { params }).pipe(
-      tap(() => {
-        this.refreshCart(userId); // Actualise le panier après mise à jour
-      }),
+    return this.httpClient.put<Cart>(url, body).pipe(
+      tap(() => this.refreshCart(userId)), // Actualise le panier après la mise à jour
       catchError((error) => {
-        console.error('Error updating cart item:', error);
-        const errorMessage = volumeId
-          ? 'Failed to update cart item quantity for HAIR product.'
-          : 'Failed to update cart item quantity for FACE product.';
-        return throwError(() => new Error(errorMessage));
+        console.error('Erreur lors de la mise à jour du panier :', error);
+        return throwError(
+          () => new Error("Impossible de mettre à jour l'article du panier.")
+        );
       })
     );
   }
 
-  // Supprimer un article du panier
   deleteCartItem(cartItemId: number): Observable<void> {
     return this.httpClient
       .delete<void>(`${this.apiUrl}/cart/${cartItemId}`)
       .pipe(
-        tap(() => {
-          this.refreshCart(cartItemId); // Actualise le panier après suppression
-        }),
+        tap(() => this.cartUpdated.emit()),
         catchError((error) => {
-          console.error('Error deleting cart item:', error);
-          return throwError(() => error);
+          console.error('Erreur lors de la suppression de l’article :', error);
+          return throwError(
+            () => new Error('Échec de la suppression de l’article.')
+          );
         })
       );
   }
 
-  // Méthode pour rafraîchir les articles du panier après chaque modification
   private refreshCart(userId: number): void {
-    this.getCartItems(userId).subscribe(); // Récupère les nouveaux éléments du panier et met à jour le BehaviorSubject
+    this.getCartItems(userId).subscribe({
+      error: (error) =>
+        console.error('Erreur lors du rafraîchissement du panier :', error),
+    });
   }
 }
