@@ -37,8 +37,6 @@ public class DeliveryAddressController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-
-
     /**
      * Retrieves a delivery address by user ID and address ID.
      *
@@ -51,7 +49,6 @@ public class DeliveryAddressController {
         DeliveryAddressDTO deliveryAddressDTO = deliveryAddressService.getDeliveryAddressByIdAndUserId(userId, addressId);
         return ResponseEntity.ok(deliveryAddressDTO);
     }
-
     /**
      * Adds a delivery address for a given user.
      *
@@ -88,6 +85,4 @@ public class DeliveryAddressController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-
-
 }

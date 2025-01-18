@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,15 +26,13 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     @Autowired
     private ProductService productService;
-    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
-
     @GetMapping
     public List<ProductDTO> getProducts(@RequestParam(defaultValue = "10") int limit) {
         return productService.getProducts(limit);
     }
-
     @GetMapping("/type")
     public List<ProductDTO> getProductsByTypeAndPagination(
             @RequestParam(defaultValue = "0") int page,
@@ -44,17 +41,16 @@ public class ProductController {
         Pageable pageable = PageRequest.of(page, size);
         return productService.getProductsByType(pageable, type);
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(productService.getProductById(id));
         } catch (ProductNotFoundException e) {
+            logger.error("Product not found: ID {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Product not found with ID: " + id);
         }
     }
-
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<String> saveProduct(
             @RequestParam("image") MultipartFile file,
@@ -67,6 +63,7 @@ public class ProductController {
         if (StringUtils.isBlank(productJson)) {
             return ResponseEntity.badRequest().body("Product data is required.");
         }
+
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
@@ -81,15 +78,12 @@ public class ProductController {
         } catch (JsonProcessingException e) {
             logger.error("Error deserializing product or volumes JSON", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid product or volume JSON data.");
-        } catch (IOException e) {
-            logger.error("Error reading image file", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving image file.");
         } catch (Exception e) {
             logger.error("An unexpected error occurred", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Unexpected error: " + e.getMessage());
         }
     }
-
     @PutMapping(value = "/update/{productId}", consumes = "multipart/form-data")
     public ResponseEntity<String> updateProduct(@PathVariable Long productId,
                                                 @RequestParam(value = "image", required = false) MultipartFile file,
@@ -100,18 +94,13 @@ public class ProductController {
             ObjectMapper objectMapper = new ObjectMapper();
             ProductDTO updatedProductDTO = objectMapper.readValue(updatedProductJson, ProductDTO.class);
 
-            // Appeler la méthode de mise à jour avec le fichier
             productService.updateProduct(productId, updatedProductDTO, file);
-
             return ResponseEntity.ok("Product updated successfully");
+
         } catch (JsonProcessingException e) {
             logger.error("JSON deserialization error", e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("JSON deserialization error: " + e.getMessage());
-        } catch (IOException e) {
-            logger.error("Error reading file", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Error reading file: " + e.getMessage());
         } catch (Exception e) {
             logger.error("An unexpected error occurred", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -124,6 +113,7 @@ public class ProductController {
             productService.deleteProduct(id);
             return ResponseEntity.noContent().build();
         } catch (ProductNotFoundException e) {
+            logger.error("Product not found: ID {}", id, e);
             return ResponseEntity.notFound().build();
         }
     }

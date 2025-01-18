@@ -11,7 +11,7 @@ export interface Cart {
   faceProduct: FaceProduct | null;
   productId: number;
   quantity: number;
-  volumeId?: number;
+  //volumeId?: number;
   subTotal?: number;
   total?: number;
   selectedVolume?: ProductVolume;
