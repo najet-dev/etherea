@@ -5,6 +5,7 @@ export interface Product {
   name: string;
   description: string;
   type: ProductType;
+  stockQuantity: number;
   stockStatus: string;
   benefits: string;
   usageTips: string;

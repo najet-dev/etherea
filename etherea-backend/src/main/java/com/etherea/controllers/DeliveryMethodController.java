@@ -40,7 +40,6 @@ public class DeliveryMethodController {
     public List<DeliveryMethodDTO> getDeliveryOptions(@PathVariable Long userId) {
         return deliveryMethodService.getDeliveryOptions(userId);
     }
-
     /**
      * Récupère les points de collecte disponibles pour un utilisateur donné.
      */
@@ -49,7 +48,6 @@ public class DeliveryMethodController {
         List<AddDeliveryMethodRequestDTO> pickupPoints = pickupPointService.findPickupPoints(userId);
         return ResponseEntity.ok(pickupPoints);
     }
-
     /**
      * Récupère le montant total du panier d'un utilisateur.
      */
@@ -58,7 +56,6 @@ public class DeliveryMethodController {
         double cartTotal = deliveryMethodService.getCartTotal(userId);
         return ResponseEntity.ok(cartTotal);
     }
-
     /**
      * Calcule le total du panier en prenant en compte le coût de la livraison.
      */
@@ -69,7 +66,6 @@ public class DeliveryMethodController {
         CartWithDeliveryDTO response = deliveryMethodService.getCartWithDeliveryTotal(userId, selectedOption);
         return ResponseEntity.ok(response);
     }
-
     /**
      * Ajoute une méthode de livraison pour un utilisateur et une commande donnés.
      */

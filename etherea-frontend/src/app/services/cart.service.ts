@@ -37,7 +37,10 @@ export class CartService {
       userId: cart.userId,
       productId: cart.productId,
       quantity: cart.quantity,
-      volume: cart.product.type === 'HAIR' ? cart.selectedVolume : null,
+      volume:
+        cart.product.type === 'HAIR' && cart.selectedVolume
+          ? { id: cart.selectedVolume.id } // Assurez-vous d'envoyer l'ID du volume
+          : null,
     };
 
     return this.httpClient
@@ -63,20 +66,20 @@ export class CartService {
       );
     }
 
-    const url = volumeId
-      ? `${this.apiUrl}/cart/${userId}/products/${productId}/volume/${volumeId}`
-      : `${this.apiUrl}/cart/${userId}/products/${productId}`;
-
-    // Corps de la requête
     const body = {
       userId: userId,
       productId: productId,
       quantity: newQuantity,
-      ...(volumeId && { volumeId: volumeId }),
+      ...(volumeId && { volume: { id: volumeId } }),
     };
 
-    return this.httpClient.put<Cart>(url, body).pipe(
-      tap(() => this.refreshCart(userId)), // Actualise le panier après la mise à jour
+    const endpoint =
+      volumeId != null
+        ? `${this.apiUrl}/cart/updateProductHair`
+        : `${this.apiUrl}/cart/updateProductFace`;
+
+    return this.httpClient.put<Cart>(endpoint, body).pipe(
+      tap(() => this.refreshCart(userId)),
       catchError((error) => {
         console.error('Erreur lors de la mise à jour du panier :', error);
         return throwError(

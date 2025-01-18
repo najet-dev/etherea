@@ -22,14 +22,12 @@ public class PaymentMethod {
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
     public PaymentMethod() {}
     public PaymentMethod(PaymentOption paymentOption, String transactionId, PaymentStatus paymentStatus) {
         this.paymentOption = paymentOption;
         this.transactionId = transactionId;
         this.paymentStatus = paymentStatus;
     }
-    // Getters et Setters
     public Long getId() {
         return id;
     }

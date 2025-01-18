@@ -14,10 +14,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/favorites")
 public class FavoriteController {
-
     @Autowired
     private FavoriteService favoriteService;
-
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserFavorites(@PathVariable Long userId) {
         try {

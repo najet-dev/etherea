@@ -227,14 +227,14 @@ public class CartItemService {
         Product product = cartItemToDelete.getProduct();
         int quantity = cartItemToDelete.getQuantity();
 
-        // Rétablissement du stock
+        // Restore stock
         product.setStockQuantity(product.getStockQuantity() + quantity);
         productRepository.save(product);
 
         Long userId = cartItemToDelete.getUser().getId();
         cartItemRepository.delete(cartItemToDelete);
 
-        updateCartTotal(userId); // Recalculer le total du panier
+        updateCartTotal(userId); // Recalculate shopping cart total
     }
 
 }

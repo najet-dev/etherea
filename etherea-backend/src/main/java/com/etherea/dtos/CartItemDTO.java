@@ -11,20 +11,16 @@ public class CartItemDTO {
     private Long id;
     private int quantity;
     private Long productId;
-    private VolumeDTO volume;  // Ajout de VolumeDTO au lieu de juste l'ID
+    private VolumeDTO volume;
     private Long userId;
-
     public CartItemDTO() {}
-
     public CartItemDTO(Long id, int quantity, Long productId, VolumeDTO volume, Long userId) {
         this.id = id;
         this.quantity = quantity;
         this.productId = productId;
-        this.volume = volume;  // Initialisation du volume avec VolumeDTO
+        this.volume = volume;
         this.userId = userId;
     }
-
-    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -56,28 +52,26 @@ public class CartItemDTO {
         this.userId = userId;
     }
 
-    // Conversion de CartItem vers CartItemDTO
+    // Convert CartItem to CartItemDTO
     public static CartItemDTO fromCartItem(CartItem cartItem) {
         if (cartItem == null) {
             return null;
         }
-
-        // Conversion du volume en VolumeDTO
+        // Convert volume to VolumeDTO
         VolumeDTO volumeDTO = null;
         if (cartItem.getVolume() != null) {
             volumeDTO = VolumeDTO.fromVolume(cartItem.getVolume());
         }
-
         return new CartItemDTO(
                 cartItem.getId(),
                 cartItem.getQuantity(),
                 cartItem.getProduct() != null ? cartItem.getProduct().getId() : null,
-                volumeDTO,  // Passage du volume complet en DTO
+                volumeDTO,
                 cartItem.getUser() != null ? cartItem.getUser().getId() : null
         );
     }
 
-    // Conversion de CartItemDTO vers CartItem
+    // Convert CartItemDTO to CartItem
     public CartItem toCartItem() {
         CartItem cartItem = new CartItem();
         cartItem.setId(this.id);
@@ -87,10 +81,10 @@ public class CartItemDTO {
         product.setId(this.productId);
         cartItem.setProduct(product);
 
-        // Conversion du VolumeDTO en Volume
+        // Convert volumeDTO to Volume
         Volume volume = null;
         if (this.volume != null) {
-            volume = this.volume.toVolume();  // Conversion inverse
+            volume = this.volume.toVolume();  // Reverse conversion
             cartItem.setVolume(volume);
         }
 

@@ -31,8 +31,6 @@ public abstract class DeliveryMethod {
         this.user = user;
         this.deliveryOption = deliveryOption;
     }
-
-    // Getters and Setters
     public Long getId() {
         return id;
     }

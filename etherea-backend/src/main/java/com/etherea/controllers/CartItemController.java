@@ -62,10 +62,10 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    @PutMapping("/{userId}/products/{productId}/volume/{volumeId}")
+    @PutMapping("/updateProductHair")
     public ResponseEntity<Map<String, String>> updateCartItemQuantityForHair(@RequestBody CartItemDTO cartItemDTO) {
         try {
-            // Spécifique aux produits de type HAIR (avec volume)
+            // Specific to HAIR products
             cartItemService.updateCartItemQuantity(cartItemDTO);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Quantity of HAIR product cart item updated successfully.");
@@ -85,11 +85,10 @@ public class CartItemController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-
-    @PutMapping("/{userId}/products/{productId}")
+    @PutMapping("/updateProductFace")
     public ResponseEntity<Map<String, String>> updateCartItemQuantityForFace(@RequestBody CartItemDTO cartItemDTO) {
         try {
-            // Spécifique aux produits de type FACE (sans volume)
+            // Specific to FACE products
             cartItemService.updateCartItemQuantity(cartItemDTO);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Quantity of FACE product cart item updated successfully.");
@@ -114,7 +113,7 @@ public class CartItemController {
             cartItemService.deleteCartItem(id);
             Map<String, String> response = new HashMap<>();
             response.put("message", "Cart item deleted successfully.");
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(response);
         } catch (CartItemNotFoundException e) {
             Map<String, String> response = new HashMap<>();
             response.put("error", e.getMessage());

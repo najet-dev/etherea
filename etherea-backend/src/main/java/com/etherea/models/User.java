@@ -38,7 +38,6 @@ public class User {
         this.username = username;
         this.password = password;
     }
-    // Getters et Setters
     public Long getId() {
         return id;
     }
