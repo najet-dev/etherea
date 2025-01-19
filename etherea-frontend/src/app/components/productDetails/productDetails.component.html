@@ -19,7 +19,7 @@
             >
               <option
                 *ngFor="let volume of product.volumes"
-                [value]="volume.volume"
+                [value]="volume.id"
               >
                 {{ volume.volume }} ml&nbsp;&nbsp; - &nbsp;&nbsp;{{
                   volume.price
@@ -30,12 +30,12 @@
           </div>
         </div>
 
-        <!-- Stock status -->
+        <!-- Stock message -->
         <p
-          class="detail"
+          class="stock-message alert"
           [ngClass]="{
-            'stock-available': product.stockStatus === 'AVAILABLE',
-            'stock-out-of-stock': product.stockStatus === 'OUT_OF_STOCK'
+            'alert-warning': quantityWarning,
+            'alert-danger': quantityExceeded
           }"
         >
           {{ stockMessage }}
@@ -44,27 +44,44 @@
         <!-- Quantity selection -->
         <div class="quantity-container">
           <label class="detail" for="quantityInput">Quantité :</label>
-          <div *ngIf="limitReached" class="alert alert-warning">
-            La limite de 10 produits a été atteinte.
-          </div>
           <div class="quantity-selector">
-            <button class="quantity-btn" (click)="decrementQuantity()">
+            <button
+              class="quantity-btn"
+              (click)="decrementQuantity()"
+              [disabled]="cartItems.quantity <= 1"
+            >
               -
             </button>
             <span class="selected-quantity">{{ cartItems.quantity }}</span>
-            <button class="quantity-btn" (click)="incrementQuantity()">
+            <button
+              class="quantity-btn"
+              (click)="incrementQuantity()"
+              [disabled]="
+                cartItems.quantity >= product.stockQuantity ||
+                cartItems.quantity >= 10
+              "
+            >
               +
             </button>
           </div>
         </div>
 
-        <button class="btn-primary" (click)="addToCart()">
+        <!-- Add to cart button -->
+        <button
+          class="btn-primary"
+          (click)="addToCart()"
+          [disabled]="
+            product.stockQuantity === 0 ||
+            cartItems.quantity > product.stockQuantity
+          "
+        >
           Ajouter au panier
         </button>
       </div>
     </div>
 
-    <div class="row">
+    <!-- Additional product details -->
+    <div class="row mt-4">
       <div class="col-md-12">
         <details>
           <summary>Bénéfices</summary>
@@ -79,7 +96,7 @@
           <p class="product ingredients">{{ product.ingredients }}</p>
         </details>
         <details>
-          <summary class="characteristics">Caractéristiques</summary>
+          <summary>Caractéristiques</summary>
           <p>{{ product.characteristics }}</p>
         </details>
       </div>

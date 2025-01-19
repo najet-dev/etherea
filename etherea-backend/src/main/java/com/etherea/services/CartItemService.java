@@ -6,8 +6,6 @@ import com.etherea.enums.ProductType;
 import com.etherea.exception.CartItemNotFoundException;
 import com.etherea.exception.VolumeNotFoundException;
 import com.etherea.models.*;
-import com.etherea.dtos.ProductDTO;
-import com.etherea.dtos.UserDTO;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.repositories.*;
@@ -72,7 +70,7 @@ public class CartItemService {
     @Transactional
     public void addProductToUserCart(CartItemDTO cartItemDTO) {
         if (cartItemDTO.getQuantity() <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than 0.");
+            throw new IllegalArgumentException("La quantité doit être supérieure à 0.");
         }
 
         Long userId = cartItemDTO.getUserId();
@@ -80,17 +78,22 @@ public class CartItemService {
         VolumeDTO volumeDTO = cartItemDTO.getVolume();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable avec l'ID : " + userId));
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
+                .orElseThrow(() -> new ProductNotFoundException("Produit introuvable avec l'ID : " + productId));
+
+        // Check stock availability
+        if (product.getStockQuantity() <= 0) {
+            throw new IllegalArgumentException("Le produit " + product.getName() + " est actuellement en rupture de stock.");
+        }
 
         Volume volume = null;
         if (product.getType() == ProductType.HAIR) {
             if (volumeDTO == null) {
-                throw new IllegalArgumentException("HAIR products require a volume.");
+                throw new IllegalArgumentException("Les produits de type HAIR nécessitent un volume.");
             }
             volume = volumeRepository.findById(volumeDTO.getId())
-                    .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID: " + volumeDTO.getId()));
+                    .orElseThrow(() -> new VolumeNotFoundException("Volume introuvable avec l'ID : " + volumeDTO.getId()));
         }
 
         Cart cart = user.getCart();
@@ -102,19 +105,33 @@ public class CartItemService {
 
         CartItem existingCartItem = cartItemRepository.findByUserAndProductAndVolume(user, product, volume);
 
+        int stockRemaining = product.getStockQuantity();
+
         if (existingCartItem != null) {
             int previousQuantity = existingCartItem.getQuantity();
             int newQuantity = previousQuantity + cartItemDTO.getQuantity();
 
-            if (product.getStockQuantity() < (newQuantity - previousQuantity)) {
-                throw new IllegalArgumentException("Insufficient stock for product ID: " + productId);
+            // Check stock for new quantity
+            if (stockRemaining < (newQuantity - previousQuantity)) {
+                throw new IllegalArgumentException(
+                        "Stock insuffisant pour le produit " + product.getName() + ". " +
+                                "Stock restant : " + stockRemaining + " produits."
+                );
             }
 
-            product.setStockQuantity(product.getStockQuantity() - (newQuantity - previousQuantity));
+            product.setStockQuantity(stockRemaining - (newQuantity - previousQuantity));
             existingCartItem.setQuantity(newQuantity);
             existingCartItem.setSubTotal(calculateSubtotal(product, volume, newQuantity));
         } else {
-            product.setStockQuantity(product.getStockQuantity() - cartItemDTO.getQuantity());
+            // Check stock for new entry
+            if (stockRemaining < cartItemDTO.getQuantity()) {
+                throw new IllegalArgumentException(
+                        "Stock insuffisant pour le produit " + product.getName() + ". " +
+                                "Stock restant : " + stockRemaining + " produits."
+                );
+            }
+
+            product.setStockQuantity(stockRemaining - cartItemDTO.getQuantity());
             CartItem newCartItem = cartItemDTO.toCartItem();
             newCartItem.setProduct(product);
             newCartItem.setVolume(volume);
@@ -123,10 +140,17 @@ public class CartItemService {
             cartItemRepository.save(newCartItem);
         }
 
+        // Warning for low stock levels (e.g. 5 products or less)
+        if (product.getStockQuantity() <= 5) {
+            logger.warn("Le stock pour le produit " + product.getName() +
+                    " est faible. Il reste " + product.getStockQuantity() + " produits.");
+        }
+
+        // Update stock status
+        product.updateStockStatus();
         productRepository.save(product);
         updateCartTotal(userId);
     }
-
     /**
      * Calculates the subtotal for a cart item based on the product, volume, and quantity.
      *
@@ -210,9 +234,13 @@ public class CartItemService {
         cartItem.setSubTotal(calculateSubtotal(product, volume, newQuantity));
 
         cartItemRepository.save(cartItem);
+
+        // Update stock status
+        product.updateStockStatus();
         productRepository.save(product);
         updateCartTotal(userId);
     }
+
     /**
      * Deletes a specific cart item from the user's cart.
      *
@@ -229,6 +257,7 @@ public class CartItemService {
 
         // Restore stock
         product.setStockQuantity(product.getStockQuantity() + quantity);
+        product.updateStockStatus(); // Update status
         productRepository.save(product);
 
         Long userId = cartItemToDelete.getUser().getId();
@@ -236,5 +265,4 @@ public class CartItemService {
 
         updateCartTotal(userId); // Recalculate shopping cart total
     }
-
 }

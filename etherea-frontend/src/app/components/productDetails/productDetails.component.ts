@@ -24,6 +24,14 @@ export class ProductDetailsComponent implements OnInit {
   product: HairProduct | FaceProduct | null = null;
   selectedVolume: ProductVolume | null = null;
   userId: number | null = null;
+  stockMessage: string = '';
+  previousStockMessage: string = ''; // Add previous message
+  showError: boolean = false;
+  private destroyRef = inject(DestroyRef);
+  ProductType = ProductType;
+  quantityWarning: boolean = false;
+  quantityExceeded: boolean = false; // Indicates whether the stock limit has been exceeded
+  limitReached: boolean = false; // Indicates whether the maximum limit of 10 products has been reached
 
   cartItems: Cart = {
     id: 0,
@@ -47,17 +55,8 @@ export class ProductDetailsComponent implements OnInit {
     productId: 0,
     quantity: 1,
     subTotal: 0,
-    selectedVolume: {
-      id: 0,
-      volume: 0,
-      price: 0,
-    },
+    selectedVolume: undefined,
   };
-
-  limitReached = false;
-  stockMessage: string = '';
-  private destroyRef = inject(DestroyRef);
-  ProductType = ProductType;
 
   constructor(
     private route: ActivatedRoute,
@@ -87,13 +86,10 @@ export class ProductDetailsComponent implements OnInit {
           if (this.productTypeService.isHairProduct(product)) {
             this.product = product as HairProduct;
 
-            // Vérifier si le produit a des volumes disponibles
-            if (this.product.volumes && this.product.volumes.length > 0) {
-              // Sélectionner automatiquement le premier volume
+            // Manage volumes
+            if (this.product.volumes?.length) {
               this.selectedVolume = this.product.volumes[0];
               this.cartItems.selectedVolume = { ...this.selectedVolume };
-
-              // Mettre à jour le sous-total en fonction du premier volume
               this.cartItems.subTotal =
                 this.cartItems.quantity * this.selectedVolume.price;
             }
@@ -103,7 +99,7 @@ export class ProductDetailsComponent implements OnInit {
 
           this.cartItems.productId = product.id;
           this.cartItems.product = { ...product };
-          this.updateStockMessage(product.stockStatus);
+          this.updateStockMessage();
         } else {
           console.error('Product not found');
         }
@@ -122,15 +118,6 @@ export class ProductDetailsComponent implements OnInit {
           console.error('Error fetching user:', error);
         },
       });
-  }
-
-  updateStockMessage(stockStatus: string): void {
-    this.stockMessage =
-      stockStatus === 'AVAILABLE'
-        ? `Le produit est disponible.`
-        : stockStatus === 'OUT_OF_STOCK'
-        ? `Le produit est actuellement en rupture de stock.`
-        : 'Le statut du stock du produit est inconnu.';
   }
 
   onVolumeChange(event: Event): void {
@@ -152,27 +139,66 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   incrementQuantity(): void {
-    if (this.cartItems.quantity < 10) {
+    if (
+      this.cartItems.quantity < this.cartItems.product.stockQuantity &&
+      this.cartItems.quantity < 10
+    ) {
       this.cartItems.quantity++;
+      this.updateStockMessage();
     } else {
-      this.limitReached = true;
+      console.warn('Limite atteinte ou stock insuffisant');
+      this.quantityExceeded = true;
+      this.updateStockMessage();
     }
   }
 
   decrementQuantity(): void {
     if (this.cartItems.quantity > 1) {
       this.cartItems.quantity--;
+      this.updateStockMessage();
+    }
+  }
+
+  updateStockMessage(): void {
+    // The remaining stock is calculated according to the current quantity in shopping cart
+    const remainingStock =
+      this.cartItems.product.stockQuantity - this.cartItems.quantity;
+
+    let newStockMessage: string;
+
+    // Displays a message for available stock
+    if (remainingStock > 5) {
+      newStockMessage = 'Produit disponible.';
+      this.quantityWarning = false;
+    } else if (remainingStock > 0 && remainingStock <= 5) {
+      newStockMessage = `Attention : il ne reste que ${remainingStock} produits en stock !`;
+      this.quantityWarning = true;
+    } else if (remainingStock <= 0) {
+      newStockMessage = 'Le produit est en rupture de stock.';
+      this.quantityExceeded = true;
+    } else {
+      newStockMessage = '';
+    }
+
+    // Update stock message only if necessary
+    if (this.stockMessage !== newStockMessage) {
+      this.stockMessage = newStockMessage;
     }
   }
 
   addToCart(): void {
-    // Vérifiez que l'utilisateur est connecté
+    if (
+      this.cartItems.quantity > this.cartItems.product.stockQuantity ||
+      this.cartItems.product.stockQuantity === 0
+    ) {
+      alert("Impossible d'ajouter ce produit au panier.");
+      return;
+    }
     if (!this.userId) {
       alert('Vous devez être connecté pour ajouter des articles au panier.');
       return;
     }
 
-    // Vérifiez que le produit est de type Hair et que le volume est sélectionné
     if (
       this.product &&
       this.productTypeService.isHairProduct(this.product) &&
@@ -183,7 +209,17 @@ export class ProductDetailsComponent implements OnInit {
       );
       return;
     }
-    // Calculer le sous-total selon le type de produit
+
+    if (this.product && this.product.stockStatus === 'OUT_OF_STOCK') {
+      const errorMessage = `Stock insuffisant pour le produit "${this.product.name}".`;
+
+      if (this.stockMessage !== errorMessage) {
+        this.stockMessage = errorMessage;
+        this.showError = true;
+      }
+      return;
+    }
+
     let subTotal = 0;
 
     if (this.product) {
@@ -197,11 +233,9 @@ export class ProductDetailsComponent implements OnInit {
       }
     }
 
-    // Mettre à jour les informations du panier
     this.cartItems.subTotal = subTotal;
     this.cartItems.userId = this.userId;
 
-    // Affecter le volume sélectionné pour les produits HAIR
     if (
       this.product &&
       this.productTypeService.isHairProduct(this.product) &&
@@ -212,18 +246,15 @@ export class ProductDetailsComponent implements OnInit {
       this.cartItems.selectedVolume = undefined;
     }
 
-    // Appel au service pour ajouter au panier
     this.appFacade
       .addToCart(this.cartItems)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           console.log('Produit ajouté au panier:', this.cartItems);
-
           this.openProductSummaryDialog();
-
-          // Réinitialiser les informations du panier
           this.resetCartItem();
+          this.showError = false;
         },
         error: (error) => {
           console.error("Erreur lors de l'ajout du produit au panier:", error);
@@ -251,6 +282,7 @@ export class ProductDetailsComponent implements OnInit {
       console.log('The dialog was closed');
     });
   }
+
   private resetCartItem(): void {
     this.cartItems = {
       id: 0,

@@ -39,7 +39,7 @@ export class CartService {
       quantity: cart.quantity,
       volume:
         cart.product.type === 'HAIR' && cart.selectedVolume
-          ? { id: cart.selectedVolume.id } // Assurez-vous d'envoyer l'ID du volume
+          ? { id: cart.selectedVolume.id }
           : null,
     };
 

@@ -88,4 +88,11 @@ public class Product {
         this.volumes.clear();
         newVolumes.forEach(this::addVolume);
     }
+    public void updateStockStatus() {
+        if (this.stockQuantity <= 0) {
+            this.stockStatus = StockStatus.OUT_OF_STOCK;
+        } else {
+            this.stockStatus = StockStatus.AVAILABLE;
+        }
+    }
 }
