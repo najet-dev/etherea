@@ -158,23 +158,23 @@ export class ProductDetailsComponent implements OnInit {
       this.updateStockMessage();
     }
   }
-
   updateStockMessage(): void {
-    // The remaining stock is calculated according to the current quantity in shopping cart
     const remainingStock =
       this.cartItems.product.stockQuantity - this.cartItems.quantity;
 
     let newStockMessage: string;
 
-    // Displays a message for available stock
     if (remainingStock > 5) {
-      newStockMessage = 'Produit disponible.';
+      newStockMessage = 'Produit disponible';
       this.quantityWarning = false;
+      this.quantityExceeded = false;
     } else if (remainingStock > 0 && remainingStock <= 5) {
       newStockMessage = `Attention : il ne reste que ${remainingStock} produits en stock !`;
       this.quantityWarning = true;
+      this.quantityExceeded = false;
     } else if (remainingStock <= 0) {
-      newStockMessage = 'Le produit est en rupture de stock.';
+      newStockMessage = 'Le produit est en rupture de stock';
+      this.quantityWarning = false;
       this.quantityExceeded = true;
     } else {
       newStockMessage = '';
@@ -211,7 +211,7 @@ export class ProductDetailsComponent implements OnInit {
     }
 
     if (this.product && this.product.stockStatus === 'OUT_OF_STOCK') {
-      const errorMessage = `Stock insuffisant pour le produit "${this.product.name}".`;
+      const errorMessage = `Stock insuffisant pour le produit ${this.product.name}.`;
 
       if (this.stockMessage !== errorMessage) {
         this.stockMessage = errorMessage;

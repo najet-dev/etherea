@@ -19,7 +19,7 @@ public class DeliveryMethodDTO {
     private String pickupPointAddress;
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
-    private DeliveryMethodDTO(Builder builder) {
+    public DeliveryMethodDTO(Builder builder) {
         // Delivery type-specific validation
         if (builder.deliveryOption == DeliveryOption.PICKUP_POINT) {
             if (builder.pickupPointName == null || builder.pickupPointAddress == null) {

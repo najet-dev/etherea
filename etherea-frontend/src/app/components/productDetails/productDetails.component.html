@@ -32,10 +32,10 @@
 
         <!-- Stock message -->
         <p
-          class="stock-message alert"
+          class="stock-message"
           [ngClass]="{
-            'alert-warning': quantityWarning,
-            'alert-danger': quantityExceeded
+            'alert-success': !quantityWarning && !quantityExceeded,
+            'alert-danger': quantityWarning || quantityExceeded
           }"
         >
           {{ stockMessage }}

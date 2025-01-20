@@ -11,43 +11,43 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private boolean isUsed = false;
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items = new ArrayList<>();
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_method_id")
     private DeliveryMethod deliveryMethod;
-
-    private BigDecimal finalTotal; // Champ pour le total global (articles + livraison)
-
+    private BigDecimal finalTotal = BigDecimal.ZERO;
     public Cart() {}
-
-    public Cart(Long id, List<CartItem> items, User user, DeliveryMethod deliveryMethod) {
+    public Cart(Long id, boolean isUsed, List<CartItem> items, User user, DeliveryMethod deliveryMethod) {
         this.id = id;
+        this.isUsed = isUsed;
         this.items = items;
         this.user = user;
         this.deliveryMethod = deliveryMethod;
-        this.finalTotal = calculateFinalTotal(); // Initialisation du finalTotal
+        this.finalTotal = calculateFinalTotal();
     }
-
-    // Getters et setters
     public Long getId() {
         return id;
     }
     public void setId(Long id) {
         this.id = id;
     }
+    public boolean isUsed() {
+        return isUsed;
+    }
+    public void setUsed(boolean used) {
+        isUsed = used;
+    }
     public List<CartItem> getItems() {
         return items;
     }
     public void setItems(List<CartItem> items) {
         this.items = items;
-        updateFinalTotal(); // Recalculer et mettre à jour finalTotal chaque fois que la liste des articles change
+        updateFinalTotal(); // Recalculate and update finalTotal each time the item list changes
     }
     public User getUser() {
         return user;
@@ -60,7 +60,7 @@ public class Cart {
     }
     public void setDeliveryMethod(DeliveryMethod deliveryMethod) {
         this.deliveryMethod = deliveryMethod;
-        updateFinalTotal(); // Recalculer finalTotal lors du changement de méthode de livraison
+        updateFinalTotal();
     }
     public BigDecimal getFinalTotal() {
         return finalTotal;
@@ -69,17 +69,16 @@ public class Cart {
         this.finalTotal = finalTotal;
     }
 
-    // Méthode pour calculer le total des articles
+    // Method for calculating item totals
     public BigDecimal calculateTotalAmount() {
-        if (items.isEmpty()) {
+        if (items == null || items.isEmpty()) {
             return BigDecimal.ZERO;
         }
         return items.stream()
                 .map(CartItem::calculateSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-
-    // Vérifier si la livraison est gratuite
+    // Check if delivery is free
     public boolean isFreeShipping() {
         if (deliveryMethod == null) {
             throw new IllegalStateException("Delivery method must be specified.");
@@ -87,21 +86,18 @@ public class Cart {
         return deliveryMethod.isFreeShipping(calculateTotalAmount().doubleValue());
     }
 
-    // Calcul du coût de livraison
+    // Delivery cost calculation
     public double calculateDeliveryCost() {
         if (deliveryMethod == null) {
-            throw new IllegalStateException("Delivery method must be specified.");
+            return 0.0;
         }
         return deliveryMethod.calculateCost(calculateTotalAmount().doubleValue());
     }
-
-    // Calculer le total final
     public BigDecimal calculateFinalTotal() {
         return calculateTotalAmount().add(BigDecimal.valueOf(calculateDeliveryCost()));
     }
-
-    // Mettre à jour finalTotal chaque fois que nécessaire
     private void updateFinalTotal() {
         this.finalTotal = calculateFinalTotal();
     }
+
 }

@@ -5,7 +5,6 @@ import com.etherea.dtos.PaymentResponseDTO;
 import com.etherea.enums.PaymentOption;
 import com.etherea.enums.PaymentStatus;
 import com.etherea.exception.CartNotFoundException;
-import com.etherea.exception.UserNotFoundException;
 import com.etherea.models.Cart;
 import com.etherea.models.PaymentMethod;
 import com.etherea.repositories.CartRepository;
@@ -14,6 +13,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.PaymentIntentConfirmParams;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +25,19 @@ public class PaymentService {
     private CartRepository cartRepository;
     @Autowired
     private PaymentRepository paymentRepository;
+    @Autowired
+    private CartItemService cartItemService;
+
+    /**
+     * Processes a payment and associates the cart with an order upon success.
+     *
+     * @param paymentRequestDTO The payment request details.
+     * @return PaymentResponseDTO with transaction details.
+     * @throws StripeException In case of Stripe payment processing errors.
+     */
+    @Transactional
     public PaymentResponseDTO processPayment(PaymentRequestDTO paymentRequestDTO) throws StripeException {
-        // Retrieve the user's shopping cart
+        // Retrieve the user's cart
         Cart cart = cartRepository.findById(paymentRequestDTO.getCartId())
                 .orElseThrow(() -> new CartNotFoundException("Cart not found"));
 
@@ -62,10 +73,15 @@ public class PaymentService {
         paymentMethod.setPaymentOption(paymentRequestDTO.getCardNumber().startsWith("4") ? PaymentOption.CREDIT_CARD : PaymentOption.PAYPAL);
         paymentMethod.setPaymentStatus(paymentStatus);
 
+        // Save the PaymentMethod to obtain its ID
         paymentRepository.save(paymentMethod);
 
-        // Return a reply according to status
+        // Récupérer l'ID du mode de paiement
+        Long paymentMethodId = paymentMethod.getId();
+
+        // Validate cart and create order if payment succeeded
         if (paymentStatus == PaymentStatus.SUCCESS) {
+            cartItemService.validateCartAndCreateOrder(cart.getUser().getId(), paymentMethodId);
             return new PaymentResponseDTO("Payment successful", confirmedPaymentIntent.getId());
         } else {
             return new PaymentResponseDTO("Payment failed", confirmedPaymentIntent.getId());

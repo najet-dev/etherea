@@ -14,6 +14,7 @@ public class Command {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDateTime commandDate;
+    private String referenceCode;
     @Enumerated(EnumType.STRING)
     private CommandStatus status;
     @OneToOne(cascade = CascadeType.ALL)
@@ -28,16 +29,22 @@ public class Command {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "cart_id", nullable = false) // Relation avec le panier
+    private Cart cart;
     @OneToMany(mappedBy = "command", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandItem> commandItems = new ArrayList<>();
+    private BigDecimal total; // Ajout d'un attribut pour le total
     public Command() {}
-    public Command(LocalDateTime commandDate, CommandStatus status, DeliveryAddress deliveryAddress) {
+    public Command(LocalDateTime commandDate, String referenceCode, CommandStatus status, DeliveryAddress deliveryAddress, DeliveryMethod deliveryMethod, Cart cart) {
         this.commandDate = commandDate;
+        this.referenceCode = referenceCode;
         this.status = status;
         this.deliveryAddress = deliveryAddress;
+        this.deliveryMethod = deliveryMethod;
+        this.cart = cart;
+        this.total = cart.getFinalTotal(); // Initialiser le total à partir du panier
     }
-
-    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -49,6 +56,12 @@ public class Command {
     }
     public void setCommandDate(LocalDateTime commandDate) {
         this.commandDate = commandDate;
+    }
+    public String getReferenceCode() {
+        return referenceCode;
+    }
+    public void setReferenceCode(String referenceCode) {
+        this.referenceCode = referenceCode;
     }
     public CommandStatus getStatus() {
         return status;
@@ -85,5 +98,27 @@ public class Command {
     }
     public void setCommandItems(List<CommandItem> commandItems) {
         this.commandItems = commandItems;
+    }
+    public Cart getCart() {
+        return cart;
+    }
+    public void setCart(Cart cart) {
+        this.cart = cart;
+    }
+    public BigDecimal getTotal() {
+        return total;
+    }
+    public void setTotal(BigDecimal total) {
+        this.total = total;
+    }
+    private void setDefaultCommandDate() {
+        if (this.commandDate == null) {
+            this.commandDate = LocalDateTime.now();
+        }
+    }
+    private void generateReferenceCode() {
+        if (this.referenceCode == null) {
+            this.referenceCode = "CMD-" + System.currentTimeMillis();
+        }
     }
 }
