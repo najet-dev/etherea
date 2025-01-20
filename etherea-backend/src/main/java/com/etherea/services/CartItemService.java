@@ -1,9 +1,14 @@
 package com.etherea.services;
 
+import com.etherea.dtos.CartDTO;
 import com.etherea.dtos.CartItemDTO;
+import com.etherea.dtos.CommandRequestDTO;
 import com.etherea.dtos.VolumeDTO;
+import com.etherea.enums.CommandStatus;
 import com.etherea.enums.ProductType;
 import com.etherea.exception.CartItemNotFoundException;
+import com.etherea.exception.DeliveryAddressNotFoundException;
+import com.etherea.exception.CartNotFoundException;
 import com.etherea.exception.VolumeNotFoundException;
 import com.etherea.models.*;
 import com.etherea.exception.ProductNotFoundException;
@@ -16,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +37,12 @@ public class CartItemService {
     private VolumeRepository volumeRepository;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
+    @Autowired
+    private DeliveryMethodRepository deliveryMethodRepository;
+    @Autowired
+    private CommandService commandService;
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
 
     /**
@@ -79,6 +91,7 @@ public class CartItemService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable avec l'ID : " + userId));
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("Produit introuvable avec l'ID : " + productId));
 
@@ -184,7 +197,49 @@ public class CartItemService {
             cartItemRepository.save(cartItem);
         });
     }
+    /**
+     * Validates the user's cart and creates a command.
+     *
+     * @param userId The ID of the user.
+     */
+    @Transactional
+    public void validateCartAndCreateOrder(Long userId, Long paymentMethodId) {
+        // Retrieve User
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
+        // Retrieve Cart
+        Cart cart = user.getCart();
+        if (cart == null || cart.getItems().isEmpty()) {
+            throw new CartNotFoundException("The cart is empty or does not exist.");
+        }
+        if (cart.isUsed()) {
+            throw new CartNotFoundException("The cart has already been used for an order.");
+        }
+
+        // Retrieve Default Delivery Address
+        DeliveryAddress deliveryAddress = user.getDefaultAddress();
+        if (deliveryAddress == null) {
+            throw new DeliveryAddressNotFoundException("Default delivery address not found for user ID: " + userId);
+        }
+
+        // Create CommandRequestDTO
+        CommandRequestDTO commandRequestDTO = new CommandRequestDTO();
+        commandRequestDTO.setCommandDate(LocalDateTime.now());
+        commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());
+        commandRequestDTO.setStatus(CommandStatus.PENDING);
+        commandRequestDTO.setCart(CartDTO.fromCart(cart, null));
+        commandRequestDTO.setTotal(cart.calculateFinalTotal());
+        commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
+        commandRequestDTO.setPaymentMethodId(paymentMethodId);
+
+        // Create Command
+        commandService.createCommand(commandRequestDTO);
+
+        // Mark Cart as Used
+        cart.setUsed(true);
+        cartRepository.save(cart);
+    }
     /**
      * Updates the quantity of a specific cart item.
      *
@@ -208,6 +263,7 @@ public class CartItemService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
         Product product = productRepository.findById(productId)
+
                 .orElseThrow(() -> new ProductNotFoundException("Product not found with ID: " + productId));
 
         Volume volume = null;

@@ -31,12 +31,14 @@
   color: black;
   margin-bottom: 10px;
 }
-.stock-available {
+.alert-success {
   color: green;
 }
-.stock-out-of-stock {
+
+.alert-danger {
   color: red;
 }
+
 .quantity-container {
   display: flex;
   align-items: center;

@@ -12,7 +12,6 @@ public class PaymentRequestDTO {
     @NotNull
     private Long cartId;
 
-    // Getters et Setters
     public String getCardNumber() {
         return cardNumber;
     }
