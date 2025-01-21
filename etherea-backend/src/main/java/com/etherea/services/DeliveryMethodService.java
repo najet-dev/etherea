@@ -141,8 +141,8 @@ public class DeliveryMethodService {
         double total = cartTotal + deliveryCost;
 
         // Update the finalTotal in the cart (including the delivery cost)
-        cart.setFinalTotal(BigDecimal.valueOf(total));  // Assuming finalTotal is of type BigDecimal
-        cartRepository.save(cart);  // Don't forget to save the updated cart
+        cart.setFinalTotal(BigDecimal.valueOf(total));
+        cartRepository.save(cart);
 
         // Return the DTO with the updated totals
         return new CartWithDeliveryDTO(cartTotal, deliveryCost, total);
@@ -182,12 +182,12 @@ public class DeliveryMethodService {
             throw new IllegalArgumentException("Delivery option must be provided.");
         }
 
-        // 1. Retrieve and validate the user
+        // Retrieve and validate the user
         User user = userRepository.findById(requestDTO.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + requestDTO.getUserId()));
         logger.debug("User found with ID: {}", user.getId());
 
-        // 2. Retrieve or create the delivery address for home delivery options
+        // Retrieve or create the delivery address for home delivery options
         DeliveryAddress deliveryAddress = null;
         if (requestDTO.getDeliveryOption() == DeliveryOption.HOME_STANDARD ||
                 requestDTO.getDeliveryOption() == DeliveryOption.HOME_EXPRESS) {
@@ -201,7 +201,7 @@ public class DeliveryMethodService {
             logger.debug("Delivery address found with ID: {}", deliveryAddress.getId());
         }
 
-        // 3. Validate relay point information for pickup point delivery
+        // Validate relay point information for pickup point delivery
         if (requestDTO.getDeliveryOption() == DeliveryOption.PICKUP_POINT) {
             if (requestDTO.getPickupPointName() == null || requestDTO.getPickupPointName().isBlank() ||
                     requestDTO.getPickupPointAddress() == null || requestDTO.getPickupPointAddress().isBlank() ||
@@ -211,7 +211,7 @@ public class DeliveryMethodService {
             }
         }
 
-        // 4. Create the delivery method using the factory
+        // Create the delivery method using the factory
         logger.info("Creating delivery method of type: {}", requestDTO.getDeliveryOption());
         DeliveryMethod deliveryMethod = DeliveryMethodFactory.createDeliveryMethod(
                 requestDTO.getDeliveryOption(),
@@ -223,7 +223,7 @@ public class DeliveryMethodService {
                 user
         );
 
-        // 5. Calculate and set additional fields
+        // Calculate and set additional fields
         double orderAmount = requestDTO.getOrderAmount();
         LocalDate startDate = LocalDate.now();
         double deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(orderAmount, requestDTO.getDeliveryOption());
@@ -232,18 +232,18 @@ public class DeliveryMethodService {
         deliveryMethod.setDeliveryCost(deliveryCost);
         deliveryMethod.setExpectedDeliveryDate(deliveryDateCalculator.calculateDeliveryDate(startDate, deliveryMethod.calculateDeliveryTime()));
 
-        // 6. Save the delivery method
+        // Save the delivery method
         DeliveryMethod savedDeliveryMethod = deliveryMethodRepository.save(deliveryMethod);
         logger.info("Delivery method saved with ID: {}", savedDeliveryMethod.getId());
 
-        // 7. Associate delivery method with the user's cart
+        // Associate delivery method with the user's cart
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new CartNotFoundException("Shopping cart not found for user with ID: " + user.getId()));
         logger.debug("Cart found for user ID: {}", user.getId());
 
         cart.setDeliveryMethod(savedDeliveryMethod);
 
-        // 8. Update the total cost in the cart
+        // Update the total cost in the cart
         double cartTotal = cart.calculateTotalAmount().doubleValue();
         double total = cartTotal + deliveryCost;
         cart.setFinalTotal(BigDecimal.valueOf(total));
@@ -251,7 +251,7 @@ public class DeliveryMethodService {
 
         cartRepository.save(cart);
 
-        // 9. Return the DTO
+        // Return the DTO
         return DeliveryMethodDTO.fromDeliveryMethod(
                 savedDeliveryMethod,
                 deliveryAddress,

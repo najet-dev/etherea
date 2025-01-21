@@ -102,7 +102,7 @@ public class PickupPointService {
         }
     }
     @CacheEvict(value = "pickupPointsCache", allEntries = true)
-    @Scheduled(fixedRate = 86400000) // Toutes les 24 heures (en millisecondes)
+    @Scheduled(fixedRate = 86400000) // Every 24 hours (in milliseconds)
     public void clearCacheAutomatically() {
         System.out.println("Cache vidé automatiquement !");
     }

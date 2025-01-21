@@ -76,7 +76,7 @@ public class PaymentService {
         // Save the PaymentMethod to obtain its ID
         paymentRepository.save(paymentMethod);
 
-        // Récupérer l'ID du mode de paiement
+        // Retrieve payment method ID
         Long paymentMethodId = paymentMethod.getId();
 
         // Validate cart and create order if payment succeeded

@@ -4,31 +4,26 @@ import com.etherea.enums.CommandStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * DTO pour gérer les requêtes de commande.
- */
 public class CommandRequestDTO {
     private LocalDateTime commandDate;
     private String referenceCode;
-    private CommandStatus status = CommandStatus.PENDING; // Statut par défaut
-    private Long deliveryAddressId; // Identifiant de l'adresse de livraison
-    private Long deliveryMethodId; // Identifiant de la méthode de livraison
-    private Long paymentMethodId; // Identifiant du mode de paiement
-    private CartDTO cart; // Informations sur le panier
-    private BigDecimal total = BigDecimal.ZERO; // Valeur par défaut pour le total
+    private CommandStatus status = CommandStatus.PENDING;
+    private Long deliveryAddressId;
+    private Long paymentMethodId;
+    private CartDTO cart;
+    private BigDecimal total = BigDecimal.ZERO;
 
     public CommandRequestDTO() {}
 
     public CommandRequestDTO(LocalDateTime commandDate, String referenceCode, CommandStatus status,
-                             Long deliveryAddressId, Long deliveryMethodId, Long paymentMethodId, CartDTO cart) {
-        this.commandDate = commandDate != null ? commandDate : LocalDateTime.now(); // Date par défaut
+                             Long deliveryAddressId, Long paymentMethodId, CartDTO cart) {
+        this.commandDate = commandDate != null ? commandDate : LocalDateTime.now();
         this.referenceCode = referenceCode;
-        this.status = status != null ? status : CommandStatus.PENDING; // Statut par défaut
+        this.status = status != null ? status : CommandStatus.PENDING;
         this.deliveryAddressId = deliveryAddressId;
-        this.deliveryMethodId = deliveryMethodId;
         this.paymentMethodId = paymentMethodId;
         this.cart = cart;
-        this.total = cart != null ? cart.getFinalTotal() : BigDecimal.ZERO; // Calcul du total basé sur le panier
+        this.total = cart != null ? cart.getFinalTotal() : BigDecimal.ZERO;
     }
     public LocalDateTime getCommandDate() {
         return commandDate;
@@ -56,12 +51,6 @@ public class CommandRequestDTO {
             throw new IllegalArgumentException("Delivery address ID must be a positive value.");
         }
         this.deliveryAddressId = deliveryAddressId;
-    }
-    public Long getDeliveryMethodId() {
-        return deliveryMethodId;
-    }
-    public void setDeliveryMethodId(Long deliveryMethodId) {
-        this.deliveryMethodId = deliveryMethodId;
     }
     public Long getPaymentMethodId() {
         return paymentMethodId;

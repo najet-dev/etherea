@@ -202,13 +202,12 @@ public class CartItemService {
      *
      * @param userId The ID of the user.
      */
-    @Transactional
     public void validateCartAndCreateOrder(Long userId, Long paymentMethodId) {
-        // Retrieve User
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
-        // Retrieve Cart
+        // Retrieve the user's shopping cart
         Cart cart = user.getCart();
         if (cart == null || cart.getItems().isEmpty()) {
             throw new CartNotFoundException("The cart is empty or does not exist.");
@@ -217,29 +216,29 @@ public class CartItemService {
             throw new CartNotFoundException("The cart has already been used for an order.");
         }
 
-        // Retrieve Default Delivery Address
+        // Check default delivery address
         DeliveryAddress deliveryAddress = user.getDefaultAddress();
         if (deliveryAddress == null) {
             throw new DeliveryAddressNotFoundException("Default delivery address not found for user ID: " + userId);
         }
 
-        // Create CommandRequestDTO
         CommandRequestDTO commandRequestDTO = new CommandRequestDTO();
         commandRequestDTO.setCommandDate(LocalDateTime.now());
         commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());
         commandRequestDTO.setStatus(CommandStatus.PENDING);
         commandRequestDTO.setCart(CartDTO.fromCart(cart, null));
-        commandRequestDTO.setTotal(cart.calculateFinalTotal());
+        commandRequestDTO.setTotal(cart.calculateTotalAmount());
         commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
         commandRequestDTO.setPaymentMethodId(paymentMethodId);
 
-        // Create Command
+        // Create command
         commandService.createCommand(commandRequestDTO);
 
-        // Mark Cart as Used
+        // Mark shopping cart as used
         cart.setUsed(true);
         cartRepository.save(cart);
     }
+
     /**
      * Updates the quantity of a specific cart item.
      *
