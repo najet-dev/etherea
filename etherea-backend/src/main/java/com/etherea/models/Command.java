@@ -21,27 +21,23 @@ public class Command {
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "delivery_method_id")
-    private DeliveryMethod deliveryMethod;
-    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_id", nullable = false) // Relation avec le panier
+    @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
     @OneToMany(mappedBy = "command", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandItem> commandItems = new ArrayList<>();
     private BigDecimal total; // Ajout d'un attribut pour le total
     public Command() {}
-    public Command(LocalDateTime commandDate, String referenceCode, CommandStatus status, DeliveryAddress deliveryAddress, DeliveryMethod deliveryMethod, Cart cart) {
+    public Command(LocalDateTime commandDate, String referenceCode, CommandStatus status, DeliveryAddress deliveryAddress, Cart cart) {
         this.commandDate = commandDate;
         this.referenceCode = referenceCode;
         this.status = status;
         this.deliveryAddress = deliveryAddress;
-        this.deliveryMethod = deliveryMethod;
         this.cart = cart;
         this.total = cart.getFinalTotal(); // Initialiser le total à partir du panier
     }
@@ -74,12 +70,6 @@ public class Command {
     }
     public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
-    }
-    public DeliveryMethod getDeliveryMethod() {
-        return deliveryMethod;
-    }
-    public void setDeliveryMethod(DeliveryMethod deliveryMethod) {
-        this.deliveryMethod = deliveryMethod;
     }
     public PaymentMethod getPaymentMethod() {
         return paymentMethod;

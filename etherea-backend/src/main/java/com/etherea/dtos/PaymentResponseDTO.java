@@ -7,8 +7,6 @@ public class PaymentResponseDTO {
         this.status = status;
         this.transactionId = transactionId;
     }
-
-    // Getters et Setters
     public String getStatus() {
         return status;
     }

@@ -11,7 +11,6 @@ public class PaymentRequestDTO {
     private String cvc;
     @NotNull
     private Long cartId;
-
     public String getCardNumber() {
         return cardNumber;
     }

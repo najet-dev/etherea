@@ -43,7 +43,6 @@ public class ProductDTO {
         this.image = image;
         this.volumes = volumes;
     }
-    // Getters et Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
@@ -112,7 +111,6 @@ public class ProductDTO {
                 product.addVolume(volume);
             });
         }
-
         return product;
     }
 }

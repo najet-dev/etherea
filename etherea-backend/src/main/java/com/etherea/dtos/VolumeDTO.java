@@ -14,7 +14,6 @@ public class VolumeDTO {
         this.volume = volume;
         this.price = price;
     }
-    // Getters et Setters
     public Long getId() {
         return id;
     }
@@ -34,10 +33,10 @@ public class VolumeDTO {
         this.price = price;
     }
 
-    // Méthode pour convertir un Volume en VolumeDTO
+    // Method for converting a Volume to a VolumeDTO
     public static VolumeDTO fromVolume(Volume volume) {
         if (volume == null) {
-            return null; // Retourne null ou un VolumeDTO par défaut si nécessaire
+            return null;
         }
         return new VolumeDTO(
                 volume.getId(),
@@ -45,7 +44,7 @@ public class VolumeDTO {
                 volume.getPrice()
         );
     }
-    // Méthode pour convertir un VolumeDTO en Volume
+    // Method for converting a VolumeDTO to a Volume
     public Volume toVolume() {
         Volume volume = new Volume();
         volume.setId(this.id);
