@@ -1,7 +1,9 @@
 package com.etherea.services;
 
 import com.etherea.dtos.CommandRequestDTO;
+import com.etherea.enums.CommandStatus;
 import com.etherea.exception.CartNotFoundException;
+import com.etherea.exception.CommandNotFoundException;
 import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.models.*;
 import com.etherea.repositories.*;
@@ -76,4 +78,38 @@ public class CommandService {
 
         return command;
     }
+    /**
+     * Updates the status of a command.
+     *
+     * @param commandId The ID of the command to update.
+     * @param newStatus The new status to set.
+     */
+    @Transactional
+    public void updateCommandStatus(Long commandId, CommandStatus newStatus) {
+        Command command = commandRepository.findById(commandId)
+                .orElseThrow(() -> new CommandNotFoundException("Command not found with ID: " + commandId));
+        command.setStatus(newStatus);
+        commandRepository.save(command);
+    }
+
+    public boolean cancelCommand(Long commandId) {
+        Command command = commandRepository.findById(commandId)
+                .orElseThrow(() -> new CommandNotFoundException("Commande non trouvée"));
+
+        if (command.getStatus() == CommandStatus.PENDING || command.getStatus() == CommandStatus.AWAITING_PAYMENT) {
+            command.setStatus(CommandStatus.CANCELLED);
+
+            // Reset shopping cart
+            Cart cart = command.getCart();
+            if (cart != null) {
+                cart.setUsed(false);
+                cartRepository.save(cart);
+            }
+
+            commandRepository.save(command);
+            return true;
+        }
+        return false;
+    }
+
 }

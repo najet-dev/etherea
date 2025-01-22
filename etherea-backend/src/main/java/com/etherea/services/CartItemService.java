@@ -43,6 +43,7 @@ public class CartItemService {
     private DeliveryMethodRepository deliveryMethodRepository;
     @Autowired
     private CommandService commandService;
+
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
 
     /**
@@ -202,6 +203,7 @@ public class CartItemService {
      *
      * @param userId The ID of the user.
      */
+    @Transactional
     public void validateCartAndCreateOrder(Long userId, Long paymentMethodId) {
 
         User user = userRepository.findById(userId)
@@ -232,11 +234,14 @@ public class CartItemService {
         commandRequestDTO.setPaymentMethodId(paymentMethodId);
 
         // Create command
-        commandService.createCommand(commandRequestDTO);
+        //commandService.createCommand(commandRequestDTO);
+        Command createdCommand = commandService.createCommand(commandRequestDTO);
 
         // Mark shopping cart as used
         cart.setUsed(true);
         cartRepository.save(cart);
+
+        commandService.updateCommandStatus(createdCommand.getId(), CommandStatus.PAID);
     }
 
     /**
