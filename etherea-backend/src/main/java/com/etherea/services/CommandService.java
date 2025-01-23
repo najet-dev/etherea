@@ -87,16 +87,17 @@ public class CommandService {
     @Transactional
     public void updateCommandStatus(Long commandId, CommandStatus newStatus) {
         Command command = commandRepository.findById(commandId)
-                .orElseThrow(() -> new CommandNotFoundException("Command not found with ID: " + commandId));
+                .orElseThrow(() -> new CommandNotFoundException("Order not found with ID: " + commandId));
         command.setStatus(newStatus);
         commandRepository.save(command);
     }
 
+    @Transactional
     public boolean cancelCommand(Long commandId) {
         Command command = commandRepository.findById(commandId)
-                .orElseThrow(() -> new CommandNotFoundException("Commande non trouvée"));
+                .orElseThrow(() -> new CommandNotFoundException("Order not found"));
 
-        if (command.getStatus() == CommandStatus.PENDING || command.getStatus() == CommandStatus.AWAITING_PAYMENT) {
+        if (command.getStatus() == CommandStatus.PENDING) {
             command.setStatus(CommandStatus.CANCELLED);
 
             // Reset shopping cart
@@ -111,5 +112,4 @@ public class CommandService {
         }
         return false;
     }
-
 }

@@ -204,7 +204,7 @@ public class CartItemService {
      * @param userId The ID of the user.
      */
     @Transactional
-    public void validateCartAndCreateOrder(Long userId, Long paymentMethodId) {
+    public Command validateCartAndCreateOrder(Long userId, Long paymentMethodId) {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
@@ -241,7 +241,7 @@ public class CartItemService {
         cart.setUsed(true);
         cartRepository.save(cart);
 
-        commandService.updateCommandStatus(createdCommand.getId(), CommandStatus.PAID);
+        return createdCommand;
     }
 
     /**

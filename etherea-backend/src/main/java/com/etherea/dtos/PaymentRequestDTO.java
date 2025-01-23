@@ -1,5 +1,6 @@
 package com.etherea.dtos;
 
+import com.etherea.enums.PaymentOption;
 import jakarta.validation.constraints.NotNull;
 
 public class PaymentRequestDTO {
@@ -9,6 +10,8 @@ public class PaymentRequestDTO {
     private String expiryDate;
     @NotNull
     private String cvc;
+    @NotNull
+    private PaymentOption paymentOption;
     @NotNull
     private Long cartId;
     public String getCardNumber() {
@@ -28,6 +31,12 @@ public class PaymentRequestDTO {
     }
     public void setCvc(String cvc) {
         this.cvc = cvc;
+    }
+    public PaymentOption getPaymentOption() {
+        return paymentOption;
+    }
+    public void setPaymentOption(PaymentOption paymentOption) {
+        this.paymentOption = paymentOption;
     }
     public Long getCartId() {
         return cartId;
