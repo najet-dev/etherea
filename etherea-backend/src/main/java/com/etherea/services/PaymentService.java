@@ -2,12 +2,15 @@ package com.etherea.services;
 
 import com.etherea.dtos.PaymentRequestDTO;
 import com.etherea.dtos.PaymentResponseDTO;
+import com.etherea.enums.CommandStatus;
 import com.etherea.enums.PaymentOption;
 import com.etherea.enums.PaymentStatus;
 import com.etherea.exception.CartNotFoundException;
 import com.etherea.models.Cart;
+import com.etherea.models.Command;
 import com.etherea.models.PaymentMethod;
 import com.etherea.repositories.CartRepository;
+import com.etherea.repositories.CommandRepository;
 import com.etherea.repositories.PaymentRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -26,6 +29,8 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
     @Autowired
+    private CommandRepository commandRepository;
+    @Autowired
     private CartItemService cartItemService;
 
     /**
@@ -37,7 +42,7 @@ public class PaymentService {
      */
     @Transactional
     public PaymentResponseDTO processPayment(PaymentRequestDTO paymentRequestDTO) throws StripeException {
-        // Retrieve the user's cart
+
         Cart cart = cartRepository.findById(paymentRequestDTO.getCartId())
                 .orElseThrow(() -> new CartNotFoundException("Cart not found"));
 
@@ -45,46 +50,44 @@ public class PaymentService {
 
         // Create a Stripe payment request
         PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
-                .setAmount(totalAmount.multiply(BigDecimal.valueOf(100)).longValue()) // Amount in cents
+                .setAmount(totalAmount.multiply(BigDecimal.valueOf(100)).longValue()) // Amount in centimes
                 .setCurrency("eur")
                 .addPaymentMethodType("card")
                 .build();
 
         PaymentIntent paymentIntent = PaymentIntent.create(createParams);
 
-        // Confirm payment with a test payment method
+        // Confirm payment with a payment method
         PaymentIntentConfirmParams confirmParams = PaymentIntentConfirmParams.builder()
-                .setPaymentMethod("pm_card_visa") // Stripe test payment method (e.g. Visa card)
+                .setPaymentMethod("pm_card_visa") // Stripe test method (e.g. Visa card)
                 .build();
 
         PaymentIntent confirmedPaymentIntent = paymentIntent.confirm(confirmParams);
 
-        // Check transaction status after confirmation
-        PaymentStatus paymentStatus;
-        if ("succeeded".equals(confirmedPaymentIntent.getStatus())) {
-            paymentStatus = PaymentStatus.SUCCESS;
-        } else {
-            paymentStatus = PaymentStatus.FAILED;
-        }
+        // Determine payment status after confirmation
+        PaymentStatus paymentStatus = "succeeded".equals(confirmedPaymentIntent.getStatus())
+                ? PaymentStatus.SUCCESS
+                : PaymentStatus.FAILED;
 
         // Save transaction details
         PaymentMethod paymentMethod = new PaymentMethod();
         paymentMethod.setTransactionId(confirmedPaymentIntent.getId());
-        paymentMethod.setPaymentOption(paymentRequestDTO.getCardNumber().startsWith("4") ? PaymentOption.CREDIT_CARD : PaymentOption.PAYPAL);
+        paymentMethod.setPaymentOption(paymentRequestDTO.getPaymentOption());
         paymentMethod.setPaymentStatus(paymentStatus);
 
-        // Save the PaymentMethod to obtain its ID
         paymentRepository.save(paymentMethod);
 
-        // Retrieve payment method ID
-        Long paymentMethodId = paymentMethod.getId();
-
-        // Validate cart and create order if payment succeeded
+        // Validate basket and create an order if payment is successful
         if (paymentStatus == PaymentStatus.SUCCESS) {
-            cartItemService.validateCartAndCreateOrder(cart.getUser().getId(), paymentMethodId);
-            return new PaymentResponseDTO("Payment successful", confirmedPaymentIntent.getId());
+            Command createdCommand = cartItemService.validateCartAndCreateOrder(cart.getUser().getId(), paymentMethod.getId());
+
+            // Update order status to “PAID
+            createdCommand.setStatus(CommandStatus.PAID);
+            commandRepository.save(createdCommand);
+
+            return new PaymentResponseDTO("Successful payment", confirmedPaymentIntent.getId());
         } else {
-            return new PaymentResponseDTO("Payment failed", confirmedPaymentIntent.getId());
+            return new PaymentResponseDTO("Payment failure", confirmedPaymentIntent.getId());
         }
     }
 }
