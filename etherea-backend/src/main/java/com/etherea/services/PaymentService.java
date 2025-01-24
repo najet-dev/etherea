@@ -85,9 +85,9 @@ public class PaymentService {
             createdCommand.setStatus(CommandStatus.PAID);
             commandRepository.save(createdCommand);
 
-            return new PaymentResponseDTO("Successful payment", confirmedPaymentIntent.getId());
+            return new PaymentResponseDTO(PaymentStatus.SUCCESS, confirmedPaymentIntent.getId());
         } else {
-            return new PaymentResponseDTO("Payment failure", confirmedPaymentIntent.getId());
+            return new PaymentResponseDTO(PaymentStatus.FAILED, confirmedPaymentIntent.getId());
         }
     }
 }

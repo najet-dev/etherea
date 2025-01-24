@@ -2,6 +2,7 @@ package com.etherea.controllers;
 
 import com.etherea.dtos.PaymentRequestDTO;
 import com.etherea.dtos.PaymentResponseDTO;
+import com.etherea.enums.PaymentStatus;
 import com.etherea.services.PaymentService;
 import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
@@ -20,7 +21,7 @@ public class PaymentController {
             PaymentResponseDTO response = paymentService.processPayment(paymentRequestDTO);
             return ResponseEntity.ok(response);
         } catch (StripeException e) {
-            return ResponseEntity.badRequest().body(new PaymentResponseDTO("Payment failed", null));
+            return ResponseEntity.badRequest().body(new PaymentResponseDTO(PaymentStatus.FAILED, null));
         }
     }
 }

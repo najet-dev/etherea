@@ -1,4 +1,4 @@
-export interface AddDeliveryMethodRequestDTO {
+export interface AddDeliveryMethodRequest {
   userId: number;
   deliveryOption: string;
   addressId?: number;

@@ -15,7 +15,12 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DeliveryMethodService } from 'src/app/services/delivery-method.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
-import { AddDeliveryMethodRequestDTO } from '../models/AddDeliveryMethodRequestDTO .model';
+import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest .model';
+import { PaymentRequest } from '../models/PaymentRequest.model';
+import { PaymentResponse } from '../models/PaymentResponse.model';
+import { PaymentOption } from '../models/PaymentOption.enum';
+import { PaymentStatus } from '../models/PaymentStatus.enum.';
+import { PaymentService } from 'src/app/services/payment.service';
 
 @Component({
   selector: 'app-delivery-method',
@@ -45,6 +50,19 @@ export class DeliveryMethodComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
+  paymentRequest: PaymentRequest = {
+    id: 0,
+    cardNumber: '',
+    expiryDate: '',
+    cvc: '',
+    paymentOption: PaymentOption.CREDIT_CARD,
+    cartId: 0,
+  };
+  paymentResponse: PaymentResponse = {
+    paymentStatus: PaymentStatus.SUCCESS,
+    transactionId: '',
+  };
+
   constructor(
     private appFacade: AppFacade,
     private authService: AuthService,
@@ -52,7 +70,8 @@ export class DeliveryMethodComponent implements OnInit {
     private cartItemService: CartItemService,
     private router: Router,
     private deliveryMethodService: DeliveryMethodService,
-    public productTypeService: ProductTypeService
+    public productTypeService: ProductTypeService,
+    private paymentService: PaymentService
   ) {}
 
   ngOnInit(): void {
@@ -60,6 +79,7 @@ export class DeliveryMethodComponent implements OnInit {
     this.loadCartTotal();
     this.loadCartItems();
     this.showPickupPoints();
+    this.initializePayment();
   }
 
   private loadUserAndAddress(): void {
@@ -250,7 +270,7 @@ export class DeliveryMethodComponent implements OnInit {
   }
 
   confirmDeliveryOption() {
-    const request: AddDeliveryMethodRequestDTO = {
+    const request: AddDeliveryMethodRequest = {
       userId: this.userId,
       deliveryOption: this.selectedDeliveryOption ?? '',
       addressId: this.addressId ?? undefined,
@@ -288,5 +308,14 @@ export class DeliveryMethodComponent implements OnInit {
         );
       },
     });
+  }
+  //payment
+  private initializePayment(): void {
+    const cartId = Number(this.route.snapshot.paramMap.get('cartId'));
+    if (!cartId) {
+      this.errorMessage = 'ID du panier invalide.';
+      return;
+    }
+    this.paymentRequest.cartId = cartId;
   }
 }
