@@ -91,7 +91,6 @@ public class CommandService {
         command.setStatus(newStatus);
         commandRepository.save(command);
     }
-
     @Transactional
     public boolean cancelCommand(Long commandId) {
         Command command = commandRepository.findById(commandId)
