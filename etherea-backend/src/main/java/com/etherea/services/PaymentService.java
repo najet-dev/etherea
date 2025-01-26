@@ -71,15 +71,14 @@ public class PaymentService {
         PaymentIntent paymentIntent;
 
         try {
-            // Retrieve PaymentIntent
+            // Fetch from PaymentIntent
             paymentIntent = PaymentIntent.retrieve(paymentIntentId);
 
-            // If the PaymentIntent requires a payment method, attach it.
             if ("requires_payment_method".equals(paymentIntent.getStatus())) {
                 logger.info("Attaching payment method {} to PaymentIntent {}", paymentMethodId, paymentIntentId);
 
                 paymentIntent = paymentIntent.update(PaymentIntentUpdateParams.builder()
-                        .setPaymentMethod(paymentMethodId) // Utilisation de l'ID reçu
+                        .setPaymentMethod(paymentMethodId)
                         .build());
 
                 logger.info("Payment method attached successfully.");
@@ -93,12 +92,10 @@ public class PaymentService {
             throw new IllegalStateException("Unable to confirm PaymentIntent", e);
         }
 
-        // Determine final status
         PaymentStatus paymentStatus = "succeeded".equals(paymentIntent.getStatus())
                 ? PaymentStatus.SUCCESS
                 : PaymentStatus.FAILED;
 
-        // Update database with final status
         PaymentMethod paymentMethod = paymentRepository.findByTransactionId(paymentIntentId);
         if (paymentMethod == null) {
             throw new IllegalArgumentException("Payment method not found for transaction ID: " + paymentIntentId);
@@ -107,11 +104,9 @@ public class PaymentService {
         paymentMethod.setPaymentStatus(paymentStatus);
         paymentRepository.save(paymentMethod);
 
-        // Create order if payment is successful
         if (paymentStatus == PaymentStatus.SUCCESS) {
             logger.info("Payment succeeded. Creating order...");
 
-            // Retrieve the information needed to create the order
             Cart cart = cartRepository.findById(paymentMethod.getCartId())
                     .orElseThrow(() -> new CartNotFoundException("Cart not found for ID: " + paymentMethod.getCartId()));
 
@@ -134,13 +129,19 @@ public class PaymentService {
             commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
             commandRequestDTO.setPaymentMethodId(paymentMethod.getId());
 
-            // Call the CommandService service to create the command
             Command createdCommand = commandService.createCommand(commandRequestDTO);
 
-            // Update order status PAID
             commandService.updateCommandStatus(createdCommand.getId(), CommandStatus.PAID);
+
+            // Empty shopping cart items
+            cart.getItems().clear();
+            cart.setUsed(true);
+            cartRepository.save(cart);
+
+            logger.info("Order created and cart emptied for user ID: {}", user.getId());
         }
 
         return new PaymentResponseDTO(paymentStatus, paymentIntentId);
     }
+
 }
