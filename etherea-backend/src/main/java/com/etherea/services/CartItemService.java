@@ -154,7 +154,7 @@ public class CartItemService {
             cartItemRepository.save(newCartItem);
         }
 
-        // Warning for low stock levels (e.g. 5 products or less)
+        // Warning for low stock levels (e.g. 5 products less)
         if (product.getStockQuantity() <= 5) {
             logger.warn("Le stock pour le produit " + product.getName() +
                     " est faible. Il reste " + product.getStockQuantity() + " produits.");
@@ -204,12 +204,11 @@ public class CartItemService {
      * @param userId The ID of the user.
      */
     @Transactional
-    public Command validateCartAndCreateOrder(Long userId, Long paymentMethodId) {
-
+    public void validateCartAndCreateOrder(Long userId, Long paymentMethodId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
 
-        // Retrieve the user's shopping cart
+        // Retrieve user's shopping cart
         Cart cart = user.getCart();
         if (cart == null || cart.getItems().isEmpty()) {
             throw new CartNotFoundException("The cart is empty or does not exist.");
@@ -224,26 +223,30 @@ public class CartItemService {
             throw new DeliveryAddressNotFoundException("Default delivery address not found for user ID: " + userId);
         }
 
+        // Order DTO creation
         CommandRequestDTO commandRequestDTO = new CommandRequestDTO();
         commandRequestDTO.setCommandDate(LocalDateTime.now());
         commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());
-        commandRequestDTO.setStatus(CommandStatus.PENDING);
+        commandRequestDTO.setStatus(CommandStatus.PAID);
         commandRequestDTO.setCart(CartDTO.fromCart(cart, null));
-        commandRequestDTO.setTotal(cart.calculateTotalAmount());
+        commandRequestDTO.setTotal(cart.calculateFinalTotal());
         commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
         commandRequestDTO.setPaymentMethodId(paymentMethodId);
 
-        // Create command
-        //commandService.createCommand(commandRequestDTO);
-        Command createdCommand = commandService.createCommand(commandRequestDTO);
+        // Create order
+        Command command = commandService.createCommand(commandRequestDTO);
 
         // Mark shopping cart as used
         cart.setUsed(true);
+
+        // Empty shopping cart items
+        cart.getItems().clear();
+
+        // Save updated shopping cart
         cartRepository.save(cart);
 
-        return createdCommand;
+        System.out.println("Order created with ID: " + command.getId() + " and the cart has been emptied.");
     }
-
     /**
      * Updates the quantity of a specific cart item.
      *

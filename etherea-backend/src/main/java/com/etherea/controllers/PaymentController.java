@@ -10,14 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/payments")
 public class PaymentController {
-
     @Autowired
     private PaymentService paymentService;
-
-    // Route pour créer l'intention de paiement
     @PostMapping("/createPayment")
     public ResponseEntity<PaymentResponseDTO> createPaymentIntent(@RequestBody @Valid PaymentRequestDTO paymentRequestDTO) {
         try {
@@ -27,16 +26,16 @@ public class PaymentController {
             return ResponseEntity.badRequest().body(new PaymentResponseDTO(null, null));
         }
     }
-
-    // Route pour confirmer le paiement (en utilisant PathVariable pour récupérer paymentIntentId)
-    @PostMapping("/confirm/{paymentIntentId}")
-    public ResponseEntity<PaymentResponseDTO> confirmPayment(@PathVariable String paymentIntentId) {
+    @PostMapping("/confirm")
+    public ResponseEntity<PaymentResponseDTO> confirmPayment(@RequestBody Map<String, String> request) {
         try {
-            // Appel au service pour confirmer le paiement avec l'ID du paymentIntent
-            PaymentResponseDTO response = paymentService.confirmPayment(paymentIntentId);
+            String paymentIntentId = request.get("paymentIntentId");
+            String paymentMethodId = request.get("paymentMethodId");
+
+            PaymentResponseDTO response = paymentService.confirmPayment(paymentIntentId, paymentMethodId);
             return ResponseEntity.ok(response);
         } catch (StripeException e) {
-            return ResponseEntity.badRequest().body(new PaymentResponseDTO(null, null));
+            return ResponseEntity.badRequest().body(new PaymentResponseDTO(null, e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new PaymentResponseDTO(PaymentStatus.FAILED, "Internal Server Error: " + e.getMessage()));
         }

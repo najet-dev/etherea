@@ -7,16 +7,14 @@ import com.etherea.dtos.PaymentResponseDTO;
 import com.etherea.enums.CommandStatus;
 import com.etherea.enums.PaymentStatus;
 import com.etherea.exception.CartNotFoundException;
-import com.etherea.exception.CommandNotFoundException;
-import com.etherea.models.Cart;
-import com.etherea.models.Command;
-import com.etherea.models.PaymentMethod;
+import com.etherea.models.*;
 import com.etherea.repositories.CartRepository;
 import com.etherea.repositories.CommandRepository;
 import com.etherea.repositories.PaymentRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.PaymentIntentUpdateParams;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,43 +26,38 @@ import java.time.LocalDateTime;
 
 @Service
 public class PaymentService {
-
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
-
     @Autowired
     private CartRepository cartRepository;
-
     @Autowired
     private PaymentRepository paymentRepository;
-
     @Autowired
     private CommandRepository commandRepository;
-
     @Autowired
     private CommandService commandService;
-
+    @Autowired
+    private CartItemService cartItemService;
     @Transactional
     public PaymentResponseDTO createPaymentIntent(PaymentRequestDTO paymentRequestDTO) throws StripeException {
-        // Valider le panier
+
         Cart cart = cartRepository.findById(paymentRequestDTO.getCartId())
                 .orElseThrow(() -> new CartNotFoundException("Cart not found"));
 
         BigDecimal totalAmount = cart.calculateFinalTotal();
 
-        // Créer une intention de paiement Stripe
+        // Create a Stripe payment intention
         PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
-                .setAmount(totalAmount.multiply(BigDecimal.valueOf(100)).longValue()) // Montant en centimes
+                .setAmount(totalAmount.multiply(BigDecimal.valueOf(100)).longValue()) // Amount in centimes
                 .setCurrency("eur")
                 .addPaymentMethodType("card")
                 .build();
 
         PaymentIntent paymentIntent = PaymentIntent.create(createParams);
 
-        // Enregistrer l'intention de paiement
         PaymentMethod paymentMethod = new PaymentMethod();
         paymentMethod.setTransactionId(paymentIntent.getId());
         paymentMethod.setPaymentOption(paymentRequestDTO.getPaymentOption());
-        paymentMethod.setPaymentStatus(PaymentStatus.PENDING); // Toujours PENDING à la création
+        paymentMethod.setPaymentStatus(PaymentStatus.PENDING);
         paymentMethod.setCartId(paymentRequestDTO.getCartId());
         paymentRepository.save(paymentMethod);
 
@@ -74,55 +67,78 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponseDTO confirmPayment(String paymentIntentId) throws StripeException {
+    public PaymentResponseDTO confirmPayment(String paymentIntentId, String paymentMethodId) throws StripeException {
         PaymentIntent paymentIntent;
+
         try {
+            // Retrieve PaymentIntent
             paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+
+            // If the PaymentIntent requires a payment method, attach it.
+            if ("requires_payment_method".equals(paymentIntent.getStatus())) {
+                logger.info("Attaching payment method {} to PaymentIntent {}", paymentMethodId, paymentIntentId);
+
+                paymentIntent = paymentIntent.update(PaymentIntentUpdateParams.builder()
+                        .setPaymentMethod(paymentMethodId) // Utilisation de l'ID reçu
+                        .build());
+
+                logger.info("Payment method attached successfully.");
+            }
+
+            // Confirm PaymentIntent
+            paymentIntent = paymentIntent.confirm();
+            logger.info("PaymentIntent confirmed with status: {}", paymentIntent.getStatus());
         } catch (StripeException e) {
-            logger.error("Failed to retrieve PaymentIntent with ID: {}", paymentIntentId, e);
-            throw new IllegalStateException("Unable to retrieve PaymentIntent from Stripe", e);
+            logger.error("Error during PaymentIntent confirmation: {}", e.getMessage());
+            throw new IllegalStateException("Unable to confirm PaymentIntent", e);
         }
 
-        // Vérifier le statut du paiement
+        // Determine final status
         PaymentStatus paymentStatus = "succeeded".equals(paymentIntent.getStatus())
                 ? PaymentStatus.SUCCESS
                 : PaymentStatus.FAILED;
 
-        // Récupérer et valider la méthode de paiement
+        // Update database with final status
         PaymentMethod paymentMethod = paymentRepository.findByTransactionId(paymentIntentId);
         if (paymentMethod == null) {
-            logger.error("PaymentMethod not found for PaymentIntent ID: {}", paymentIntentId);
             throw new IllegalArgumentException("Payment method not found for transaction ID: " + paymentIntentId);
         }
 
-        // Mettre à jour le statut de la méthode de paiement
         paymentMethod.setPaymentStatus(paymentStatus);
         paymentRepository.save(paymentMethod);
 
-        logger.info("Payment status updated to {} for PaymentIntent ID: {}", paymentStatus, paymentIntentId);
-
-        // Créer une commande si le paiement est réussi
+        // Create order if payment is successful
         if (paymentStatus == PaymentStatus.SUCCESS) {
-            Cart cart = cartRepository.findById(paymentMethod.getCartId())
-                    .orElseThrow(() -> new CartNotFoundException("Cart not found"));
+            logger.info("Payment succeeded. Creating order...");
 
-            CommandRequestDTO commandRequestDTO = new CommandRequestDTO(
-                    LocalDateTime.now(),
-                    "CMD" + System.currentTimeMillis(),
-                    CommandStatus.PAID,
-                    cart.getUser().getDefaultAddress().getId(),
-                    paymentMethod.getId(),
-                    CartDTO.fromCart(cart, null)
-            );
+            // Retrieve the information needed to create the order
+            Cart cart = cartRepository.findById(paymentMethod.getCartId())
+                    .orElseThrow(() -> new CartNotFoundException("Cart not found for ID: " + paymentMethod.getCartId()));
+
+            if (cart.isUsed()) {
+                throw new IllegalStateException("The cart has already been used for an order.");
+            }
+
+            User user = cart.getUser();
+            DeliveryAddress deliveryAddress = user.getDefaultAddress();
+            if (deliveryAddress == null) {
+                throw new IllegalStateException("Default delivery address not found for user ID: " + user.getId());
+            }
+
+            CommandRequestDTO commandRequestDTO = new CommandRequestDTO();
+            commandRequestDTO.setCommandDate(LocalDateTime.now());
+            commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());
+            commandRequestDTO.setStatus(CommandStatus.PENDING);
+            commandRequestDTO.setCart(CartDTO.fromCart(cart, null));
+            commandRequestDTO.setTotal(cart.calculateFinalTotal());
+            commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
+            commandRequestDTO.setPaymentMethodId(paymentMethod.getId());
+
+            // Call the CommandService service to create the command
             Command createdCommand = commandService.createCommand(commandRequestDTO);
 
-            // Marquer le panier comme utilisé et vider les articles
-            cart.setUsed(true);
-            cart.getItems().clear();
-            cartRepository.save(cart);
-
-            logger.info("Command created for user ID: {} with reference code: {}",
-                    cart.getUser().getId(), createdCommand.getReferenceCode());
+            // Update order status PAID
+            commandService.updateCommandStatus(createdCommand.getId(), CommandStatus.PAID);
         }
 
         return new PaymentResponseDTO(paymentStatus, paymentIntentId);
