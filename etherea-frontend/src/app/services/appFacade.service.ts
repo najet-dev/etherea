@@ -13,6 +13,7 @@ import { UserService } from './user.service';
 import { DeliveryAddressService } from './delivery-address.service';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { DeliveryMethodService } from './delivery-method.service';
+import { PaymentService } from './payment.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,8 @@ export class AppFacade {
     private productService: ProductService,
     public deliveryAddressService: DeliveryAddressService,
     private userService: UserService,
-    public deliveryMethodService: DeliveryMethodService
+    public deliveryMethodService: DeliveryMethodService,
+    public paymentService: PaymentService
   ) {}
 
   // cart
@@ -135,5 +137,9 @@ export class AppFacade {
   //Method
   getDeliveryMethods(userId: number): Observable<DeliveryMethod[]> {
     return this.deliveryMethodService.getDeliveryMethods(userId);
+  }
+  //payment
+  addPayment(payment: PaymentRequest): Observable<PaymentResponse> {
+    return this.paymentService.addPayment(payment);
   }
 }

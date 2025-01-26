@@ -33,6 +33,9 @@ import { FavoriteService } from './services/favorite.service';
 import { OrderComponent } from './components/order/order.component';
 import { DeliveryMethodComponent } from './components/delivery-method/delivery-method.component';
 import { ProductDisplayComponent } from './components/product-display/product-display.component';
+import { NgxStripeModule } from 'ngx-stripe';
+import { environment } from '../environments/environment';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -58,6 +61,7 @@ import { ProductDisplayComponent } from './components/product-display/product-di
     ProductDisplayComponent,
   ],
   imports: [
+    CommonModule,
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
@@ -69,6 +73,7 @@ import { ProductDisplayComponent } from './components/product-display/product-di
     ReactiveFormsModule,
     MatDialogModule,
     MatPaginatorModule,
+    NgxStripeModule.forRoot(environment.stripePublicKey),
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

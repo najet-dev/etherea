@@ -1,17 +1,19 @@
 package com.etherea.dtos;
 
+import com.etherea.enums.PaymentStatus;
+
 public class PaymentResponseDTO {
-    private String status;
+    private PaymentStatus paymentStatus;
     private String transactionId;
-    public PaymentResponseDTO(String status, String transactionId) {
-        this.status = status;
+    public PaymentResponseDTO(PaymentStatus paymentStatus, String transactionId) {
+        this.paymentStatus = paymentStatus;
         this.transactionId = transactionId;
     }
-    public String getStatus() {
-        return status;
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
     }
-    public void setStatus(String status) {
-        this.status = status;
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
     public String getTransactionId() {
         return transactionId;

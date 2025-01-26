@@ -18,6 +18,8 @@ public class PaymentMethod {
     private String transactionId;      // ID de transaction
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
+    @Column(nullable = false)
+    private Long cartId;
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
@@ -51,5 +53,11 @@ public class PaymentMethod {
     }
     public void setPaymentStatus(PaymentStatus paymentStatus) {
         this.paymentStatus = paymentStatus;
+    }
+    public Long getCartId() {
+        return cartId;
+    }
+    public void setCartId(Long cartId) {
+        this.cartId = cartId;
     }
 }

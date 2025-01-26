@@ -6,7 +6,7 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import { PickupPoint } from '../components/models/pickupPoint.model';
 import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
 import { DeliveryMethodDTO } from '../components/models/DeliveryMethodDTO.model';
-import { AddDeliveryMethodRequestDTO } from '../components/models/AddDeliveryMethodRequestDTO .model';
+import { AddDeliveryMethodRequest } from '../components/models/AddDeliveryMethodRequest .model';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +41,7 @@ export class DeliveryMethodService {
   }
 
   addDeliveryMethod(
-    request: AddDeliveryMethodRequestDTO
+    request: AddDeliveryMethodRequest
   ): Observable<DeliveryMethodDTO> {
     return this.httpClient.post<DeliveryMethodDTO>(
       `${environment.apiUrl}/deliveryMethods/add`,
