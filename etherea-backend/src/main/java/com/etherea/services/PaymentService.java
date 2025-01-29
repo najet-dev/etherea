@@ -39,109 +39,23 @@ public class PaymentService {
     private CartItemService cartItemService;
     @Transactional
     public PaymentResponseDTO createPaymentIntent(PaymentRequestDTO paymentRequestDTO) throws StripeException {
-
         Cart cart = cartRepository.findById(paymentRequestDTO.getCartId())
                 .orElseThrow(() -> new CartNotFoundException("Cart not found"));
 
         BigDecimal totalAmount = cart.calculateFinalTotal();
+        long amountInCents = totalAmount.multiply(BigDecimal.valueOf(100)).longValue();
 
-        // Create a Stripe payment intention
         PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
-                .setAmount(totalAmount.multiply(BigDecimal.valueOf(100)).longValue()) // Amount in centimes
+                .setAmount(amountInCents)
                 .setCurrency("eur")
                 .addPaymentMethodType("card")
                 .build();
 
         PaymentIntent paymentIntent = PaymentIntent.create(createParams);
 
-        PaymentMethod paymentMethod = new PaymentMethod();
-        paymentMethod.setTransactionId(paymentIntent.getId());
-        paymentMethod.setPaymentOption(paymentRequestDTO.getPaymentOption());
-        paymentMethod.setPaymentStatus(PaymentStatus.PENDING);
-        paymentMethod.setCartId(paymentRequestDTO.getCartId());
-        paymentRepository.save(paymentMethod);
-
-        logger.info("PaymentIntent created with ID: {}", paymentIntent.getId());
-
-        return new PaymentResponseDTO(PaymentStatus.PENDING, paymentIntent.getId());
+        return new PaymentResponseDTO(paymentIntent.getClientSecret());
     }
-
-    @Transactional
-    public PaymentResponseDTO confirmPayment(String paymentIntentId, String paymentMethodId) throws StripeException {
-        PaymentIntent paymentIntent;
-
-        try {
-            // Fetch from PaymentIntent
-            paymentIntent = PaymentIntent.retrieve(paymentIntentId);
-
-            if ("requires_payment_method".equals(paymentIntent.getStatus())) {
-                logger.info("Attaching payment method {} to PaymentIntent {}", paymentMethodId, paymentIntentId);
-
-                paymentIntent = paymentIntent.update(PaymentIntentUpdateParams.builder()
-                        .setPaymentMethod(paymentMethodId)
-                        .build());
-
-                logger.info("Payment method attached successfully.");
-            }
-
-            // Confirm PaymentIntent
-            paymentIntent = paymentIntent.confirm();
-            logger.info("PaymentIntent confirmed with status: {}", paymentIntent.getStatus());
-        } catch (StripeException e) {
-            logger.error("Error during PaymentIntent confirmation: {}", e.getMessage());
-            throw new IllegalStateException("Unable to confirm PaymentIntent", e);
-        }
-
-        PaymentStatus paymentStatus = "succeeded".equals(paymentIntent.getStatus())
-                ? PaymentStatus.SUCCESS
-                : PaymentStatus.FAILED;
-
-        PaymentMethod paymentMethod = paymentRepository.findByTransactionId(paymentIntentId);
-        if (paymentMethod == null) {
-            throw new IllegalArgumentException("Payment method not found for transaction ID: " + paymentIntentId);
-        }
-
-        paymentMethod.setPaymentStatus(paymentStatus);
-        paymentRepository.save(paymentMethod);
-
-        if (paymentStatus == PaymentStatus.SUCCESS) {
-            logger.info("Payment succeeded. Creating order...");
-
-            Cart cart = cartRepository.findById(paymentMethod.getCartId())
-                    .orElseThrow(() -> new CartNotFoundException("Cart not found for ID: " + paymentMethod.getCartId()));
-
-            if (cart.isUsed()) {
-                throw new IllegalStateException("The cart has already been used for an order.");
-            }
-
-            User user = cart.getUser();
-            DeliveryAddress deliveryAddress = user.getDefaultAddress();
-            if (deliveryAddress == null) {
-                throw new IllegalStateException("Default delivery address not found for user ID: " + user.getId());
-            }
-
-            CommandRequestDTO commandRequestDTO = new CommandRequestDTO();
-            commandRequestDTO.setCommandDate(LocalDateTime.now());
-            commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());
-            commandRequestDTO.setStatus(CommandStatus.PENDING);
-            commandRequestDTO.setCart(CartDTO.fromCart(cart, null));
-            commandRequestDTO.setTotal(cart.calculateFinalTotal());
-            commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
-            commandRequestDTO.setPaymentMethodId(paymentMethod.getId());
-
-            Command createdCommand = commandService.createCommand(commandRequestDTO);
-
-            commandService.updateCommandStatus(createdCommand.getId(), CommandStatus.PAID);
-
-            // Empty shopping cart items
-            cart.getItems().clear();
-            cart.setUsed(true);
-            cartRepository.save(cart);
-
-            logger.info("Order created and cart emptied for user ID: {}", user.getId());
-        }
-
-        return new PaymentResponseDTO(paymentStatus, paymentIntentId);
-    }
-
 }
+
+
+

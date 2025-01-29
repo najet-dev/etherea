@@ -21,6 +21,14 @@ import { PaymentResponse } from '../models/PaymentResponse.model';
 import { PaymentOption } from '../models/PaymentOption.enum';
 import { PaymentStatus } from '../models/PaymentStatus.enum.';
 import { PaymentService } from 'src/app/services/payment.service';
+import { NgForm } from '@angular/forms';
+import {
+  loadStripe,
+  Stripe,
+  StripeCardElement,
+  StripeElements,
+} from '@stripe/stripe-js';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-delivery-method',
@@ -48,20 +56,16 @@ export class DeliveryMethodComponent implements OnInit {
   isCartEmpty: boolean = true;
   errorMessage: string = '';
 
-  private destroyRef = inject(DestroyRef);
+  // Stripe-related properties
+  stripe: Stripe | null = null;
+  elements: StripeElements | null = null;
+  cardElement: StripeCardElement | null = null;
 
   paymentRequest: PaymentRequest = {
-    id: 0,
-    cardNumber: '',
-    expiryDate: '',
-    cvc: '',
-    paymentOption: PaymentOption.CREDIT_CARD,
     cartId: 0,
   };
-  paymentResponse: PaymentResponse = {
-    paymentStatus: PaymentStatus.SUCCESS,
-    transactionId: '',
-  };
+
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private appFacade: AppFacade,
@@ -79,7 +83,6 @@ export class DeliveryMethodComponent implements OnInit {
     this.loadCartTotal();
     this.loadCartItems();
     this.showPickupPoints();
-    this.initializePayment();
   }
 
   private loadUserAndAddress(): void {
@@ -310,12 +313,4 @@ export class DeliveryMethodComponent implements OnInit {
     });
   }
   //payment
-  private initializePayment(): void {
-    const cartId = Number(this.route.snapshot.paramMap.get('cartId'));
-    if (!cartId) {
-      this.errorMessage = 'ID du panier invalide.';
-      return;
-    }
-    this.paymentRequest.cartId = cartId;
-  }
 }

@@ -9,4 +9,12 @@ public class StripeConfig {
     public StripeConfig(@Value("${stripe.secret.key}") String apiKey) {
         Stripe.apiKey = apiKey;
     }
+    // Charger la clé secrète du webhook
+    @Value("${stripe.webhook.secret}")
+    private String webhookSecret;
+
+    // Méthode pour récupérer la clé secrète du webhook
+    public String getWebhookSecret() {
+        return webhookSecret;
+    }
 }

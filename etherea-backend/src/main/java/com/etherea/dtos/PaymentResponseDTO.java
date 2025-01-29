@@ -3,22 +3,18 @@ package com.etherea.dtos;
 import com.etherea.enums.PaymentStatus;
 
 public class PaymentResponseDTO {
-    private PaymentStatus paymentStatus;
-    private String transactionId;
-    public PaymentResponseDTO(PaymentStatus paymentStatus, String transactionId) {
-        this.paymentStatus = paymentStatus;
-        this.transactionId = transactionId;
+    private String clientSecret;
+
+    public PaymentResponseDTO(String clientSecret) {
+        this.clientSecret = clientSecret;
     }
-    public PaymentStatus getPaymentStatus() {
-        return paymentStatus;
+
+    public String getClientSecret() {
+        return clientSecret;
     }
-    public void setPaymentStatus(PaymentStatus paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
-    public String getTransactionId() {
-        return transactionId;
-    }
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
+
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
     }
 }
+
