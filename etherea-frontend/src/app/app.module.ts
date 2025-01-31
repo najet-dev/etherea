@@ -36,6 +36,7 @@ import { ProductDisplayComponent } from './components/product-display/product-di
 import { NgxStripeModule } from 'ngx-stripe';
 import { environment } from '../environments/environment';
 import { CommonModule } from '@angular/common';
+import { PaymentComponent } from './components/payment/payment.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,7 @@ import { CommonModule } from '@angular/common';
     OrderComponent,
     DeliveryMethodComponent,
     ProductDisplayComponent,
+    PaymentComponent,
   ],
   imports: [
     CommonModule,

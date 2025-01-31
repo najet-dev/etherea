@@ -16,19 +16,10 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest .model';
-import { PaymentRequest } from '../models/PaymentRequest.model';
-import { PaymentResponse } from '../models/PaymentResponse.model';
-import { PaymentOption } from '../models/PaymentOption.enum';
-import { PaymentStatus } from '../models/PaymentStatus.enum.';
 import { PaymentService } from 'src/app/services/payment.service';
-import { NgForm } from '@angular/forms';
-import {
-  loadStripe,
-  Stripe,
-  StripeCardElement,
-  StripeElements,
-} from '@stripe/stripe-js';
+import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
 import { environment } from 'src/environments/environment';
+import { PaymentOption } from '../models/PaymentOption.enum';
 
 @Component({
   selector: 'app-delivery-method',
@@ -56,9 +47,12 @@ export class DeliveryMethodComponent implements OnInit {
   isCartEmpty: boolean = true;
   errorMessage: string = '';
 
-  // Stripe-related properties
-
   private destroyRef = inject(DestroyRef);
+  private stripe: Stripe | null = null;
+  private elements: StripeElements | null = null;
+  private cardElement: any;
+  isProcessing: boolean = false;
+  paymentConfirmed: boolean = false;
 
   constructor(
     private appFacade: AppFacade,
@@ -305,5 +299,4 @@ export class DeliveryMethodComponent implements OnInit {
       },
     });
   }
-  //payment
 }
