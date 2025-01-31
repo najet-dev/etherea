@@ -47,4 +47,26 @@ export class PaymentService {
         })
       );
   }
+  /**
+   * Confirme un paiement après la validation par l'utilisateur.
+   * @param transactionId L'identifiant unique de la transaction.
+   * @returns Observable contenant le PaymentResponse mis à jour.
+   */
+  confirmPayment(transactionId: string): Observable<PaymentResponse> {
+    return this.httpClient
+      .post<PaymentResponse>(`${this.apiUrl}/payments/confirmPayment`, {
+        transactionId,
+      })
+      .pipe(
+        catchError((error) => {
+          console.error('Erreur lors de la confirmation du paiement', error);
+          return throwError(
+            () =>
+              new Error(
+                'Une erreur est survenue lors de la confirmation du paiement.'
+              )
+          );
+        })
+      );
+  }
 }

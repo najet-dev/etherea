@@ -57,13 +57,6 @@ export class DeliveryMethodComponent implements OnInit {
   errorMessage: string = '';
 
   // Stripe-related properties
-  stripe: Stripe | null = null;
-  elements: StripeElements | null = null;
-  cardElement: StripeCardElement | null = null;
-
-  paymentRequest: PaymentRequest = {
-    cartId: 0,
-  };
 
   private destroyRef = inject(DestroyRef);
 
