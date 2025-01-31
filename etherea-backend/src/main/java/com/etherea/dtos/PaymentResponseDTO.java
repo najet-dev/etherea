@@ -5,6 +5,9 @@ import com.etherea.enums.PaymentStatus;
 public class PaymentResponseDTO {
     private PaymentStatus paymentStatus;
     private String transactionId;
+
+    public PaymentResponseDTO() {
+    }
     public PaymentResponseDTO(PaymentStatus paymentStatus, String transactionId) {
         this.paymentStatus = paymentStatus;
         this.transactionId = transactionId;

@@ -139,7 +139,7 @@ export class AppFacade {
     return this.deliveryMethodService.getDeliveryMethods(userId);
   }
   //payment
-  addPayment(payment: PaymentRequest): Observable<PaymentResponse> {
-    return this.paymentService.addPayment(payment);
-  }
+  //   addPayment(payment: PaymentRequest): Observable<PaymentResponse> {
+  //     return this.paymentService.addPayment(payment);
+  //   }
 }

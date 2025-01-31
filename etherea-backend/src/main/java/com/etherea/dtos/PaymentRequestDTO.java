@@ -8,21 +8,18 @@ public class PaymentRequestDTO {
     @NotNull
     private PaymentOption paymentOption;
     @NotNull
-    private PaymentStatus paymentStatus;
-    @NotNull
     private Long cartId;
-
+    public PaymentRequestDTO() {
+    }
+    public PaymentRequestDTO(PaymentOption paymentOption, Long cartId) {
+        this.paymentOption = paymentOption;
+        this.cartId = cartId;
+    }
     public PaymentOption getPaymentOption() {
         return paymentOption;
     }
     public void setPaymentOption(PaymentOption paymentOption) {
         this.paymentOption = paymentOption;
-    }
-    public PaymentStatus getPaymentStatus() {
-        return paymentStatus;
-    }
-    public void setPaymentStatus(PaymentStatus paymentStatus) {
-        this.paymentStatus = paymentStatus;
     }
     public Long getCartId() {
         return cartId;

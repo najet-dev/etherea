@@ -16,11 +16,10 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest .model';
-import { PaymentRequest } from '../models/PaymentRequest.model';
-import { PaymentResponse } from '../models/PaymentResponse.model';
-import { PaymentOption } from '../models/PaymentOption.enum';
-import { PaymentStatus } from '../models/PaymentStatus.enum.';
 import { PaymentService } from 'src/app/services/payment.service';
+import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
+import { environment } from 'src/environments/environment';
+import { PaymentOption } from '../models/PaymentOption.enum';
 
 @Component({
   selector: 'app-delivery-method',
@@ -49,19 +48,11 @@ export class DeliveryMethodComponent implements OnInit {
   errorMessage: string = '';
 
   private destroyRef = inject(DestroyRef);
-
-  paymentRequest: PaymentRequest = {
-    id: 0,
-    cardNumber: '',
-    expiryDate: '',
-    cvc: '',
-    paymentOption: PaymentOption.CREDIT_CARD,
-    cartId: 0,
-  };
-  paymentResponse: PaymentResponse = {
-    paymentStatus: PaymentStatus.SUCCESS,
-    transactionId: '',
-  };
+  private stripe: Stripe | null = null;
+  private elements: StripeElements | null = null;
+  private cardElement: any;
+  isProcessing: boolean = false;
+  paymentConfirmed: boolean = false;
 
   constructor(
     private appFacade: AppFacade,
@@ -79,7 +70,6 @@ export class DeliveryMethodComponent implements OnInit {
     this.loadCartTotal();
     this.loadCartItems();
     this.showPickupPoints();
-    this.initializePayment();
   }
 
   private loadUserAndAddress(): void {
@@ -308,14 +298,5 @@ export class DeliveryMethodComponent implements OnInit {
         );
       },
     });
-  }
-  //payment
-  private initializePayment(): void {
-    const cartId = Number(this.route.snapshot.paramMap.get('cartId'));
-    if (!cartId) {
-      this.errorMessage = 'ID du panier invalide.';
-      return;
-    }
-    this.paymentRequest.cartId = cartId;
   }
 }

@@ -1,4 +1,4 @@
 export enum PaymentOption {
-  CREDIT_CARD,
-  PAYPAL,
+  CREDIT_CARD = 'CREDIT_CARD',
+  PayPal = 'PAYPAL',
 }
