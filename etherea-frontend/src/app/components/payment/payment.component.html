@@ -1,0 +1,48 @@
+<div class="payment-container">
+  <h3>Choisissez votre mode de paiement</h3>
+
+  <div class="payment-options">
+    <label>
+      <input
+        type="radio"
+        name="payment"
+        value="CREDIT_CARD"
+        (change)="onPaymentMethodChange('CREDIT_CARD')"
+      />
+      Carte Bancaire
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="payment"
+        value="PAYPAL"
+        (change)="onPaymentMethodChange('PAYPAL')"
+      />
+      PayPal
+    </label>
+  </div>
+
+  <!-- Formulaire Stripe Elements : affiché par défaut -->
+  <div *ngIf="selectedPaymentMethod === 'CREDIT_CARD'">
+    <div id="card-number" class="card-element"></div>
+
+    <div class="row">
+      <div class="col">
+        <div id="card-expiry" class="card-element"></div>
+      </div>
+      <div class="col">
+        <div id="card-cvc" class="card-element"></div>
+      </div>
+    </div>
+
+    <p *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</p>
+
+    <button
+      class="btn btn-primary mt-3"
+      (click)="submitPayment()"
+      [disabled]="isPaymentLoading"
+    >
+      {{ isPaymentLoading ? "Traitement..." : "Payer" }}
+    </button>
+  </div>
+</div>

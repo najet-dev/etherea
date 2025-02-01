@@ -53,6 +53,8 @@ export class DeliveryMethodComponent implements OnInit {
   private cardElement: any;
   isProcessing: boolean = false;
   paymentConfirmed: boolean = false;
+  showPaymentOptions = false;
+  selectedPaymentMethod: string | null = null;
 
   constructor(
     private appFacade: AppFacade,
@@ -298,5 +300,10 @@ export class DeliveryMethodComponent implements OnInit {
         );
       },
     });
+    this.showPaymentOptions = true;
+  }
+  //payment
+  onPaymentMethodSelected(method: string) {
+    this.selectedPaymentMethod = method;
   }
 }

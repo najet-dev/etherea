@@ -36,17 +36,16 @@ public class PaymentService {
     private StripeService stripeService;
     @Transactional
     public PaymentResponseDTO createPaymentIntent(PaymentRequestDTO paymentRequestDTO) throws StripeException {
-        // Récupérer le panier (cart) à partir de l'ID
         Cart cart = cartRepository.findById(paymentRequestDTO.getCartId())
                 .orElseThrow(() -> new CartNotFoundException("Shopping cart not found"));
 
-        // Calculer le montant total de la commande
+        // Calculate total order amount
         BigDecimal totalAmount = cart.calculateFinalTotal();
 
-        // Créer un PaymentIntent dans Stripe
+        // Create a PaymentIntent in Stripe
         PaymentIntent paymentIntent = stripeService.createPaymentIntent(totalAmount);
 
-        // Créer et sauvegarder un nouvel objet PaymentMethod
+        // Create and save a new PaymentMethod object
         PaymentMethod paymentMethod = new PaymentMethod();
         paymentMethod.setTransactionId(paymentIntent.getId());
         paymentMethod.setPaymentOption(paymentRequestDTO.getPaymentOption());
@@ -54,10 +53,11 @@ public class PaymentService {
         paymentMethod.setCartId(paymentRequestDTO.getCartId());
         paymentRepository.save(paymentMethod);
 
-        // Créer une réponse DTO contenant le `transactionId` et le `clientSecret`
+        // Create a DTO response containing the `transactionId` and the `clientSecret`.
         return new PaymentResponseDTO(
                 PaymentStatus.PENDING,
-                paymentIntent.getId()
+                paymentIntent.getId(),
+                paymentIntent.getClientSecret()
         );
     }
     @Transactional
@@ -82,7 +82,7 @@ public class PaymentService {
             processSuccessfulPayment(paymentMethod);
         }
 
-        return new PaymentResponseDTO(paymentStatus, paymentIntent.getId());
+        return new PaymentResponseDTO(paymentStatus, paymentIntent.getId(),paymentIntent.getClientSecret());
     }
     private void processSuccessfulPayment(PaymentMethod paymentMethod) {
         Cart cart = cartRepository.findById(paymentMethod.getCartId())
