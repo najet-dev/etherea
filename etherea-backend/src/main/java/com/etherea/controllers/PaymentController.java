@@ -31,9 +31,8 @@ public class PaymentController {
         } catch (StripeException e) {
             logger.error("Stripe error: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new PaymentResponseDTO(PaymentStatus.FAILED, e.getMessage()));
+                    .body(new PaymentResponseDTO(PaymentStatus.FAILED, e.getMessage(), null));
         }
-
     }
     @PostMapping("/confirm")
     public ResponseEntity<PaymentResponseDTO> confirmPayment(@RequestBody Map<String, String> request) {
@@ -44,9 +43,9 @@ public class PaymentController {
             PaymentResponseDTO response = paymentService.confirmPayment(paymentIntentId, paymentMethodId);
             return ResponseEntity.ok(response);
         } catch (StripeException e) {
-            return ResponseEntity.badRequest().body(new PaymentResponseDTO(null, e.getMessage()));
+            return ResponseEntity.badRequest().body(new PaymentResponseDTO(null, e.getMessage(), null));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(new PaymentResponseDTO(PaymentStatus.FAILED, "Internal Server Error: " + e.getMessage()));
+            return ResponseEntity.status(500).body(new PaymentResponseDTO(PaymentStatus.FAILED, "Internal Server Error: " + e.getMessage(), null));
         }
     }
 }
