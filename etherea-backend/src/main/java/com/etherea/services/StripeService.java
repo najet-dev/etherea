@@ -25,7 +25,7 @@ public class StripeService {
                 .build();
 
         PaymentIntent paymentIntent = PaymentIntent.create(createParams);
-        logger.info("PaymentIntent créé avec ID: {}", paymentIntent.getId());
+        logger.info("PaymentIntent created with ID: {}", paymentIntent.getId());
 
         return paymentIntent;
     }
@@ -38,7 +38,7 @@ public class StripeService {
             paymentIntent = paymentIntent.update(PaymentIntentUpdateParams.builder()
                     .setPaymentMethod(paymentMethodId)
                     .build());
-            logger.info("Méthode de paiement attachée à PaymentIntent {}", paymentIntentId);
+            logger.info("Payment method attached to PaymentIntent {}", paymentIntentId);
         }
         return paymentIntent;
     }

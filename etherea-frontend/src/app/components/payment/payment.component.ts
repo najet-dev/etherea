@@ -28,6 +28,8 @@ export class PaymentComponent {
   cardholderName: string = '';
   isPaymentLoading = false;
   errorMessage: string | null = null;
+  clientSecret: string | null = null;
+  transactionId: string | null = null;
 
   constructor(private paymentService: PaymentService) {}
 
@@ -48,7 +50,6 @@ export class PaymentComponent {
 
       if (this.stripe && !this.elements) {
         this.elements = this.stripe.elements();
-
         this.cardNumberElement = this.elements.create('cardNumber', {
           style: { base: { fontSize: '16px' } },
         });
@@ -65,9 +66,31 @@ export class PaymentComponent {
           this.cardCvcElement?.mount('#card-cvc');
         }, 0);
       }
+
+      // Appel de createPayment()
+      try {
+        console.log("Création de l'intention de paiement...");
+        const paymentResponse = await this.paymentService
+          .createPayment({
+            paymentOption: PaymentOption.CREDIT_CARD,
+            cartId: 60,
+          })
+          .toPromise();
+
+        if (!paymentResponse || !paymentResponse.clientSecret) {
+          throw new Error('Client secret non reçu.');
+        }
+
+        // Stocke le transactionId et clientSecret pour la confirmation
+        this.clientSecret = paymentResponse.clientSecret;
+        this.transactionId = paymentResponse.transactionId;
+        console.log('Transaction ID reçu :', this.transactionId);
+      } catch (error) {
+        console.error('Erreur lors de la création du paiement :', error);
+        this.errorMessage = 'Échec de la création du paiement.';
+      }
     }
   }
-
   async submitPayment() {
     if (!this.stripe || !this.elements || !this.cardNumberElement) return;
 
@@ -75,19 +98,7 @@ export class PaymentComponent {
     this.errorMessage = null;
 
     try {
-      console.log("Création de l'intention de paiement...");
-      const paymentResponse = await this.paymentService
-        .createPayment({
-          paymentOption: PaymentOption.CREDIT_CARD,
-          cartId: 1,
-        })
-        .toPromise();
-
-      if (!paymentResponse || !paymentResponse.clientSecret) {
-        throw new Error('Client secret non reçu.');
-      }
-
-      console.log('ClientSecret reçu :', paymentResponse.clientSecret);
+      console.log('Création du moyen de paiement...');
       const { paymentMethod, error } = await this.stripe.createPaymentMethod({
         type: 'card',
         card: this.cardNumberElement,
@@ -101,8 +112,15 @@ export class PaymentComponent {
       }
 
       console.log('Confirmation du paiement...');
+      if (!this.transactionId) {
+        this.errorMessage = "Erreur : l'ID de la transaction est invalide.";
+        this.isPaymentLoading = false;
+        return;
+      }
+
+      console.log('Confirmation du paiement...');
       const confirmationResponse = await this.paymentService
-        .confirmPayment(paymentResponse.transactionId, paymentMethod.id)
+        .confirmPayment(this.transactionId, paymentMethod.id)
         .toPromise();
 
       if (confirmationResponse?.paymentStatus !== 'SUCCESS') {
