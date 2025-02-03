@@ -7,13 +7,14 @@ import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
 import { Product } from '../components/models/Product.model';
 import { DeliveryAddress } from '../components/models/DeliveryAddress.model';
-import { OrderService } from './order.service';
 import { SignupRequest } from '../components/models/SignupRequest.model';
 import { UserService } from './user.service';
 import { DeliveryAddressService } from './delivery-address.service';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { DeliveryMethodService } from './delivery-method.service';
 import { PaymentService } from './payment.service';
+import { PaymentRequest } from '../components/models/PaymentRequest.model';
+import { PaymentResponse } from '../components/models/PaymentResponse.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +30,7 @@ export class AppFacade {
     public paymentService: PaymentService
   ) {}
 
-  // cart
+  // cartItem
   getCartItems(userId: number): Observable<Cart[]> {
     return this.cartService.getCartItems(userId);
   }
@@ -127,19 +128,32 @@ export class AppFacade {
   }
 
   // User
+  getCurrentUser(): Observable<number | null> {
+    return this.userService.getCurrentUser();
+  }
   getUserDetails(userId: number): Observable<SignupRequest | null> {
     return this.userService.getUserDetails(userId);
   }
 
   getCurrentUserId(): Observable<number | null> {
-    return this.userService.getCurrentUserId();
+    return this.userService.getCurrentUser();
   }
   //Method
   getDeliveryMethods(userId: number): Observable<DeliveryMethod[]> {
     return this.deliveryMethodService.getDeliveryMethods(userId);
   }
+  //cart
+  getCartId(userId: number): Observable<number> {
+    return this.cartService.getCartId(userId);
+  }
   //payment
-  //   addPayment(payment: PaymentRequest): Observable<PaymentResponse> {
-  //     return this.paymentService.addPayment(payment);
-  //   }
+  createPayment(paymentRequest: PaymentRequest): Observable<PaymentResponse> {
+    return this.paymentService.createPayment(paymentRequest);
+  }
+  confirmPayment(
+    paymentIntentId: string,
+    paymentMethodId: string
+  ): Observable<PaymentResponse> {
+    return this.paymentService.confirmPayment(paymentIntentId, paymentMethodId);
+  }
 }

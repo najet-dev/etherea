@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, Input } from '@angular/core';
 import { PaymentService } from '../../services/payment.service';
+import { CartService } from '../../services/cart.service';
 import { PaymentOption } from '../models/PaymentOption.enum';
+
 import {
   loadStripe,
   Stripe,
@@ -10,13 +12,16 @@ import {
   StripeCardCvcElement,
 } from '@stripe/stripe-js';
 import { environment } from 'src/environments/environment';
+import { UserService } from 'src/app/services/user.service';
+import { firstValueFrom } from 'rxjs';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-payment',
   templateUrl: './payment.component.html',
   styleUrls: ['./payment.component.css'],
 })
-export class PaymentComponent {
+export class PaymentComponent implements OnInit {
   @Output() paymentSelected = new EventEmitter<string>();
 
   selectedPaymentMethod: string | null = null;
@@ -31,7 +36,7 @@ export class PaymentComponent {
   clientSecret: string | null = null;
   transactionId: string | null = null;
 
-  constructor(private paymentService: PaymentService) {}
+  constructor(private appFacade: AppFacade, private cartService: CartService) {}
 
   async ngOnInit() {
     console.log('PaymentComponent initialisé.');
@@ -67,30 +72,52 @@ export class PaymentComponent {
         }, 0);
       }
 
-      // Appel de createPayment()
       try {
-        console.log("Création de l'intention de paiement...");
-        const paymentResponse = await this.paymentService
-          .createPayment({
+        // Obtenir l'utilisateur connecté
+        const userId: number | null = await firstValueFrom(
+          this.appFacade.getCurrentUser()
+        );
+
+        console.log('ID utilisateur récupéré :', userId);
+
+        if (!userId) {
+          throw new Error('Utilisateur non authentifié.');
+        }
+
+        // Récupérer l'ID du panier de l'utilisateur
+        const cartId = await firstValueFrom(this.appFacade.getCartId(userId));
+
+        if (!cartId) {
+          throw new Error('Le panier est introuvable.');
+        }
+
+        console.log('ID du panier récupéré :', cartId);
+
+        // Création de l'intention de paiement
+        const paymentResponse = await firstValueFrom(
+          this.appFacade.createPayment({
             paymentOption: PaymentOption.CREDIT_CARD,
-            cartId: 60,
+            cartId: cartId,
           })
-          .toPromise();
+        );
 
         if (!paymentResponse || !paymentResponse.clientSecret) {
           throw new Error('Client secret non reçu.');
         }
 
-        // Stocke le transactionId et clientSecret pour la confirmation
         this.clientSecret = paymentResponse.clientSecret;
         this.transactionId = paymentResponse.transactionId;
         console.log('Transaction ID reçu :', this.transactionId);
       } catch (error) {
-        console.error('Erreur lors de la création du paiement :', error);
+        console.error(
+          'Erreur lors de la récupération du panier ou du paiement :',
+          error
+        );
         this.errorMessage = 'Échec de la création du paiement.';
       }
     }
   }
+
   async submitPayment() {
     if (!this.stripe || !this.elements || !this.cardNumberElement) return;
 
@@ -118,16 +145,32 @@ export class PaymentComponent {
         return;
       }
 
-      console.log('Confirmation du paiement...');
-      const confirmationResponse = await this.paymentService
-        .confirmPayment(this.transactionId, paymentMethod.id)
-        .toPromise();
+      const confirmationResponse = await firstValueFrom(
+        this.appFacade.confirmPayment(this.transactionId, paymentMethod.id)
+      );
 
       if (confirmationResponse?.paymentStatus !== 'SUCCESS') {
         throw new Error('Le paiement a échoué.');
       }
 
       alert('Paiement réussi !');
+
+      // Réinitialisation du formulaire après paiement réussi
+      this.cardholderName = ''; // Réinitialise le champ du nom
+      this.selectedPaymentMethod = null; // Désélectionne la méthode de paiement
+
+      // Vide les champs Stripe
+      this.cardNumberElement.clear();
+      this.cardExpiryElement?.clear();
+      this.cardCvcElement?.clear();
+
+      // Rafraîchir les données du panier
+      const userId: number | null = await firstValueFrom(
+        this.appFacade.getCurrentUser()
+      );
+      if (userId) {
+        this.cartService.refreshCart(userId); // fonction pour rafraîchir le panier
+      }
     } catch (error: any) {
       this.errorMessage = error.message || 'Erreur de paiement.';
     } finally {

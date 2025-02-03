@@ -48,9 +48,6 @@ export class DeliveryMethodComponent implements OnInit {
   errorMessage: string = '';
 
   private destroyRef = inject(DestroyRef);
-  private stripe: Stripe | null = null;
-  private elements: StripeElements | null = null;
-  private cardElement: any;
   isProcessing: boolean = false;
   paymentConfirmed: boolean = false;
   showPaymentOptions = false;

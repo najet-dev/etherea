@@ -34,10 +34,17 @@ public class PaymentService {
     private CommandService commandService;
     @Autowired
     private StripeService stripeService;
+    @Autowired
+    private CartService cartService;
     @Transactional
-    public PaymentResponseDTO createPaymentIntent(PaymentRequestDTO paymentRequestDTO) throws StripeException {
-        Cart cart = cartRepository.findById(paymentRequestDTO.getCartId())
+    public PaymentResponseDTO createPaymentIntent(PaymentRequestDTO paymentRequestDTO, Long userId) throws StripeException {
+        Long cartId = (paymentRequestDTO.getCartId() != null)
+                ? paymentRequestDTO.getCartId()
+                : cartService.getCartIdByUserId(userId);
+
+        Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new CartNotFoundException("Shopping cart not found"));
+
 
         // Calculate total order amount
         BigDecimal totalAmount = cart.calculateFinalTotal();

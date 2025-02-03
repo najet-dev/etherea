@@ -24,9 +24,9 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
     @PostMapping("/createPayment")
-    public ResponseEntity<PaymentResponseDTO> createPaymentIntent(@RequestBody @Valid PaymentRequestDTO paymentRequestDTO) {
+    public ResponseEntity<PaymentResponseDTO> createPaymentIntent(@RequestBody @Valid PaymentRequestDTO paymentRequestDTO, Long userId) {
         try {
-            PaymentResponseDTO response = paymentService.createPaymentIntent(paymentRequestDTO);
+            PaymentResponseDTO response = paymentService.createPaymentIntent(paymentRequestDTO, userId);
             return ResponseEntity.ok(response);
         } catch (StripeException e) {
             logger.error("Stripe error: {}", e.getMessage(), e);

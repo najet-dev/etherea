@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
     private authService: AuthService,
     private appFacade: AppFacade,
     private router: Router,
-    public productTypeService: ProductTypeService // Ajout du service ici
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {

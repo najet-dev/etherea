@@ -53,6 +53,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/api/auth/**").permitAll()
                                 .requestMatchers("/products/**").permitAll()
+                                .requestMatchers("/cartItem/**").permitAll()
                                 .requestMatchers("/cart/**").permitAll()
                                 .requestMatchers("/users/**").permitAll()
                                 .requestMatchers("/favorites/**").permitAll()

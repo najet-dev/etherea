@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Cart } from '../components/models/cart.model';
 
@@ -17,19 +17,22 @@ export class CartService {
 
   constructor(private httpClient: HttpClient) {}
 
+  //cartItem
   getCartItems(userId: number): Observable<Cart[]> {
-    return this.httpClient.get<Cart[]>(`${this.apiUrl}/cart/${userId}`).pipe(
-      tap((cartItems) => this.cartItemsSubject.next(cartItems)),
-      catchError((error) => {
-        console.error(
-          'Erreur lors de la récupération des articles du panier :',
-          error
-        );
-        return throwError(
-          () => new Error('Impossible de récupérer les articles du panier.')
-        );
-      })
-    );
+    return this.httpClient
+      .get<Cart[]>(`${this.apiUrl}/cartItem/${userId}`)
+      .pipe(
+        tap((cartItems) => this.cartItemsSubject.next(cartItems)),
+        catchError((error) => {
+          console.error(
+            'Erreur lors de la récupération des articles du panier :',
+            error
+          );
+          return throwError(
+            () => new Error('Impossible de récupérer les articles du panier.')
+          );
+        })
+      );
   }
 
   addToCart(cart: Cart): Observable<Cart> {
@@ -44,7 +47,7 @@ export class CartService {
     };
 
     return this.httpClient
-      .post<Cart>(`${this.apiUrl}/cart/addToCart`, body)
+      .post<Cart>(`${this.apiUrl}/cartItem/addToCart`, body)
       .pipe(
         tap(() => this.refreshCart(cart.userId)),
         catchError((error) => {
@@ -75,8 +78,8 @@ export class CartService {
 
     const endpoint =
       volumeId != null
-        ? `${this.apiUrl}/cart/updateProductHair`
-        : `${this.apiUrl}/cart/updateProductFace`;
+        ? `${this.apiUrl}/cartItem/updateProductHair`
+        : `${this.apiUrl}/cartItem/updateProductFace`;
 
     return this.httpClient.put<Cart>(endpoint, body).pipe(
       tap(() => this.refreshCart(userId)),
@@ -91,7 +94,7 @@ export class CartService {
 
   deleteCartItem(cartItemId: number): Observable<void> {
     return this.httpClient
-      .delete<void>(`${this.apiUrl}/cart/${cartItemId}`)
+      .delete<void>(`${this.apiUrl}/cartItem/${cartItemId}`)
       .pipe(
         tap(() => this.cartUpdated.emit()),
         catchError((error) => {
@@ -103,10 +106,14 @@ export class CartService {
       );
   }
 
-  private refreshCart(userId: number): void {
+  public refreshCart(userId: number): void {
     this.getCartItems(userId).subscribe({
       error: (error) =>
         console.error('Erreur lors du rafraîchissement du panier :', error),
     });
+  }
+  //cart
+  getCartId(userId: number): Observable<number> {
+    return this.httpClient.get<number>(`${this.apiUrl}/cart/user/${userId}`);
   }
 }

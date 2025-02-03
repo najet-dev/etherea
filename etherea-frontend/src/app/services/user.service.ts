@@ -16,7 +16,7 @@ export class UserService {
     private httpClient: HttpClient
   ) {}
 
-  getCurrentUserId(): Observable<number | null> {
+  getCurrentUser(): Observable<number | null> {
     return this.authService.getCurrentUser().pipe(
       tap((user) => {
         if (!user) {
@@ -30,6 +30,7 @@ export class UserService {
       })
     );
   }
+
   getUserDetails(userId: number): Observable<SignupRequest | null> {
     return this.httpClient
       .get<SignupRequest>(`${this.apiUrl}/users/${userId}`)
