@@ -99,6 +99,7 @@
                   !deliveryAddress)
               "
               (click)="confirmDeliveryOption()"
+              *ngIf="!showPaymentOptions"
             >
               Continuer vers le paiement
             </button>
