@@ -60,6 +60,8 @@ public class WebSecurityConfig {
                                 .requestMatchers("/deliveryAddresses/**").permitAll()
                                 .requestMatchers("/deliveryMethods/**").permitAll()
                                 .requestMatchers("/payments/**").permitAll()
+                                .requestMatchers("/command/**").permitAll()
+
                                 .anyRequest().authenticated()
                 );
         http.authenticationProvider(authenticationProvider());

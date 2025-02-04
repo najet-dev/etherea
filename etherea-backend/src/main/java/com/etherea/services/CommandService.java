@@ -25,6 +25,9 @@ public class CommandService {
     private DeliveryMethodRepository deliveryMethodRepository;
     @Autowired
     private PaymentRepository paymentRepository;
+    @Autowired
+    private EmailService emailService;
+
 
     /**
      * Creates a command using the provided CommandRequestDTO.
@@ -88,9 +91,50 @@ public class CommandService {
     public void updateCommandStatus(Long commandId, CommandStatus newStatus) {
         Command command = commandRepository.findById(commandId)
                 .orElseThrow(() -> new CommandNotFoundException("Order not found with ID: " + commandId));
+
         command.setStatus(newStatus);
         commandRepository.save(command);
+
+        // Envoyer l'e-mail si la commande est expédiée
+        if (newStatus == CommandStatus.PAID) {
+            String subject = "Confirmation d'expédition de votre commande";
+            String emailContent = generateOrderConfirmationEmail(command);
+            emailService.sendOrderConfirmation(command.getUser().getUsername(), subject, emailContent);
+        }
     }
+    @Transactional
+    private String generateOrderConfirmationEmail(Command command) {
+        StringBuilder emailContent = new StringBuilder();
+
+        emailContent.append("<h1>Votre commande a été expédiée !</h1>");
+        emailContent.append("<p>Merci pour votre achat. Voici les détails de votre commande :</p>");
+        emailContent.append("<p><strong>Numéro de commande :</strong> ").append(command.getReferenceCode()).append("</p>");
+
+        DeliveryAddress address = command.getDeliveryAddress();
+        emailContent.append("<p><strong>Adresse de livraison :</strong> ")
+                .append(address.getAddress()).append(", ")
+                .append(address.getCity()).append(", ")
+                .append(address.getZipCode()).append(", ")
+                .append(address.getCountry()).append("</p>");
+
+        emailContent.append("<h2>Articles commandés :</h2>");
+        emailContent.append("<ul>");
+
+        for (CommandItem item : command.getCommandItems()) {
+            emailContent.append("<li>")
+                    .append(item.getProductName())
+                    .append(" - Quantité : ").append(item.getQuantity())
+                    .append(" - Prix : ").append(item.getUnitPrice()).append(" €</li>");
+        }
+        emailContent.append("</ul>");
+
+        emailContent.append("<p><strong>Total :</strong> ").append(command.getTotal()).append(" €</p>");
+        emailContent.append("<p>Nous espérons vous revoir bientôt !</p>");
+
+        return emailContent.toString();
+    }
+
+
     @Transactional
     public boolean cancelCommand(Long commandId) {
         Command command = commandRepository.findById(commandId)
