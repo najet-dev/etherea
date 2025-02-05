@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 public class CartService {
     @Autowired
     private CartRepository cartRepository;
-
     public Long getCartIdByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
                 .map(Cart::getId)

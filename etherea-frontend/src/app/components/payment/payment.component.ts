@@ -37,6 +37,7 @@ export class PaymentComponent implements OnInit {
   errorMessage: string | null = null;
   clientSecret: string | null = null;
   transactionId: string | null = null;
+  showSuccessMessage = false; // Contrôle l'affichage du message
 
   constructor(private appFacade: AppFacade, private cartService: CartService) {}
 
@@ -161,6 +162,7 @@ export class PaymentComponent implements OnInit {
 
     this.isPaymentLoading = true;
     this.errorMessage = null;
+    this.showSuccessMessage = false; // Réinitialiser le message de succès avant de commencer
 
     try {
       console.log('Création du moyen de paiement...');
@@ -191,10 +193,16 @@ export class PaymentComponent implements OnInit {
         throw new Error('Le paiement a échoué.');
       }
 
-      alert('Paiement réussi !');
+      // Afficher le message de succès
+      this.showSuccessMessage = true;
+
+      // Masquer le message après 5 secondes
+      setTimeout(() => {
+        this.showSuccessMessage = false;
+      }, 5000);
 
       // Réinitialisation du formulaire après paiement réussi
-      this.cardholderName = ''; // Réinitialise le champ du nom
+      this.cardholderName = '';
       this.selectedPaymentMethod = null; // Désélectionne la méthode de paiement
 
       // Vide les champs Stripe

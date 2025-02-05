@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CartController {
     @Autowired
     private CartService cartService;
-
     @GetMapping("/user/{userId}")
     public ResponseEntity<Long> getCartId(@PathVariable Long userId) {
         Long cartId = cartService.getCartIdByUserId(userId);

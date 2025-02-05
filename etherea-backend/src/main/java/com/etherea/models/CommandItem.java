@@ -68,7 +68,7 @@ public class CommandItem {
     public void setCommand(Command command) {
         this.command = command;
     }
-    private void calculateTotalPrice() {
+    public void calculateTotalPrice() {
         this.totalPrice = this.quantity * this.unitPrice;
     }
 }

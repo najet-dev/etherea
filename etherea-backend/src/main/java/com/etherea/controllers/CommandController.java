@@ -1,5 +1,6 @@
 package com.etherea.controllers;
 
+import com.etherea.enums.CommandStatus;
 import com.etherea.services.CommandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,15 @@ import org.springframework.web.bind.annotation.*;
 public class CommandController {
     @Autowired
     CommandService commandService;
-    @PostMapping("/{commandId}/cancel")
+    @PutMapping("/{commandId}/status")
+    public ResponseEntity<String> updateCommandStatus(
+            @PathVariable Long commandId,
+            @RequestParam CommandStatus newStatus) {
+
+        commandService.updateCommandStatus(commandId, newStatus);
+        return ResponseEntity.ok("Order status successfully updated !");
+    }
+    @PutMapping("/{commandId}/cancel")
     public ResponseEntity<String> cancelCommand(@PathVariable Long commandId) {
         boolean canceled = commandService.cancelCommand(commandId);
         if (canceled) {
