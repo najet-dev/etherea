@@ -9,10 +9,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-
     @Autowired
     private JavaMailSender mailSender;
-
     public void sendOrderConfirmation(String to, String subject, String content) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -24,10 +22,9 @@ public class EmailService {
 
             mailSender.send(message);
 
-            System.out.println("Email envoyé à : " + to);
+            System.out.println("Email sent to : " + to);
         } catch (MessagingException e) {
-            System.out.println("Erreur lors de l'envoi de l'e-mail : " + e.getMessage());
+            System.out.println("Error sending e-mail : " + e.getMessage());
         }
     }
-
 }

@@ -21,6 +21,13 @@
       PayPal
     </label>
   </div>
+  <!-- Message de confirmation de paiement -->
+  <div
+    *ngIf="showSuccessMessage"
+    class="alert alert-success text-center message-success"
+  >
+    Votre commande a été confirmée et un email vous a été envoyé !
+  </div>
 
   <!-- Formulaire Stripe Elements -->
   <div

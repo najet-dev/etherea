@@ -31,7 +31,6 @@ public class CommandService {
     @Autowired
     private EmailService emailService;
 
-
     /**
      * Creates a command using the provided CommandRequestDTO.
      *
@@ -119,9 +118,9 @@ public class CommandService {
         command.setStatus(newStatus);
         commandRepository.save(command);
 
-        // Envoyer l'e-mail si la commande est expédiée
+        // Send e-mail if order is paid
         if (newStatus == CommandStatus.PAID) {
-            String subject = "Confirmation d'expédition de votre commande";
+            String subject = "Confirmation of your order shipment";
             String emailContent = generateOrderConfirmationEmail(command);
             emailService.sendOrderConfirmation(command.getUser().getUsername(), subject, emailContent);
         }
@@ -140,25 +139,22 @@ public class CommandService {
                 .append(address.getCity()).append(", ")
                 .append(address.getZipCode()).append(", ")
                 .append(address.getCountry()).append("</p>");
+        emailContent.append("<p><strong>Total :</strong> ").append(command.getTotal()).append(" €</p>");
 
-        emailContent.append("<h2>Articles commandés :</h2>");
+        emailContent.append("<h2>Résumé de la commande :</h2>");
         emailContent.append("<ul>");
 
         for (CommandItem item : command.getCommandItems()) {
             emailContent.append("<li>")
                     .append(item.getProductName())
-                    .append(" - Quantité : ").append(item.getQuantity())
-                    .append(" - Prix : ").append(item.getUnitPrice()).append(" €</li>");
+                    .append(" - Quantité : ").append(item.getQuantity());
         }
         emailContent.append("</ul>");
 
-        emailContent.append("<p><strong>Total :</strong> ").append(command.getTotal()).append(" €</p>");
         emailContent.append("<p>Nous espérons vous revoir bientôt !</p>");
 
         return emailContent.toString();
     }
-
-
     @Transactional
     public boolean cancelCommand(Long commandId) {
         Command command = commandRepository.findById(commandId)

@@ -18,9 +18,9 @@ public class CommandController {
             @RequestParam CommandStatus newStatus) {
 
         commandService.updateCommandStatus(commandId, newStatus);
-        return ResponseEntity.ok("Statut de la commande mis à jour avec succès !");
+        return ResponseEntity.ok("Order status successfully updated !");
     }
-    @PostMapping("/{commandId}/cancel")
+    @PutMapping("/{commandId}/cancel")
     public ResponseEntity<String> cancelCommand(@PathVariable Long commandId) {
         boolean canceled = commandService.cancelCommand(commandId);
         if (canceled) {
