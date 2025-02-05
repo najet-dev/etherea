@@ -45,7 +45,6 @@ public class PaymentService {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new CartNotFoundException("Shopping cart not found"));
 
-
         // Calculate total order amount
         BigDecimal totalAmount = cart.calculateFinalTotal();
 

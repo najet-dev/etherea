@@ -11,7 +11,6 @@ public class CommandItem {
     private double unitPrice;
     private double totalPrice;
     private String productName;
-    private String productSKU; // Unique code to identify the product
     @ManyToOne
     @JoinColumn(name = "productId", referencedColumnName = "id")
     private Product product;
@@ -20,13 +19,12 @@ public class CommandItem {
     private Command command;
     public CommandItem() {
     }
-    public CommandItem(int quantity, double unitPrice, Product product, Command command, String productName, String productSKU) {
+    public CommandItem(int quantity, double unitPrice, Product product, Command command, String productName) {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.product = product;
         this.command = command;
         this.productName = productName;
-        this.productSKU = productSKU;
     }
     public Long getId() {
         return id;
@@ -57,12 +55,6 @@ public class CommandItem {
     }
     public void setProductName(String productName) {
         this.productName = productName;
-    }
-    public String getProductSKU() {
-        return productSKU;
-    }
-    public void setProductSKU(String productSKU) {
-        this.productSKU = productSKU;
     }
     public Product getProduct() {
         return product;

@@ -31,7 +31,7 @@ public class Command {
     private Cart cart;
     @OneToMany(mappedBy = "command", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandItem> commandItems = new ArrayList<>();
-    private BigDecimal total; // Ajout d'un attribut pour le total
+    private BigDecimal total;
     public Command() {}
     public Command(LocalDateTime commandDate, String referenceCode, CommandStatus status, DeliveryAddress deliveryAddress, Cart cart) {
         this.commandDate = commandDate;
