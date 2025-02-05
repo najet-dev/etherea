@@ -16,10 +16,6 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest .model';
-import { PaymentService } from 'src/app/services/payment.service';
-import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
-import { environment } from 'src/environments/environment';
-import { PaymentOption } from '../models/PaymentOption.enum';
 
 @Component({
   selector: 'app-delivery-method',
@@ -60,8 +56,7 @@ export class DeliveryMethodComponent implements OnInit {
     private cartItemService: CartItemService,
     private router: Router,
     private deliveryMethodService: DeliveryMethodService,
-    public productTypeService: ProductTypeService,
-    private paymentService: PaymentService
+    public productTypeService: ProductTypeService
   ) {}
 
   ngOnInit(): void {
@@ -289,6 +284,7 @@ export class DeliveryMethodComponent implements OnInit {
     this.deliveryMethodService.addDeliveryMethod(request).subscribe({
       next: (response) => {
         console.log('Méthode de livraison ajoutée avec succès :', response);
+        this.showPaymentOptions = true; // Cache le bouton et affiche les options de paiement
       },
       error: (error) => {
         console.error(
@@ -297,8 +293,8 @@ export class DeliveryMethodComponent implements OnInit {
         );
       },
     });
-    this.showPaymentOptions = true;
   }
+
   //payment
   onPaymentMethodSelected(method: string) {
     this.selectedPaymentMethod = method;
