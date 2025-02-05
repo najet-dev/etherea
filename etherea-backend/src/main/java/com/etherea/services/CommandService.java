@@ -11,7 +11,10 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CommandService {
@@ -41,15 +44,12 @@ public class CommandService {
             throw new IllegalArgumentException("CommandRequestDTO cannot be null.");
         }
 
-        // Validate Delivery Address
         DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(commandRequestDTO.getDeliveryAddressId())
                 .orElseThrow(() -> new DeliveryAddressNotFoundException("Delivery address not found for ID: " + commandRequestDTO.getDeliveryAddressId()));
 
-        // Validate Payment Method
         PaymentMethod paymentMethod = paymentRepository.findById(commandRequestDTO.getPaymentMethodId())
                 .orElseThrow(() -> new IllegalArgumentException("Payment method not found for ID: " + commandRequestDTO.getPaymentMethodId()));
 
-        // Validate Cart
         Cart cart = cartRepository.findById(commandRequestDTO.getCart().getCartId())
                 .orElseThrow(() -> new CartNotFoundException("Cart not found for ID: " + commandRequestDTO.getCart().getCartId()));
 
@@ -61,25 +61,49 @@ public class CommandService {
             throw new IllegalStateException("The cart has already been used for an order.");
         }
 
-        // Create Command
         Command command = new Command();
         command.setUser(cart.getUser());
         command.setCart(cart);
         command.setCommandDate(commandRequestDTO.getCommandDate() != null ? commandRequestDTO.getCommandDate() : LocalDateTime.now());
-        command.setReferenceCode(commandRequestDTO.getReferenceCode());
+        command.setReferenceCode(commandRequestDTO.getReferenceCode() != null ?
+                commandRequestDTO.getReferenceCode() :
+                "CMD-" + System.currentTimeMillis());
         command.setStatus(commandRequestDTO.getStatus());
         command.setDeliveryAddress(deliveryAddress);
         command.setPaymentMethod(paymentMethod);
+
+        // Extracted method call
+        List<CommandItem> commandItems = createCommandItems(cart, command);
+        command.setCommandItems(commandItems);
+
         command.setTotal(cart.calculateFinalTotal());
 
-        // Save Command
-        commandRepository.save(command);
+        commandRepository.saveAndFlush(command);
 
-        // Mark Cart as Used
         cart.setUsed(true);
         cartRepository.save(cart);
 
         return command;
+    }
+    private List<CommandItem> createCommandItems(Cart cart, Command command) {
+        List<CommandItem> commandItems = new ArrayList<>();
+
+        for (CartItem cartItem : cart.getItems()) {
+            double unitPrice = cartItem.getSubTotal().doubleValue() / cartItem.getQuantity(); // Calculate unit price
+
+            CommandItem commandItem = new CommandItem(
+                    cartItem.getQuantity(),
+                    unitPrice,
+                    cartItem.getProduct(),
+                    command, // Associate with the command
+                    cartItem.getProduct().getName()
+            );
+
+            commandItem.setTotalPrice(commandItem.getQuantity() * unitPrice);
+            commandItems.add(commandItem);
+        }
+
+        return commandItems;
     }
     /**
      * Updates the status of a command.

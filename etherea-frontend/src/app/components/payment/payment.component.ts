@@ -31,6 +31,8 @@ export class PaymentComponent implements OnInit {
   cardExpiryElement: StripeCardExpiryElement | null = null;
   cardCvcElement: StripeCardCvcElement | null = null;
   cardholderName: string = '';
+  userLastName: string = '';
+  userFirstName: string = '';
   isPaymentLoading = false;
   errorMessage: string | null = null;
   clientSecret: string | null = null;
@@ -40,6 +42,28 @@ export class PaymentComponent implements OnInit {
 
   async ngOnInit() {
     console.log('PaymentComponent initialisé.');
+    try {
+      // Récupérer l'ID de l'utilisateur d'abord
+      const userId: number | null = await firstValueFrom(
+        this.appFacade.getCurrentUser()
+      );
+
+      if (!userId) {
+        throw new Error('Utilisateur non authentifié.');
+      }
+
+      const user = await firstValueFrom(this.appFacade.getUserDetails(userId));
+
+      if (user && user.lastName && user.firstName) {
+        this.userLastName = user.lastName;
+        this.userFirstName = user.firstName;
+      }
+    } catch (error) {
+      console.error(
+        "Erreur lors de la récupération du nom de l'utilisateur :",
+        error
+      );
+    }
   }
 
   async onPaymentMethodChange(method: string) {
@@ -47,14 +71,31 @@ export class PaymentComponent implements OnInit {
     this.paymentSelected.emit(method);
 
     if (method === 'CREDIT_CARD') {
-      console.log('Initialisation de Stripe...');
+      console.log('Passage au paiement par carte bancaire.');
 
       if (!this.stripe) {
         this.stripe = await loadStripe(environment.stripePublicKey);
       }
 
-      if (this.stripe && !this.elements) {
+      if (this.stripe) {
+        // Détruit les anciens éléments avant de recréer les nouveaux
+        if (this.cardNumberElement) {
+          this.cardNumberElement.unmount();
+          this.cardNumberElement = null;
+        }
+        if (this.cardExpiryElement) {
+          this.cardExpiryElement.unmount();
+          this.cardExpiryElement = null;
+        }
+        if (this.cardCvcElement) {
+          this.cardCvcElement.unmount();
+          this.cardCvcElement = null;
+        }
+
         this.elements = this.stripe.elements();
+
+        // Re-création des champs Stripe Elements
+        console.log('Re-création des éléments Stripe...');
         this.cardNumberElement = this.elements.create('cardNumber', {
           style: { base: { fontSize: '16px' } },
         });
@@ -72,28 +113,28 @@ export class PaymentComponent implements OnInit {
         }, 0);
       }
 
+      // Vérifie si une transaction existe déjà pour éviter de recréer une intention de paiement
+      if (this.clientSecret && this.transactionId) {
+        console.log('Intention de paiement existante :', this.transactionId);
+        return;
+      }
+
       try {
-        // Obtenir l'utilisateur connecté
         const userId: number | null = await firstValueFrom(
           this.appFacade.getCurrentUser()
         );
-
-        console.log('ID utilisateur récupéré :', userId);
 
         if (!userId) {
           throw new Error('Utilisateur non authentifié.');
         }
 
-        // Récupérer l'ID du panier de l'utilisateur
         const cartId = await firstValueFrom(this.appFacade.getCartId(userId));
 
         if (!cartId) {
           throw new Error('Le panier est introuvable.');
         }
 
-        console.log('ID du panier récupéré :', cartId);
-
-        // Création de l'intention de paiement
+        console.log("Création d'une nouvelle intention de paiement...");
         const paymentResponse = await firstValueFrom(
           this.appFacade.createPayment({
             paymentOption: PaymentOption.CREDIT_CARD,
@@ -109,10 +150,7 @@ export class PaymentComponent implements OnInit {
         this.transactionId = paymentResponse.transactionId;
         console.log('Transaction ID reçu :', this.transactionId);
       } catch (error) {
-        console.error(
-          'Erreur lors de la récupération du panier ou du paiement :',
-          error
-        );
+        console.error('Erreur lors de la récupération du paiement :', error);
         this.errorMessage = 'Échec de la création du paiement.';
       }
     }

@@ -1,19 +1,19 @@
 <div class="payment-container">
-  <h3>Choisissez votre mode de paiement</h3>
-
   <div class="payment-options">
-    <label>
+    <label class="form-check">
       <input
         type="radio"
+        class="form-check-input"
         name="payment"
         value="CREDIT_CARD"
         (change)="onPaymentMethodChange('CREDIT_CARD')"
       />
       Carte Bancaire
     </label>
-    <label>
+    <label class="form-check">
       <input
         type="radio"
+        class="form-check-input"
         name="payment"
         value="PAYPAL"
         (change)="onPaymentMethodChange('PAYPAL')"
@@ -22,27 +22,28 @@
     </label>
   </div>
 
-  <!-- Formulaire Stripe Elements : affiché par défaut -->
-  <div *ngIf="selectedPaymentMethod === 'CREDIT_CARD'">
+  <!-- Formulaire Stripe Elements -->
+  <div
+    class="card my-5 rounded"
+    *ngIf="selectedPaymentMethod === 'CREDIT_CARD'"
+  >
     <div id="card-number" class="card-element"></div>
-
-    <div class="row">
-      <div class="col">
-        <div id="card-expiry" class="card-element"></div>
-      </div>
-      <div class="col">
-        <div id="card-cvc" class="card-element"></div>
-      </div>
+    <div id="card-expiry" class="card-element"></div>
+    <div id="card-cvc" class="card-element"></div>
+    <div id="card-name" class="card-element">
+      {{ userLastName }} {{ userFirstName }}
     </div>
 
     <p *ngIf="errorMessage" class="text-danger">{{ errorMessage }}</p>
 
-    <button
-      class="btn btn-primary mt-3"
-      (click)="submitPayment()"
-      [disabled]="isPaymentLoading"
-    >
-      {{ isPaymentLoading ? "Traitement..." : "Payer" }}
-    </button>
+    <div class="button-container">
+      <button
+        class="btn-primary"
+        (click)="submitPayment()"
+        [disabled]="isPaymentLoading"
+      >
+        {{ isPaymentLoading ? "Traitement..." : "Payer" }}
+      </button>
+    </div>
   </div>
 </div>
