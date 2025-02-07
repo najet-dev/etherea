@@ -26,12 +26,13 @@ body {
   --bg-color: #081b29;
   --second-bg-color: #372937;
   --text-color: #ededed;
-  --main-color: #4caf50;
+  --main-color: #83d286;
 }
 
 .col-md-3 {
   margin-bottom: 50px;
 }
+/* --- FORMULAIRE --- */
 .card {
   border: 1px solid black;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -40,7 +41,33 @@ body {
   border-color: green;
   box-shadow: 0 0 30px rgba(0, 128, 0, 0.5);
 }
+/* --- BOUTON CONNEXION --- */
+/* --- BOUTON INSCRIPTION --- */
+.btn-primary {
+  width: 100%;
+  max-width: 300px;
+  margin: 10px auto;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 400;
+  border-radius: 5px;
+  background-color: var(--main-color);
+  border-radius: 5px;
+  color: var(--bg-color);
+  border: none;
+  cursor: pointer;
+  transition: 0.5s;
+}
+.btn-primary:disabled {
+  background-color: rgb(234, 227, 227);
+  cursor: not-allowed;
+}
 
+.btn-primary:hover {
+  color: var(--main-color);
+  background: var(--text-color);
+  border: 0.1rem solid var(--main-color);
+}
 .productDetails {
   text-decoration: none;
 }
@@ -56,46 +83,6 @@ body {
 .favorite {
   color: red !important;
 }
-.btn-primary {
-  position: relative;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  width: 190px;
-  height: 40px;
-  background: var(--main-color);
-  border: 0.1rem solid var(--main-color);
-  font-size: 18px;
-  color: white;
-  z-index: 1;
-  overflow: hidden;
-  border-radius: 5px;
-  transition: 0.5s;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  color: var(--main-color);
-  background: white;
-}
-
-.btn-primary:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: white;
-  z-index: -1;
-  transition: 0.5s;
-  transform: scaleX(0);
-  transform-origin: left;
-}
-
-.btn-primary:hover::before {
-  transform: scaleX(1);
-}
 
 .btn-box {
   display: flex;
@@ -106,4 +93,5 @@ body {
 .btnProductDetail {
   margin: 18px auto 0;
   text-decoration: none;
+  text-align: center;
 }

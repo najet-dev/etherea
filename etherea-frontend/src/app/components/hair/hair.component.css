@@ -7,10 +7,6 @@
   display: block;
   transition: transform 0.3s;
 }
-.card:hover {
-  border-color: green;
-  box-shadow: 0 0 30px rgba(0, 128, 0, 0.5);
-}
 
 .heart-icon {
   position: absolute;
@@ -28,12 +24,33 @@
 
 .card-title,
 .card-text {
-  height: 50px; /* Hauteur fixe pour aligner les titres et descriptions */
-  overflow: hidden; /* Pour gérer le dépassement de texte */
-  text-overflow: ellipsis; /* Pour afficher en cas de dépassement */
+  font-size: 15px;
+  height: 40px; /* Ajuste selon le nombre de lignes max souhaité */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .card-description {
   text-decoration: none;
   color: black;
+}
+@media (max-width: 768px) {
+  .product-image {
+    width: 50%;
+  }
+
+  .card-body {
+    align-items: center;
+  }
+  .card-title,
+  .card-text {
+    white-space: normal;
+  }
 }

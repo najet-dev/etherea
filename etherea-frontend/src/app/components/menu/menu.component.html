@@ -1,6 +1,6 @@
 <!-- Main Menu -->
 <nav class="navbar navbar-expand-md navbar-light bg-light main-menu">
-  <div class="container">
+  <div class="container d-flex align-items-center justify-content-between">
     <!-- Burger Menu Button -->
     <div class="burger-menu">
       <span
@@ -12,11 +12,12 @@
     </div>
 
     <!-- Logo -->
-    <a class="navbar-brand">
+    <a class="navbar-brand mx-auto">
       <img class="logo" src="/assets/logo.png" alt="logo" [routerLink]="'/'" />
     </a>
+
     <!-- Search Form -->
-    <form class="form-inline my-2 my-lg-0 mx-auto custom-search-form">
+    <form class="form-inline my-2 my-lg-0 custom-search-form">
       <div class="input-group">
         <input
           class="form-control rounded-search-input"
@@ -32,7 +33,7 @@
       </div>
     </form>
 
-    <div class="icons-container">
+    <div class="icons-container d-flex align-items-center">
       <mat-icon *ngIf="!isLoggedIn" class="icon" [routerLink]="'/signin'">
         account_circle
       </mat-icon>
@@ -41,21 +42,15 @@
       </mat-icon>
 
       <!-- Favoris avec badge -->
-      <div class="icon-container">
-        <mat-icon class="icon" (click)="favorite()">favorite</mat-icon>
-        <span *ngIf="favoriteCount > 0" class="favorite-count">{{
-          favoriteCount
-        }}</span>
-      </div>
+      <mat-icon class="icon" (click)="favorite()">favorite</mat-icon>
+      <span *ngIf="favoriteCount > 0" class="favorite-count">{{
+        favoriteCount
+      }}</span>
 
       <!-- Panier avec badge -->
-      <div class="icon-container">
-        <mat-icon class="icon-cart" [routerLink]="'/cart'">
-          shopping_cart
-        </mat-icon>
-        <span *ngIf="cartCount > 0" class="cart-count">{{ cartCount }}</span>
-      </div>
-      <div class="icon-deconnexion">
+      <mat-icon class="icon" [routerLink]="'/cart'"> shopping_cart </mat-icon>
+      <span *ngIf="cartCount > 0" class="cart-count">{{ cartCount }}</span>
+      <div class="icon">
         <mat-icon *ngIf="isLoggedIn" class="icon" (click)="logout()"
           >exit_to_app</mat-icon
         >
@@ -120,7 +115,6 @@
       <div class="col-12">
         <form class="form-inline mb-4 mx-auto">
           <div class="input-group">
-            <!-- Wrap input and button in an input group -->
             <input
               class="form-control"
               type="search"

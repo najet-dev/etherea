@@ -1,35 +1,133 @@
+/* --- CONTAINER PRINCIPAL --- */
+.container {
+  margin-top: rem;
+  padding: 0 15px; /* Ajout pour éviter le collage sur les bords */
+}
+
+/* --- FORMULAIRE --- */
+.card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 600px; /* Largeur maximale pour éviter l’étirement */
+  margin: auto;
+}
+
+.cardbody-color {
+  padding: 2rem;
+}
+
+/* --- TITRE --- */
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* --- CHAMPS DE SAISIE --- */
 .form-control {
   border: none;
   border-bottom: 1px solid rgb(186, 183, 183);
   border-radius: 0;
   box-shadow: none;
+  font-size: 16px;
+  padding: 10px;
+  width: 100%;
 }
 
 .form-control:focus {
-  border-bottom: 1px solid var(--main-color);
+  border-bottom: 2px solid var(--main-color);
   outline: none;
   box-shadow: none;
 }
 
+/* --- MESSAGE D'ERREUR --- */
+.error-message {
+  color: red;
+  text-align: center;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+/* --- LIEN CONNEXION --- */
 .connect {
   text-align: center;
-  margin-top: 50px;
+  margin-top: 20px;
 }
+
 .connect a {
   font-size: 15px;
   text-decoration: none;
   font-weight: bold;
   color: black;
 }
+
 .connect h5 {
-  font-size: 15px;
+  font-size: 14px;
 }
-input {
-  margin-top: 30px;
-  padding: 12px;
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 768px) {
+  /* Ajuste la largeur du formulaire */
+  .col-md-6 {
+    width: 100%;
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  .cardbody-color {
+    padding: 1.5rem;
+  }
+
+  /* Champ de saisie plus grand */
+  .form-control {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  /* Bouton plus grand et centré */
+  .btn-primary {
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+    max-width: 250px;
+  }
+
+  /* Centrage du texte et des éléments */
+  h2 {
+    font-size: 22px;
+  }
+
+  .connect h5 {
+    font-size: 13px;
+  }
 }
-.error-message {
-  color: red;
-  text-align: center;
-  margin: 0 auto;
+
+@media (max-width: 480px) {
+  /* Pour les très petits écrans */
+  .container {
+    padding: 0 10px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .form-control {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .btn-primary {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .connect {
+    margin-top: 10px;
+  }
 }

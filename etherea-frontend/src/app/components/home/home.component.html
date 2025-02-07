@@ -2,22 +2,20 @@
   <img
     src="/assets/bannerHome.png"
     alt="Description de l'image"
-    class="img-fluid"
-    style="width: 100%"
+    class="img-fluid w-100"
   />
 </div>
 
 <div class="container mt-5">
   <div class="row">
-    <div class="col-md-12 text-center">
-      <h2>Découvrez Nos Crèmes Naturelles</h2>
+    <div class="col-12 text-center">
+      <h2>Découvrez nos produits naturels</h2>
     </div>
   </div>
   <div class="row">
-    <!-- Produits -->
     <div
       *ngFor="let product of products$ | async"
-      class="col-md-3 d-flex align-items-stretch"
+      class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex align-items-stretch"
     >
       <div class="card mb-4 d-flex flex-column">
         <div class="position-relative">
@@ -27,7 +25,7 @@
           >
             <img
               [src]="product.image"
-              class="product-image card-img-top mx-auto"
+              class="product-image card-img-top"
               alt="{{ product.name }}"
             />
           </a>
@@ -43,7 +41,6 @@
           </span>
           <h5 class="card-title">{{ product.name }}</h5>
 
-          <!-- Si le produit est un produit HAIR, afficher uniquement le premier volume -->
           <div *ngIf="productTypeService.isHairProduct(product)">
             <p class="card-text">
               {{ product.volumes[0].volume }} ml -
@@ -51,12 +48,10 @@
             </p>
           </div>
 
-          <!-- Si le produit est un produit FACE, afficher le prix de base -->
           <div *ngIf="productTypeService.isFaceProduct(product)">
             <p class="card-text">Prix : {{ product.basePrice }} €</p>
           </div>
 
-          <!-- Bouton pour voir les détails du produit -->
           <a
             [routerLink]="['/productDetails', product.id]"
             class="btn-primary btnProductDetail"

@@ -1,36 +1,36 @@
 .container {
   margin-top: 5rem;
+  padding: 0 15px;
 }
+
 .image {
-  width: 50%;
+  width: 100%;
+  max-width: 400px;
   display: block;
   margin: 0 auto;
 }
+
 .product-details {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 15px;
 }
+
 .description {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
 }
-.detail {
-  margin: 10px 0;
-}
+
 .custom-select-container {
-  margin-top: 15px;
+  width: 100%;
+  max-width: 300px;
 }
+
 .custom-select {
-  appearance: auto;
-  -webkit-appearance: auto;
-  -moz-appearance: auto;
-  width: 40%;
-  border: 1px solid var(--main-color);
-  background-color: white;
-  color: black;
-  margin-bottom: 10px;
+  width: 100%;
 }
+
 .alert-success {
   color: green;
 }
@@ -39,43 +39,100 @@
   color: red;
 }
 
+.stock-message {
+  font-size: 14px;
+  font-weight: 400;
+}
+
 .quantity-container {
   display: flex;
   align-items: center;
-  margin-top: 10px;
+  justify-content: center;
+  gap: 10px;
 }
+
 .quantity-selector {
   display: flex;
   align-items: center;
-  margin-left: 10px;
 }
+
 .quantity-btn {
   border: 1px solid var(--main-color);
   font-size: 20px;
   color: var(--bg-color);
   padding: 5px 10px;
   cursor: pointer;
+  background: white;
 }
+
 .selected-quantity {
   font-size: 15px;
   margin: 0 10px;
 }
-.btn-primary {
+
+.btnCart {
+  padding: 10px;
+  font-size: 16px;
+  min-width: 300px;
+  border-radius: 5px;
+  background-color: var(--main-color);
+  color: var(--bg-color);
+  border: none;
+  cursor: pointer;
+  transition: 0.5s;
   display: block;
-  margin-top: 20px;
+  margin-top: 15px;
   align-self: flex-start;
 }
+
+.btnCart:disabled {
+  background-color: rgb(234, 227, 227);
+  cursor: not-allowed;
+}
+
+.btnCart:hover {
+  color: var(--main-color);
+  background: var(--text-color);
+  border: 0.1rem solid var(--main-color);
+}
+
+.product {
+  text-align: justify;
+}
+
 .product {
   white-space: pre-line;
-  width: 48%;
+  width: 50%;
   margin-top: 15px;
   text-align: justify;
 }
+
 details {
   font-size: 15px;
   padding: 10px;
 }
-.characteristics + p {
-  margin-top: 15px;
-  white-space: pre-line;
+
+@media (max-width: 768px) {
+  .row {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-details {
+    order: 1;
+  }
+
+  .btnCart {
+    order: 99;
+    width: 100%;
+    margin-top: 15px;
+  }
+
+  .image {
+    max-width: 300px;
+  }
+
+  details {
+    width: 100%;
+  }
 }
