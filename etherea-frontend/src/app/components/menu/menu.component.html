@@ -42,14 +42,19 @@
       </mat-icon>
 
       <!-- Favoris avec badge -->
-      <mat-icon class="icon" (click)="favorite()">favorite</mat-icon>
-      <span *ngIf="favoriteCount > 0" class="favorite-count">{{
-        favoriteCount
-      }}</span>
+      <div class="icon">
+        <mat-icon (click)="favorite()">favorite</mat-icon>
+        <span *ngIf="favoriteCount > 0" class="favorite-count">{{
+          favoriteCount
+        }}</span>
+      </div>
 
       <!-- Panier avec badge -->
-      <mat-icon class="icon" [routerLink]="'/cart'"> shopping_cart </mat-icon>
-      <span *ngIf="cartCount > 0" class="cart-count">{{ cartCount }}</span>
+      <div class="icon">
+        <mat-icon [routerLink]="'/cart'"> shopping_cart </mat-icon>
+        <span *ngIf="cartCount > 0" class="cart-count">{{ cartCount }}</span>
+      </div>
+
       <div class="icon">
         <mat-icon *ngIf="isLoggedIn" class="icon" (click)="logout()"
           >exit_to_app</mat-icon

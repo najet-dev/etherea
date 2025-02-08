@@ -67,11 +67,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: rgb(231, 241, 231);
   }
 }
 
 @media (max-width: 767px) {
-  .btn-primary {
+  .btnFavorite {
     width: 100%;
+    background-color: rgb(231, 241, 231);
   }
 }

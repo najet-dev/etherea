@@ -1,7 +1,14 @@
 <div class="container-fluid">
   <div class="row d-flex align-items-start">
     <!-- Formulaire d'adresse de livraison -->
-    <div class="col-lg-6" *ngIf="userId">
+
+    <div class="col-lg-6 col-md-12" *ngIf="userId">
+      <!-- Bouton pour afficher la popup sur mobile -->
+      <div class="d-lg-none text-center mt-4">
+        <button class="btn btn-info" (click)="showSummaryPopup = true">
+          Récapitulatif de la commande
+        </button>
+      </div>
       <h2 class="text-dark mt-4">1. Adresse de Livraison</h2>
       <div class="card mt-5 mb-0 rounded card-form-margin">
         <div *ngIf="errorMessage" class="error-message">
@@ -12,7 +19,6 @@
           class="card-body cardbody-color p-lg-4"
           (ngSubmit)="onSubmit()"
         >
-          <!-- Champs du formulaire -->
           <div class="mb-3">
             <input
               type="text"
@@ -22,15 +28,16 @@
               placeholder="Prénom"
             />
             <div *ngFor="let error of errorMessages.firstName">
-              <div
+              <small
                 *ngIf="
                   deliveryAddressForm.get('firstName')?.hasError(error.type) &&
                   (deliveryAddressForm.get('firstName')?.dirty ||
                     deliveryAddressForm.get('firstName')?.touched)
                 "
+                class="error-message"
               >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
+                {{ error.message }}
+              </small>
             </div>
           </div>
 
@@ -43,15 +50,16 @@
               placeholder="Nom"
             />
             <div *ngFor="let error of errorMessages.lastName">
-              <div
+              <small
                 *ngIf="
                   deliveryAddressForm.get('lastName')?.hasError(error.type) &&
                   (deliveryAddressForm.get('lastName')?.dirty ||
                     deliveryAddressForm.get('lastName')?.touched)
                 "
+                class="error-message"
               >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
+                {{ error.message }}
+              </small>
             </div>
           </div>
 
@@ -64,15 +72,16 @@
               placeholder="Adresse"
             />
             <div *ngFor="let error of errorMessages.address">
-              <div
+              <small
                 *ngIf="
                   deliveryAddressForm.get('address')?.hasError(error.type) &&
                   (deliveryAddressForm.get('address')?.dirty ||
                     deliveryAddressForm.get('address')?.touched)
                 "
+                class="error-message"
               >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
+                {{ error.message }}
+              </small>
             </div>
           </div>
 
@@ -84,17 +93,6 @@
               id="zipCode"
               placeholder="Code Postal"
             />
-            <div *ngFor="let error of errorMessages.zipCode">
-              <div
-                *ngIf="
-                  deliveryAddressForm.get('zipCode')?.hasError(error.type) &&
-                  (deliveryAddressForm.get('zipCode')?.dirty ||
-                    deliveryAddressForm.get('zipCode')?.touched)
-                "
-              >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
-            </div>
           </div>
 
           <div class="mb-3">
@@ -105,17 +103,6 @@
               id="city"
               placeholder="Ville"
             />
-            <div *ngFor="let error of errorMessages.city">
-              <div
-                *ngIf="
-                  deliveryAddressForm.get('city')?.hasError(error.type) &&
-                  (deliveryAddressForm.get('city')?.dirty ||
-                    deliveryAddressForm.get('city')?.touched)
-                "
-              >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
-            </div>
           </div>
 
           <div class="mb-3">
@@ -126,17 +113,6 @@
               id="country"
               placeholder="Pays"
             />
-            <div *ngFor="let error of errorMessages.country">
-              <div
-                *ngIf="
-                  deliveryAddressForm.get('country')?.hasError(error.type) &&
-                  (deliveryAddressForm.get('country')?.dirty ||
-                    deliveryAddressForm.get('country')?.touched)
-                "
-              >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
-            </div>
           </div>
 
           <div class="mb-5">
@@ -147,19 +123,6 @@
               id="phoneNumber"
               placeholder="Numéro de Téléphone"
             />
-            <div *ngFor="let error of errorMessages.phoneNumber">
-              <div
-                *ngIf="
-                  deliveryAddressForm
-                    .get('phoneNumber')
-                    ?.hasError(error.type) &&
-                  (deliveryAddressForm.get('phoneNumber')?.dirty ||
-                    deliveryAddressForm.get('phoneNumber')?.touched)
-                "
-              >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
-            </div>
           </div>
 
           <div class="text-center">
@@ -175,12 +138,8 @@
       </div>
     </div>
 
-    <!-- Liste des produits et récapitulatif -->
-    <div
-      *ngIf="!isCartEmpty"
-      class="col-lg-6 d-flex flex-column align-items-end"
-    >
-      <!-- Liste des produits -->
+    <!-- Liste des produits et récapitulatif (Masqué sur mobile, accessible via la popup) -->
+    <div class="col-lg-6 d-none d-lg-flex flex-column align-items-end">
       <div class="card mb-0 rounded product-card">
         <div class="card-body cardbody-color p-lg-4 product-list-container">
           <app-product-display
@@ -191,18 +150,36 @@
         </div>
       </div>
 
-      <!-- Récapitulatif de la commande -->
       <div
         class="card my-5 rounded summary-card card-summary-margin order-summary-card"
       >
         <div class="card-body p-lg-5">
           <h3 class="title-order">Récapitulatif de la Commande</h3>
           <div class="summary-item">
-            Total
-            <span>{{ cartTotal | number : ".2-2" }} €</span>
+            Total <span>{{ cartTotal | number : ".2-2" }} €</span>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Popup pour afficher le récapitulatif sur mobile -->
+<div *ngIf="showSummaryPopup" class="summary-popup">
+  <div class="popup-content">
+    <button class="close-btn" (click)="showSummaryPopup = false">
+      &times;
+    </button>
+    <h3 class="title-order">Récapitulatif de la Commande</h3>
+    <div class="product-list-container">
+      <app-product-display
+        *ngFor="let item of cartItems"
+        [item]="item"
+        [showVolume]="true"
+      ></app-product-display>
+    </div>
+    <div class="summary-item">
+      Total <span>{{ cartTotal | number : ".2-2" }} €</span>
     </div>
   </div>
 </div>
