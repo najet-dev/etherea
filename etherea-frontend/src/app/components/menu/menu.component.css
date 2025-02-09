@@ -1,14 +1,51 @@
+/* ============================= */
+/* == Styles généraux == */
+/* ============================= */
+
 .logo {
   width: 80%;
   cursor: pointer;
 }
 
+/* ============================= */
+/* == Main Menu (Navbar) == */
+/* ============================= */
+
+.main-menu {
+  background-color: #f8f9fa;
+}
+
+/* Conteneur principal de la navbar */
+.navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 15px;
+}
+
+/* Bouton menu burger */
 .burger-menu {
   display: none;
   cursor: pointer;
+  font-size: 1.5rem;
 }
 
-/* Search Form Styles */
+/* Logo */
+.navbar-brand {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.navbar-brand img {
+  width: 70px;
+}
+
+/* ============================= */
+/* == Search Form == */
+/* ============================= */
+
 .custom-search-form {
   width: 60%;
   position: relative;
@@ -36,6 +73,55 @@
   border: 3px solid var(--main-color);
 }
 
+/* ============================= */
+/* == Icons Container == */
+/* ============================= */
+
+.icons-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Icônes générales */
+.icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 24px;
+  margin: 0 20px;
+}
+
+/* Badge pour Favoris et Panier */
+.favorite-count,
+.cart-count {
+  position: absolute;
+  top: -1px;
+  right: -3px;
+  transform: translate(50%, -50%);
+  background-color: var(--main-color);
+  color: var(--text-color);
+  border-radius: 50%;
+  padding: 3px 6px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+}
+
+/* Icône de déconnexion */
+.icon-deconnexion {
+  margin-left: 50px;
+}
+
+/* ============================= */
+/* == Sub Menu (Navbar secondaire) == */
+/* ============================= */
+
 .sub-menu {
   font-size: 1rem;
 }
@@ -51,18 +137,7 @@
   color: var(--main-color);
 }
 
-.icons-container {
-  display: flex;
-}
-
-.icon {
-  margin-right: 2rem;
-}
-.icon,
-.icon-cart {
-  cursor: pointer;
-}
-
+/* Icône pour fermer le menu mobile */
 .close-icon {
   display: none;
   position: absolute;
@@ -70,106 +145,132 @@
   right: 10px;
   cursor: pointer;
 }
-.icon-container {
-  position: relative;
-  display: inline-block;
+
+/* ============================= */
+/* == Mobile Search Bar == */
+/* ============================= */
+
+.search-bar {
+  display: none;
 }
 
-.favorite-count {
-  position: absolute;
-  top: -8px;
-  left: 20px;
-  background-color: var(--main-color);
-  color: var(--text-color);
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 14px;
+.search-bar .container {
+  padding: 10px 0;
 }
-.cart-count {
-  position: absolute;
-  top: -8px;
-  right: -15px;
-  background-color: var(--main-color);
-  color: var(--text-color);
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 14px;
+
+.search-bar .form-inline {
   display: flex;
-  align-items: center;
   justify-content: center;
 }
-.icon-deconnexion {
-  margin-left: 50px;
+
+.search-bar .input-group {
+  width: 100%;
 }
 
+.search-bar .btn-success {
+  background-color: var(--main-color);
+  border: none;
+}
+
+/* ============================= */
+/* == Responsive Design == */
+/* ============================= */
+
 @media (max-width: 767px) {
-  .favorite-count {
-    top: -8px;
-    right: -8px;
+  /* Navbar Mobile */
+  .navbar .container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
   }
-}
 
-/* Mobile Styles */
-@media (max-width: 767px) {
+  /* Burger Menu */
   .burger-menu {
-    position: relative;
-    z-index: 1001;
     display: flex;
     align-items: center;
     cursor: pointer;
-    font-size: 1.5rem;
+    order: 1;
   }
 
-  #navbar,
-  .sub-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
-    background-color: white;
-    transform: translateY(0);
-    transition: transform 0.3s ease-in-out;
+  /* Logo Mobile */
+  .navbar-brand {
+    order: 2;
   }
 
-  .burger-menu.open #navbar,
-  .burger-menu.open .sub-menu {
-    transform: translateY(56px);
+  .navbar-brand img {
+    width: 60px;
   }
 
-  .burger-icon {
-    margin-right: 10px;
+  /* Icônes sur Mobile */
+  .icons-container {
+    order: 3;
+    gap: 15px;
   }
 
-  .navbar-nav {
-    flex-direction: column;
+  .icon {
+    margin: 0 8px;
   }
 
-  .navbar-nav li {
-    margin-right: 0;
-    margin-bottom: 10px;
+  .favorite-count,
+  .cart-count {
+    font-size: 10px;
+    min-width: 14px;
+    height: 14px;
+    top: -1px;
+    right: -2px;
   }
 
-  .search-bar {
-    display: block;
-  }
-
-  .main-menu .form-inline {
+  /* Cacher la barre de recherche principale */
+  .custom-search-form {
     display: none;
   }
 
-  .navbar-nav .nav-item {
-    margin-bottom: 0;
-  }
-
-  .navbar-nav .nav-item .icon {
-    font-size: 24px;
-    margin-right: 10px;
-  }
-
-  .close-icon {
+  /* Afficher la barre de recherche mobile */
+  .search-bar {
     display: block;
-    margin-top: 1px;
-    cursor: pointer;
+  }
+}
+
+@media screen and (min-width: 200px) and (max-width: 369px) {
+  /* Navbar extra petite */
+  .navbar .container {
+    padding: 0 10px;
+  }
+
+  /* Alignement du menu burger */
+  .burger-menu {
+    order: 1;
+  }
+
+  /* Logo */
+  .navbar-brand {
+    order: 2;
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .navbar-brand img {
+    width: 50px;
+  }
+
+  /* Icônes */
+  .icons-container {
+    order: 3;
+    margin-top: 20px;
+    gap: 20px;
+  }
+
+  .icon {
+    margin: 0 6px;
+  }
+
+  .favorite-count,
+  .cart-count {
+    font-size: 9px;
+    min-width: 12px;
+    height: 12px;
+    top: -1px;
+    right: -2px;
   }
 }

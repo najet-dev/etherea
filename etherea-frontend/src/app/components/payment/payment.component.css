@@ -1,9 +1,9 @@
-/* Conteneur principal du paiement */
 .payment-container {
   margin-top: 20px;
+  padding: 0 10px;
 }
 
-/* Options de paiement (boutons radio) */
+/* Options de paiement */
 .payment-options {
   display: flex;
   flex-direction: column;
@@ -35,7 +35,8 @@
 
 /* Champs du formulaire de paiement */
 .card-element {
-  width: 80%;
+  width: 100%;
+  max-width: 350px;
   padding: 12px;
   margin: 10px 0;
   border-bottom: 1px solid rgb(186, 183, 183);
@@ -57,8 +58,8 @@
 .card.my-5 {
   display: flex;
   gap: 15px;
-  justify-content: space-between;
-  flex-wrap: wrap; /* Permet de passer à la ligne si l'espace est insuffisant */
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 /* Bouton de paiement */
@@ -69,8 +70,9 @@
 }
 
 .button-container button {
-  width: 40%;
-  min-width: 150px; /* Empêche qu'il soit trop petit */
+  width: 100%;
+  max-width: 300px;
+  min-width: 150px;
   padding: 10px;
 }
 
@@ -89,6 +91,7 @@
 .form-check-input:checked:focus {
   box-shadow: 0 0 0 0.25rem var(--main-color);
 }
+
 .message-success {
   position: fixed;
   top: 10%;
@@ -101,4 +104,38 @@
   border-radius: 5px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  .payment-options {
+    flex-direction: column;
+  }
+
+  .payment-container {
+    padding: 0 15px;
+  }
+
+  .button-container button {
+    width: 100%;
+  }
+
+  .card-element {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .payment-container {
+    padding: 0 10px;
+  }
+
+  .payment-options label {
+    font-size: 14px;
+  }
+
+  .message-success {
+    font-size: 16px;
+    padding: 10px 20px;
+  }
 }

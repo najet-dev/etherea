@@ -1,17 +1,44 @@
 <div class="container-fluid">
   <div class="row">
-    <div class="col-lg-3">
+    <!-- Bouton pour ouvrir le menu sur mobile -->
+    <button
+      class="btn btnFavorite d-md-none my-3"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileSidebar"
+    >
+      Menu
+    </button>
+
+    <!-- Sidebar responsive (offcanvas sur mobile) -->
+    <div class="offcanvas offcanvas-start d-md-none" id="mobileSidebar">
+      <div class="offcanvas-header">
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <app-sidebar></app-sidebar>
+      </div>
+    </div>
+
+    <!-- Sidebar classique sur desktop -->
+    <div class="col-md-4 col-lg-3 d-none d-md-block">
       <app-sidebar></app-sidebar>
     </div>
-    <div class="col-lg-9">
+
+    <!-- Contenu principal -->
+    <div class="col-md-8 col-lg-9">
       <div class="container mt-5">
         <div class="row">
-          <div class="col-md-12 text-center">
+          <div class="col-12 text-center">
             <h2>Mes favoris</h2>
           </div>
         </div>
 
-        <!-- Message de confirmation de suppression -->
+        <!-- Message de confirmation -->
         <div
           *ngIf="showSuccessMessage"
           class="alert alert-success text-center message-success"
@@ -20,11 +47,14 @@
         </div>
 
         <div class="row">
-          <div *ngFor="let favorite of favorites" class="col-md-3">
-            <div class="card h-100 mb-4">
+          <div
+            *ngFor="let favorite of favorites"
+            class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
+          >
+            <div class="card h-100">
               <img
                 [src]="favorite.product.image"
-                class="product-image card-img-top mx-auto img-fluid small-img"
+                class="product-image card-img-top img-fluid small-img"
                 [alt]="favorite.product.name"
                 [routerLink]="['/productDetails', favorite.product.id]"
               />
@@ -34,7 +64,8 @@
                   (click)="removeFavorite(favorite.productId)"
                   >&#x2764;</span
                 >
-                <h5 class="card-title">{{ favorite.product.name }}</h5>
+                <h3 class="card-title">{{ favorite.product.name }}</h3>
+
                 <div *ngIf="productTypeService.isFaceProduct(favorite.product)">
                   <span
                     >{{ favorite.product.basePrice | number : ".2-2" }} €</span
@@ -42,19 +73,21 @@
                 </div>
 
                 <div *ngIf="productTypeService.isHairProduct(favorite.product)">
-                  <select [(ngModel)]="selectedVolumes[favorite.product.id]">
+                  <select
+                    [(ngModel)]="selectedVolumes[favorite.product.id]"
+                    class="form-select"
+                  >
                     <option
                       *ngFor="let vol of favorite.product.volumes"
                       [ngValue]="vol"
                     >
-                      {{ vol.volume }} ml &nbsp;&nbsp; - &nbsp;&nbsp;
-                      {{ vol.price }} €
+                      {{ vol.volume }} ml - {{ vol.price }} €
                     </option>
                   </select>
                 </div>
 
                 <button
-                  class="btn-primary mt-auto"
+                  class="btn-primary btnFavorite"
                   (click)="
                     openProductPopup(
                       favorite.product,

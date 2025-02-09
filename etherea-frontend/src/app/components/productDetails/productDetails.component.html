@@ -1,36 +1,31 @@
 <div class="container mt-5" *ngIf="product">
   <div class="row">
-    <!-- Image on the left -->
-    <div class="col-md-6">
+    <!-- Image -->
+    <div class="col-lg-6 order-lg-1 text-center">
       <img [src]="product.image" class="img-fluid image" [alt]="product.name" />
     </div>
 
-    <!-- Product details on the right -->
-    <div class="col-md-6">
+    <!-- Détails du produit -->
+    <div class="col-lg-6 order-lg-2">
       <div class="product-details">
         <p class="detail description">{{ product.name }}</p>
 
-        <!-- Volume selection - Only for HAIR products -->
-        <div *ngIf="product.type === 'HAIR' && product.volumes?.length">
-          <div class="custom-select-container">
-            <select
-              (change)="onVolumeChange($event)"
-              class="form-control custom-select"
-            >
-              <option
-                *ngFor="let volume of product.volumes"
-                [value]="volume.id"
-              >
-                {{ volume.volume }} ml&nbsp;&nbsp; - &nbsp;&nbsp;{{
-                  volume.price
-                }}
-                €
-              </option>
-            </select>
-          </div>
+        <!-- Sélection du volume -->
+        <div
+          *ngIf="product.type === 'HAIR' && product.volumes?.length"
+          class="custom-select-container"
+        >
+          <select
+            (change)="onVolumeChange($event)"
+            class="form-control custom-select"
+          >
+            <option *ngFor="let volume of product.volumes" [value]="volume.id">
+              {{ volume.volume }} ml - {{ volume.price }} €
+            </option>
+          </select>
         </div>
 
-        <!-- Stock message -->
+        <!-- Message de stock -->
         <p
           class="stock-message"
           [ngClass]="{
@@ -41,7 +36,12 @@
           {{ stockMessage }}
         </p>
 
-        <!-- Quantity selection -->
+        <!-- Prix -->
+        <div *ngIf="productTypeService.isFaceProduct(product)">
+          <p class="card-text">Prix : {{ product.basePrice }} €</p>
+        </div>
+
+        <!-- Sélection de la quantité -->
         <div class="quantity-container">
           <label class="detail" for="quantityInput">Quantité :</label>
           <div class="quantity-selector">
@@ -65,10 +65,12 @@
             </button>
           </div>
         </div>
+      </div>
 
-        <!-- Add to cart button -->
+      <!-- Bouton Ajouter au panier -->
+      <div class="text-center mt-3 btn-container">
         <button
-          class="btn-primary"
+          class="btn btnCart d-block"
           (click)="addToCart()"
           [disabled]="
             product.stockQuantity === 0 ||
@@ -80,9 +82,13 @@
       </div>
     </div>
 
-    <!-- Additional product details -->
-    <div class="row mt-4">
-      <div class="col-md-12">
+    <!-- Détails supplémentaires -->
+    <div class="col-lg-6 order-lg-3 mt-3">
+      <div class="additional-details">
+        <details>
+          <summary>Description</summary>
+          <p class="product">{{ product.description }}</p>
+        </details>
         <details>
           <summary>Bénéfices</summary>
           <p class="product">{{ product.benefits }}</p>

@@ -25,6 +25,7 @@ export class OrderComponent implements OnInit {
   cartTotal: number = 0;
   isCartEmpty: boolean = true;
   existingAddresses: DeliveryAddress[] = [];
+  showSummaryPopup: boolean = false;
 
   public errorMessages = {
     firstName: [{ type: 'required', message: 'Prénom requis' }],
@@ -230,5 +231,8 @@ export class OrderComponent implements OnInit {
     this.errorMessage =
       'Une erreur est survenue. Veuillez réessayer plus tard.';
     return of(null);
+  }
+  toggleSummaryPopup() {
+    this.showSummaryPopup = !this.showSummaryPopup;
   }
 }
