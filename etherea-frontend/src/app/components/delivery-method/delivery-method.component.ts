@@ -48,6 +48,7 @@ export class DeliveryMethodComponent implements OnInit {
   paymentConfirmed: boolean = false;
   showPaymentOptions = false;
   selectedPaymentMethod: string | null = null;
+  showSummaryPopup: boolean = false;
 
   constructor(
     private appFacade: AppFacade,
@@ -298,5 +299,9 @@ export class DeliveryMethodComponent implements OnInit {
   //payment
   onPaymentMethodSelected(method: string) {
     this.selectedPaymentMethod = method;
+  }
+  //Modal
+  toggleSummaryPopup() {
+    this.showSummaryPopup = !this.showSummaryPopup;
   }
 }
