@@ -9,74 +9,57 @@
           <div *ngFor="let item of cartItems" class="cart-item mb-4">
             <div class="row align-items-center item-container">
               <!-- Colonne gauche : image, nom et prix -->
-              <div
-                class="col-12 col-sm-6 d-flex align-items-center mb-3 mb-sm-0"
-              >
+              <div class="col-3 d-flex align-items-center">
                 <img
                   *ngIf="item.product?.image"
                   [src]="item.product.image"
                   alt="Product Image"
-                  width="60px"
-                  [routerLink]="['/productDetails', item.product.id]"
                   class="product-image"
                 />
-                <div class="item-info ms-3">
-                  <p
-                    *ngIf="item.product"
-                    [routerLink]="['/productDetails', item.product.id]"
-                    class="product-name mb-1"
-                  >
-                    {{ item.product.name }}
-                  </p>
-                  <p
-                    *ngIf="item.product?.type === 'HAIR' && item.selectedVolume"
-                    class="product-volume mb-1"
-                  >
-                    {{ item.selectedVolume.volume }} ml
-                  </p>
-                  <span
-                    *ngIf="productTypeService.isFaceProduct(item.product)"
-                    class="product-price"
-                  >
-                    {{ item.product.basePrice | number : ".2-2" }} €
-                  </span>
-                  <span
-                    *ngIf="item.product?.type === 'HAIR'"
-                    class="product-price"
-                  >
-                    {{ item.selectedVolume?.price | number : ".2-2" }} €
-                  </span>
-                </div>
               </div>
-
-              <div
-                class="col-12 col-sm-6 d-flex justify-content-around align-items-center"
-              >
-                <div class="quantity-controls me-4">
-                  <button
-                    class="quantity-btn btn-outline-secondary"
-                    (click)="decrementQuantity(item)"
-                  >
-                    -
-                  </button>
-                  <span>{{ item.quantity }}</span>
-                  <button
-                    class="quantity-btn btn-outline-secondary"
-                    (click)="incrementQuantity(item)"
-                  >
-                    +
-                  </button>
-                </div>
-
-                <div class="subtotal">
-                  {{ item.subTotal | number : ".2-2" }} €
-                </div>
-
-                <button
-                  class="delete-btn close-button ms-5"
-                  (click)="confirmDeleteItem(item.id)"
+              <div class="col-5 item-info">
+                <p *ngIf="item.product" class="product-name mb-1">
+                  {{ item.product.name }}
+                </p>
+                <p
+                  *ngIf="item.product?.type === 'HAIR' && item.selectedVolume"
+                  class="product-volume mb-1"
                 >
-                  <span class="close-icon">&#10006;</span>
+                  {{ item.selectedVolume.volume }} ml
+                </p>
+                <span
+                  *ngIf="productTypeService.isFaceProduct(item.product)"
+                  class="product-price"
+                >
+                  {{ item.product.basePrice | number : ".2-2" }} €
+                </span>
+                <span
+                  *ngIf="item.product?.type === 'HAIR'"
+                  class="product-price"
+                >
+                  {{ item.selectedVolume?.price | number : ".2-2" }} €
+                </span>
+              </div>
+              <div
+                class="col-3 d-flex justify-content-center align-items-center quantity-controls"
+              >
+                <button
+                  class="quantity-btn btn-outline-secondary"
+                  (click)="decrementQuantity(item)"
+                >
+                  -
+                </button>
+                <span>{{ item.quantity }}</span>
+                <button
+                  class="quantity-btn btn-outline-secondary"
+                  (click)="incrementQuantity(item)"
+                >
+                  +
+                </button>
+              </div>
+              <div class="col-1 d-flex justify-content-end">
+                <button class="delete-btn" (click)="confirmDeleteItem(item.id)">
+                  <span class="close-button">&#10006;</span>
                 </button>
               </div>
             </div>
@@ -92,8 +75,7 @@
         <div class="card-body p-lg-5">
           <h3 class="card-title">Récapitulatif de la Commande</h3>
           <div class="summary-item">
-            Total
-            <span>{{ cartTotal | number : ".2-2" }} €</span>
+            Total <span>{{ cartTotal | number : ".2-2" }} €</span>
           </div>
           <div class="text-center">
             <button class="btn-primary btnCommand" [routerLink]="'/order'">
