@@ -2,7 +2,15 @@
   margin-top: 5rem;
   padding: 0 15px;
 }
-
+.btn-info {
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  background-color: rgb(231, 241, 231);
+  max-width: 100%;
+  text-align: center;
+  margin-bottom: 30px;
+}
 .image {
   width: 100%;
   max-width: 400px;
@@ -48,7 +56,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  font-size: 17px;
+  gap: 145px;
 }
 
 .quantity-selector {
@@ -101,15 +110,61 @@
 }
 
 .product {
-  white-space: pre-line;
-  width: 50%;
-  margin-top: 15px;
+  font-size: 18px;
+  line-height: 1.6;
+  width: 100%;
   text-align: justify;
+  white-space: pre-line;
+  margin-top: 25px;
+}
+details {
+  font-size: 18px;
+  padding: 15px;
+  cursor: pointer;
+}
+.summary-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.popup-content {
+  background: white;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-details {
-  font-size: 15px;
-  padding: 10px;
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  border: none;
+  background: transparent;
+  font-size: 30px;
+  cursor: pointer;
+}
+.close-btn:hover {
+  color: red;
+}
+.additional-details {
+  width: 90%;
+  max-width: 800px;
+  text-align: left;
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
 @media (max-width: 768px) {
@@ -117,21 +172,15 @@ details {
     display: flex;
     flex-direction: column;
   }
-
   .product-details {
-    order: 1;
+    text-align: center;
   }
-
-  .btnCart {
-    order: 99;
-    width: 100%;
-    margin-top: 15px;
-  }
-
   .image {
     max-width: 300px;
   }
-
+  .product {
+    font-size: 16px;
+  }
   details {
     width: 100%;
   }

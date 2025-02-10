@@ -1,4 +1,11 @@
 <div class="container mt-5" *ngIf="product">
+  <!-- Bouton pour afficher la popup sur mobile -->
+  <div class="d-lg-none text-center mt-4">
+    <button class="btn btn-info" (click)="showDetailPopup = true">
+      Détails du produit
+    </button>
+  </div>
+
   <div class="row">
     <!-- Image -->
     <div class="col-lg-6 order-lg-1 text-center">
@@ -9,21 +16,6 @@
     <div class="col-lg-6 order-lg-2">
       <div class="product-details">
         <p class="detail description">{{ product.name }}</p>
-
-        <!-- Sélection du volume -->
-        <div
-          *ngIf="product.type === 'HAIR' && product.volumes?.length"
-          class="custom-select-container"
-        >
-          <select
-            (change)="onVolumeChange($event)"
-            class="form-control custom-select"
-          >
-            <option *ngFor="let volume of product.volumes" [value]="volume.id">
-              {{ volume.volume }} ml - {{ volume.price }} €
-            </option>
-          </select>
-        </div>
 
         <!-- Message de stock -->
         <p
@@ -36,14 +28,23 @@
           {{ stockMessage }}
         </p>
 
-        <!-- Prix -->
-        <div *ngIf="productTypeService.isFaceProduct(product)">
-          <p class="card-text">Prix : {{ product.basePrice }} €</p>
+        <!-- Sélection du volume (uniquement pour les produits HAIR) -->
+        <div
+          *ngIf="product.type === 'HAIR' && product.volumes?.length"
+          class="custom-select-container"
+        >
+          <select
+            (change)="onVolumeChange($event)"
+            class="form-control custom-select"
+          >
+            <option *ngFor="let volume of product.volumes" [value]="volume.id">
+              {{ volume.volume }} ml
+            </option>
+          </select>
         </div>
 
         <!-- Sélection de la quantité -->
         <div class="quantity-container">
-          <label class="detail" for="quantityInput">Quantité :</label>
           <div class="quantity-selector">
             <button
               class="quantity-btn"
@@ -64,26 +65,34 @@
               +
             </button>
           </div>
-        </div>
-      </div>
 
-      <!-- Bouton Ajouter au panier -->
-      <div class="text-center mt-3 btn-container">
-        <button
-          class="btn btnCart d-block"
-          (click)="addToCart()"
-          [disabled]="
-            product.stockQuantity === 0 ||
-            cartItems.quantity > product.stockQuantity
-          "
-        >
-          Ajouter au panier
-        </button>
+          <!-- Affichage du prix en fonction du type de produit -->
+          <span *ngIf="product.type === 'HAIR' && selectedVolume">
+            {{ selectedVolume.price }} €
+          </span>
+          <div *ngIf="product.type === 'FACE'">
+            <p class="card-text">{{ product.basePrice }} €</p>
+          </div>
+        </div>
+
+        <!-- Bouton Ajouter au panier -->
+        <div class="text-center mt-3 btn-container">
+          <button
+            class="btn btnCart d-block"
+            (click)="addToCart()"
+            [disabled]="
+              product.stockQuantity === 0 ||
+              cartItems.quantity > product.stockQuantity
+            "
+          >
+            Ajouter au panier
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Détails supplémentaires -->
-    <div class="col-lg-6 order-lg-3 mt-3">
+    <!-- Détails supplémentaires pour desktop -->
+    <div class="col-lg-6 order-lg-3 mt-3 d-none d-lg-block">
       <div class="additional-details">
         <details>
           <summary>Description</summary>
@@ -106,6 +115,35 @@
           <p>{{ product.characteristics }}</p>
         </details>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Popup pour afficher les détails supplémentaires sur mobile -->
+<div *ngIf="showDetailPopup" class="summary-popup">
+  <div class="popup-content">
+    <button class="close-btn" (click)="showDetailPopup = false">&times;</button>
+    <div class="additional-details">
+      <details>
+        <summary>Description</summary>
+        <p class="product">{{ product?.description }}</p>
+      </details>
+      <details>
+        <summary>Bénéfices</summary>
+        <p class="product">{{ product?.benefits }}</p>
+      </details>
+      <details>
+        <summary>Conseil d'utilisation</summary>
+        <p class="product">{{ product?.usageTips }}</p>
+      </details>
+      <details>
+        <summary>Ingrédients principaux</summary>
+        <p class="product ingredients">{{ product?.ingredients }}</p>
+      </details>
+      <details>
+        <summary>Caractéristiques</summary>
+        <p>{{ product?.characteristics }}</p>
+      </details>
     </div>
   </div>
 </div>

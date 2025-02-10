@@ -25,7 +25,7 @@
 .card-title,
 .card-text {
   font-size: 15px;
-  height: 40px; /* Ajuste selon le nombre de lignes max souhaité */
+  height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: normal;
@@ -36,7 +36,9 @@
   align-items: center;
   justify-content: center;
 }
-
+.card-title {
+  cursor: pointer;
+}
 .card-description {
   text-decoration: none;
   color: black;
@@ -53,7 +55,5 @@
   .card-title,
   .card-text {
     white-space: normal;
-  }
-  @media screen and (max-width: 375px) and (max-height: 667px) {
   }
 }

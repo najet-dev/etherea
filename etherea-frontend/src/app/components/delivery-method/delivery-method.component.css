@@ -8,19 +8,17 @@
   padding-right: 10px;
 }
 
-/* MODAL : Permettre le scroll dans la liste des produits */
 .modal-body {
-  max-height: 400px; /* Empêche la modal de dépasser l'écran */
+  max-height: 400px;
   overflow-y: auto;
 }
 
-/* Style pour améliorer l'affichage dans la modal */
 .order-summary-modal .modal-content {
   max-height: 90vh;
 }
 
 .order-summary-modal .modal-body {
-  max-height: 60vh;
+  max-height: 80vh;
   overflow-y: auto;
   padding: 15px;
 }
@@ -113,7 +111,7 @@ p {
   }
 
   .modal-body {
-    max-height: 80vh;
+    max-height: 90vh;
     overflow-y: auto;
   }
 
@@ -158,7 +156,7 @@ p {
   }
 
   .order-summary-modal .modal-body {
-    max-height: 60vh; /* Ajuste la hauteur de la modal */
+    max-height: 90vh; /* Ajuste la hauteur de la modal */
   }
 
   .btn-info {

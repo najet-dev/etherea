@@ -32,6 +32,7 @@ export class ProductDetailsComponent implements OnInit {
   quantityWarning: boolean = false;
   quantityExceeded: boolean = false; // Indicates whether the stock limit has been exceeded
   limitReached: boolean = false; // Indicates whether the maximum limit of 10 products has been reached
+  showDetailPopup = false;
 
   cartItems: Cart = {
     id: 0,
@@ -308,5 +309,9 @@ export class ProductDetailsComponent implements OnInit {
       subTotal: 0,
       selectedVolume: undefined,
     };
+  }
+  //Modal
+  toggleDetailPopup() {
+    this.showDetailPopup = !this.showDetailPopup;
   }
 }
