@@ -71,27 +71,27 @@
                 </div>
 
                 <!-- Point Relais -->
-                <ng-container *ngIf="selectedDeliveryOption === 'PICKUP_POINT'">
-                  <ng-container
-                    *ngIf="delivery.deliveryOption === 'PICKUP_POINT'"
-                  >
-                    <div *ngIf="!selectedPickupPoint" class="mt-3">
-                      <button
-                        type="button"
-                        class="btn-primary btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#pickupPointModal"
-                        (click)="showPickupPoints()"
-                      >
-                        Choisir un point relais
-                      </button>
-                    </div>
-                    <div *ngIf="selectedPickupPoint" class="mt-3">
-                      <p>{{ selectedPickupPoint.pickupPointName }}</p>
-                      <p>{{ selectedPickupPoint.pickupPointAddress }}</p>
-                    </div>
-                  </ng-container>
-                </ng-container>
+                <!-- Point Relais (Affiché uniquement pour PICKUP_POINT) -->
+                <div
+                  *ngIf="
+                    selectedDeliveryOption === 'PICKUP_POINT' &&
+                    delivery.deliveryOption === 'PICKUP_POINT'
+                  "
+                >
+                  <div *ngIf="!selectedPickupPoint" class="mt-3">
+                    <button
+                      type="button"
+                      class="btn-primary btn-sm"
+                      (click)="showPickupPoints()"
+                    >
+                      Choisir un point relais
+                    </button>
+                  </div>
+                  <div *ngIf="selectedPickupPoint" class="mt-3">
+                    <p>{{ selectedPickupPoint.pickupPointName }}</p>
+                    <p>{{ selectedPickupPoint.pickupPointAddress }}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -133,6 +133,61 @@
           </div>
         </div>
       </section>
+
+      <!-- MODAL ANGULAR -->
+      <div *ngIf="isPickupModalOpen" class="custom-modal-overlay">
+        <div class="custom-modal">
+          <div class="modal-header">
+            <h2>Choisir un point relais</h2>
+            <button class="close-btn" (click)="closePickupModal()">✖</button>
+          </div>
+          <div class="modal-body">
+            <div
+              *ngIf="isLoadingPickupPoints"
+              class="text-center spinner-container"
+            >
+              <p>Chargement des points relais...</p>
+              <div class="spinner-border text-primary"></div>
+            </div>
+
+            <div *ngIf="!isLoadingPickupPoints">
+              <div *ngIf="pickupPoints.length > 0">
+                <div *ngFor="let point of pickupPoints" class="list-group">
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    (click)="selectPickupPoint(point)"
+                  >
+                    <strong>{{ point.pickupPointName }}</strong
+                    ><br />
+                    <small>{{ point.pickupPointAddress }}</small>
+                  </button>
+                </div>
+              </div>
+              <p *ngIf="pickupPoints.length === 0" class="text-center fs-6">
+                Aucun point relais disponible.
+              </p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="confirmPickupPoint()"
+              [disabled]="!selectedPickupPoint"
+            >
+              Confirmer
+            </button>
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="closePickupModal()"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      </div>
 
       <!-- Récapitulatif commande (affiché sur grand écran) -->
       <section class="d-none d-lg-block">

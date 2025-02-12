@@ -59,12 +59,11 @@ body {
   transition: 0.5s;
 }
 .btn-primary:disabled {
-  background-color: rgb(234, 227, 227);
+  background-color: rgb(245, 241, 241);
   cursor: not-allowed;
 }
 
 .btn-primary:hover {
-  color: var(--main-color);
   background: var(--text-color);
   border: 0.1rem solid var(--main-color);
 }
@@ -95,3 +94,6 @@ body {
   text-decoration: none;
   text-align: center;
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

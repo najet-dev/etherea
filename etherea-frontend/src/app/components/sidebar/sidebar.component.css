@@ -1,7 +1,6 @@
 .sidebar {
   margin-top: 77px;
 }
-
 .nav-link {
   margin-top: 10px;
   display: flex;
@@ -10,27 +9,22 @@
   padding-right: 20px;
   transition: color 0.3s ease;
 }
-
 .nav-link i {
   margin-right: 8px;
 }
-
 .nav-link span.greater-symbol {
   margin-left: auto;
   font-size: 1.4em;
   padding-left: 50px;
 }
-
 .nav-link:hover {
   color: var(--main-color) !important;
 }
-
 /* Lien actif */
 .nav-link.active {
   background-color: rgb(202, 245, 202);
   border-color: rgb(202, 245, 202);
 }
-
 /* Séparateurs */
 .category-divider {
   border: 0;
@@ -40,12 +34,9 @@
   margin-left: auto;
   margin-right: auto;
 }
-
 .logout-link {
   cursor: pointer;
 }
-
-/*Cache la sidebar sur mobile et active un menu latéral */
 @media (max-width: 767px) {
   .sidebar {
     display: block;

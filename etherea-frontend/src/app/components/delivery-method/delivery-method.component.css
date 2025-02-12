@@ -1,89 +1,147 @@
+.custom-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+.custom-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh; /* Limite la hauteur à 80% de l'écran */
+  overflow-y: auto; /* Active le défilement si le contenu est trop grand */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.25em;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.spinner-container {
+  margin-top: 20px;
+}
+
 .product-card {
   width: 100%;
 }
-
 .product-list-container {
   max-height: 300px;
   overflow-y: auto;
   padding-right: 10px;
 }
-
-.modal-body {
+body.modal-body {
   max-height: 400px;
+  overflow: auto !important;
+  padding-right: 0 !important;
+}
+.modal {
   overflow-y: auto;
 }
 
+.modal-backdrop {
+  display: none !important;
+}
 .order-summary-modal .modal-content {
   max-height: 90vh;
 }
-
 .order-summary-modal .modal-body {
   max-height: 80vh;
   overflow-y: auto;
   padding: 15px;
 }
-
 .card-title {
   margin-bottom: 20px;
 }
-
 .cart-text {
   text-decoration: none;
 }
-
 .custom-phone {
   margin-top: 10px;
 }
-
 .btn-link {
   font-weight: bold;
   color: var(--bg-color);
   text-decoration: none;
 }
-
 .btn-link:hover {
   font-weight: bold;
   color: var(--main-color);
 }
-
 p {
   margin: 0;
 }
-
 .title-order {
   margin-bottom: 60px;
   text-align: center;
 }
-
 .summary-item {
   font-size: 1rem;
   line-height: 1.5;
 }
-
 .summary-item .d-flex {
   margin-bottom: 8px;
 }
-
 .summary-item span:last-child {
   font-weight: 500;
 }
-
 .form-check-input {
   transition: all 0.3s ease;
 }
-
-/* Lorsque le bouton radio est sélectionné, on change la couleur */
+/* bouton radio sélectionné, on change la couleur */
 .form-check-input:checked {
   background-color: var(--main-color);
   border-color: var(--main-color);
   outline: none;
 }
-
 /* Pour ajouter un effet visuel lorsque l'élément est coché */
 .form-check-input:checked:focus {
   box-shadow: 0 0 0 0.25rem var(--main-color);
 }
-
 .btn-paiement {
   display: flex;
   justify-content: center;
@@ -93,13 +151,11 @@ p {
   align-self: center;
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
-
 @media (max-width: 992px) {
   .row {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-
   .product-card,
   .order-summary-card {
     width: 100%;
@@ -109,16 +165,13 @@ p {
   .product-list-container {
     max-height: 250px;
   }
-
   .modal-body {
     max-height: 90vh;
     overflow-y: auto;
   }
-
   .title-order {
     margin-bottom: 40px;
   }
-
   .btn-info {
     width: 100%;
     word-wrap: break-word;
@@ -135,6 +188,13 @@ p {
     justify-content: center;
     align-self: center;
   }
+  .modal-footer {
+    flex-direction: row !important;
+    justify-content: center !important;
+  }
+  .modal-footer button {
+    width: 45%;
+  }
 }
 @media (max-width: 768px) {
   .product-card,
@@ -142,23 +202,18 @@ p {
     width: 100%;
     margin-top: 20px;
   }
-
   .summary-item {
     font-size: 1rem;
   }
-
   .form-control {
     font-size: 1rem;
   }
-
   .cardbody-color {
     padding: 1rem;
   }
-
   .order-summary-modal .modal-body {
     max-height: 90vh; /* Ajuste la hauteur de la modal */
   }
-
   .btn-info {
     width: 100%;
     word-wrap: break-word;
@@ -169,34 +224,27 @@ p {
     margin-bottom: 30px;
   }
 }
-
 @media (max-width: 576px) {
   .product-card,
   .order-summary-card {
     width: 100%;
     margin-top: 15px;
   }
-
   .summary-item {
     font-size: 0.9rem;
   }
-
   .form-control {
     font-size: 0.9rem;
   }
-
   .summary-popup .popup-content {
     width: 95%;
   }
-
   .title-order {
     margin-bottom: 30px;
   }
-
   .order-summary-modal .modal-body {
     max-height: 55vh;
   }
-
   .btn-info {
     width: 100%;
     word-wrap: break-word;

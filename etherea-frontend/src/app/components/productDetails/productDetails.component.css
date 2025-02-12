@@ -17,41 +17,45 @@
   display: block;
   margin: 0 auto;
 }
-
 .product-details {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 15px;
 }
-
 .description {
   font-size: 18px;
   font-weight: 600;
+  margin-top: 25px;
 }
-
-.custom-select-container {
-  width: 100%;
-  max-width: 300px;
+.stock-message {
+  font-size: 16px;
+  font-weight: 400;
 }
-
-.custom-select {
-  width: 100%;
-}
-
 .alert-success {
   color: green;
 }
-
 .alert-danger {
   color: red;
 }
-
-.stock-message {
-  font-size: 14px;
-  font-weight: 400;
+.custom-select-container {
+  position: relative;
+  width: 40%;
+  min-width: 300px;
+  cursor: pointer;
 }
-
+.custom-select-container::after {
+  content: "▼";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+.custom-select-container.rotate::after {
+  transform: translateY(-50%) rotate(180deg);
+}
 .quantity-container {
   display: flex;
   align-items: center;
@@ -59,12 +63,10 @@
   font-size: 17px;
   gap: 145px;
 }
-
 .quantity-selector {
   display: flex;
   align-items: center;
 }
-
 .quantity-btn {
   border: 1px solid var(--main-color);
   font-size: 20px;
@@ -73,12 +75,10 @@
   cursor: pointer;
   background: white;
 }
-
 .selected-quantity {
   font-size: 15px;
   margin: 0 10px;
 }
-
 .btnCart {
   padding: 10px;
   font-size: 16px;
@@ -93,22 +93,20 @@
   margin-top: 15px;
   align-self: flex-start;
 }
-
 .btnCart:disabled {
   background-color: rgb(234, 227, 227);
   cursor: not-allowed;
 }
-
 .btnCart:hover {
   color: var(--main-color);
   background: var(--text-color);
   border: 0.1rem solid var(--main-color);
 }
-
-.product {
-  text-align: justify;
+details {
+  font-size: 18px;
+  padding: 15px;
+  cursor: pointer;
 }
-
 .product {
   font-size: 18px;
   line-height: 1.6;
@@ -116,11 +114,6 @@
   text-align: justify;
   white-space: pre-line;
   margin-top: 25px;
-}
-details {
-  font-size: 18px;
-  padding: 15px;
-  cursor: pointer;
 }
 .summary-popup {
   position: fixed;
@@ -146,7 +139,6 @@ details {
   justify-content: center;
   align-items: center;
 }
-
 .close-btn {
   position: absolute;
   top: 20px;
@@ -166,22 +158,100 @@ details {
   overflow-y: auto;
   max-height: 90vh;
 }
-
+@media screen and (min-width: 768px) and (max-width: 992px) {
+  .custom-select-container,
+  .custom-select {
+    width: 100%;
+    max-width: 100%;
+  }
+  .quantity-container {
+    width: 100%;
+    max-width: 100%;
+    gap: 250px;
+  }
+  .btn-container {
+    width: 100%;
+    margin: 15px;
+  }
+  .btnCart {
+    width: 100%;
+  }
+}
 @media (max-width: 768px) {
-  .row {
-    display: flex;
-    flex-direction: column;
+  .image {
+    max-width: 300px;
   }
   .product-details {
     text-align: center;
   }
-  .image {
-    max-width: 300px;
+  .quantity-container {
+    width: 100%;
+    justify-content: space-evenly;
+    padding: 0 10px;
+  }
+  .quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .custom-select-container,
+  .custom-select {
+    min-width: auto;
+    width: 100%;
+  }
+  .quantity-btn {
+    border: 1px solid var(--main-color);
+    font-size: 18px;
+    padding: 5px 8px;
+    cursor: pointer;
+    background: white;
+  }
+  .selected-quantity {
+    font-size: 16px;
+    margin: 0 5px;
+  }
+  details {
+    width: 100%;
   }
   .product {
     font-size: 16px;
   }
-  details {
+  .btn-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  .btnCart {
+    width: 100%;
+    max-width: 250px;
+    text-align: center;
+  }
+}
+@media (max-width: 322px) {
+  .quantity-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .quantity-selector {
+    width: 100%;
+    justify-content: center;
+  }
+  .custom-select-container,
+  .custom-select {
+    min-width: auto;
+    width: 100%;
+  }
+  .btnCart {
+    width: 100%;
+    min-width: auto;
+    max-width: 200px;
+    font-size: 14px;
+  }
+  .price {
+    display: block;
+    text-align: center;
+    font-size: 14px;
     width: 100%;
   }
 }

@@ -71,7 +71,6 @@
   text-align: center;
   margin-bottom: 50px;
 }
-/* Popup */
 .popup {
   display: flex;
   justify-content: center;
@@ -84,7 +83,6 @@
   background: rgba(0, 0, 0, 0.5);
   z-index: 1050;
 }
-
 .popup-content {
   background: white;
   padding: 20px;
@@ -97,7 +95,6 @@
   z-index: 1100;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .item-container {
     display: flex;

@@ -32,6 +32,8 @@
         <div
           *ngIf="product.type === 'HAIR' && product.volumes?.length"
           class="custom-select-container"
+          (click)="toggleDropdown()"
+          [class.rotate]="isDropdownOpen"
         >
           <select
             (change)="onVolumeChange($event)"
@@ -66,7 +68,6 @@
             </button>
           </div>
 
-          <!-- Affichage du prix en fonction du type de produit -->
           <span *ngIf="product.type === 'HAIR' && selectedVolume">
             {{ selectedVolume.price }} €
           </span>
@@ -75,7 +76,6 @@
           </div>
         </div>
 
-        <!-- Bouton Ajouter au panier -->
         <div class="text-center mt-3 btn-container">
           <button
             class="btn btnCart d-block"
@@ -108,7 +108,7 @@
         </details>
         <details>
           <summary>Ingrédients principaux</summary>
-          <p class="product ingredients">{{ product.ingredients }}</p>
+          <p class="product">{{ product.ingredients }}</p>
         </details>
         <details>
           <summary>Caractéristiques</summary>
