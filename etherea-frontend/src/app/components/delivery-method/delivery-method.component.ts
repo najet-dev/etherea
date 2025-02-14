@@ -221,6 +221,39 @@ export class DeliveryMethodComponent implements OnInit {
   }
 
   confirmPickupPoint(): void {
+    if (this.selectedPickupPoint) {
+      this.confirmedPickupPoint = this.selectedPickupPoint;
+
+      this.selectedPickupPoint = this.selectedPickupPoint;
+    }
+    this.isModalOpen = false;
+
+    this.cdr.detectChanges();
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedPickupPoint = null;
+    this.cdr.detectChanges();
+  }
+
+  onDeliveryOptionChange(): void {
+    console.log('Option sélectionnée :', this.selectedDeliveryOption);
+
+    if (!this.selectedDeliveryOption) return;
+
+    // Réinitialiser le point relais si le mode change
+    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
+      this.selectedPickupPoint = null;
+    }
+
+    // Charger les coûts associés au mode sélectionné
+    this.loadCartWithDelivery(this.selectedDeliveryOption);
+
+    this.cdr.detectChanges();
+  }
+
+  confirmDeliveryOption() {
     const request: AddDeliveryMethodRequest = {
       userId: this.userId,
       deliveryOption: this.selectedDeliveryOption ?? '',
@@ -251,6 +284,7 @@ export class DeliveryMethodComponent implements OnInit {
     this.deliveryMethodService.addDeliveryMethod(request).subscribe({
       next: (response) => {
         console.log('Méthode de livraison ajoutée avec succès :', response);
+        this.showPaymentOptions = true; // Cache le bouton et affiche les options de paiement
       },
       error: (error) => {
         console.error(
@@ -259,34 +293,6 @@ export class DeliveryMethodComponent implements OnInit {
         );
       },
     });
-    this.isModalOpen = false;
-
-    this.cdr.detectChanges();
-  }
-
-  closeModal(): void {
-    this.isModalOpen = false;
-    this.selectedPickupPoint = null;
-    this.cdr.detectChanges();
-  }
-
-  onDeliveryOptionChange(): void {
-    console.log('Option sélectionnée :', this.selectedDeliveryOption);
-
-    if (!this.selectedDeliveryOption) return;
-
-    // Réinitialiser le point relais si le mode change
-    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
-      this.selectedPickupPoint = null;
-    }
-
-    // Charger les coûts associés au mode sélectionné
-    this.loadCartWithDelivery(this.selectedDeliveryOption);
-
-    this.cdr.detectChanges();
-  }
-
-  confirmDeliveryOption() {
     this.showPaymentOptions = true;
     this.cdr.detectChanges();
   }
