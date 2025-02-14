@@ -10,12 +10,17 @@
             <div class="row align-items-center item-container">
               <!-- Colonne gauche : image, nom et prix -->
               <div class="col-3 d-flex align-items-center">
-                <img
-                  *ngIf="item.product?.image"
-                  [src]="item.product.image"
-                  alt="Product Image"
-                  class="product-image"
-                />
+                <a
+                  class="productDetails"
+                  [routerLink]="['/productDetails', item.product.id]"
+                >
+                  <img
+                    *ngIf="item.product?.image"
+                    [src]="item.product.image"
+                    alt="Product Image"
+                    class="product-image"
+                  />
+                </a>
               </div>
               <div class="col-5 item-info">
                 <p *ngIf="item.product" class="product-name mb-1">
@@ -27,18 +32,7 @@
                 >
                   {{ item.selectedVolume.volume }} ml
                 </p>
-                <span
-                  *ngIf="productTypeService.isFaceProduct(item.product)"
-                  class="product-price"
-                >
-                  {{ item.product.basePrice | number : ".2-2" }} €
-                </span>
-                <span
-                  *ngIf="item.product?.type === 'HAIR'"
-                  class="product-price"
-                >
-                  {{ item.selectedVolume?.price | number : ".2-2" }} €
-                </span>
+                <p class="subtotal">{{ item.subTotal | number : ".2-2" }} €</p>
               </div>
               <div
                 class="col-3 d-flex justify-content-center align-items-center quantity-controls"

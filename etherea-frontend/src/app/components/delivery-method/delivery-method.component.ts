@@ -1,9 +1,14 @@
-import { Component, inject, OnInit, DestroyRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  DestroyRef,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { switchMap, filter, tap, catchError } from 'rxjs/operators';
+import { switchMap, filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
-import { Modal } from 'bootstrap';
 
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { DeliveryMethod } from '../models/DeliveryMethod.model';
@@ -48,7 +53,8 @@ export class DeliveryMethodComponent implements OnInit {
   paymentConfirmed: boolean = false;
   showPaymentOptions = false;
   selectedPaymentMethod: string | null = null;
-  showSummaryPopup: boolean = false;
+  isLoadingPickupPoints = false;
+  isModalOpen = false;
 
   constructor(
     private appFacade: AppFacade,
@@ -57,14 +63,15 @@ export class DeliveryMethodComponent implements OnInit {
     private cartItemService: CartItemService,
     private router: Router,
     private deliveryMethodService: DeliveryMethodService,
-    public productTypeService: ProductTypeService
+    public productTypeService: ProductTypeService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.loadUserAndAddress();
     this.loadCartTotal();
     this.loadCartItems();
-    this.showPickupPoints();
+    this.loadPickupPoints();
   }
 
   private loadUserAndAddress(): void {
@@ -162,6 +169,18 @@ export class DeliveryMethodComponent implements OnInit {
       });
   }
 
+  private loadPickupPoints(): void {
+    if (!this.userId) return;
+
+    this.deliveryMethodService.getPickupMethods(this.userId).subscribe({
+      next: (points) => {
+        this.pickupPoints = points;
+      },
+      error: (error) =>
+        this.handleError('récupération des points relais', error),
+    });
+  }
+
   private handleError(context: string, error?: unknown) {
     if (error instanceof Error) {
       console.error(`Erreur lors de ${context}:`, error.message);
@@ -182,79 +201,26 @@ export class DeliveryMethodComponent implements OnInit {
     }
   }
 
-  showPickupPoints(): void {
-    this.pickupPoints = [];
-    if (!this.userId) return;
+  openModal(): void {
+    this.isModalOpen = true;
+    this.isLoadingPickupPoints = true;
 
-    this.deliveryMethodService
-      .getPickupMethods(this.userId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (points) => {
-          this.pickupPoints = points;
-          if (this.pickupPoints.length === 0) {
-            console.log('Aucun point relais disponible.');
-          }
-        },
-        error: (error) =>
-          this.handleError('récupération des points relais', error),
-      });
+    this.deliveryMethodService.getPickupMethods(this.userId).subscribe({
+      next: (points) => {
+        this.pickupPoints = points;
+        this.isLoadingPickupPoints = false;
+      },
+      error: (error) => {
+        console.error('Erreur chargement points relais:', error);
+        this.isLoadingPickupPoints = false;
+      },
+    });
   }
-
   selectPickupPoint(point: PickupPoint): void {
     this.selectedPickupPoint = point;
   }
-  onDeliveryOptionChange(): void {
-    if (!this.selectedDeliveryOption) return;
-
-    // Réinitialiser le point relais si le mode change
-    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
-      this.selectedPickupPoint = null;
-    }
-
-    // Recharger les points relais
-    if (this.selectedDeliveryOption === 'PICKUP_POINT') {
-      this.showPickupPoints();
-    }
-
-    // Charger les coûts associés au mode sélectionné
-    this.loadCartWithDelivery(this.selectedDeliveryOption);
-
-    setTimeout(() => {
-      this.selectedPickupPoint = this.selectedPickupPoint;
-    });
-  }
 
   confirmPickupPoint(): void {
-    if (this.selectedPickupPoint) {
-      this.confirmedPickupPoint = this.selectedPickupPoint;
-
-      // Masquer le modal
-      const modalElement = document.getElementById('pickupPointModal');
-      if (modalElement) {
-        const modalInstance =
-          Modal.getInstance(modalElement) || new Modal(modalElement);
-        modalInstance.hide();
-      }
-
-      // Fermer les styles du modal
-      const body = document.body;
-      if (body.classList.contains('modal-open')) {
-        body.classList.remove('modal-open');
-      }
-
-      const backdrop = document.querySelector('.modal-backdrop');
-      if (backdrop) {
-        backdrop.remove();
-      }
-
-      // Mettre à jour le point relais sélectionné dans le DOM
-      // Cela garantit que l'affichage est bien mis à jour
-      this.selectedPickupPoint = this.selectedPickupPoint;
-    }
-  }
-
-  confirmDeliveryOption() {
     const request: AddDeliveryMethodRequest = {
       userId: this.userId,
       deliveryOption: this.selectedDeliveryOption ?? '',
@@ -285,7 +251,6 @@ export class DeliveryMethodComponent implements OnInit {
     this.deliveryMethodService.addDeliveryMethod(request).subscribe({
       next: (response) => {
         console.log('Méthode de livraison ajoutée avec succès :', response);
-        this.showPaymentOptions = true; // Cache le bouton et affiche les options de paiement
       },
       error: (error) => {
         console.error(
@@ -294,14 +259,40 @@ export class DeliveryMethodComponent implements OnInit {
         );
       },
     });
+    this.isModalOpen = false;
+
+    this.cdr.detectChanges();
+  }
+
+  closeModal(): void {
+    this.isModalOpen = false;
+    this.selectedPickupPoint = null;
+    this.cdr.detectChanges();
+  }
+
+  onDeliveryOptionChange(): void {
+    console.log('Option sélectionnée :', this.selectedDeliveryOption);
+
+    if (!this.selectedDeliveryOption) return;
+
+    // Réinitialiser le point relais si le mode change
+    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
+      this.selectedPickupPoint = null;
+    }
+
+    // Charger les coûts associés au mode sélectionné
+    this.loadCartWithDelivery(this.selectedDeliveryOption);
+
+    this.cdr.detectChanges();
+  }
+
+  confirmDeliveryOption() {
+    this.showPaymentOptions = true;
+    this.cdr.detectChanges();
   }
 
   //payment
   onPaymentMethodSelected(method: string) {
     this.selectedPaymentMethod = method;
-  }
-  //Modal
-  toggleSummaryPopup() {
-    this.showSummaryPopup = !this.showSummaryPopup;
   }
 }

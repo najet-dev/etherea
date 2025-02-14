@@ -7,7 +7,6 @@
   display: block;
   transition: transform 0.3s;
 }
-
 .heart-icon {
   position: absolute;
   top: 10px;
@@ -17,11 +16,9 @@
   cursor: pointer;
   transition: color 0.5s ease;
 }
-
 .heart-icon.favorite {
   color: red !important;
 }
-
 .card-title,
 .card-text {
   font-size: 15px;
@@ -36,7 +33,6 @@
   align-items: center;
   justify-content: center;
 }
-
 .card-description {
   text-decoration: none;
   color: black;

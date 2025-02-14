@@ -1,6 +1,5 @@
 <div class="container my-4">
   <div class="row">
-    <!-- Bouton pour afficher le récapitulatif sur mobile -->
     <div class="d-lg-none text-center mt-4">
       <button
         class="btn btn-info"
@@ -10,6 +9,7 @@
         Récapitulatif de la commande
       </button>
     </div>
+
     <!-- Colonne gauche : Adresse et modes de livraison -->
     <div class="col-md-8">
       <!-- Adresse de livraison -->
@@ -76,12 +76,11 @@
                     *ngIf="delivery.deliveryOption === 'PICKUP_POINT'"
                   >
                     <div *ngIf="!selectedPickupPoint" class="mt-3">
+                      <!-- Bouton pour ouvrir la modal -->
                       <button
                         type="button"
                         class="btn-primary btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#pickupPointModal"
-                        (click)="showPickupPoints()"
+                        (click)="openModal()"
                       >
                         Choisir un point relais
                       </button>
@@ -108,8 +107,8 @@
                   selectedDeliveryOption === 'EXPRESS') &&
                   !deliveryAddress)
               "
-              (click)="confirmDeliveryOption()"
               *ngIf="!showPaymentOptions"
+              (click)="showPaymentOptions = true"
             >
               Continuer vers le paiement
             </button>
@@ -148,7 +147,7 @@
                 <span>Frais de livraison</span>
                 <span>{{ deliveryCost }} €</span>
               </div>
-              <div class="d-flex justify-content-between fw-bold">
+              <div class="d-flex justify-content-between">
                 <span>Total à payer</span>
                 <span>{{ total }} €</span>
               </div>
@@ -206,6 +205,59 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Choix Point Relais -->
+<div *ngIf="isModalOpen" class="custom-modal-overlay">
+  <div class="custom-modal">
+    <div class="custom-modal-header">
+      <button type="button" class="btn-close" (click)="closeModal()">
+        &times;
+      </button>
+    </div>
+    <div class="custom-modal-body">
+      <!-- Spinner de chargement -->
+      <div *ngIf="isLoadingPickupPoints" class="text-center my-3">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p>Chargement des points relais...</p>
+      </div>
+
+      <!-- Liste des points relais (affichée une fois chargée) -->
+      <div *ngIf="!isLoadingPickupPoints && pickupPoints.length > 0">
+        <div *ngFor="let point of pickupPoints" class="list-group">
+          <button
+            type="button"
+            class="list-group-item list-group-item-action"
+            (click)="selectPickupPoint(point)"
+          >
+            {{ point.pickupPointName }} - {{ point.pickupPointAddress }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Message si aucun point relais trouvé -->
+      <p *ngIf="!isLoadingPickupPoints && pickupPoints.length === 0">
+        Aucun point relais disponible.
+      </p>
+    </div>
+
+    <div class="custom-modal-footer">
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="confirmPickupPoint()"
+        [disabled]="!selectedPickupPoint"
+      >
+        Confirmer
+      </button>
+      <button type="button" class="btn-primary" (click)="closeModal()">
+        Annuler
+      </button>
+    </div>
+  </div>
+</div>
+
 <section *ngIf="showPaymentOptions">
   <div class="container my-4">
     <div class="row">

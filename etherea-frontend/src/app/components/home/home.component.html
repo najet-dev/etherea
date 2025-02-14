@@ -39,7 +39,9 @@
           >
             &#x2764;
           </span>
-          <h5 class="card-title">{{ product.name }}</h5>
+          <h5 [routerLink]="['/productDetails', product.id]" class="card-title">
+            {{ product.name }}
+          </h5>
 
           <div *ngIf="productTypeService.isHairProduct(product)">
             <p class="card-text">
