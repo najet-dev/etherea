@@ -4,11 +4,9 @@ import {
   OnInit,
   DestroyRef,
   ChangeDetectorRef,
-  ViewChild,
-  ElementRef,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { switchMap, filter, tap, catchError } from 'rxjs/operators';
+import { switchMap, filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 
@@ -23,7 +21,6 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest .model';
-import { Modal } from 'bootstrap';
 
 @Component({
   selector: 'app-delivery-method',
@@ -56,7 +53,6 @@ export class DeliveryMethodComponent implements OnInit {
   paymentConfirmed: boolean = false;
   showPaymentOptions = false;
   selectedPaymentMethod: string | null = null;
-  showSummaryPopup: boolean = false;
   isLoadingPickupPoints = false;
   isModalOpen = false;
 
@@ -205,56 +201,26 @@ export class DeliveryMethodComponent implements OnInit {
     }
   }
 
-  showPickupPoints() {
-    this.isLoadingPickupPoints = true; // Afficher le spinner dans la modal
+  openModal(): void {
     this.isModalOpen = true;
+    this.isLoadingPickupPoints = true;
 
-    this.deliveryMethodService
-      .getPickupMethods(this.userId)
-      .pipe(
-        tap((points) => {
-          this.pickupPoints = points;
-          this.isLoadingPickupPoints = false; // Arrêter le spinner quand les points sont chargés
-          this.cdr.detectChanges(); // Forcer la mise à jour de l'UI
-        }),
-        catchError((error) => {
-          console.error('Erreur chargement points relais:', error);
-          this.isLoadingPickupPoints = false; // S'assurer que le spinner disparaît
-          return of([]); // Retourner une liste vide pour éviter les erreurs
-        })
-      )
-      .subscribe();
+    this.deliveryMethodService.getPickupMethods(this.userId).subscribe({
+      next: (points) => {
+        this.pickupPoints = points;
+        this.isLoadingPickupPoints = false;
+      },
+      error: (error) => {
+        console.error('Erreur chargement points relais:', error);
+        this.isLoadingPickupPoints = false;
+      },
+    });
   }
-
   selectPickupPoint(point: PickupPoint): void {
     this.selectedPickupPoint = point;
-    this.isLoadingPickupPoints = false; // Désactiver le spinner au cas où
   }
 
   confirmPickupPoint(): void {
-    if (this.selectedPickupPoint) {
-      this.confirmedPickupPoint = this.selectedPickupPoint;
-      this.isModalOpen = false;
-    }
-  }
-
-  onDeliveryOptionChange(): void {
-    console.log('Option sélectionnée :', this.selectedDeliveryOption);
-
-    if (!this.selectedDeliveryOption) return;
-
-    // Réinitialiser le point relais si le mode change
-    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
-      this.selectedPickupPoint = null;
-    }
-
-    // Charger les coûts associés au mode sélectionné
-    this.loadCartWithDelivery(this.selectedDeliveryOption);
-
-    this.cdr.detectChanges();
-  }
-
-  confirmDeliveryOption() {
     const request: AddDeliveryMethodRequest = {
       userId: this.userId,
       deliveryOption: this.selectedDeliveryOption ?? '',
@@ -285,7 +251,6 @@ export class DeliveryMethodComponent implements OnInit {
     this.deliveryMethodService.addDeliveryMethod(request).subscribe({
       next: (response) => {
         console.log('Méthode de livraison ajoutée avec succès :', response);
-        this.showPaymentOptions = true; // Cache le bouton et affiche les options de paiement
       },
       error: (error) => {
         console.error(
@@ -294,24 +259,40 @@ export class DeliveryMethodComponent implements OnInit {
         );
       },
     });
-    console.log('Bouton cliqué : option de livraison confirmée.');
-    this.showPaymentOptions = false;
+    this.isModalOpen = false;
+
     this.cdr.detectChanges();
-    this.showPaymentOptions = true;
   }
-  cancelPickupPointSelection(): void {
+
+  closeModal(): void {
+    this.isModalOpen = false;
     this.selectedPickupPoint = null;
+    this.cdr.detectChanges();
+  }
+
+  onDeliveryOptionChange(): void {
+    console.log('Option sélectionnée :', this.selectedDeliveryOption);
+
+    if (!this.selectedDeliveryOption) return;
+
+    // Réinitialiser le point relais si le mode change
+    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
+      this.selectedPickupPoint = null;
+    }
+
+    // Charger les coûts associés au mode sélectionné
+    this.loadCartWithDelivery(this.selectedDeliveryOption);
+
+    this.cdr.detectChanges();
+  }
+
+  confirmDeliveryOption() {
+    this.showPaymentOptions = true;
     this.cdr.detectChanges();
   }
 
   //payment
   onPaymentMethodSelected(method: string) {
     this.selectedPaymentMethod = method;
-  }
-
-  //Modal
-  toggleSummaryPopup() {
-    this.showSummaryPopup = !this.showSummaryPopup;
-    this.cdr.detectChanges(); // Forcer la mise à jour de l'affichage
   }
 }

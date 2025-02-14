@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Output, OnInit, Input } from '@angular/core';
-import { PaymentService } from '../../services/payment.service';
 import { CartService } from '../../services/cart.service';
 import { PaymentOption } from '../models/PaymentOption.enum';
 
@@ -12,7 +11,6 @@ import {
   StripeCardCvcElement,
 } from '@stripe/stripe-js';
 import { environment } from 'src/environments/environment';
-import { UserService } from 'src/app/services/user.service';
 import { firstValueFrom } from 'rxjs';
 import { AppFacade } from 'src/app/services/appFacade.service';
 
@@ -44,7 +42,7 @@ export class PaymentComponent implements OnInit {
   async ngOnInit() {
     console.log('PaymentComponent initialisé.');
     try {
-      // Récupérer l'ID de l'utilisateur d'abord
+      // Récupérer l'ID de l'utilisateur
       const userId: number | null = await firstValueFrom(
         this.appFacade.getCurrentUser()
       );
@@ -116,7 +114,6 @@ export class PaymentComponent implements OnInit {
 
       // Vérifie si une transaction existe déjà pour éviter de recréer une intention de paiement
       if (this.clientSecret && this.transactionId) {
-        console.log('Intention de paiement existante :', this.transactionId);
         return;
       }
 
@@ -165,7 +162,6 @@ export class PaymentComponent implements OnInit {
     this.showSuccessMessage = false; // Réinitialiser le message de succès avant de commencer
 
     try {
-      console.log('Création du moyen de paiement...');
       const { paymentMethod, error } = await this.stripe.createPaymentMethod({
         type: 'card',
         card: this.cardNumberElement,
@@ -178,7 +174,6 @@ export class PaymentComponent implements OnInit {
         return;
       }
 
-      console.log('Confirmation du paiement...');
       if (!this.transactionId) {
         this.errorMessage = "Erreur : l'ID de la transaction est invalide.";
         this.isPaymentLoading = false;
