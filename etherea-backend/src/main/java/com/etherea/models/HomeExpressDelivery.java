@@ -8,8 +8,8 @@ import java.time.LocalDate;
 public class HomeExpressDelivery extends DeliveryMethod {
     private static final int DELIVERY_DAYS = 2;
     private static final double DELIVERY_COST = 10.0;
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "delivery_address_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
     public HomeExpressDelivery() {
         super();

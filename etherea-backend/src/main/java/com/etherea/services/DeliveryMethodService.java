@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class DeliveryMethodService {
-
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -260,4 +259,101 @@ public class DeliveryMethodService {
                 deliveryDateCalculator
         );
     }
+    @Transactional
+    public DeliveryMethodDTO updateDeliveryMethod(Long userId, Long deliveryMethodId, AddDeliveryMethodRequestDTO requestDTO) {
+        logger.info("Updating delivery method with ID: {}", deliveryMethodId);
+
+        if (requestDTO == null) {
+            throw new IllegalArgumentException("Request cannot be null.");
+        }
+
+        // Vérifier l'existence du mode de livraison
+        DeliveryMethod existingDeliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
+                .orElseThrow(() -> new DeliveryMethodNotFoundException("Delivery method not found with ID: " + deliveryMethodId));
+
+        // Vérifier que l'utilisateur possède bien ce mode de livraison
+        if (!existingDeliveryMethod.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("User is not authorized to update this delivery method.");
+        }
+
+        // Récupérer l'adresse par défaut de l'utilisateur
+        List<DeliveryAddress> userAddresses = deliveryAddressRepository.findByUserId(userId);
+        DeliveryAddress defaultAddress = userAddresses.stream()
+                .filter(DeliveryAddress::isDefault)
+                .findFirst()
+                .orElseThrow(() -> new DeliveryAddressNotFoundException("Default delivery address not found for user with ID: " + userId));
+
+        // Mettre à jour les champs en fonction du type de livraison
+        DeliveryOption newDeliveryOption = requestDTO.getDeliveryOption();
+        if (newDeliveryOption != existingDeliveryMethod.getDeliveryOption()) {
+            logger.info("Changing delivery method type from {} to {}", existingDeliveryMethod.getDeliveryOption(), newDeliveryOption);
+
+            // Supprimer l'ancien mode de livraison
+            deliveryMethodRepository.delete(existingDeliveryMethod);
+
+            // Créer un nouveau mode de livraison
+            DeliveryMethod newDeliveryMethod = DeliveryMethodFactory.createDeliveryMethod(
+                    newDeliveryOption,
+                    defaultAddress,  // Utiliser l'adresse par défaut de l'utilisateur
+                    requestDTO.getPickupPointName(),
+                    requestDTO.getPickupPointAddress(),
+                    requestDTO.getPickupPointLatitude(),
+                    requestDTO.getPickupPointLongitude(),
+                    existingDeliveryMethod.getUser()
+            );
+
+            // Calcul des coûts et de la date de livraison
+            double orderAmount = requestDTO.getOrderAmount();
+            double newDeliveryCost = DeliveryCostCalculator.calculateDeliveryCost(orderAmount, newDeliveryOption);
+            LocalDate newDeliveryDate = deliveryDateCalculator.calculateDeliveryDate(LocalDate.now(), newDeliveryMethod.calculateDeliveryTime());
+
+            newDeliveryMethod.setDeliveryCost(newDeliveryCost);
+            newDeliveryMethod.setExpectedDeliveryDate(newDeliveryDate);
+
+            // Sauvegarde du nouveau mode de livraison
+            DeliveryMethod savedDeliveryMethod = deliveryMethodRepository.save(newDeliveryMethod);
+
+            // Mise à jour du panier
+            Cart cart = cartRepository.findByUserId(userId)
+                    .orElseThrow(() -> new CartNotFoundException("Shopping cart not found for user with ID: " + userId));
+
+            cart.setDeliveryMethod(savedDeliveryMethod);
+            cart.setFinalTotal(BigDecimal.valueOf(cart.calculateTotalAmount().doubleValue() + newDeliveryCost));
+            cartRepository.save(cart);
+
+            logger.info("Delivery method updated successfully.");
+            return DeliveryMethodDTO.fromDeliveryMethod(savedDeliveryMethod, savedDeliveryMethod.getUser().getDefaultAddress(),
+                    LocalDate.now(), orderAmount, deliveryDateCalculator);
+        } else {
+            // Si le type de livraison ne change pas, mettre à jour les infos spécifiques
+            if (newDeliveryOption == DeliveryOption.PICKUP_POINT) {
+                PickupPointDelivery pickupDelivery = (PickupPointDelivery) existingDeliveryMethod;
+                pickupDelivery.setPickupPointName(requestDTO.getPickupPointName());
+                pickupDelivery.setPickupPointAddress(requestDTO.getPickupPointAddress());
+                pickupDelivery.setPickupPointLatitude(requestDTO.getPickupPointLatitude());
+                pickupDelivery.setPickupPointLongitude(requestDTO.getPickupPointLongitude());
+            }
+
+            // Mise à jour du coût et de la date de livraison
+            double newDeliveryCost = DeliveryCostCalculator.calculateDeliveryCost(requestDTO.getOrderAmount(), newDeliveryOption);
+            existingDeliveryMethod.setDeliveryCost(newDeliveryCost);
+            existingDeliveryMethod.setExpectedDeliveryDate(deliveryDateCalculator.calculateDeliveryDate(LocalDate.now(),
+                    existingDeliveryMethod.calculateDeliveryTime()));
+
+            // Sauvegarde de la mise à jour
+            DeliveryMethod updatedDeliveryMethod = deliveryMethodRepository.save(existingDeliveryMethod);
+
+            // Mise à jour du panier
+            Cart cart = cartRepository.findByUserId(userId)
+                    .orElseThrow(() -> new CartNotFoundException("Shopping cart not found for user with ID: " + userId));
+
+            cart.setFinalTotal(BigDecimal.valueOf(cart.calculateTotalAmount().doubleValue() + newDeliveryCost));
+            cartRepository.save(cart);
+
+            logger.info("Delivery method details updated successfully.");
+            return DeliveryMethodDTO.fromDeliveryMethod(updatedDeliveryMethod, updatedDeliveryMethod.getUser().getDefaultAddress(),
+                    LocalDate.now(), requestDTO.getOrderAmount(), deliveryDateCalculator);
+        }
+    }
+
 }
