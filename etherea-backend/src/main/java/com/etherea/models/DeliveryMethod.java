@@ -1,73 +1,76 @@
 package com.etherea.models;
 
-import com.etherea.enums.DeliveryOption;
+import com.etherea.enums.DeliveryType;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "delivery_method")
-@Inheritance(strategy = InheritanceType.JOINED)
-public abstract class DeliveryMethod {
+@Table(name = "delivery_methods")
+public class DeliveryMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private double deliveryCost;
-    private LocalDate expectedDeliveryDate;
-    private static final double FREE_SHIPPING_THRESHOLD = 50.0;
     @Enumerated(EnumType.STRING)
-    private DeliveryOption deliveryOption;
+    @Column(nullable = false)
+    private DeliveryType type;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal cost;
+    @Column(nullable = false)
+    private int deliveryDays;
+    @Column(nullable = false)
+    private String description;
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    protected DeliveryMethod() {}
-    public DeliveryMethod(User user, DeliveryOption deliveryOption) {
-        if (user == null) {
-            throw new IllegalArgumentException("User cannot be null.");
-        }
-        if (deliveryOption == null) {
-            throw new IllegalArgumentException("Delivery option cannot be null.");
-        }
-        this.user = user;
-        this.deliveryOption = deliveryOption;
-    }
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public double getDeliveryCost() {
-        return deliveryCost;
-    }
-    public void setDeliveryCost(double deliveryCost) {
-        this.deliveryCost = deliveryCost;
-    }
-    public LocalDate getExpectedDeliveryDate() {
-        return expectedDeliveryDate;
-    }
-    public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
-        this.expectedDeliveryDate = expectedDeliveryDate;
-    }
-    public DeliveryOption getDeliveryOption() {
-        return deliveryOption;
-    }
-    public void setDeliveryOption(DeliveryOption deliveryOption) {
-        this.deliveryOption = deliveryOption;
-    }
-    public User getUser() {
-        return user;
-    }
-    public void setUser(User user) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_address_id")
+    private DeliveryAddress deliveryAddress;
+    @Embedded
+    private PickupPointDetails pickupPointDetails;
+    public DeliveryMethod() {}
+    public DeliveryMethod(DeliveryType type, BigDecimal cost, int deliveryDays, String description, User user) {
+        this.type = type;
+        this.cost = cost;
+        this.deliveryDays = deliveryDays;
+        this.description = description;
         this.user = user;
     }
-    public boolean isFreeShipping(double totalAmount) {
-        return totalAmount >= FREE_SHIPPING_THRESHOLD;
+    public boolean isPickupPoint() {
+        return this.type == DeliveryType.PICKUP_POINT;
     }
-    public double calculateCost(double totalAmount) {
-        return isFreeShipping(totalAmount) ? 0.0 : getDeliveryOption().getBaseCost();
+    public boolean isHomeDelivery() {
+        return this.type == DeliveryType.HOME_STANDARD || this.type == DeliveryType.HOME_EXPRESS;
     }
-    public abstract int calculateDeliveryTime();
-    public abstract String getDescription();
-    public abstract LocalDate calculateExpectedDeliveryDate();
+    public void changeDeliveryType(DeliveryType newType, DeliveryAddress newAddress, PickupPointDetails newPickupDetails) {
+        this.type = newType;
+        if (newType == DeliveryType.PICKUP_POINT) {
+            this.deliveryAddress = null;
+            this.pickupPointDetails = newPickupDetails;
+        } else {
+            this.pickupPointDetails = null;
+            this.deliveryAddress = newAddress;
+        }
+    }
+    public Long getId() { return id; }
+
+    public void setId(Long id) { this.id = id; }
+
+    public DeliveryType getType() { return type; }
+
+    public void setType(DeliveryType type) { this.type = type; }
+    public BigDecimal getCost() { return cost; }
+    public void setCost(BigDecimal cost) { this.cost = cost; }
+    public int getDeliveryDays() { return deliveryDays; }
+    public void setDeliveryDays(int deliveryDays) { this.deliveryDays = deliveryDays; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user; }
+    public DeliveryAddress getDeliveryAddress() { return deliveryAddress; }
+    public void setDeliveryAddress(DeliveryAddress deliveryAddress) { this.deliveryAddress = deliveryAddress; }
+    public PickupPointDetails getPickupPointDetails() { return pickupPointDetails; }
+    public void setPickupPointDetails(PickupPointDetails pickupPointDetails) { this.pickupPointDetails = pickupPointDetails; }
 }

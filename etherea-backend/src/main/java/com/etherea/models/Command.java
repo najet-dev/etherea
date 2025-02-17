@@ -39,7 +39,7 @@ public class Command {
         this.status = status;
         this.deliveryAddress = deliveryAddress;
         this.cart = cart;
-        this.total = cart.getFinalTotal(); // Initialiser le total à partir du panier
+        this.total = cart.calculateFinalTotal(); // Initialiser le total à partir du panier
     }
     public Long getId() {
         return id;

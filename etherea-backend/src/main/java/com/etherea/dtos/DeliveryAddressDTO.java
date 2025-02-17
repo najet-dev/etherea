@@ -11,7 +11,6 @@ public class DeliveryAddressDTO {
     private String phoneNumber;
     private UserDTO user;
     private boolean isDefault;
-
     public DeliveryAddressDTO() {}
     public DeliveryAddressDTO(Long id, String address, String city, int zipCode, String country, String phoneNumber, boolean isDefault, UserDTO user) {
         this.id = id;
@@ -23,8 +22,6 @@ public class DeliveryAddressDTO {
         this.isDefault = isDefault;
         this.user = user;
     }
-
-    // Getters et Setters
     public Long getId() {
         return id;
     }

@@ -1,22 +1,22 @@
 package com.etherea.utils;
 
-import com.etherea.enums.DeliveryOption;
+import com.etherea.models.DeliveryMethod;
+import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
+@Component
 public class DeliveryCostCalculator {
 
-    private static final double FREE_SHIPPING_THRESHOLD = 50.0;
+    private final BigDecimal FREE_SHIPPING_THRESHOLD = BigDecimal.valueOf(50.0);
 
-    private DeliveryCostCalculator() {}
-    public static double calculateDeliveryCost(double cartTotal, DeliveryOption option) {
-        if (cartTotal >= FREE_SHIPPING_THRESHOLD) {
-            return 0.0;
+    public BigDecimal calculateDeliveryCost(BigDecimal cartTotal, DeliveryMethod method) {
+        if (method == null) {
+            throw new IllegalArgumentException("La méthode de livraison ne peut pas être null.");
         }
-        if (option == null) {
-            throw new IllegalArgumentException("L'option de livraison doit être spécifiée si le montant est inférieur au seuil de livraison gratuite.");
+        if (cartTotal == null) {
+            throw new IllegalArgumentException("Le montant du panier ne peut pas être null.");
         }
-        return option.getBaseCost();
-    }
-    public static boolean isFreeShipping(double cartTotal) {
-        return cartTotal >= FREE_SHIPPING_THRESHOLD;
+        return cartTotal.compareTo(FREE_SHIPPING_THRESHOLD) >= 0 ? BigDecimal.ZERO : method.getCost();
     }
 }
