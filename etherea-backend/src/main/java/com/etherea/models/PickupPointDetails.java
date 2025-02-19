@@ -2,27 +2,43 @@ package com.etherea.models;
 
 import jakarta.persistence.Embeddable;
 
+import java.math.BigDecimal;
+
 @Embeddable
 public class PickupPointDetails {
-    private String name;
-    private String address;
-    private Double latitude;
-    private Double longitude;
+    private String pickupPointName;
+    private String pickupPointAddress;
+    private Double pickupPointLatitude;
+    private Double pickupPointLongitude;
     public PickupPointDetails() {}
-    public PickupPointDetails(String name, String address, Double latitude, Double longitude) {
-        this.name = name;
-        this.address = address;
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public PickupPointDetails(String pickupPointName, String pickupPointAddress, Double pickupPointLatitude, Double pickupPointLongitude) {
+        this.pickupPointName = pickupPointName;
+        this.pickupPointAddress = pickupPointAddress;
+        this.pickupPointLatitude = pickupPointLatitude;
+        this.pickupPointLongitude = pickupPointLongitude;
     }
-    public String getName() { return name; }
-
-    public void setName(String name) { this.name = name; }
-    public String getAddress() { return address; }
-
-    public void setAddress(String address) { this.address = address; }
-    public Double getLatitude() { return latitude; }
-    public void setLatitude(Double latitude) { this.latitude = latitude; }
-    public Double getLongitude() { return longitude; }
-    public void setLongitude(Double longitude) { this.longitude = longitude; }
+    public String getPickupPointName() {
+        return pickupPointName;
+    }
+    public void setPickupPointName(String pickupPointName) {
+        this.pickupPointName = pickupPointName;
+    }
+    public String getPickupPointAddress() {
+        return pickupPointAddress;
+    }
+    public void setPickupPointAddress(String pickupPointAddress) {
+        this.pickupPointAddress = pickupPointAddress;
+    }
+    public Double getPickupPointLatitude() {
+        return pickupPointLatitude;
+    }
+    public void setPickupPointLatitude(Double pickupPointLatitude) {
+        this.pickupPointLatitude = pickupPointLatitude;
+    }
+    public Double getPickupPointLongitude() {
+        return pickupPointLongitude;
+    }
+    public void setPickupPointLongitude(Double pickupPointLongitude) {
+        this.pickupPointLongitude = pickupPointLongitude;
+    }
 }

@@ -2,6 +2,8 @@ package com.etherea.dtos;
 
 import com.etherea.enums.DeliveryType;
 
+import java.math.BigDecimal;
+
 public class AddDeliveryMethodRequestDTO {
     private Long userId;
     private DeliveryType deliveryType;
@@ -11,9 +13,7 @@ public class AddDeliveryMethodRequestDTO {
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
     private double orderAmount;
-
     public AddDeliveryMethodRequestDTO() {}
-
     public AddDeliveryMethodRequestDTO(Long userId, DeliveryType deliveryType, Long addressId,
                                        String pickupPointName, String pickupPointAddress,
                                        Double pickupPointLatitude, Double pickupPointLongitude,
@@ -27,8 +27,6 @@ public class AddDeliveryMethodRequestDTO {
         this.setPickupPointLongitude(pickupPointLongitude);
         this.setOrderAmount(orderAmount);
     }
-
-    // Getters et Setters avec validations
     public Long getUserId() {
         return userId;
     }
@@ -38,7 +36,6 @@ public class AddDeliveryMethodRequestDTO {
         }
         this.userId = userId;
     }
-
     public DeliveryType getDeliveryType() {
         return deliveryType;
     }
@@ -48,7 +45,6 @@ public class AddDeliveryMethodRequestDTO {
         }
         this.deliveryType = deliveryType;
     }
-
     public Long getAddressId() {
         return addressId;
     }
@@ -58,14 +54,12 @@ public class AddDeliveryMethodRequestDTO {
         }
         this.addressId = addressId;
     }
-
     public String getPickupPointName() {
         return pickupPointName;
     }
     public void setPickupPointName(String pickupPointName) {
         this.pickupPointName = pickupPointName;
     }
-
     public String getPickupPointAddress() {
         return pickupPointAddress;
     }
@@ -82,7 +76,6 @@ public class AddDeliveryMethodRequestDTO {
         }
         this.pickupPointLatitude = pickupPointLatitude;
     }
-
     public Double getPickupPointLongitude() {
         return pickupPointLongitude;
     }
@@ -92,7 +85,6 @@ public class AddDeliveryMethodRequestDTO {
         }
         this.pickupPointLongitude = pickupPointLongitude;
     }
-
     public double getOrderAmount() {
         return orderAmount;
     }
@@ -102,7 +94,6 @@ public class AddDeliveryMethodRequestDTO {
         }
         this.orderAmount = orderAmount;
     }
-
     // Méthodes utilitaires pour simplifier la gestion des types de livraison
     public boolean isPickupPoint() {
         return this.deliveryType == DeliveryType.PICKUP_POINT;

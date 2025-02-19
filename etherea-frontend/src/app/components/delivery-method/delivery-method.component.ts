@@ -21,6 +21,7 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest .model';
+import { DeliveryType } from '../models/DeliveryType.enum';
 
 @Component({
   selector: 'app-delivery-method',
@@ -39,7 +40,7 @@ export class DeliveryMethodComponent implements OnInit {
   pickupPoints: PickupPoint[] = [];
   selectedPickupPoint: PickupPoint | null = null;
   confirmedPickupPoint: PickupPoint | null = null;
-  selectedDeliveryOption: string | null = null;
+  selectedDeliveryType: DeliveryType | null = null;
 
   cartTotal: number | null = null;
   deliveryCost: number | null = null;
@@ -77,29 +78,23 @@ export class DeliveryMethodComponent implements OnInit {
   private loadUserAndAddress(): void {
     this.route.paramMap
       .pipe(
-        filter((params) => !!params.get('addressId')),
         switchMap((params) => {
-          const addressId = +params.get('addressId')!;
+          const addressId = Number(params.get('addressId'));
+          if (isNaN(addressId)) return of(null);
           this.addressId = addressId;
-          return this.authService.getCurrentUser().pipe(
-            filter((user) => !!user?.id),
-            switchMap((user) => {
-              this.userId = user!.id;
-              return this.appFacade.getDeliveryAddress(this.userId, addressId);
-            })
-          );
+          return this.authService.getCurrentUser();
         }),
+        switchMap((user) =>
+          user?.id
+            ? this.appFacade.getDeliveryAddress(user.id, this.addressId!)
+            : of(null)
+        ),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (address) => {
-          this.deliveryAddress = address;
-          this.firstName = address.user?.firstName || null;
-          this.lastName = address.user?.lastName || null;
-          this.isLoading = false;
-          this.loadDeliveryMethods();
-        },
-        error: (error) => this.handleError('récupération de l’adresse', error),
+        next: (address) => (this.deliveryAddress = address ?? null),
+        error: (err) =>
+          console.error("Erreur lors du chargement de l'adresse :", err),
       });
   }
 
@@ -150,7 +145,7 @@ export class DeliveryMethodComponent implements OnInit {
       });
   }
 
-  private loadCartWithDelivery(selectedOption: string): void {
+  private loadCartWithDelivery(selectedOption: DeliveryType): void {
     if (!this.userId) return;
 
     this.isLoading = true;
@@ -237,18 +232,18 @@ export class DeliveryMethodComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  onDeliveryOptionChange(): void {
-    console.log('Option sélectionnée :', this.selectedDeliveryOption);
+  onDeliveryTypeChange(): void {
+    console.log('Mode de livraison sélectionné :', this.selectedDeliveryType);
 
-    if (!this.selectedDeliveryOption) return;
+    if (!this.selectedDeliveryType) return;
 
     // Réinitialiser le point relais si le mode change
-    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
+    if (this.selectedDeliveryType !== 'Point retrait') {
       this.selectedPickupPoint = null;
     }
 
     // Charger les coûts associés au mode sélectionné
-    this.loadCartWithDelivery(this.selectedDeliveryOption);
+    this.loadCartWithDelivery(this.selectedDeliveryType);
 
     this.cdr.detectChanges();
   }
@@ -256,25 +251,25 @@ export class DeliveryMethodComponent implements OnInit {
   confirmDeliveryOption() {
     const request: AddDeliveryMethodRequest = {
       userId: this.userId,
-      deliveryOption: this.selectedDeliveryOption ?? '',
+      deliveryType: this.selectedDeliveryType as DeliveryType,
       addressId: this.addressId ?? undefined,
       pickupPointName:
-        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedDeliveryType === 'Point retrait' &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointName
           : '',
       pickupPointAddress:
-        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedDeliveryType === 'Point retrait' &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointAddress
           : '',
       pickupPointLatitude:
-        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedDeliveryType === 'Point retrait' &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointLatitude
           : 0,
       pickupPointLongitude:
-        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedDeliveryType === 'Point retrait' &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointLongitude
           : 0,

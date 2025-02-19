@@ -1,7 +1,7 @@
-import { DeliveryOption } from './DeliveryOption.enum';
+import { DeliveryType } from './DeliveryType.enum';
 
 export interface DeliveryMethodDTO {
-  deliveryOption: DeliveryOption;
+  deliveryType: DeliveryType;
   expectedDeliveryDate: string;
   cost: number;
   deliveryAddress?: string;

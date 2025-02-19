@@ -7,10 +7,9 @@ import java.math.BigDecimal;
 
 @Component
 public class DeliveryCostCalculator {
+    private static final BigDecimal FREE_SHIPPING_THRESHOLD = BigDecimal.valueOf(50.0);
 
-    private final BigDecimal FREE_SHIPPING_THRESHOLD = BigDecimal.valueOf(50.0);
-
-    public BigDecimal calculateDeliveryCost(BigDecimal cartTotal, DeliveryMethod method) {
+    public static BigDecimal calculateDeliveryCost(BigDecimal cartTotal, DeliveryMethod method) {
         if (method == null) {
             throw new IllegalArgumentException("La méthode de livraison ne peut pas être null.");
         }

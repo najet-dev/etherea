@@ -1,54 +1,46 @@
 package com.etherea.dtos;
 
+import com.etherea.models.PickupPointDetails;
+
 import java.math.BigDecimal;
 
 public class PickupPointDetailsDTO {
-    private Long id;
-    private String name;
-    private String address;
-    private BigDecimal latitude;
-    private BigDecimal longitude;
-
+    private String pickupPointName;
+    private String pickupPointAddress;
+    private Double pickupPointLatitude;
+    private Double pickupPointLongitude;
     public PickupPointDetailsDTO() {}
-
-    public PickupPointDetailsDTO(Long id, String name, String address, BigDecimal latitude, BigDecimal longitude) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.latitude = validateCoordinate(latitude);
-        this.longitude = validateCoordinate(longitude);
+    public PickupPointDetailsDTO(String pickupPointName, String pickupPointAddress, Double pickupPointLatitude, Double pickupPointLongitude) {
+        this.pickupPointName = pickupPointName;
+        this.pickupPointAddress = pickupPointAddress;
+        this.pickupPointLatitude = pickupPointLatitude;
+        this.pickupPointLongitude = pickupPointLongitude;
+    }
+    public String getPickupPointName() {
+        return pickupPointName;
+    }
+    public void setPickupPointName(String pickupPointName) {
+        this.pickupPointName = pickupPointName;
+    }
+    public String getPickupPointAddress() {
+        return pickupPointAddress;
+    }
+    public void setPickupPointAddress(String pickupPointAddress) {
+        this.pickupPointAddress = pickupPointAddress;
+    }
+    public Double getPickupPointLatitude() {
+        return pickupPointLatitude;
+    }
+    public void setPickupPointLatitude(Double pickupPointLatitude) {
+        this.pickupPointLatitude = pickupPointLatitude;
+    }
+    public Double getPickupPointLongitude() {
+        return pickupPointLongitude;
+    }
+    public void setPickupPointLongitude(Double pickupPointLongitude) {
+        this.pickupPointLongitude = pickupPointLongitude;
     }
 
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
-    }
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getAddress() {
-        return address;
-    }
-    public void setAddress(String address) {
-        this.address = address;
-    }
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-    public void setLatitude(BigDecimal latitude) {
-        this.latitude = validateCoordinate(latitude);
-    }
-    public BigDecimal getLongitude() {
-        return longitude;
-    }
-    public void setLongitude(BigDecimal longitude) {
-        this.longitude = validateCoordinate(longitude);
-    }
     // Vérifie que la latitude et la longitude sont dans des plages valides
     private BigDecimal validateCoordinate(BigDecimal coordinate) {
         if (coordinate == null) {

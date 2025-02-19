@@ -1,9 +1,9 @@
 import { DeliveryAddress } from './DeliveryAddress.model';
-import { DeliveryOption } from './DeliveryOption.enum';
+import { DeliveryType } from './DeliveryType.enum';
 
 export interface DeliveryMethod {
   id: number;
-  deliveryOption: DeliveryOption;
+  deliveryType: DeliveryType;
   expectedDeliveryDate: string;
   cost: number;
   deliveryAddress?: DeliveryAddress;
