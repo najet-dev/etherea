@@ -3,13 +3,10 @@ package com.etherea.controllers;
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.dtos.CartWithDeliveryDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
-import com.etherea.enums.DeliveryOption;
 import com.etherea.enums.DeliveryType;
 import com.etherea.exception.CartNotFoundException;
 import com.etherea.exception.DeliveryAddressNotFoundException;
-import com.etherea.exception.DeliveryMethodNotFoundException;
 import com.etherea.exception.UserNotFoundException;
-import com.etherea.models.DeliveryMethod;
 import com.etherea.services.DeliveryMethodService;
 import com.etherea.services.PickupPointService;
 import org.slf4j.Logger;
@@ -65,6 +62,8 @@ public class DeliveryMethodController {
             @PathVariable Long userId,
             @RequestParam DeliveryType selectedType) {
         CartWithDeliveryDTO response = deliveryMethodService.getCartWithDeliveryTotal(userId, selectedType);
+        logger.info("Type de livraison reçu : {}", selectedType);
+
         return ResponseEntity.ok(response);
     }
 

@@ -14,10 +14,10 @@ public class DeliveryMethod {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DeliveryType type;
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal cost = BigDecimal.ZERO;
     @Column(nullable = false)
     private int deliveryDays;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal cost = BigDecimal.ZERO;
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -28,12 +28,15 @@ public class DeliveryMethod {
     private PickupPointDetails pickupPointDetails;
     private static final Set<DeliveryType> HOME_DELIVERY_TYPES = Set.of(DeliveryType.HOME_STANDARD, DeliveryType.HOME_EXPRESS);
     public DeliveryMethod() {}
-    public DeliveryMethod(DeliveryType type, BigDecimal cost, int deliveryDays, User user) {
+    public DeliveryMethod(DeliveryType type, int deliveryDays, BigDecimal deliveryCost, User user, DeliveryAddress deliveryAddress, PickupPointDetails pickupPointDetails) {
         this.type = type;
-        this.setCost(cost);
-        this.setDeliveryDays(deliveryDays);
+        this.deliveryDays = deliveryDays;
+        this.cost = deliveryCost;
         this.user = user;
+        this.deliveryAddress = deliveryAddress;
+        this.pickupPointDetails = pickupPointDetails;
     }
+
     public boolean isPickupPoint() {
         return this.type == DeliveryType.PICKUP_POINT;
     }

@@ -1,90 +1,113 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
+import { environment } from '../../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
-import { PickupPoint } from '../components/models/pickupPoint.model';
+import { PickupPointDetails } from '../components/models/pickupPointDetails.model';
 import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
-import { DeliveryMethodDTO } from '../components/models/DeliveryMethodDTO.model';
-import { AddDeliveryMethodRequest } from '../components/models/AddDeliveryMethodRequest .model';
+import { AddDeliveryMethodRequest } from '../components/models/AddDeliveryMethodRequest.model';
 import { DeliveryType } from '../components/models/DeliveryType.enum';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DeliveryMethodService {
-  private apiUrl = `${environment.apiUrl}/deliveryMethods`;
+  private readonly apiUrl = `${environment.apiUrl}/deliveryMethods`;
 
   constructor(private httpClient: HttpClient) {}
 
-  // Récupérer les options de livraison disponibles pour l'utilisateur
+  /**
+   * Récupère les options de livraison disponibles pour un utilisateur donné.
+   */
   getDeliveryMethods(userId: number): Observable<DeliveryMethod[]> {
     return this.httpClient
       .get<DeliveryMethod[]>(`${this.apiUrl}/options/${userId}`)
       .pipe(
         tap(() => console.log('Options de livraison récupérées')),
-        catchError(this.handleError('récupération des méthodes de livraison'))
+        catchError((error) =>
+          this.handleError('récupération des méthodes de livraison', error)
+        )
       );
   }
 
-  // Récupérer les points relais disponibles pour l'utilisateur
-  getPickupMethods(userId: number): Observable<PickupPoint[]> {
+  /**
+   * Récupère les points relais disponibles pour un utilisateur donné.
+   */
+  getPickupMethods(userId: number): Observable<PickupPointDetails[]> {
     return this.httpClient
-      .get<PickupPoint[]>(`${this.apiUrl}/pickupPoints/${userId}`)
+      .get<PickupPointDetails[]>(`${this.apiUrl}/pickupPoints/${userId}`)
       .pipe(
         tap(() => console.log('Points relais récupérés')),
-        catchError(this.handleError('récupération des points relais'))
+        catchError((error) =>
+          this.handleError('récupération des points relais', error)
+        )
       );
   }
 
-  // Récupérer le panier avec la méthode de livraison sélectionnée
-  getCartWithDelivery(
-    userId: number,
-    selectedOption: DeliveryType
-  ): Observable<CartWithDelivery> {
-    return this.httpClient
-      .get<CartWithDelivery>(
-        `${this.apiUrl}/cart-with-delivery/${userId}?selectedOption=${selectedOption}`
-      )
-      .pipe(
-        tap(() => console.log('Panier avec livraison récupéré')),
-        catchError(this.handleError('récupération du panier avec livraison'))
-      );
-  }
-
-  // Récupérer le montant total du panier
+  /**
+   * Récupère le montant total du panier de l'utilisateur.
+   */
   getCartTotal(userId: number): Observable<number> {
     return this.httpClient
       .get<number>(`${this.apiUrl}/cart-total/${userId}`)
       .pipe(
         tap(() => console.log('Montant total du panier récupéré')),
-        catchError(this.handleError('récupération du montant total du panier'))
+        catchError((error) =>
+          this.handleError('récupération du montant total du panier', error)
+        )
       );
   }
 
-  // Ajouter une méthode de livraison
+  /**
+   * Calcule le total du panier en prenant en compte le coût de la livraison.
+   */
+  getCartWithDelivery(
+    userId: number,
+    selectedType: DeliveryType
+  ): Observable<CartWithDelivery> {
+    const url = `${this.apiUrl}/cart-with-delivery/${userId}?selectedType=${selectedType}`;
+    console.log(`Appel API : ${url}`);
+
+    return this.httpClient.get<CartWithDelivery>(url).pipe(
+      tap((response) =>
+        console.log('Réponse API getCartWithDelivery:', response)
+      ),
+      catchError((error) =>
+        this.handleError('récupération du panier avec livraison', error)
+      )
+    );
+  }
+
+  /**
+   * Ajoute une méthode de livraison pour un utilisateur.
+   */
   addDeliveryMethod(
     request: AddDeliveryMethodRequest
-  ): Observable<DeliveryMethodDTO> {
+  ): Observable<DeliveryMethod> {
     return this.httpClient
-      .post<DeliveryMethodDTO>(`${this.apiUrl}/add`, request)
+      .post<DeliveryMethod>(`${this.apiUrl}/add`, request)
       .pipe(
         tap(() => console.log('Méthode de livraison ajoutée')),
-        catchError(this.handleError('ajout d’une méthode de livraison'))
+        catchError((error) =>
+          this.handleError('ajout d’une méthode de livraison', error)
+        )
       );
   }
 
-  // Gestion des erreurs
-  private handleError(operation: string) {
-    return (error: any) => {
-      console.error(`Erreur lors de ${operation}:`, error);
-      return throwError(
-        () =>
-          new Error(
-            `Une erreur est survenue lors de ${operation}. Veuillez réessayer plus tard.`
-          )
-      );
-    };
+  /**
+   * Gère les erreurs des requêtes HTTP.
+   */
+  private handleError(operation: string, error: any): Observable<never> {
+    let errorMessage = `Une erreur est survenue lors de ${operation}. Veuillez réessayer plus tard.`;
+
+    if (error?.error?.message) {
+      errorMessage = `Erreur lors de ${operation} : ${error.error.message}`;
+    } else if (error.status) {
+      errorMessage = `Erreur ${error.status} lors de ${operation} : ${error.statusText} - URL: ${error.url}`;
+    }
+
+    console.error(`[${operation}] ${errorMessage}`, error);
+    return throwError(() => errorMessage);
   }
 }

@@ -1,7 +1,6 @@
 package com.etherea.services;
 
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
-import com.etherea.enums.DeliveryOption;
 import com.etherea.enums.DeliveryType;
 import com.etherea.models.DeliveryAddress;
 import com.etherea.repositories.DeliveryAddressRepository;
@@ -14,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

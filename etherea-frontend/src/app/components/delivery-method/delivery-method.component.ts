@@ -12,7 +12,7 @@ import { of } from 'rxjs';
 
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { DeliveryMethod } from '../models/DeliveryMethod.model';
-import { PickupPoint } from '../models/pickupPoint.model';
+import { PickupPointDetails } from '../models/pickupPointDetails.model';
 import { Cart } from '../models/cart.model';
 
 import { AppFacade } from 'src/app/services/appFacade.service';
@@ -20,7 +20,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DeliveryMethodService } from 'src/app/services/delivery-method.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
-import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest .model';
+import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest.model';
 import { DeliveryType } from '../models/DeliveryType.enum';
 
 @Component({
@@ -37,10 +37,10 @@ export class DeliveryMethodComponent implements OnInit {
 
   isLoading: boolean = true;
   deliveryMethod: DeliveryMethod[] = [];
-  pickupPoints: PickupPoint[] = [];
-  selectedPickupPoint: PickupPoint | null = null;
-  confirmedPickupPoint: PickupPoint | null = null;
-  selectedDeliveryType: DeliveryType | null = null;
+  pickupPoints: PickupPointDetails[] = [];
+  selectedPickupPoint: PickupPointDetails | null = null;
+  confirmedPickupPoint: PickupPointDetails | null = null;
+  selectedDeliveryOption: DeliveryType | null = null;
 
   cartTotal: number | null = null;
   deliveryCost: number | null = null;
@@ -70,6 +70,7 @@ export class DeliveryMethodComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserAndAddress();
+    this.loadDeliveryMethods();
     this.loadCartTotal();
     this.loadCartItems();
     this.loadPickupPoints();
@@ -78,23 +79,29 @@ export class DeliveryMethodComponent implements OnInit {
   private loadUserAndAddress(): void {
     this.route.paramMap
       .pipe(
+        filter((params) => !!params.get('addressId')),
         switchMap((params) => {
-          const addressId = Number(params.get('addressId'));
-          if (isNaN(addressId)) return of(null);
+          const addressId = +params.get('addressId')!;
           this.addressId = addressId;
-          return this.authService.getCurrentUser();
+          return this.authService.getCurrentUser().pipe(
+            filter((user) => !!user?.id),
+            switchMap((user) => {
+              this.userId = user!.id;
+              return this.appFacade.getDeliveryAddress(this.userId, addressId);
+            })
+          );
         }),
-        switchMap((user) =>
-          user?.id
-            ? this.appFacade.getDeliveryAddress(user.id, this.addressId!)
-            : of(null)
-        ),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
-        next: (address) => (this.deliveryAddress = address ?? null),
-        error: (err) =>
-          console.error("Erreur lors du chargement de l'adresse :", err),
+        next: (address) => {
+          this.deliveryAddress = address;
+          this.firstName = address.user?.firstName || null;
+          this.lastName = address.user?.lastName || null;
+          this.isLoading = false;
+          this.loadDeliveryMethods();
+        },
+        error: (error) => this.handleError('récupération de l’adresse', error),
       });
   }
 
@@ -211,14 +218,14 @@ export class DeliveryMethodComponent implements OnInit {
       },
     });
   }
-  selectPickupPoint(point: PickupPoint): void {
+  selectPickupPoint(point: PickupPointDetails): void {
     this.selectedPickupPoint = point;
+    console.log('Point relais sélectionné:', this.selectedPickupPoint);
   }
 
   confirmPickupPoint(): void {
     if (this.selectedPickupPoint) {
       this.confirmedPickupPoint = this.selectedPickupPoint;
-
       this.selectedPickupPoint = this.selectedPickupPoint;
     }
     this.isModalOpen = false;
@@ -232,44 +239,43 @@ export class DeliveryMethodComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  onDeliveryTypeChange(): void {
-    console.log('Mode de livraison sélectionné :', this.selectedDeliveryType);
+  onDeliveryOptionChange(): void {
+    console.log('Option sélectionnée :', this.selectedDeliveryOption);
 
-    if (!this.selectedDeliveryType) return;
+    if (!this.selectedDeliveryOption) return;
 
-    // Réinitialiser le point relais si le mode change
-    if (this.selectedDeliveryType !== 'Point retrait') {
+    if (this.selectedDeliveryOption !== DeliveryType.PICKUP_POINT) {
       this.selectedPickupPoint = null;
     }
-
-    // Charger les coûts associés au mode sélectionné
-    this.loadCartWithDelivery(this.selectedDeliveryType);
-
-    this.cdr.detectChanges();
   }
 
-  confirmDeliveryOption() {
+  confirmDeliveryOption(): void {
+    if (!this.selectedDeliveryOption) {
+      this.errorMessage = 'Veuillez sélectionner un mode de livraison.';
+      return;
+    }
+
     const request: AddDeliveryMethodRequest = {
       userId: this.userId,
-      deliveryType: this.selectedDeliveryType as DeliveryType,
+      deliveryType: this.selectedDeliveryOption as DeliveryType,
       addressId: this.addressId ?? undefined,
       pickupPointName:
-        this.selectedDeliveryType === 'Point retrait' &&
+        this.selectedDeliveryOption === 'PICKUP_POINT' &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointName
           : '',
       pickupPointAddress:
-        this.selectedDeliveryType === 'Point retrait' &&
+        this.selectedDeliveryOption === 'PICKUP_POINT' &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointAddress
           : '',
       pickupPointLatitude:
-        this.selectedDeliveryType === 'Point retrait' &&
+        this.selectedDeliveryOption === 'PICKUP_POINT' &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointLatitude
           : 0,
       pickupPointLongitude:
-        this.selectedDeliveryType === 'Point retrait' &&
+        this.selectedDeliveryOption === 'PICKUP_POINT' &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointLongitude
           : 0,
@@ -279,7 +285,12 @@ export class DeliveryMethodComponent implements OnInit {
     this.deliveryMethodService.addDeliveryMethod(request).subscribe({
       next: (response) => {
         console.log('Méthode de livraison ajoutée avec succès :', response);
-        this.showPaymentOptions = true; // Cache le bouton et affiche les options de paiement
+
+        // Vérification avant d'appeler loadCartWithDelivery
+        if (this.selectedDeliveryOption) {
+          this.loadCartWithDelivery(this.selectedDeliveryOption);
+          this.showPaymentOptions = true;
+        }
       },
       error: (error) => {
         console.error(
@@ -288,8 +299,6 @@ export class DeliveryMethodComponent implements OnInit {
         );
       },
     });
-    this.showPaymentOptions = true;
-    this.cdr.detectChanges();
   }
 
   //payment

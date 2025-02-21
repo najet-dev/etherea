@@ -1,6 +1,5 @@
 package com.etherea.dtos;
 
-import com.etherea.enums.DeliveryOption;
 import com.etherea.enums.DeliveryType;
 import com.etherea.models.DeliveryMethod;
 import com.etherea.utils.DeliveryDateCalculator;
@@ -12,17 +11,17 @@ import java.time.LocalDate;
 public class DeliveryMethodDTO {
     private Long id;
     private DeliveryType type;
-    private LocalDate expectedDeliveryDate;
+    private LocalDate deliveryDays;
     private BigDecimal cost;
     private DeliveryAddressDTO deliveryAddress;
     private PickupPointDetailsDTO pickupPointDetails;
 
     public DeliveryMethodDTO() {}
 
-    public DeliveryMethodDTO(Long id, DeliveryType type, LocalDate expectedDeliveryDate, BigDecimal cost, DeliveryAddressDTO deliveryAddress, PickupPointDetailsDTO pickupPointDetails) {
+    public DeliveryMethodDTO(Long id, DeliveryType type, LocalDate deliveryDays, BigDecimal cost, DeliveryAddressDTO deliveryAddress, PickupPointDetailsDTO pickupPointDetails) {
         this.id = id;
         this.type = type;
-        this.expectedDeliveryDate = expectedDeliveryDate;
+        this.deliveryDays = deliveryDays;
         this.cost = cost;
         this.deliveryAddress = deliveryAddress;
         this.pickupPointDetails = pickupPointDetails;
@@ -35,8 +34,12 @@ public class DeliveryMethodDTO {
     public void setType(DeliveryType type) {
         this.type = type;
     }
-    public LocalDate getExpectedDeliveryDate() { return expectedDeliveryDate; }
-    public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) { this.expectedDeliveryDate = expectedDeliveryDate; }
+    public LocalDate getDeliveryDays() {
+        return deliveryDays;
+    }
+    public void setDeliveryDays(LocalDate deliveryDays) {
+        this.deliveryDays = deliveryDays;
+    }
     public BigDecimal getCost() { return cost; }
     public void setCost(BigDecimal cost) { this.cost = cost; }
 
@@ -54,7 +57,7 @@ public class DeliveryMethodDTO {
         DeliveryType type = deliveryMethod.getType(); // Pas de conversion ici
 
         // Calcul de la date de livraison estimée
-        LocalDate expectedDeliveryDate = calculator.calculateDeliveryDate(startDate, deliveryMethod);
+        LocalDate deliveryDays = calculator.calculateDeliveryDate(startDate, deliveryMethod);
 
         // Calcul du coût de livraison
         BigDecimal cost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, deliveryMethod);
@@ -77,7 +80,7 @@ public class DeliveryMethodDTO {
         return new DeliveryMethodDTO(
                 deliveryMethod.getId(),
                 type,  // Utilisez simplement DeliveryType ici
-                expectedDeliveryDate,
+                deliveryDays,
                 cost,
                 addressDTO,
                 pickupDTO

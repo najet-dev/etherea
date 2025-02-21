@@ -1,4 +1,4 @@
-export interface PickupPoint {
+export interface PickupPointDetails {
   id: number;
   deliveryAddress?: string;
   pickupPointName?: string;
