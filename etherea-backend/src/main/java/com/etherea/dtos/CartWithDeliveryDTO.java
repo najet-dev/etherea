@@ -1,30 +1,32 @@
 package com.etherea.dtos;
 
+import java.math.BigDecimal;
+
 public class CartWithDeliveryDTO {
-    private double cartTotal;
-    private double deliveryCost;
-    private double total;
-    public CartWithDeliveryDTO(double cartTotal, double deliveryCost, double total) {
+    private BigDecimal cartTotal;
+    private BigDecimal deliveryCost;
+    private BigDecimal total;
+    public CartWithDeliveryDTO(BigDecimal cartTotal, BigDecimal deliveryCost, BigDecimal total) {
         this.cartTotal = cartTotal;
         this.deliveryCost = deliveryCost;
         this.total = total;
     }
-    public double getCartTotal() {
+    public BigDecimal getCartTotal() {
         return cartTotal;
     }
-    public void setCartTotal(double cartTotal) {
+    public void setCartTotal(BigDecimal cartTotal) {
         this.cartTotal = cartTotal;
     }
-    public double getDeliveryCost() {
+    public BigDecimal getDeliveryCost() {
         return deliveryCost;
     }
-    public void setDeliveryCost(double deliveryCost) {
+    public void setDeliveryCost(BigDecimal deliveryCost) {
         this.deliveryCost = deliveryCost;
     }
-    public double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
-    public void setTotal(double total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
 }

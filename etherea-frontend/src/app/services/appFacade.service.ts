@@ -10,11 +10,11 @@ import { DeliveryAddress } from '../components/models/DeliveryAddress.model';
 import { SignupRequest } from '../components/models/SignupRequest.model';
 import { UserService } from './user.service';
 import { DeliveryAddressService } from './delivery-address.service';
-import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { DeliveryMethodService } from './delivery-method.service';
 import { PaymentService } from './payment.service';
 import { PaymentRequest } from '../components/models/PaymentRequest.model';
 import { PaymentResponse } from '../components/models/PaymentResponse.model';
+import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 
 @Injectable({
   providedIn: 'root',

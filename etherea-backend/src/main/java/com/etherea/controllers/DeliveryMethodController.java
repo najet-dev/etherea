@@ -3,12 +3,11 @@ package com.etherea.controllers;
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.dtos.CartWithDeliveryDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
-import com.etherea.enums.DeliveryOption;
+import com.etherea.dtos.UpdateDeliveryMethodRequestDTO;
+import com.etherea.enums.DeliveryType;
 import com.etherea.exception.CartNotFoundException;
 import com.etherea.exception.DeliveryAddressNotFoundException;
-import com.etherea.exception.DeliveryMethodNotFoundException;
 import com.etherea.exception.UserNotFoundException;
-import com.etherea.models.DeliveryMethod;
 import com.etherea.services.DeliveryMethodService;
 import com.etherea.services.PickupPointService;
 import org.slf4j.Logger;
@@ -31,7 +30,7 @@ public class DeliveryMethodController {
     private DeliveryMethodService deliveryMethodService;
     @Autowired
     private PickupPointService pickupPointService;
-    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DeliveryMethodController.class);
 
     /**
      * Récupère les options de livraison disponibles pour un utilisateur donné.
@@ -62,16 +61,42 @@ public class DeliveryMethodController {
     @GetMapping("/cart-with-delivery/{userId}")
     public ResponseEntity<CartWithDeliveryDTO> getCartWithDelivery(
             @PathVariable Long userId,
-            @RequestParam DeliveryOption selectedOption) {
-        CartWithDeliveryDTO response = deliveryMethodService.getCartWithDeliveryTotal(userId, selectedOption);
+            @RequestParam DeliveryType selectedType) {
+        CartWithDeliveryDTO response = deliveryMethodService.getCartWithDeliveryTotal(userId, selectedType);
+        logger.info("Type de livraison reçu : {}", selectedType);
+
         return ResponseEntity.ok(response);
     }
+
     /**
      * Ajoute une méthode de livraison pour un utilisateur et une commande donnés.
      */
     @PostMapping("/add")
-    public ResponseEntity<DeliveryMethodDTO> addDeliveryMethod(@RequestBody AddDeliveryMethodRequestDTO requestDTO) {
-        DeliveryMethodDTO savedDeliveryMethod = deliveryMethodService.addDeliveryMethod(requestDTO);
-        return ResponseEntity.ok(savedDeliveryMethod);
+    public ResponseEntity<?> addDeliveryMethod(@RequestBody AddDeliveryMethodRequestDTO requestDTO) {
+        try {
+            DeliveryMethodDTO savedDeliveryMethod = deliveryMethodService.addDeliveryMethod(requestDTO);
+            return ResponseEntity.ok(savedDeliveryMethod);
+        } catch (UserNotFoundException | CartNotFoundException | DeliveryAddressNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Une erreur interne est survenue."));
+        }
     }
+    @PutMapping("/update")
+    public ResponseEntity<?> updateDeliveryMethod(@RequestBody UpdateDeliveryMethodRequestDTO requestDTO) {
+        try {
+            DeliveryMethodDTO updatedDeliveryMethod = deliveryMethodService.updateDeliveryMethod(requestDTO);
+            return ResponseEntity.ok(updatedDeliveryMethod);
+        } catch (UserNotFoundException | CartNotFoundException | DeliveryAddressNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Une erreur interne est survenue."));
+        }
+    }
+
+
 }

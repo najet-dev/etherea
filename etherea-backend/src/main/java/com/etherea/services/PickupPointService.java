@@ -1,7 +1,7 @@
 package com.etherea.services;
 
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
-import com.etherea.enums.DeliveryOption;
+import com.etherea.enums.DeliveryType;
 import com.etherea.models.DeliveryAddress;
 import com.etherea.repositories.DeliveryAddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +65,7 @@ public class PickupPointService {
             for (JsonNode node : nodes) {
                 AddDeliveryMethodRequestDTO dto = new AddDeliveryMethodRequestDTO();
                 dto.setUserId(userId);
-                dto.setDeliveryOption(DeliveryOption.PICKUP_POINT);
+                dto.setDeliveryType(DeliveryType.PICKUP_POINT);
                 dto.setPickupPointName(node.path("tags").path("name").asText("Unknown Pickup Point"));
                 dto.setPickupPointLatitude(node.path("lat").asDouble());
                 dto.setPickupPointLongitude(node.path("lon").asDouble());

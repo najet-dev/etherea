@@ -1,14 +1,12 @@
 import { DeliveryAddress } from './DeliveryAddress.model';
-import { DeliveryOption } from './DeliveryOption.enum';
+import { DeliveryType } from './DeliveryType.enum';
+import { PickupPointDetails } from './pickupPointDetails.model';
 
 export interface DeliveryMethod {
-  id: number;
-  deliveryOption: DeliveryOption;
-  expectedDeliveryDate: string;
+  id: number | null;
+  type: DeliveryType;
+  deliveryDays: string;
   cost: number;
   deliveryAddress?: DeliveryAddress;
-  pickupPointName?: string;
-  pickupPointAddress?: string;
-  pickupPointLatitude?: number;
-  pickupPointLongitude?: number;
+  pickupPointDetails?: PickupPointDetails;
 }
