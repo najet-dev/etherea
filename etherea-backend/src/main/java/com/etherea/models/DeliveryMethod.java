@@ -1,73 +1,72 @@
 package com.etherea.models;
 
-import com.etherea.enums.DeliveryOption;
+import com.etherea.enums.DeliveryType;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
+import java.util.Set;
 
 @Entity
-@Table(name = "delivery_method")
-@Inheritance(strategy = InheritanceType.JOINED)
-public abstract class DeliveryMethod {
+public class DeliveryMethod {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private double deliveryCost;
-    private LocalDate expectedDeliveryDate;
-    private static final double FREE_SHIPPING_THRESHOLD = 50.0;
     @Enumerated(EnumType.STRING)
-    private DeliveryOption deliveryOption;
+    @Column(nullable = false)
+    private DeliveryType type;
+    @Column(nullable = false)
+    private int deliveryDays;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal cost = BigDecimal.ZERO;
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    protected DeliveryMethod() {}
-    public DeliveryMethod(User user, DeliveryOption deliveryOption) {
-        if (user == null) {
-            throw new IllegalArgumentException("User cannot be null.");
-        }
-        if (deliveryOption == null) {
-            throw new IllegalArgumentException("Delivery option cannot be null.");
-        }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "delivery_address_id")
+    private DeliveryAddress deliveryAddress;
+    @Embedded
+    private PickupPointDetails pickupPointDetails;
+    private static final Set<DeliveryType> HOME_DELIVERY_TYPES = Set.of(DeliveryType.HOME_STANDARD, DeliveryType.HOME_EXPRESS);
+    public DeliveryMethod() {}
+    public DeliveryMethod(DeliveryType type, int deliveryDays, BigDecimal deliveryCost, User user, DeliveryAddress deliveryAddress, PickupPointDetails pickupPointDetails) {
+        this.type = type;
+        this.deliveryDays = deliveryDays;
+        this.cost = deliveryCost;
         this.user = user;
-        this.deliveryOption = deliveryOption;
+        this.deliveryAddress = deliveryAddress;
+        this.pickupPointDetails = pickupPointDetails;
     }
-    public Long getId() {
-        return id;
+
+    public boolean isPickupPoint() {
+        return this.type == DeliveryType.PICKUP_POINT;
     }
-    public void setId(Long id) {
-        this.id = id;
+    public boolean isHomeDelivery() {
+        return HOME_DELIVERY_TYPES.contains(this.type);
     }
-    public double getDeliveryCost() {
-        return deliveryCost;
+    public void changeDeliveryType(DeliveryType newType, DeliveryAddress newAddress, PickupPointDetails newPickupDetails) {
+        this.type = newType;
+        this.deliveryAddress = (newType == DeliveryType.PICKUP_POINT) ? null : newAddress;
+        this.pickupPointDetails = (newType == DeliveryType.PICKUP_POINT) ? newPickupDetails : null;
     }
-    public void setDeliveryCost(double deliveryCost) {
-        this.deliveryCost = deliveryCost;
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public DeliveryType getType() { return type; }
+    public void setType(DeliveryType type) { this.type = type; }
+    public BigDecimal getCost() { return cost; }
+    public void setCost(BigDecimal cost) {
+        this.cost = (cost != null && cost.compareTo(BigDecimal.ZERO) >= 0) ? cost : BigDecimal.ZERO;
     }
-    public LocalDate getExpectedDeliveryDate() {
-        return expectedDeliveryDate;
+    public int getDeliveryDays() { return deliveryDays; }
+    public void setDeliveryDays(int deliveryDays) {
+        if (deliveryDays < 0) {
+            throw new IllegalArgumentException("Le nombre de jours de livraison ne peut pas être négatif.");
+        }
+        this.deliveryDays = deliveryDays;
     }
-    public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) {
-        this.expectedDeliveryDate = expectedDeliveryDate;
-    }
-    public DeliveryOption getDeliveryOption() {
-        return deliveryOption;
-    }
-    public void setDeliveryOption(DeliveryOption deliveryOption) {
-        this.deliveryOption = deliveryOption;
-    }
-    public User getUser() {
-        return user;
-    }
-    public void setUser(User user) {
-        this.user = user;
-    }
-    public boolean isFreeShipping(double totalAmount) {
-        return totalAmount >= FREE_SHIPPING_THRESHOLD;
-    }
-    public double calculateCost(double totalAmount) {
-        return isFreeShipping(totalAmount) ? 0.0 : getDeliveryOption().getBaseCost();
-    }
-    public abstract int calculateDeliveryTime();
-    public abstract String getDescription();
-    public abstract LocalDate calculateExpectedDeliveryDate();
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+    public DeliveryAddress getDeliveryAddress() { return deliveryAddress; }
+    public void setDeliveryAddress(DeliveryAddress deliveryAddress) { this.deliveryAddress = deliveryAddress; }
+    public PickupPointDetails getPickupPointDetails() { return pickupPointDetails; }
+    public void setPickupPointDetails(PickupPointDetails pickupPointDetails) { this.pickupPointDetails = pickupPointDetails; }
 }

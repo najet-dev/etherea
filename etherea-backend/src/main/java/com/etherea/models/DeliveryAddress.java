@@ -29,7 +29,6 @@ public class DeliveryAddress {
         this.isDefault = isDefault;
         this.user = user;
     }
-    // Getters et Setters
     public Long getId() {
         return id;
     }

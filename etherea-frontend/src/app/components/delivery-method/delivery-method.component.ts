@@ -12,7 +12,7 @@ import { of } from 'rxjs';
 
 import { DeliveryAddress } from '../models/DeliveryAddress.model';
 import { DeliveryMethod } from '../models/DeliveryMethod.model';
-import { PickupPoint } from '../models/pickupPoint.model';
+import { PickupPointDetails } from '../models/pickupPointDetails.model';
 import { Cart } from '../models/cart.model';
 
 import { AppFacade } from 'src/app/services/appFacade.service';
@@ -20,7 +20,8 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DeliveryMethodService } from 'src/app/services/delivery-method.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
-import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest .model';
+import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest.model';
+import { DeliveryType } from '../models/DeliveryType.enum';
 
 @Component({
   selector: 'app-delivery-method',
@@ -36,10 +37,10 @@ export class DeliveryMethodComponent implements OnInit {
 
   isLoading: boolean = true;
   deliveryMethod: DeliveryMethod[] = [];
-  pickupPoints: PickupPoint[] = [];
-  selectedPickupPoint: PickupPoint | null = null;
-  confirmedPickupPoint: PickupPoint | null = null;
-  selectedDeliveryOption: string | null = null;
+  pickupPoints: PickupPointDetails[] = [];
+  selectedPickupPoint: PickupPointDetails | null = null;
+  confirmedPickupPoint: PickupPointDetails | null = null;
+  selectedDeliveryOption: DeliveryType | null = null;
 
   cartTotal: number | null = null;
   deliveryCost: number | null = null;
@@ -69,6 +70,7 @@ export class DeliveryMethodComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadUserAndAddress();
+    this.loadDeliveryMethods();
     this.loadCartTotal();
     this.loadCartItems();
     this.loadPickupPoints();
@@ -150,7 +152,7 @@ export class DeliveryMethodComponent implements OnInit {
       });
   }
 
-  private loadCartWithDelivery(selectedOption: string): void {
+  private loadCartWithDelivery(selectedOption: DeliveryType): void {
     if (!this.userId) return;
 
     this.isLoading = true;
@@ -216,14 +218,14 @@ export class DeliveryMethodComponent implements OnInit {
       },
     });
   }
-  selectPickupPoint(point: PickupPoint): void {
+  selectPickupPoint(point: PickupPointDetails): void {
     this.selectedPickupPoint = point;
+    console.log('Point relais sélectionné:', this.selectedPickupPoint);
   }
 
   confirmPickupPoint(): void {
     if (this.selectedPickupPoint) {
       this.confirmedPickupPoint = this.selectedPickupPoint;
-
       this.selectedPickupPoint = this.selectedPickupPoint;
     }
     this.isModalOpen = false;
@@ -237,26 +239,27 @@ export class DeliveryMethodComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  onDeliveryOptionChange(): void {
-    console.log('Option sélectionnée :', this.selectedDeliveryOption);
+  onDeliveryOptionChange() {
+    const selectedDelivery = this.deliveryMethod.find(
+      (delivery) => delivery.type === this.selectedDeliveryOption
+    );
 
-    if (!this.selectedDeliveryOption) return;
-
-    // Réinitialiser le point relais si le mode change
-    if (this.selectedDeliveryOption !== 'PICKUP_POINT') {
-      this.selectedPickupPoint = null;
+    if (selectedDelivery) {
+      this.deliveryCost = selectedDelivery.cost;
+    } else {
+      this.deliveryCost = 0;
     }
-
-    // Charger les coûts associés au mode sélectionné
-    this.loadCartWithDelivery(this.selectedDeliveryOption);
-
-    this.cdr.detectChanges();
   }
 
-  confirmDeliveryOption() {
+  confirmDeliveryOption(): void {
+    if (!this.selectedDeliveryOption) {
+      this.errorMessage = 'Veuillez sélectionner un mode de livraison.';
+      return;
+    }
+
     const request: AddDeliveryMethodRequest = {
       userId: this.userId,
-      deliveryOption: this.selectedDeliveryOption ?? '',
+      deliveryType: this.selectedDeliveryOption as DeliveryType,
       addressId: this.addressId ?? undefined,
       pickupPointName:
         this.selectedDeliveryOption === 'PICKUP_POINT' &&
@@ -284,7 +287,10 @@ export class DeliveryMethodComponent implements OnInit {
     this.deliveryMethodService.addDeliveryMethod(request).subscribe({
       next: (response) => {
         console.log('Méthode de livraison ajoutée avec succès :', response);
-        this.showPaymentOptions = true; // Cache le bouton et affiche les options de paiement
+
+        // Vérification avant d'appeler loadCartWithDelivery
+
+        this.showPaymentOptions = true;
       },
       error: (error) => {
         console.error(
@@ -293,8 +299,6 @@ export class DeliveryMethodComponent implements OnInit {
         );
       },
     });
-    this.showPaymentOptions = true;
-    this.cdr.detectChanges();
   }
 
   //payment

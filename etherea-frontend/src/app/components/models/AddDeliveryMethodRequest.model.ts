@@ -1,6 +1,8 @@
+import { DeliveryType } from './DeliveryType.enum';
+
 export interface AddDeliveryMethodRequest {
   userId: number;
-  deliveryOption: string;
+  deliveryType: DeliveryType;
   addressId?: number;
   pickupPointName?: string;
   pickupPointAddress?: string;

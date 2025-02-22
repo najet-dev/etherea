@@ -21,8 +21,11 @@ export class StorageService {
   }
   // Méthode pour récupérer le token JWT depuis le stockage local
   getToken(): string | null {
-    return this.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
+    console.log('Token récupéré :', token); // Vérification
+    return token;
   }
+
   // Méthode pour supprimer le token JWT du stockage local
   removeToken(): void {
     this.removeItem(TOKEN_KEY);

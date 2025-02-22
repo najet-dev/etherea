@@ -199,55 +199,6 @@ public class CartItemService {
         });
     }
     /**
-     * Validates the user's cart and creates a command.
-     *
-     * @param userId The ID of the user.
-     */
-    @Transactional
-    public void validateCartAndCreateOrder(Long userId, Long paymentMethodId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
-
-        // Retrieve user's shopping cart
-        Cart cart = user.getCart();
-        if (cart == null || cart.getItems().isEmpty()) {
-            throw new CartNotFoundException("The cart is empty or does not exist.");
-        }
-        if (cart.isUsed()) {
-            throw new CartNotFoundException("The cart has already been used for an order.");
-        }
-
-        // Check default delivery address
-        DeliveryAddress deliveryAddress = user.getDefaultAddress();
-        if (deliveryAddress == null) {
-            throw new DeliveryAddressNotFoundException("Default delivery address not found for user ID: " + userId);
-        }
-
-        // Order DTO creation
-        CommandRequestDTO commandRequestDTO = new CommandRequestDTO();
-        commandRequestDTO.setCommandDate(LocalDateTime.now());
-        commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());
-        commandRequestDTO.setStatus(CommandStatus.PAID);
-        commandRequestDTO.setCart(CartDTO.fromCart(cart, null));
-        commandRequestDTO.setTotal(cart.calculateFinalTotal());
-        commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
-        commandRequestDTO.setPaymentMethodId(paymentMethodId);
-
-        // Create order
-        Command command = commandService.createCommand(commandRequestDTO);
-
-        // Mark shopping cart as used
-        cart.setUsed(true);
-
-        // Empty shopping cart items
-        cart.getItems().clear();
-
-        // Save updated shopping cart
-        cartRepository.save(cart);
-
-        System.out.println("Order created with ID: " + command.getId() + " and the cart has been emptied.");
-    }
-    /**
      * Updates the quantity of a specific cart item.
      *
      * @param cartItemDTO The DTO containing the cart item details, including the user ID, product ID, volume ID (if applicable), and the new quantity.
