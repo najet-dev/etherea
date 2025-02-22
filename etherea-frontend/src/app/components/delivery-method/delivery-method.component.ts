@@ -239,13 +239,15 @@ export class DeliveryMethodComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  onDeliveryOptionChange(): void {
-    console.log('Option sélectionnée :', this.selectedDeliveryOption);
+  onDeliveryOptionChange() {
+    const selectedDelivery = this.deliveryMethod.find(
+      (delivery) => delivery.type === this.selectedDeliveryOption
+    );
 
-    if (!this.selectedDeliveryOption) return;
-
-    if (this.selectedDeliveryOption !== DeliveryType.PICKUP_POINT) {
-      this.selectedPickupPoint = null;
+    if (selectedDelivery) {
+      this.deliveryCost = selectedDelivery.cost;
+    } else {
+      this.deliveryCost = 0;
     }
   }
 
@@ -287,10 +289,8 @@ export class DeliveryMethodComponent implements OnInit {
         console.log('Méthode de livraison ajoutée avec succès :', response);
 
         // Vérification avant d'appeler loadCartWithDelivery
-        if (this.selectedDeliveryOption) {
-          this.loadCartWithDelivery(this.selectedDeliveryOption);
-          this.showPaymentOptions = true;
-        }
+
+        this.showPaymentOptions = true;
       },
       error: (error) => {
         console.error(

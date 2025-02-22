@@ -53,8 +53,7 @@ public class DeliveryMethodDTO {
             throw new IllegalArgumentException("Les paramètres deliveryMethod et calculator ne peuvent pas être nuls.");
         }
 
-        // On garde DeliveryType, il n'est pas nécessaire de convertir ici.
-        DeliveryType type = deliveryMethod.getType(); // Pas de conversion ici
+        DeliveryType type = deliveryMethod.getType();
 
         // Calcul de la date de livraison estimée
         LocalDate deliveryDays = calculator.calculateDeliveryDate(startDate, deliveryMethod);
@@ -79,19 +78,18 @@ public class DeliveryMethodDTO {
 
         return new DeliveryMethodDTO(
                 deliveryMethod.getId(),
-                type,  // Utilisez simplement DeliveryType ici
+                type,
                 deliveryDays,
                 cost,
                 addressDTO,
                 pickupDTO
         );
     }
-    public static DeliveryOption convertDeliveryTypeToOption(DeliveryType type) {
+    public static DeliveryType convertDeliveryTypeToOption(DeliveryType type) {
         return switch (type) {
-            case HOME_STANDARD -> DeliveryOption.HOME_STANDARD;
-            case HOME_EXPRESS -> DeliveryOption.HOME_EXPRESS;
-            case PICKUP_POINT -> DeliveryOption.PICKUP_POINT;
+            case HOME_STANDARD -> DeliveryType.HOME_STANDARD;
+            case HOME_EXPRESS -> DeliveryType.HOME_EXPRESS;
+            case PICKUP_POINT -> DeliveryType.PICKUP_POINT;
         };
     }
-
 }

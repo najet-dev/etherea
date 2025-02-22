@@ -3,6 +3,7 @@ package com.etherea.controllers;
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.dtos.CartWithDeliveryDTO;
 import com.etherea.dtos.DeliveryMethodDTO;
+import com.etherea.dtos.UpdateDeliveryMethodRequestDTO;
 import com.etherea.enums.DeliveryType;
 import com.etherea.exception.CartNotFoundException;
 import com.etherea.exception.DeliveryAddressNotFoundException;
@@ -83,5 +84,19 @@ public class DeliveryMethodController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Une erreur interne est survenue."));
         }
     }
+    @PutMapping("/update")
+    public ResponseEntity<?> updateDeliveryMethod(@RequestBody UpdateDeliveryMethodRequestDTO requestDTO) {
+        try {
+            DeliveryMethodDTO updatedDeliveryMethod = deliveryMethodService.updateDeliveryMethod(requestDTO);
+            return ResponseEntity.ok(updatedDeliveryMethod);
+        } catch (UserNotFoundException | CartNotFoundException | DeliveryAddressNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Une erreur interne est survenue."));
+        }
+    }
+
 
 }

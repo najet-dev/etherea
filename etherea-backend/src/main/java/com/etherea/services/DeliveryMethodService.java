@@ -2,9 +2,7 @@ package com.etherea.services;
 
 import com.etherea.dtos.*;
 import com.etherea.enums.DeliveryType;
-import com.etherea.exception.CartNotFoundException;
-import com.etherea.exception.DeliveryAddressNotFoundException;
-import com.etherea.exception.UserNotFoundException;
+import com.etherea.exception.*;
 import com.etherea.models.*;
 import com.etherea.repositories.*;
 import com.etherea.utils.DeliveryCostCalculator;
@@ -28,9 +26,7 @@ public class DeliveryMethodService {
     private final DeliveryAddressRepository deliveryAddressRepository;
     private final DeliveryAddressService deliveryAddressService;
     public final DeliveryDateCalculator deliveryDateCalculator;
-
     private static final Logger logger = LoggerFactory.getLogger(DeliveryMethodService.class);
-
     public DeliveryMethodService(UserRepository userRepository, DeliveryMethodRepository deliveryMethodRepository,
                                  CartRepository cartRepository, DeliveryAddressRepository deliveryAddressRepository,
                                  DeliveryAddressService deliveryAddressService, HolidayProvider holidayProvider) {
@@ -41,7 +37,6 @@ public class DeliveryMethodService {
         this.deliveryAddressService = deliveryAddressService;
         this.deliveryDateCalculator = new DeliveryDateCalculator(holidayProvider);
     }
-
     public List<DeliveryMethodDTO> getDeliveryOptions(Long userId) {
         DeliveryAddressDTO defaultAddress = getDefaultAddress(userId);
         double cartTotal = getCartTotal(userId);
@@ -54,7 +49,6 @@ public class DeliveryMethodService {
                 createDeliveryMethodDTO(DeliveryType.PICKUP_POINT, currentDate.plusDays(8), isFreeDelivery ? 0.0 : 3.0, null, "Point Relais")
         );
     }
-
     private DeliveryAddressDTO getDefaultAddress(Long userId) {
         return deliveryAddressService.getAllDeliveryAddresses(userId)
                 .stream()
@@ -70,7 +64,6 @@ public class DeliveryMethodService {
                 pickupPointName != null ? new PickupPointDetailsDTO(pickupPointName, "", 0.0, 0.0) : null
         );
     }
-
     public CartWithDeliveryDTO getCartWithDeliveryTotal(Long userId, DeliveryType selectedType) {
         logger.info("Calcul du total du panier avec la livraison pour l'utilisateur {}", userId);
         DeliveryMethod deliveryMethod = deliveryMethodRepository.findByType(selectedType)
@@ -83,13 +76,11 @@ public class DeliveryMethodService {
         BigDecimal deliveryCost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, deliveryMethod);
         return new CartWithDeliveryDTO(cartTotal, deliveryCost, cartTotal.add(deliveryCost));
     }
-
     public double getCartTotal(Long userId) {
         return cartRepository.findByUserId(userId)
                 .orElseThrow(() -> new CartNotFoundException("Panier introuvable pour l'utilisateur."))
                 .calculateTotalAmount().doubleValue();
     }
-
     @Transactional
     public DeliveryMethodDTO addDeliveryMethod(AddDeliveryMethodRequestDTO requestDTO) {
         logger.info("Ajout d'une méthode de livraison : {}", requestDTO);
@@ -143,5 +134,70 @@ public class DeliveryMethodService {
         cartRepository.save(cart);
 
         return DeliveryMethodDTO.fromDeliveryMethod(savedDeliveryMethod, LocalDate.now(), orderAmount, deliveryDateCalculator);
+    }
+    @Transactional
+    public DeliveryMethodDTO updateDeliveryMethod(UpdateDeliveryMethodRequestDTO requestDTO) {
+        logger.info("Mise à jour de la méthode de livraison : {}", requestDTO);
+
+        if (requestDTO == null || requestDTO.getUserId() == null || requestDTO.getDeliveryType() == null) {
+            throw new DeliveryMethodNotFoundException("Les informations de livraison sont incomplètes.");
+        }
+
+        User user = userRepository.findById(requestDTO.getUserId())
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable."));
+
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new CartNotFoundException("Panier introuvable pour l'utilisateur."));
+
+        DeliveryMethod existingDeliveryMethod = cart.getDeliveryMethod();
+        if (existingDeliveryMethod == null) {
+            throw new DeliveryMethodNotFoundException("Aucune méthode de livraison existante pour cette commande.");
+        }
+
+        // Mise à jour des informations
+        existingDeliveryMethod.setType(requestDTO.getDeliveryType());
+
+        if (requestDTO.getDeliveryType() == DeliveryType.HOME_STANDARD || requestDTO.getDeliveryType() == DeliveryType.HOME_EXPRESS) {
+            if (requestDTO.getAddressId() == null) {
+                throw new DeliveryAddressNotFoundException("Adresse requise pour la livraison à domicile.");
+            }
+            DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(requestDTO.getAddressId())
+                    .orElseThrow(() -> new DeliveryAddressNotFoundException("Adresse introuvable."));
+            existingDeliveryMethod.setDeliveryAddress(deliveryAddress);
+            existingDeliveryMethod.setPickupPointDetails(null);
+        } else if (requestDTO.getDeliveryType() == DeliveryType.PICKUP_POINT) {
+            if (requestDTO.getPickupPointName() == null || requestDTO.getPickupPointAddress() == null) {
+                throw new PickupPointNotFoundException("Informations du point relais incomplètes.");
+            }
+            PickupPointDetails pickupPointDetails = new PickupPointDetails(
+                    requestDTO.getPickupPointName(), requestDTO.getPickupPointAddress(),
+                    requestDTO.getPickupPointLatitude(), requestDTO.getPickupPointLongitude()
+            );
+            existingDeliveryMethod.setPickupPointDetails(pickupPointDetails);
+            existingDeliveryMethod.setDeliveryAddress(null);
+        }
+
+        // Recalcul des coûts et dates de livraison
+        BigDecimal orderAmount = cart.calculateTotalAmount();
+        int deliveryDays = switch (requestDTO.getDeliveryType()) {
+            case HOME_EXPRESS -> 2;
+            case HOME_STANDARD -> 7;
+            case PICKUP_POINT -> 8;
+        };
+
+        BigDecimal deliveryCost = orderAmount.compareTo(BigDecimal.valueOf(50)) < 0 ?
+                switch (requestDTO.getDeliveryType()) {
+                    case HOME_STANDARD -> BigDecimal.valueOf(5);
+                    case HOME_EXPRESS -> BigDecimal.valueOf(10);
+                    case PICKUP_POINT -> BigDecimal.valueOf(3);
+                } : BigDecimal.ZERO;
+
+        existingDeliveryMethod.setCost(deliveryCost);
+        existingDeliveryMethod.setDeliveryDays(deliveryDays);
+
+        // Sauvegarde des modifications
+        deliveryMethodRepository.save(existingDeliveryMethod);
+
+        return DeliveryMethodDTO.fromDeliveryMethod(existingDeliveryMethod, LocalDate.now(), orderAmount, deliveryDateCalculator);
     }
 }
