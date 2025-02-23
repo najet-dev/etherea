@@ -3,7 +3,7 @@ import { DeliveryType } from './DeliveryType.enum';
 import { PickupPointDetails } from './pickupPointDetails.model';
 
 export interface DeliveryMethod {
-  id: number | null;
+  id: number;
   type: DeliveryType;
   deliveryDays: string;
   cost: number;
