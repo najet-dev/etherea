@@ -66,7 +66,7 @@
                           name="deliveryMode"
                           [value]="delivery.type"
                           [(ngModel)]="selectedDeliveryOption"
-                          (change)="onDeliveryOptionChange()"
+                          (change)="onDeliveryOptionChange(delivery.type)"
                         />
                       </div>
                       <div class="ms-2">
@@ -77,14 +77,6 @@
                         </p>
                       </div>
                     </div>
-                  </div>
-
-                  <!-- Bouton Modifier visible uniquement si cette option est sélectionnée -->
-                  <div
-                    *ngIf="selectedDeliveryOption === delivery.type"
-                    class="d-flex justify-content-end mt-2"
-                  >
-                    <button type="button" class="btn btn-link">Modifier</button>
                   </div>
 
                   <!-- Point Relais -->
@@ -109,6 +101,9 @@
                     </div>
                   </ng-container>
                 </div>
+                <div class="text-end mb-2" *ngIf="selectedDeliveryOption">
+                  <button type="button" class="btn btn-link">Modifier</button>
+                </div>
               </div>
             </div>
           </ng-container>
@@ -125,8 +120,7 @@
                   selectedDeliveryOption === 'HOME_EXPRESS') &&
                   !deliveryAddress)
               "
-              (click)="confirmDeliveryOption()"
-              *ngIf="!showPaymentOptions"
+              (click)="showPaymentOptions = true"
             >
               Continuer vers le paiement
             </button>

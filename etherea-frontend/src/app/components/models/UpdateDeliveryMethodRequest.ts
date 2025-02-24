@@ -1,6 +1,6 @@
 import { DeliveryType } from './DeliveryType.enum';
 
-export interface updateDeliveryMethodRequest {
+export interface UpdateDeliveryMethodRequest {
   userId: number;
   deliveryMethodId: number;
   deliveryType: DeliveryType;

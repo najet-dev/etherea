@@ -8,7 +8,7 @@ import { PickupPointDetails } from '../components/models/pickupPointDetails.mode
 import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
 import { AddDeliveryMethodRequest } from '../components/models/AddDeliveryMethodRequest.model';
 import { DeliveryType } from '../components/models/DeliveryType.enum';
-import { updateDeliveryMethodRequest } from '../components/models/UpdateDeliveryMethodRequest';
+import { UpdateDeliveryMethodRequest } from '../components/models/UpdateDeliveryMethodRequest';
 
 @Injectable({
   providedIn: 'root',
@@ -95,13 +95,17 @@ export class DeliveryMethodService {
         )
       );
   }
+
+  /**
+   * Met à jour une méthode de livraison existante.
+   */
   updateDeliveryMethod(
-    request: updateDeliveryMethodRequest
+    request: UpdateDeliveryMethodRequest
   ): Observable<DeliveryMethod> {
     return this.httpClient
       .put<DeliveryMethod>(`${this.apiUrl}/update`, request)
       .pipe(
-        tap(() => console.log('Méthode de livraison modifié')),
+        tap(() => console.log('Méthode de livraison modifiée')),
         catchError((error) =>
           this.handleError('modification d’une méthode de livraison', error)
         )
