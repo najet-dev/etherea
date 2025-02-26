@@ -102,7 +102,13 @@
                   </ng-container>
                 </div>
                 <div class="text-end mb-2" *ngIf="selectedDeliveryOption">
-                  <button type="button" class="btn btn-link">Modifier</button>
+                  <button
+                    (click)="onEditDeliveryMethod(deliveryMethodId)"
+                    type="button"
+                    class="btn btn-link"
+                  >
+                    Modifier
+                  </button>
                 </div>
               </div>
             </div>

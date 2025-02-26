@@ -1,5 +1,7 @@
 package com.etherea.utils;
 
+import com.etherea.exception.CartNotFoundException;
+import com.etherea.exception.DeliveryMethodNotFoundException;
 import com.etherea.models.DeliveryMethod;
 import org.springframework.stereotype.Component;
 
@@ -11,10 +13,10 @@ public class DeliveryCostCalculator {
 
     public static BigDecimal calculateDeliveryCost(BigDecimal cartTotal, DeliveryMethod method) {
         if (method == null) {
-            throw new IllegalArgumentException("La méthode de livraison ne peut pas être null.");
+            throw new DeliveryMethodNotFoundException("La méthode de livraison ne peut pas être null.");
         }
         if (cartTotal == null) {
-            throw new IllegalArgumentException("Le montant du panier ne peut pas être null.");
+            throw new CartNotFoundException("Le montant du panier ne peut pas être null.");
         }
         return cartTotal.compareTo(FREE_SHIPPING_THRESHOLD) >= 0 ? BigDecimal.ZERO : method.getCost();
     }

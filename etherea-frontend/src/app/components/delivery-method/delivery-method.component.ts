@@ -58,6 +58,7 @@ export class DeliveryMethodComponent implements OnInit {
   isLoadingPickupPoints = false;
   isModalOpen = false;
   isEditingDelivery: boolean = false;
+  deliveryMethodId!: number;
 
   constructor(
     private appFacade: AppFacade,
@@ -245,7 +246,7 @@ export class DeliveryMethodComponent implements OnInit {
   }
 
   onDeliveryOptionChange(selectedType: DeliveryType) {
-    this.selectedDeliveryOption = selectedType; // Mise à jour de la sélection
+    this.selectedDeliveryOption = selectedType;
 
     const selectedDelivery = this.deliveryMethod.find(
       (delivery) => delivery.type === selectedType
@@ -259,9 +260,10 @@ export class DeliveryMethodComponent implements OnInit {
 
     console.log('Mode de livraison sélectionné:', this.selectedDeliveryOption);
 
-    // Si ce n'est pas un point relais, on enregistre immédiatement
     if (this.selectedDeliveryOption !== DeliveryType.PICKUP_POINT) {
-      this.confirmDeliveryOption();
+      this.isEditingDelivery
+        ? this.updateDeliveryOption()
+        : this.confirmDeliveryOption();
     }
   }
 
@@ -310,8 +312,56 @@ export class DeliveryMethodComponent implements OnInit {
       },
     });
   }
-  resetDeliverySelection(): void {
+
+  onEditDeliveryMethod(deliveryMethodId: number): void {
+    this.isEditingDelivery = true;
+    this.deliveryMethodId = deliveryMethodId;
     this.selectedDeliveryOption = null;
+
+    this.loadDeliveryMethods();
+  }
+
+  updateDeliveryOption(): void {
+    if (!this.selectedDeliveryOption) {
+      this.errorMessage = 'Veuillez sélectionner un mode de livraison.';
+      return;
+    }
+
+    const request: UpdateDeliveryMethodRequest = {
+      deliveryMethodId: this.deliveryMethodId,
+      userId: this.userId,
+      deliveryType: this.selectedDeliveryOption as DeliveryType,
+      addressId: this.addressId ?? undefined,
+      pickupPointName:
+        this.selectedDeliveryOption === DeliveryType.PICKUP_POINT &&
+        this.selectedPickupPoint
+          ? this.selectedPickupPoint.pickupPointName
+          : '',
+      pickupPointAddress:
+        this.selectedDeliveryOption === DeliveryType.PICKUP_POINT &&
+        this.selectedPickupPoint
+          ? this.selectedPickupPoint.pickupPointAddress
+          : '',
+      pickupPointLatitude:
+        this.selectedDeliveryOption === DeliveryType.PICKUP_POINT &&
+        this.selectedPickupPoint
+          ? this.selectedPickupPoint.pickupPointLatitude
+          : 0,
+      pickupPointLongitude:
+        this.selectedDeliveryOption === DeliveryType.PICKUP_POINT &&
+        this.selectedPickupPoint
+          ? this.selectedPickupPoint.pickupPointLongitude
+          : 0,
+    };
+
+    this.deliveryMethodService.updateDeliveryMethod(request).subscribe({
+      next: () => {
+        this.isEditingDelivery = false;
+        this.loadDeliveryMethods(); // Recharge les méthodes pour voir la mise à jour
+      },
+      error: (error) =>
+        this.handleError('mise à jour du mode de livraison', error),
+    });
   }
 
   //payment
