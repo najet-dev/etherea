@@ -1,6 +1,6 @@
 package com.etherea.utils;
 
-import com.etherea.models.DeliveryMethod;
+import com.etherea.models.DeliveryType;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -20,17 +20,18 @@ public class DeliveryDateCalculator {
     }
 
     /**
-     * Calcule la date de livraison en tenant compte des jours ouvrés (hors week-ends et jours fériés).
+     * Calculates the delivery date considering business days (excluding weekends and public holidays).
      *
-     * @param startDate Date de début de la livraison
-     * @param method    Méthode de livraison contenant le nombre de jours ouvrés à ajouter
-     * @return La date estimée de livraison
+     * @param startDate     The start date of the delivery process.
+     * @param deliveryType  The delivery type that specifies the number of business days to add.
+     * @return The estimated delivery date.
+     * @throws NullPointerException if startDate or deliveryType is null.
      */
-    public LocalDate calculateDeliveryDate(LocalDate startDate, DeliveryMethod method) {
-        Objects.requireNonNull(method, "La méthode de livraison ne peut pas être null.");
-        Objects.requireNonNull(startDate, "La date de début ne peut pas être null.");
+    public LocalDate calculateDeliveryDate(LocalDate startDate, DeliveryType deliveryType) {
+        Objects.requireNonNull(deliveryType, "The delivery type cannot be null.");
+        Objects.requireNonNull(startDate, "The start date cannot be null.");
 
-        int remainingDays = method.getDeliveryDays();
+        int remainingDays = deliveryType.getDeliveryDays();
         LocalDate deliveryDate = startDate;
 
         while (remainingDays > 0) {
@@ -39,15 +40,14 @@ public class DeliveryDateCalculator {
                 remainingDays--;
             }
         }
-
         return deliveryDate;
     }
 
     /**
-     * Vérifie si une date est un jour ouvré (exclut samedi, dimanche et jours fériés).
+     * Checks if a given date is a business day (excludes Saturdays, Sundays, and public holidays).
      *
-     * @param date La date à vérifier
-     * @return true si c'est un jour ouvré, false sinon
+     * @param date The date to check.
+     * @return true if it is a business day, false otherwise.
      */
     private boolean isBusinessDay(LocalDate date) {
         return date.getDayOfWeek() != DayOfWeek.SATURDAY &&

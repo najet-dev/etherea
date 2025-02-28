@@ -1,7 +1,6 @@
 package com.etherea.services;
 
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
-import com.etherea.enums.DeliveryType;
 import com.etherea.models.DeliveryAddress;
 import com.etherea.repositories.DeliveryAddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +24,18 @@ public class PickupPointService {
     private DeliveryAddressRepository deliveryAddressRepository;
     @Autowired
     private RestTemplate restTemplate;
+
+    /**
+     * Retrieves pickup points for a given user based on their current address.
+     *
+     * @param userId the ID of the user for whom pickup points are being retrieved
+     * @return a list of DTOs containing pickup point details
+     */
     @Cacheable(value = "pickupPointsCache", key = "#userId", unless = "#result == null || #result.isEmpty()")
     public List<AddDeliveryMethodRequestDTO> findPickupPoints(Long userId) {
-        // Retrieve user address
+        // Retrieve the user's address
         DeliveryAddress userAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(userId)
-                .orElseThrow(() -> new IllegalArgumentException("No address found for user with ID: " + userId));
+                .orElseThrow(() -> new IllegalArgumentException("No address found for user ID: " + userId));
 
         // Get geographic coordinates (latitude and longitude)
         double latitude;
@@ -46,64 +52,73 @@ public class PickupPointService {
                 throw new RuntimeException("Failed to geocode the address.");
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error while geocoding the user's address", e);
+            throw new RuntimeException("Error during user address geocoding", e);
         }
 
-        // Building the request for Overpass API
+        // Build the Overpass API query
         String query = String.format(Locale.ROOT,
                 "[out:json];node(around:5000,%.6f,%.6f)[\"amenity\"~\"parcel_pickup|post_office\"];out;",
                 latitude, longitude);
         String url = OVERPASS_API_URL + "?data=" + query;
 
-        // Retrieve pick-up points from Overpass API
+        // Fetch pickup points from the Overpass API
         List<AddDeliveryMethodRequestDTO> pickupPoints = new ArrayList<>();
         try {
             String response = restTemplate.getForObject(url, String.class);
             JsonNode nodes = new ObjectMapper().readTree(response).path("elements");
 
-            // Treatment of each withdrawal point found
+            // Process each retrieved pickup point
             for (JsonNode node : nodes) {
                 AddDeliveryMethodRequestDTO dto = new AddDeliveryMethodRequestDTO();
                 dto.setUserId(userId);
-                dto.setDeliveryType(DeliveryType.PICKUP_POINT);
-                dto.setPickupPointName(node.path("tags").path("name").asText("Unknown Pickup Point"));
+                dto.setPickupPointName(node.path("tags").path("name").asText("Unknown pickup point"));
                 dto.setPickupPointLatitude(node.path("lat").asDouble());
                 dto.setPickupPointLongitude(node.path("lon").asDouble());
 
-                // Enrich complete address via reverse geocoding Nominatim
+                // Fetch full address via reverse geocoding with Nominatim
                 String fullAddress = getFullAddressFromCoordinates(dto.getPickupPointLatitude(), dto.getPickupPointLongitude());
                 dto.setPickupPointAddress(fullAddress != null ? fullAddress : "Address not available");
 
                 pickupPoints.add(dto);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch pickup points from Overpass API", e);
+            throw new RuntimeException("Failed to retrieve pickup points from the Overpass API", e);
         }
+
         return pickupPoints;
     }
+
+    /**
+     * Retrieves the full address using GPS coordinates.
+     *
+     * @param latitude  the latitude of the point
+     * @param longitude the longitude of the point
+     * @return the full address or an error message
+     */
     private String getFullAddressFromCoordinates(double latitude, double longitude) {
         try {
-            // Format coordinates with decimals
+            // Format the coordinates for Nominatim
             String reverseGeocodeUrl = String.format(Locale.ROOT, "%s?lat=%.6f&lon=%.6f&format=json", NOMINATIM_API_URL, latitude, longitude);
 
-            // Call Nominatim with formatted contact details
+            // Call the Nominatim API to retrieve the address
             JsonNode reverseGeocodeResponse = restTemplate.getForObject(reverseGeocodeUrl, JsonNode.class);
 
-            // Log the response to check what is returned by Nominatim
-            System.out.println("Reply from Nominatim for (" + latitude + ", " + longitude + "): " + reverseGeocodeResponse);
-
-            // Extract full address if available
+            // Return the full address if available
             return reverseGeocodeResponse != null && reverseGeocodeResponse.has("display_name")
                     ? reverseGeocodeResponse.path("display_name").asText()
                     : "Address not available";
         } catch (Exception e) {
-            System.err.println("Reverse geocoding error for (" + latitude + ", " + longitude + "): " + e.getMessage());
-            return "Error obtaining address";
+            System.err.println("Reverse geocoding error for coordinates (" + latitude + ", " + longitude + "): " + e.getMessage());
+            return "Error retrieving address";
         }
     }
+
+    /**
+     * Clears the pickup points cache every 24 hours.
+     */
     @CacheEvict(value = "pickupPointsCache", allEntries = true)
     @Scheduled(fixedRate = 86400000) // Every 24 hours (in milliseconds)
     public void clearCacheAutomatically() {
-        System.out.println("Cache vidé automatiquement !");
+        System.out.println("Cache automatically cleared!");
     }
 }

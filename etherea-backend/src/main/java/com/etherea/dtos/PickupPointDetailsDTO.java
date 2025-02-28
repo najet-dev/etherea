@@ -1,20 +1,29 @@
 package com.etherea.dtos;
 
 import com.etherea.models.PickupPointDetails;
-
-import java.math.BigDecimal;
+import jakarta.validation.constraints.NotBlank;
 
 public class PickupPointDetailsDTO {
+    private Long id;
+    @NotBlank(message = "Le nom du point de retrait est obligatoire.")
     private String pickupPointName;
+    @NotBlank(message = "L'adresse du point de retrait est obligatoire.")
     private String pickupPointAddress;
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
     public PickupPointDetailsDTO() {}
-    public PickupPointDetailsDTO(String pickupPointName, String pickupPointAddress, Double pickupPointLatitude, Double pickupPointLongitude) {
+    public PickupPointDetailsDTO(Long id, String pickupPointName, String pickupPointAddress, Double pickupPointLatitude, Double pickupPointLongitude) {
+        this.id = id;
         this.pickupPointName = pickupPointName;
         this.pickupPointAddress = pickupPointAddress;
         this.pickupPointLatitude = pickupPointLatitude;
         this.pickupPointLongitude = pickupPointLongitude;
+    }
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
     }
     public String getPickupPointName() {
         return pickupPointName;
@@ -40,12 +49,17 @@ public class PickupPointDetailsDTO {
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }
-
-    // Vérifie que la latitude et la longitude sont dans des plages valides
-    private BigDecimal validateCoordinate(BigDecimal coordinate) {
-        if (coordinate == null) {
-            throw new IllegalArgumentException("Les coordonnées ne peuvent pas être nulles.");
-        }
-        return coordinate;
+    public static PickupPointDetailsDTO fromEntity(PickupPointDetails pickupPointDetails) {
+        if (pickupPointDetails == null) return null;
+        return new PickupPointDetailsDTO(
+                pickupPointDetails.getId(),
+                pickupPointDetails.getPickupPointName(),
+                pickupPointDetails.getPickupPointAddress(),
+                pickupPointDetails.getPickupPointLatitude(),
+                pickupPointDetails.getPickupPointLongitude()
+        );
+    }
+    public PickupPointDetails toEntity() {
+        return new PickupPointDetails(pickupPointName, pickupPointAddress, pickupPointLatitude, pickupPointLongitude);
     }
 }

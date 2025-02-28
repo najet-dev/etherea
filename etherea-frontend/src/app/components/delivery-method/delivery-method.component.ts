@@ -137,8 +137,7 @@ export class DeliveryMethodComponent implements OnInit {
           this.handleError('chargement du total du panier', error),
       });
   }
-
-  private loadDeliveryMethods(): void {
+  loadDeliveryMethods(): void {
     if (!this.userId) return;
 
     this.isLoading = true;
@@ -148,6 +147,7 @@ export class DeliveryMethodComponent implements OnInit {
       .subscribe({
         next: (methods) => {
           this.deliveryMethod = methods;
+          console.log('Méthodes de livraison chargées:', this.deliveryMethod); // Ajout du log
           this.isLoading = false;
         },
         error: (error) =>
@@ -314,10 +314,23 @@ export class DeliveryMethodComponent implements OnInit {
   }
 
   onEditDeliveryMethod(deliveryMethodId: number): void {
-    this.isEditingDelivery = true;
-    this.deliveryMethodId = deliveryMethodId;
-    this.selectedDeliveryOption = null;
+    console.log(
+      'Mode de livraison en cours de modification:',
+      this.selectedDeliveryOption
+    );
+    console.log(
+      'ID de la méthode de livraison récupéré avant mise à jour:',
+      deliveryMethodId
+    );
 
+    this.deliveryMethodId = deliveryMethodId;
+    if (!this.deliveryMethodId) {
+      console.error('Erreur : ID de la méthode de livraison est undefined !');
+      return;
+    }
+
+    this.isEditingDelivery = true;
+    this.selectedDeliveryOption = null;
     this.loadDeliveryMethods();
   }
 
@@ -326,6 +339,10 @@ export class DeliveryMethodComponent implements OnInit {
       this.errorMessage = 'Veuillez sélectionner un mode de livraison.';
       return;
     }
+    console.log(
+      'Mise à jour du mode de livraison avec ID:',
+      this.deliveryMethodId
+    );
 
     const request: UpdateDeliveryMethodRequest = {
       deliveryMethodId: this.deliveryMethodId,
@@ -353,6 +370,7 @@ export class DeliveryMethodComponent implements OnInit {
           ? this.selectedPickupPoint.pickupPointLongitude
           : 0,
     };
+    console.log('Requête de mise à jour envoyée:', request); // Ajout du log
 
     this.deliveryMethodService.updateDeliveryMethod(request).subscribe({
       next: () => {
