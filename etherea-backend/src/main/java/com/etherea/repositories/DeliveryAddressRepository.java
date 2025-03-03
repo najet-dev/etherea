@@ -11,6 +11,4 @@ import java.util.Optional;
 public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress, Long> {
     List<DeliveryAddress> findByUserId(Long userId);
     Optional<DeliveryAddress> findTopByUserIdOrderByIdDesc(Long userId);
-    Optional<DeliveryAddress> findByIdAndUserId(Long addressId, Long userId);
-
 }

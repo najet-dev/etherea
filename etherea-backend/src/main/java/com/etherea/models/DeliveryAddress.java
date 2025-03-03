@@ -77,8 +77,6 @@ public class DeliveryAddress {
     public void setUser(User user) {
         this.user = user;
     }
-
-    // Dans DeliveryAddress.java
     public String getFullAddress() {
         return address + ", " + city + ", " + zipCode + ", " + country;
     }

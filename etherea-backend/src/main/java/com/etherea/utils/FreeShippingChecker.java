@@ -7,7 +7,7 @@ public class FreeShippingChecker {
     private FreeShippingChecker() {}
     public static boolean isFreeShipping(BigDecimal cartTotal) {
         if (cartTotal == null) {
-            throw new IllegalArgumentException("Le montant du panier ne peut pas être null.");
+            throw new IllegalArgumentException("The cart amount cannot be null.");
         }
         return cartTotal.compareTo(FREE_SHIPPING_THRESHOLD) >= 0;
     }

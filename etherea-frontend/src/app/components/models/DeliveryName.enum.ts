@@ -1,5 +1,5 @@
-export enum DeliveryType {
-  PICKUP_POINT = 'PICKUP_POINT',
+export enum DeliveryName {
   HOME_STANDARD = 'HOME_STANDARD',
   HOME_EXPRESS = 'HOME_EXPRESS',
+  PICKUP_POINT = 'PICKUP_POINT',
 }

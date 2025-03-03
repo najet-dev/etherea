@@ -2,6 +2,7 @@ package com.etherea.repositories;
 
 import com.etherea.models.Cart;
 import com.etherea.models.CommandItem;
+import com.etherea.models.DeliveryMethod;
 import com.etherea.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository

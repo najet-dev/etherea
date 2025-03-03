@@ -7,9 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PaymentRepository  extends JpaRepository<PaymentMethod, Long> {
+public interface PaymentRepository extends JpaRepository<PaymentMethod, Long> {
     PaymentMethod findByTransactionId(String transactionId);
-    Optional<PaymentMethod> findByCartId(Long cartId);
-
-
 }
