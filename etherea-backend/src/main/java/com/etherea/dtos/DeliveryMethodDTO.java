@@ -1,95 +1,72 @@
 package com.etherea.dtos;
 
-import com.etherea.enums.DeliveryType;
 import com.etherea.models.DeliveryMethod;
-import com.etherea.utils.DeliveryDateCalculator;
-import com.etherea.utils.DeliveryCostCalculator;
+import com.etherea.models.User;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Objects;
+import java.util.Optional;
 
 public class DeliveryMethodDTO {
     private Long id;
-    private DeliveryType type;
-    private LocalDate deliveryDays;
-    private BigDecimal cost;
+    private DeliveryTypeDTO deliveryType;
+    private Long userId;
     private DeliveryAddressDTO deliveryAddress;
     private PickupPointDetailsDTO pickupPointDetails;
-
     public DeliveryMethodDTO() {}
-
-    public DeliveryMethodDTO(Long id, DeliveryType type, LocalDate deliveryDays, BigDecimal cost, DeliveryAddressDTO deliveryAddress, PickupPointDetailsDTO pickupPointDetails) {
+    public DeliveryMethodDTO(Long id, DeliveryTypeDTO deliveryType, Long userId, DeliveryAddressDTO deliveryAddress, PickupPointDetailsDTO pickupPointDetails) {
         this.id = id;
-        this.type = type;
-        this.deliveryDays = deliveryDays;
-        this.cost = cost;
+        this.deliveryType = deliveryType;
+        this.userId = userId;
         this.deliveryAddress = deliveryAddress;
         this.pickupPointDetails = pickupPointDetails;
     }
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public DeliveryType getType() {
-        return type;
+    public Long getId() {
+        return id;
     }
-    public void setType(DeliveryType type) {
-        this.type = type;
+    public void setId(Long id) {
+        this.id = id;
     }
-    public LocalDate getDeliveryDays() {
-        return deliveryDays;
+    public DeliveryTypeDTO getDeliveryType() {
+        return deliveryType;
     }
-    public void setDeliveryDays(LocalDate deliveryDays) {
-        this.deliveryDays = deliveryDays;
+    public void setDeliveryType(DeliveryTypeDTO deliveryType) {
+        this.deliveryType = deliveryType;
     }
-    public BigDecimal getCost() { return cost; }
-    public void setCost(BigDecimal cost) { this.cost = cost; }
-
-    public DeliveryAddressDTO getDeliveryAddress() { return deliveryAddress; }
-    public void setDeliveryAddress(DeliveryAddressDTO deliveryAddress) { this.deliveryAddress = deliveryAddress; }
-
-    public PickupPointDetailsDTO getPickupPointDetails() { return pickupPointDetails; }
-    public void setPickupPointDetails(PickupPointDetailsDTO pickupPointDetails) { this.pickupPointDetails = pickupPointDetails; }
-    public static DeliveryMethodDTO fromDeliveryMethod(DeliveryMethod deliveryMethod, LocalDate startDate, BigDecimal cartTotal, DeliveryDateCalculator calculator) {
-        if (deliveryMethod == null || calculator == null) {
-            throw new IllegalArgumentException("Les paramètres deliveryMethod et calculator ne peuvent pas être nuls.");
-        }
-
-        DeliveryType type = deliveryMethod.getType();
-
-        // Calcul de la date de livraison estimée
-        LocalDate deliveryDays = calculator.calculateDeliveryDate(startDate, deliveryMethod);
-
-        // Calcul du coût de livraison
-        BigDecimal cost = DeliveryCostCalculator.calculateDeliveryCost(cartTotal, deliveryMethod);
-
-        // Conversion de l'adresse si applicable
-        DeliveryAddressDTO addressDTO = (deliveryMethod.isHomeDelivery() && deliveryMethod.getDeliveryAddress() != null)
-                ? DeliveryAddressDTO.fromDeliveryAddress(deliveryMethod.getDeliveryAddress())
-                : null;
-
-        // Conversion du point relais si applicable
-        PickupPointDetailsDTO pickupDTO = (deliveryMethod.isPickupPoint() && deliveryMethod.getPickupPointDetails() != null)
-                ? new PickupPointDetailsDTO(
-                deliveryMethod.getPickupPointDetails().getPickupPointName(),
-                deliveryMethod.getPickupPointDetails().getPickupPointAddress(),
-                deliveryMethod.getPickupPointDetails().getPickupPointLatitude(),
-                deliveryMethod.getPickupPointDetails().getPickupPointLongitude()
-        )
-                : null;
+    public Long getUserId() {
+        return userId;
+    }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+    public DeliveryAddressDTO getDeliveryAddress() {
+        return deliveryAddress;
+    }
+    public void setDeliveryAddress(DeliveryAddressDTO deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
+    }
+    public PickupPointDetailsDTO getPickupPointDetails() {
+        return pickupPointDetails;
+    }
+    public void setPickupPointDetails(PickupPointDetailsDTO pickupPointDetails) {
+        this.pickupPointDetails = pickupPointDetails;
+    }
+    public static DeliveryMethodDTO fromEntity(DeliveryMethod deliveryMethod) {
+        Objects.requireNonNull(deliveryMethod, "Le mode de livraison ne peut pas être nul.");
 
         return new DeliveryMethodDTO(
                 deliveryMethod.getId(),
-                type,
-                deliveryDays,
-                cost,
-                addressDTO,
-                pickupDTO
+                DeliveryTypeDTO.fromEntity(deliveryMethod.getDeliveryType()),
+                Optional.ofNullable(deliveryMethod.getUser()).map(User::getId).orElse(null),
+                Optional.ofNullable(deliveryMethod.getDeliveryAddress()).map(DeliveryAddressDTO::fromDeliveryAddress).orElse(null),
+                Optional.ofNullable(deliveryMethod.getPickupPointDetails()).map(PickupPointDetailsDTO::fromEntity).orElse(null)
         );
     }
-    public static DeliveryType convertDeliveryTypeToOption(DeliveryType type) {
-        return switch (type) {
-            case HOME_STANDARD -> DeliveryType.HOME_STANDARD;
-            case HOME_EXPRESS -> DeliveryType.HOME_EXPRESS;
-            case PICKUP_POINT -> DeliveryType.PICKUP_POINT;
-        };
+    public DeliveryMethod toEntity() {
+        return new DeliveryMethod(
+                deliveryType.toEntity(),
+                null,  // L'utilisateur sera lié ailleurs
+                deliveryAddress != null ? deliveryAddress.toDeliveryAddress() : null,
+                pickupPointDetails != null ? pickupPointDetails.toEntity() : null
+        );
     }
 }

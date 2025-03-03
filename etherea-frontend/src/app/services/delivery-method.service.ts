@@ -7,7 +7,9 @@ import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { PickupPointDetails } from '../components/models/pickupPointDetails.model';
 import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
 import { AddDeliveryMethodRequest } from '../components/models/AddDeliveryMethodRequest.model';
-import { DeliveryType } from '../components/models/DeliveryType.enum';
+import { DeliveryName } from '../components/models/DeliveryName.enum';
+import { DeliveryType } from '../components/models/DeliveryType.model';
+import { UpdateDeliveryMethodRequest } from '../components/models/UpdateDeliveryMethodRequest.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,15 +22,20 @@ export class DeliveryMethodService {
   /**
    * Récupère les options de livraison disponibles pour un utilisateur donné.
    */
-  getDeliveryMethods(userId: number): Observable<DeliveryMethod[]> {
+  getDeliveryTypes(userId: number): Observable<DeliveryType[]> {
     return this.httpClient
-      .get<DeliveryMethod[]>(`${this.apiUrl}/options/${userId}`)
+      .get<DeliveryType[]>(`${this.apiUrl}/options/${userId}`)
       .pipe(
-        tap(() => console.log('Options de livraison récupérées')),
-        catchError((error) =>
-          this.handleError('récupération des méthodes de livraison', error)
-        )
+        tap((response) => console.log('Types de livraison reçus:', response))
       );
+  }
+  /**
+   * Récupère les modes de livraison disponibles pour un utilisateur donné.
+   */
+  getUserDeliveryMethods(userId: number): Observable<DeliveryMethod[]> {
+    return this.httpClient
+      .get<DeliveryMethod[]>(`${this.apiUrl}/methods/${userId}`)
+      .pipe(tap((response) => console.log('Réponse du backend:', response)));
   }
 
   /**
@@ -64,7 +71,7 @@ export class DeliveryMethodService {
    */
   getCartWithDelivery(
     userId: number,
-    selectedType: DeliveryType
+    selectedType: DeliveryName
   ): Observable<CartWithDelivery> {
     const url = `${this.apiUrl}/cart-with-delivery/${userId}?selectedType=${selectedType}`;
     console.log(`Appel API : ${url}`);
@@ -96,6 +103,23 @@ export class DeliveryMethodService {
   }
 
   /**
+   * Met à jour une méthode de livraison existante.
+   */
+  updateDeliveryMethod(
+    deliveryMethodId: number,
+    request: UpdateDeliveryMethodRequest
+  ): Observable<DeliveryMethod> {
+    return this.httpClient
+      .put<DeliveryMethod>(`${this.apiUrl}/update/${deliveryMethodId}`, request)
+      .pipe(
+        tap(() => console.log('Méthode de livraison modifiée')),
+        catchError((error) =>
+          this.handleError('modification d’une méthode de livraison', error)
+        )
+      );
+  }
+
+  /**
    * Gère les erreurs des requêtes HTTP.
    */
   private handleError(operation: string, error: any): Observable<never> {
@@ -108,6 +132,6 @@ export class DeliveryMethodService {
     }
 
     console.error(`[${operation}] ${errorMessage}`, error);
-    return throwError(() => errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 }

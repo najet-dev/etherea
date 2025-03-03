@@ -1,7 +1,6 @@
 package com.etherea.utils;
 
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,19 +9,22 @@ import java.util.Set;
 public class HolidayProvider {
 
     /**
-     * Récupère les jours fériés de l'année en cours.
+     * Retrieves the public holidays for the current year.
+     *
+     * @return A set of public holidays for the year.
      */
     public Set<LocalDate> getPublicHolidays() {
         int year = LocalDate.now().getYear();
         Set<LocalDate> holidays = new HashSet<>();
-        holidays.add(LocalDate.of(year, 1, 1));  // Jour de l'An
-        holidays.add(LocalDate.of(year, 5, 1));  // Fête du Travail
-        holidays.add(LocalDate.of(year, 5, 8));  // Victoire 1945
-        holidays.add(LocalDate.of(year, 7, 14)); // Fête Nationale
-        holidays.add(LocalDate.of(year, 8, 15)); // Assomption
-        holidays.add(LocalDate.of(year, 11, 1)); // Toussaint
-        holidays.add(LocalDate.of(year, 11, 11));// Armistice 1918
-        holidays.add(LocalDate.of(year, 12, 25));// Noël
+
+        holidays.add(LocalDate.of(year, 1, 1));  // New Year's Day
+        holidays.add(LocalDate.of(year, 5, 1));  // Labor Day
+        holidays.add(LocalDate.of(year, 5, 8));  // Victory in Europe Day (WWII)
+        holidays.add(LocalDate.of(year, 7, 14)); // Bastille Day
+        holidays.add(LocalDate.of(year, 8, 15)); // Assumption Day
+        holidays.add(LocalDate.of(year, 11, 1)); // All Saints' Day
+        holidays.add(LocalDate.of(year, 11, 11));// Armistice Day (WWI)
+        holidays.add(LocalDate.of(year, 12, 25));// Christmas Day
 
         return holidays;
     }

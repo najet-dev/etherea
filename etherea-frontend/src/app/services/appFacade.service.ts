@@ -15,6 +15,8 @@ import { PaymentService } from './payment.service';
 import { PaymentRequest } from '../components/models/PaymentRequest.model';
 import { PaymentResponse } from '../components/models/PaymentResponse.model';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
+import { DeliveryType } from '../components/models/DeliveryType.model';
+import { UpdateDeliveryMethodRequest } from '../components/models/UpdateDeliveryMethodRequest.model';
 
 @Injectable({
   providedIn: 'root',
@@ -139,8 +141,20 @@ export class AppFacade {
     return this.userService.getCurrentUser();
   }
   //Method
-  getDeliveryMethods(userId: number): Observable<DeliveryMethod[]> {
-    return this.deliveryMethodService.getDeliveryMethods(userId);
+  getDeliveryTypes(userId: number): Observable<DeliveryType[]> {
+    return this.deliveryMethodService.getDeliveryTypes(userId);
+  }
+  getUserDeliveryMethods(userId: number): Observable<DeliveryMethod[]> {
+    return this.deliveryMethodService.getUserDeliveryMethods(userId);
+  }
+  updateDeliveryMethod(
+    deliveryMethodId: number,
+    request: UpdateDeliveryMethodRequest
+  ) {
+    return this.deliveryMethodService.updateDeliveryMethod(
+      deliveryMethodId,
+      request
+    );
   }
   //cart
   getCartId(userId: number): Observable<number> {
