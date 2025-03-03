@@ -21,8 +21,9 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest.model';
-import { DeliveryType } from '../models/DeliveryType.enum';
-import { UpdateDeliveryMethodRequest } from '../models/UpdateDeliveryMethodRequest';
+import { DeliveryName } from '../models/DeliveryName.enum';
+import { UpdateDeliveryMethodRequest } from '../models/UpdateDeliveryMethodRequest.model';
+import { DeliveryType } from '../models/DeliveryType.model';
 
 @Component({
   selector: 'app-delivery-method',
@@ -38,10 +39,11 @@ export class DeliveryMethodComponent implements OnInit {
 
   isLoading: boolean = true;
   deliveryMethod: DeliveryMethod[] = [];
+  deliveryType: DeliveryType[] = [];
   pickupPoints: PickupPointDetails[] = [];
   selectedPickupPoint: PickupPointDetails | null = null;
   confirmedPickupPoint: PickupPointDetails | null = null;
-  selectedDeliveryOption: DeliveryType | null = null;
+  selectedDeliveryOption: DeliveryName | null = null;
 
   cartTotal: number | null = null;
   deliveryCost: number | null = null;
@@ -58,7 +60,11 @@ export class DeliveryMethodComponent implements OnInit {
   isLoadingPickupPoints = false;
   isModalOpen = false;
   isEditingDelivery: boolean = false;
+
   deliveryMethodId!: number;
+  deliveryTypeId!: number;
+  selectedDeliveryType!: DeliveryType;
+  selectedDeliveryMethod!: DeliveryMethod;
 
   constructor(
     private appFacade: AppFacade,
@@ -74,6 +80,7 @@ export class DeliveryMethodComponent implements OnInit {
   ngOnInit(): void {
     this.loadUserAndAddress();
     this.loadDeliveryMethods();
+    this.loadDeliveryTypes();
     this.loadCartTotal();
     this.loadCartItems();
     this.loadPickupPoints();
@@ -137,17 +144,16 @@ export class DeliveryMethodComponent implements OnInit {
           this.handleError('chargement du total du panier', error),
       });
   }
-  loadDeliveryMethods(): void {
+  private loadDeliveryTypes(): void {
     if (!this.userId) return;
 
     this.isLoading = true;
-    this.deliveryMethodService
-      .getDeliveryMethods(this.userId)
+    this.appFacade
+      .getDeliveryTypes(this.userId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (methods) => {
-          this.deliveryMethod = methods;
-          console.log('Méthodes de livraison chargées:', this.deliveryMethod); // Ajout du log
+        next: (types) => {
+          this.deliveryType = types;
           this.isLoading = false;
         },
         error: (error) =>
@@ -155,7 +161,24 @@ export class DeliveryMethodComponent implements OnInit {
       });
   }
 
-  private loadCartWithDelivery(selectedOption: DeliveryType): void {
+  private loadDeliveryMethods(): void {
+    if (!this.userId) return;
+
+    this.isLoading = true;
+    this.appFacade
+      .getUserDeliveryMethods(this.userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (methods) => {
+          this.deliveryMethod = methods;
+          this.isLoading = false;
+        },
+        error: (error) =>
+          this.handleError('chargement des modes de livraison', error),
+      });
+  }
+
+  private loadCartWithDelivery(selectedOption: DeliveryName): void {
     if (!this.userId) return;
 
     this.isLoading = true;
@@ -232,7 +255,7 @@ export class DeliveryMethodComponent implements OnInit {
 
       console.log('Point relais confirmé:', this.confirmedPickupPoint);
 
-      // Enregistre la méthode de livraison seulement après confirmation
+      // Save delivery method only after confirmation
       this.confirmDeliveryOption();
     }
     this.isModalOpen = false;
@@ -245,26 +268,51 @@ export class DeliveryMethodComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  onDeliveryOptionChange(selectedType: DeliveryType) {
+  onDeliveryOptionChange(selectedType: DeliveryName) {
     this.selectedDeliveryOption = selectedType;
 
-    const selectedDelivery = this.deliveryMethod.find(
-      (delivery) => delivery.type === selectedType
-    );
+    this.selectedDeliveryType =
+      this.deliveryType.find(
+        (delivery) => delivery.deliveryName === selectedType
+      ) || ({} as DeliveryType);
 
-    if (selectedDelivery) {
-      this.deliveryCost = selectedDelivery.cost;
+    console.log('Delivery Type sélectionné :', this.selectedDeliveryType);
+
+    if (this.selectedDeliveryType) {
+      this.deliveryCost = this.selectedDeliveryType.cost;
     } else {
       this.deliveryCost = 0;
     }
 
-    console.log('Mode de livraison sélectionné:', this.selectedDeliveryOption);
+    if (this.selectedDeliveryOption === DeliveryName.PICKUP_POINT) {
+      this.refreshPickupPoints();
+    }
 
-    if (this.selectedDeliveryOption !== DeliveryType.PICKUP_POINT) {
+    if (this.selectedDeliveryOption !== DeliveryName.PICKUP_POINT) {
       this.isEditingDelivery
         ? this.updateDeliveryOption()
         : this.confirmDeliveryOption();
     }
+  }
+  private refreshPickupPoints(): void {
+    this.selectedPickupPoint = null; // Reset the selected pickup point
+    this.confirmedPickupPoint = null;
+    this.isLoadingPickupPoints = true;
+
+    this.deliveryMethodService.getPickupMethods(this.userId).subscribe({
+      next: (points) => {
+        this.pickupPoints = points;
+        this.isLoadingPickupPoints = false;
+        this.cdr.detectChanges(); // Force display update
+      },
+      error: (error) => {
+        console.error(
+          'Erreur lors du rafraîchissement des points relais:',
+          error
+        );
+        this.isLoadingPickupPoints = false;
+      },
+    });
   }
 
   confirmDeliveryOption(): void {
@@ -273,113 +321,161 @@ export class DeliveryMethodComponent implements OnInit {
       return;
     }
 
+    if (!this.selectedDeliveryType || !this.selectedDeliveryType.id) {
+      console.error('Erreur : deliveryTypeId est null');
+      this.errorMessage = 'Veuillez sélectionner un mode de livraison valide.';
+      return;
+    }
+
     const request: AddDeliveryMethodRequest = {
       userId: this.userId,
-      deliveryType: this.selectedDeliveryOption as DeliveryType,
+      deliveryTypeId: this.selectedDeliveryType.id,
       addressId: this.addressId ?? undefined,
       pickupPointName:
-        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedDeliveryOption === DeliveryName.PICKUP_POINT &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointName
           : '',
       pickupPointAddress:
-        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedDeliveryOption === DeliveryName.PICKUP_POINT &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointAddress
           : '',
       pickupPointLatitude:
-        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedDeliveryOption === DeliveryName.PICKUP_POINT &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointLatitude
           : 0,
       pickupPointLongitude:
-        this.selectedDeliveryOption === 'PICKUP_POINT' &&
+        this.selectedDeliveryOption === DeliveryName.PICKUP_POINT &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointLongitude
           : 0,
       orderAmount: this.total ?? 0,
     };
 
-    this.deliveryMethodService.addDeliveryMethod(request).subscribe({
-      next: (response) => {
-        console.log('Méthode de livraison ajoutée avec succès :', response);
-      },
-      error: (error) => {
-        console.error(
-          "Erreur lors de l'ajout de la méthode de livraison :",
-          error
-        );
-      },
-    });
+    console.log('Request sent to API:', request);
+
+    // Check if a delivery method already exists for the user
+    if (this.deliveryMethodId) {
+      console.log(
+        'Méthode de livraison existante détectée, mise à jour en cours...'
+      );
+
+      const updateRequest: UpdateDeliveryMethodRequest = {
+        ...request,
+        deliveryMethodId: this.deliveryMethodId, // Add existing ID
+      };
+
+      this.deliveryMethodService
+        .updateDeliveryMethod(this.deliveryMethodId, updateRequest)
+        .subscribe({
+          next: () => {
+            console.log('Méthode de livraison mise à jour avec succès');
+            this.isEditingDelivery = false;
+            this.loadDeliveryMethods(); // Refresh methods after update
+          },
+          error: (error) => {
+            console.error(
+              'Erreur lors de la mise à jour de la méthode de livraison :',
+              error
+            );
+          },
+        });
+    } else {
+      console.log('Aucune méthode existante, ajout d’une nouvelle méthode...');
+
+      this.deliveryMethodService.addDeliveryMethod(request).subscribe({
+        next: (response) => {
+          console.log('Méthode de livraison ajoutée avec succès :', response);
+
+          if (response?.id) {
+            this.deliveryMethodId = response.id;
+            console.log(
+              'ID de la méthode de livraison sélectionnée:',
+              this.deliveryMethodId
+            );
+          } else {
+            console.error("Erreur : l'ID de la méthode ajoutée est manquant !");
+          }
+        },
+        error: (error) => {
+          console.error(
+            "Erreur lors de l'ajout de la méthode de livraison :",
+            error
+          );
+        },
+      });
+    }
   }
 
   onEditDeliveryMethod(deliveryMethodId: number): void {
-    console.log(
-      'Mode de livraison en cours de modification:',
-      this.selectedDeliveryOption
-    );
-    console.log(
-      'ID de la méthode de livraison récupéré avant mise à jour:',
-      deliveryMethodId
-    );
-
-    this.deliveryMethodId = deliveryMethodId;
-    if (!this.deliveryMethodId) {
-      console.error('Erreur : ID de la méthode de livraison est undefined !');
-      return;
-    }
-
     this.isEditingDelivery = true;
+    this.deliveryMethodId = deliveryMethodId;
     this.selectedDeliveryOption = null;
-    this.loadDeliveryMethods();
+
+    console.log(
+      'ID de la méthode de livraison sélectionnée:',
+      this.deliveryMethodId
+    ); // Debug
   }
 
   updateDeliveryOption(): void {
+    if (!this.deliveryMethodId) {
+      console.error('Erreur : deliveryMethodId est indéfini !');
+      this.errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
+      return;
+    }
+
     if (!this.selectedDeliveryOption) {
       this.errorMessage = 'Veuillez sélectionner un mode de livraison.';
       return;
     }
-    console.log(
-      'Mise à jour du mode de livraison avec ID:',
-      this.deliveryMethodId
-    );
+
+    if (!this.selectedDeliveryType) {
+      console.error('Erreur : Aucun type de livraison sélectionné !');
+      this.errorMessage = 'Veuillez sélectionner un mode de livraison valide.';
+      return;
+    }
 
     const request: UpdateDeliveryMethodRequest = {
       deliveryMethodId: this.deliveryMethodId,
       userId: this.userId,
-      deliveryType: this.selectedDeliveryOption as DeliveryType,
+      deliveryTypeId: this.selectedDeliveryType?.id ?? null,
       addressId: this.addressId ?? undefined,
       pickupPointName:
-        this.selectedDeliveryOption === DeliveryType.PICKUP_POINT &&
+        this.selectedDeliveryOption === DeliveryName.PICKUP_POINT &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointName
           : '',
       pickupPointAddress:
-        this.selectedDeliveryOption === DeliveryType.PICKUP_POINT &&
+        this.selectedDeliveryOption === DeliveryName.PICKUP_POINT &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointAddress
           : '',
       pickupPointLatitude:
-        this.selectedDeliveryOption === DeliveryType.PICKUP_POINT &&
+        this.selectedDeliveryOption === DeliveryName.PICKUP_POINT &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointLatitude
           : 0,
       pickupPointLongitude:
-        this.selectedDeliveryOption === DeliveryType.PICKUP_POINT &&
+        this.selectedDeliveryOption === DeliveryName.PICKUP_POINT &&
         this.selectedPickupPoint
           ? this.selectedPickupPoint.pickupPointLongitude
           : 0,
     };
-    console.log('Requête de mise à jour envoyée:', request); // Ajout du log
 
-    this.deliveryMethodService.updateDeliveryMethod(request).subscribe({
-      next: () => {
-        this.isEditingDelivery = false;
-        this.loadDeliveryMethods(); // Recharge les méthodes pour voir la mise à jour
-      },
-      error: (error) =>
-        this.handleError('mise à jour du mode de livraison', error),
-    });
+    this.appFacade
+      .updateDeliveryMethod(this.deliveryMethodId, request)
+      .subscribe({
+        next: () => {
+          console.log('Méthode de livraison mise à jour avec succès');
+          this.isEditingDelivery = false;
+          this.loadDeliveryMethods();
+        },
+        error: (error) =>
+          this.handleError('mise à jour du mode de livraison', error),
+      });
   }
 
   //payment

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class DeliveryMethodService {
@@ -44,6 +46,13 @@ public class DeliveryMethodService {
 
         return deliveryTypeRepository.findAll().stream()
                 .map(deliveryType -> createDeliveryTypeDTO(deliveryType, currentDate, isFreeDelivery, defaultAddress))
+                .toList();
+    }
+    public List<DeliveryMethodDTO> getUserDeliveryMethods(Long userId) {
+        List<DeliveryMethod> deliveryMethods = deliveryMethodRepository.findByUserId(userId);
+
+        return deliveryMethods.stream()
+                .map(DeliveryMethodDTO::fromEntity)
                 .toList();
     }
     private DeliveryAddressDTO getDefaultAddress(Long userId) {
@@ -87,10 +96,10 @@ public class DeliveryMethodService {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + request.getUserId()));
 
-        DeliveryType deliveryType = deliveryTypeRepository.findById(request.getDeliveryType().getId())
-                .orElseThrow(() -> new DeliveryTypeNotFoundException("Delivery type with ID " + request.getDeliveryType().getId() + " n'a pas été trouvé."));
+        // Vérifier si le type de livraison existe
+        DeliveryType deliveryType = deliveryTypeRepository.findById(request.getDeliveryTypeId())
+                .orElseThrow(() -> new DeliveryTypeNotFoundException("Type de livraison introuvable avec l'ID: " + request.getDeliveryTypeId()));
 
-        // Check order amount
         if (request.getOrderAmount() == null || request.getOrderAmount().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("The order amount is invalid.");
         }
@@ -143,70 +152,62 @@ public class DeliveryMethodService {
         return DeliveryMethodDTO.fromEntity(savedDeliveryMethod);
     }
     @Transactional
-    public DeliveryMethodDTO updateDeliveryMethod(Long deliveryMethodId, AddDeliveryMethodRequestDTO request) {
+    public DeliveryMethodDTO updateDeliveryMethod(Long deliveryMethodId, UpdateDeliveryMethodRequestDTO request) {
         logger.info("Update delivery mode with ID: {}", deliveryMethodId);
 
-        // Verify the existence of the delivery method
+        // Check existence of delivery method
         DeliveryMethod existingDeliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
-                .orElseThrow(() -> new DeliveryMethodNotFoundException("delivery mode with ID " + deliveryMethodId + " n'a pas été trouvé."));
+                .orElseThrow(() -> new DeliveryMethodNotFoundException("Delivery mode with ID " + deliveryMethodId + " n'a pas été trouvé."));
 
         // Check user existence
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + request.getUserId()));
 
-        // Check that the delivery type exists in the database
-        DeliveryType deliveryType = deliveryTypeRepository.findById(request.getDeliveryType().getId())
-                .orElseThrow(() -> new DeliveryTypeNotFoundException("Delivery type with ID " + request.getDeliveryType().getId() + " n'a pas été trouvé."));
-
-        // Check order amount
-        if (request.getOrderAmount() == null || request.getOrderAmount().compareTo(BigDecimal.ZERO) < 0) {
-            throw new CommandNotFoundException("The order amount is invalid.");
-        }
-
-        // Calculation of delivery cost (free delivery if order value >= €50)
-        BigDecimal finalDeliveryCost = request.getOrderAmount().compareTo(new BigDecimal("50.0")) >= 0
-                ? BigDecimal.ZERO
-                : deliveryType.getCost();
+        // Check that the delivery type exists
+        DeliveryType deliveryType = deliveryTypeRepository.findById(request.getDeliveryTypeId())
+                .orElseThrow(() -> new DeliveryTypeNotFoundException("Delivery type with ID " + request.getDeliveryTypeId() + " n'a pas été trouvé."));
 
         // Update delivery type
         existingDeliveryMethod.setDeliveryType(deliveryType);
 
-        // If the delivery type is a “PICKUP_POINT
         if (DeliveryName.PICKUP_POINT.equals(deliveryType.getDeliveryName())) {
-            // Check that the name and address of the collection point are supplied
+            // Check that the relay point information is correct
             if (request.getPickupPointName() == null || request.getPickupPointAddress() == null) {
                 throw new PickupPointNotFoundException("The name and address of the collection point are required.");
             }
 
-            // Update or create a new collection point
-            PickupPointDetails pickupPoint = existingDeliveryMethod.getPickupPointDetails();
-            if (pickupPoint == null) {
-                pickupPoint = new PickupPointDetails(
+            // Check if a relay point with the same name and address already exists
+            Optional<PickupPointDetails> existingPickupPoint = pickupPointDetailsRepository
+                    .findByPickupPointNameAndPickupPointAddress(request.getPickupPointName(), request.getPickupPointAddress());
+
+            PickupPointDetails pickupPoint = existingPickupPoint.orElseGet(() -> {
+                // Create a new relay point if none exists
+                PickupPointDetails newPickupPoint = new PickupPointDetails(
                         request.getPickupPointName(),
                         request.getPickupPointAddress(),
                         request.getPickupPointLatitude(),
                         request.getPickupPointLongitude()
                 );
-                pickupPointDetailsRepository.save(pickupPoint);
-            } else {
-                pickupPoint.setPickupPointName(request.getPickupPointName());
-                pickupPoint.setPickupPointAddress(request.getPickupPointAddress());
-                pickupPoint.setPickupPointLatitude(request.getPickupPointLatitude());
-                pickupPoint.setPickupPointLongitude(request.getPickupPointLongitude());
-                pickupPointDetailsRepository.save(pickupPoint); // Update the existing point of withdrawal
-            }
+                return pickupPointDetailsRepository.save(newPickupPoint);
+            });
 
+            // Associate the relay point with the delivery method
             existingDeliveryMethod.setPickupPointDetails(pickupPoint);
+            existingDeliveryMethod.setDeliveryAddress(null); // Delete home delivery address if necessary
+
         } else if (request.getAddressId() != null) {
-            // If it's not a collection point, we check the delivery address
+            // If we switch to home delivery
             DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.getAddressId())
                     .orElseThrow(() -> new DeliveryAddressNotFoundException("Delivery address not found with ID: " + request.getAddressId()));
+
             existingDeliveryMethod.setDeliveryAddress(deliveryAddress);
+
+            // We only delete the relationship with the relay point, but not the entry in the table
+            existingDeliveryMethod.setPickupPointDetails(null);
         } else {
             throw new IllegalArgumentException("A delivery address or collection point must be specified.");
         }
 
-        // Save updated delivery method
         DeliveryMethod updatedDeliveryMethod = deliveryMethodRepository.save(existingDeliveryMethod);
         logger.info("Delivery mode successfully updated for user ID: {}", user.getId());
 
@@ -214,7 +215,7 @@ public class DeliveryMethodService {
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new CartNotFoundException("Shopping cart not found."));
         cart.setDeliveryMethod(updatedDeliveryMethod);
-        cart.setDeliveryType(updatedDeliveryMethod.getDeliveryType()); // Update delivery_type_id in Cart
+        cart.setDeliveryType(updatedDeliveryMethod.getDeliveryType());
 
         cartRepository.save(cart);
 

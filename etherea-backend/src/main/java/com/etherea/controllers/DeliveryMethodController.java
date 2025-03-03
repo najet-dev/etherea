@@ -2,9 +2,7 @@ package com.etherea.controllers;
 
 import com.etherea.dtos.*;
 import com.etherea.enums.DeliveryName;
-import com.etherea.exception.CartNotFoundException;
-import com.etherea.exception.DeliveryAddressNotFoundException;
-import com.etherea.exception.UserNotFoundException;
+import com.etherea.exception.*;
 import com.etherea.models.DeliveryType;
 import com.etherea.services.DeliveryMethodService;
 import com.etherea.services.PickupPointService;
@@ -43,6 +41,17 @@ public class DeliveryMethodController {
         logger.info("Request received with userId: {}", userId);
 
         return deliveryMethodService.getDeliveryOptions(userId);
+    }
+    /**
+     * Retrieves available delivery methods for a given user.
+     *
+     * @param userId The ID of the user.
+     * @return List of available delivery methods as DeliveryMethodDTO objects.
+     */
+    @GetMapping("/methods/{userId}")
+    public ResponseEntity<List<DeliveryMethodDTO>> getUserDeliveryMethods(@PathVariable Long userId) {
+        List<DeliveryMethodDTO> deliveryMethods = deliveryMethodService.getUserDeliveryMethods(userId);
+        return ResponseEntity.ok(deliveryMethods);
     }
 
     /**
@@ -108,22 +117,29 @@ public class DeliveryMethodController {
     }
 
     /**
-     * Updates a delivery method for a given deliveryMethodId.
+     * Updates only the delivery type existing delivery method.
      *
-     * @param deliveryMethodId The ID of the delivery method to update.
-     * @param requestDTO       DTO containing updated details of the delivery method.
-     * @return ResponseEntity with updated DeliveryMethodDTO if successful, or error message if not found or validation fails.
+     * @param requestDTO DTO containing the updated delivery type information.
+     * @return ResponseEntity with updated DeliveryMethodDTO if successful, or an error message if validation fails.
      */
     @PutMapping("/update/{deliveryMethodId}")
-    public ResponseEntity<?> updateDeliveryMethod(@PathVariable Long deliveryMethodId, @RequestBody AddDeliveryMethodRequestDTO requestDTO) {
+    public ResponseEntity<?> updateDeliveryMethod(
+            @PathVariable Long deliveryMethodId,
+            @RequestBody UpdateDeliveryMethodRequestDTO requestDTO) {
+
         try {
+            // Assign URL ID to DTO before passing to service
+            requestDTO.setDeliveryMethodId(deliveryMethodId);
+
             DeliveryMethodDTO updatedDeliveryMethod = deliveryMethodService.updateDeliveryMethod(deliveryMethodId, requestDTO);
+
             return ResponseEntity.ok(updatedDeliveryMethod);
         } catch (UserNotFoundException | CartNotFoundException | DeliveryAddressNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
+            logger.error("Internal error while updating delivery method", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "An internal server error occurred."));
         }
     }

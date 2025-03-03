@@ -10,9 +10,9 @@
       </button>
     </div>
 
-    <!-- Colonne gauche : Adresse et modes de livraison -->
+    <!-- Left column: Address and delivery methods -->
     <div class="col-md-8">
-      <!-- Adresse de livraison -->
+      <!-- Delivery address -->
       <section>
         <h2 class="title-Adress">1. Adresse de livraison</h2>
         <div *ngIf="!isLoading">
@@ -41,16 +41,16 @@
         </div>
       </section>
 
-      <!-- Modes de livraison -->
-      <section *ngIf="!isLoading && deliveryMethod.length > 0">
+      <!-- Delivery methods -->
+      <section *ngIf="!isLoading && deliveryType.length > 0">
         <h2>2. Mode de livraison</h2>
         <form>
-          <ng-container *ngFor="let delivery of deliveryMethod">
+          <ng-container *ngFor="let delivery of deliveryType">
             <div
               class="mb-3"
               *ngIf="
                 !selectedDeliveryOption ||
-                selectedDeliveryOption === delivery.type
+                selectedDeliveryOption === delivery.deliveryName
               "
             >
               <div class="card">
@@ -64,16 +64,20 @@
                           type="radio"
                           class="form-check-input"
                           name="deliveryMode"
-                          [value]="delivery.type"
+                          [value]="delivery.deliveryName"
                           [(ngModel)]="selectedDeliveryOption"
-                          (change)="onDeliveryOptionChange(delivery.type)"
+                          (change)="
+                            onDeliveryOptionChange(delivery.deliveryName)
+                          "
                         />
                       </div>
                       <div class="ms-2">
-                        <h5 class="mb-1">{{ delivery.type }}</h5>
+                        <h5 class="mb-1">{{ delivery.deliveryName }}</h5>
                         <p class="text-muted mb-0">
                           Livraison à partir du :
-                          {{ delivery.deliveryDays | date : "longDate" }}
+                          {{
+                            delivery.estimatedDeliveryDate | date : "longDate"
+                          }}
                         </p>
                       </div>
                     </div>
@@ -83,7 +87,7 @@
                   <ng-container
                     *ngIf="
                       selectedDeliveryOption === 'PICKUP_POINT' &&
-                      delivery.type === 'PICKUP_POINT'
+                      delivery.deliveryName
                     "
                   >
                     <div *ngIf="!selectedPickupPoint" class="mt-3">
@@ -135,9 +139,9 @@
       </section>
     </div>
 
-    <!-- Colonne droite : Récapitulatif et produits -->
+    <!-- Right column: Summary and products -->
     <div class="col-md-4">
-      <!-- Liste des produits -->
+      <!-- List of products -->
       <section>
         <div class="card mb-4 product-card">
           <div class="card-body cardbody-color p-lg-4 product-list-container">
@@ -151,12 +155,12 @@
         </div>
       </section>
 
-      <!-- Récapitulatif commande (affiché sur grand écran) -->
+      <!-- Order summary (displayed on large screen) -->
       <section class="d-md-block">
         <div class="card rounded">
           <div class="card-body">
             <h4 class="title-order">Récapitulatif de la Commande</h4>
-            <!-- Mises à jour du calcul de frais de livraison -->
+            <!-- Delivery charge calculation updates -->
             <div class="summary-item">
               <div class="d-flex justify-content-between mb-2">
                 <span>Total</span>
@@ -178,7 +182,7 @@
   </div>
 </div>
 
-<!-- Modal pour le récapitulatif de la commande sur mobile -->
+<!-- Modal for mobile order summary -->
 <div
   class="modal fade"
   id="orderSummaryModal"
@@ -193,7 +197,7 @@
           Récapitulatif de la commande
         </h3>
 
-        <!-- Bouton de fermeture -->
+        <!-- Closing button -->
         <button
           type="button"
           class="btn btnRecapitulatif"
@@ -229,7 +233,7 @@
   </div>
 </div>
 
-<!-- Modal Choix Point Relais -->
+<!-- Modal Choice Pickup Point -->
 <div *ngIf="isModalOpen" class="custom-modal-overlay">
   <div class="custom-modal">
     <div class="custom-modal-header">
@@ -238,7 +242,7 @@
       </button>
     </div>
     <div class="custom-modal-body">
-      <!-- Spinner de chargement -->
+      <!-- Loading spinner -->
       <div *ngIf="isLoadingPickupPoints" class="text-center my-3">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Chargement...</span>
@@ -246,7 +250,7 @@
         <p>Chargement des points relais...</p>
       </div>
 
-      <!-- Liste des points relais (affichée une fois chargée) -->
+      <!-- List of relay points (displayed when loaded) -->
       <div *ngIf="!isLoadingPickupPoints && pickupPoints.length > 0">
         <div *ngFor="let point of pickupPoints" class="list-group">
           <button
@@ -259,7 +263,7 @@
         </div>
       </div>
 
-      <!-- Message si aucun point relais trouvé -->
+      <!-- Message if no pickup point found -->
       <p *ngIf="!isLoadingPickupPoints && pickupPoints.length === 0">
         Aucun point relais disponible.
       </p>

@@ -15,6 +15,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByName(String name);
 
     //Page<Product> findByTypeAndIsNew(ProductType type, boolean NEW, Pageable pageable);
-
-
 }

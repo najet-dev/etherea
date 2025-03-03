@@ -11,9 +11,9 @@ import java.util.Objects;
 public class DeliveryTypeDTO {
     private Long id;
     private DeliveryName deliveryName;
-    @Positive(message = "Le nombre de jours de livraison doit être positif.")
+    @Positive(message = "The number of delivery days must be positive.")
     private int deliveryDays;
-    @NotNull(message = "Le coût de livraison ne peut pas être nul.")
+    @NotNull(message = "The delivery cost cannot be null.")
     private BigDecimal cost;
     private LocalDate estimatedDeliveryDate;
     public DeliveryTypeDTO() {
@@ -45,7 +45,7 @@ public class DeliveryTypeDTO {
         this.estimatedDeliveryDate = estimatedDeliveryDate;
     }
     public static DeliveryTypeDTO fromEntity(DeliveryType deliveryType) {
-        Objects.requireNonNull(deliveryType, "Le type de livraison ne peut pas être nul.");
+        Objects.requireNonNull(deliveryType, "The delivery type cannot be null.");
         return new DeliveryTypeDTO(
                 deliveryType.getId(),
                 deliveryType.getDeliveryName(),
@@ -54,7 +54,6 @@ public class DeliveryTypeDTO {
                 LocalDate.now().plusDays(deliveryType.getDeliveryDays())
         );
     }
-
     public DeliveryType toEntity() {
         return new DeliveryType(deliveryName, deliveryDays, cost);
     }

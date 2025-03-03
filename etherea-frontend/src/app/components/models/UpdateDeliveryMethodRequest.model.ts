@@ -1,9 +1,7 @@
-import { DeliveryType } from './DeliveryType.enum';
-
 export interface UpdateDeliveryMethodRequest {
   userId: number;
   deliveryMethodId: number;
-  deliveryType: DeliveryType;
+  deliveryTypeId: number;
   addressId?: number;
   pickupPointName?: string;
   pickupPointAddress?: string;

@@ -1,47 +1,38 @@
 package com.etherea.dtos;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-
-import java.math.BigDecimal;
-
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class AddDeliveryMethodRequestDTO {
-    @NotNull(message = "User ID cannot be null.")
-    @Positive(message = "The user ID must be a positive number.")
+public class UpdateDeliveryMethodRequestDTO {
     private Long userId;
-    @NotNull(message = "The delivery type ID cannot be null.")
-    @Positive(message = "The delivery type ID must be a positive number.")
+    private Long deliveryMethodId;
     private Long deliveryTypeId;
     private Long addressId;
     private String pickupPointName;
     private String pickupPointAddress;
     private Double pickupPointLatitude;
     private Double pickupPointLongitude;
-    @NotNull(message = "The order amount cannot be null.")
-    @Min(value = 0, message = "The order amount cannot be negative.")
-    private BigDecimal orderAmount;
-    public AddDeliveryMethodRequestDTO() {}
-    public AddDeliveryMethodRequestDTO(Long userId, Long deliveryTypeId, Long addressId,
-                                       String pickupPointName, String pickupPointAddress,
-                                       Double pickupPointLatitude, Double pickupPointLongitude,
-                                       BigDecimal orderAmount) {
+    public UpdateDeliveryMethodRequestDTO() {}
+    public UpdateDeliveryMethodRequestDTO(Long userId, Long deliveryMethodId, Long deliveryTypeId,
+                                          Long addressId, String pickupPointName, String pickupPointAddress,
+                                          Double pickupPointLatitude, Double pickupPointLongitude) {
         this.userId = userId;
+        this.deliveryMethodId = deliveryMethodId;
         this.deliveryTypeId = deliveryTypeId;
         this.addressId = addressId;
         this.pickupPointName = pickupPointName;
         this.pickupPointAddress = pickupPointAddress;
         this.pickupPointLatitude = pickupPointLatitude;
         this.pickupPointLongitude = pickupPointLongitude;
-        this.orderAmount = orderAmount;
     }
     public Long getUserId() {
         return userId;
     }
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+    public Long getDeliveryMethodId() {
+        return deliveryMethodId;
+    }
+    public void setDeliveryMethodId(Long deliveryMethodId) {
+        this.deliveryMethodId = deliveryMethodId;
     }
     public Long getDeliveryTypeId() {
         return deliveryTypeId;
@@ -79,11 +70,4 @@ public class AddDeliveryMethodRequestDTO {
     public void setPickupPointLongitude(Double pickupPointLongitude) {
         this.pickupPointLongitude = pickupPointLongitude;
     }
-    public BigDecimal getOrderAmount() {
-        return orderAmount;
-    }
-    public void setOrderAmount(BigDecimal orderAmount) {
-        this.orderAmount = orderAmount;
-    }
-
 }
