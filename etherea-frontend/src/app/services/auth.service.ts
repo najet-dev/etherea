@@ -108,7 +108,7 @@ export class AuthService {
           'Erreur lors de la récupération de l’utilisateur actuel :',
           error
         );
-        return of(null); // Retourner null en cas d'erreur
+        return of(null);
       })
     );
   }

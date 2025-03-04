@@ -1,0 +1,49 @@
+/* Conteneur principal des infos */
+.info-container {
+  background: white;
+  padding: 10px 15px;
+}
+
+/* Ligne contenant l'info */
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+/* Label (Email / Mot de passe) */
+.info-label {
+  font-size: 14px;
+  color: #666;
+}
+.form-control {
+  border: none;
+  border-bottom: 1px solid rgb(186, 183, 183);
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 16px;
+  padding: 10px;
+  width: 100%;
+}
+.form-control:focus {
+  border-bottom: 2px solid var(--main-color);
+  outline: none;
+  box-shadow: none;
+}
+.btn-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+.error-message {
+  font-size: 14px;
+  color: red;
+  text-align: center;
+}
+
+.success-message {
+  font-size: 15px;
+  color: green;
+  text-align: center;
+}

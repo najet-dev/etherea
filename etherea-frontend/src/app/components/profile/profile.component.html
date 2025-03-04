@@ -1,1 +1,76 @@
-<app-sidebar></app-sidebar>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Bouton pour ouvrir le menu sur mobile -->
+    <button
+      class="btn btnFavorite d-md-none my-3"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileSidebar"
+    >
+      Menu
+    </button>
+
+    <!-- Sidebar responsive (offcanvas sur mobile) -->
+    <div class="offcanvas offcanvas-start d-md-none" id="mobileSidebar">
+      <div class="offcanvas-header">
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <app-sidebar></app-sidebar>
+      </div>
+    </div>
+
+    <!-- Sidebar classique sur desktop -->
+    <div class="col-md-4 col-lg-3 d-none d-md-block">
+      <app-sidebar></app-sidebar>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="col-md-8 col-lg-9">
+      <div class="container mt-5">
+        <div class="row">
+          <div class="col-12 text-center">
+            <h2>Mes informations</h2>
+          </div>
+        </div>
+
+        <div class="row justify-content-center mt-4">
+          <div class="col-12 col-md-8 col-lg-6">
+            <form class="info-container">
+              <!-- Trait du haut -->
+              <div class="separator"></div>
+
+              <!-- Champ Email -->
+              <div class="info-row">
+                <span class="info-label">E-mail</span>
+                <span>{{ user?.username }}</span>
+                <a routerLink="/email" class="arrow-icon">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </div>
+
+              <!-- Trait entre email et mot de passe -->
+              <div class="separator"></div>
+
+              <!-- Champ Mot de passe -->
+              <div class="info-row">
+                <span class="info-label">Mot de passe</span>
+                <span class="info-value">********</span>
+                <a class="arrow-icon">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </div>
+
+              <!-- Trait du bas -->
+              <div class="separator"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

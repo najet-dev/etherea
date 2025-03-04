@@ -52,13 +52,15 @@ export class OrderComponent implements OnInit {
     this.initializeForm();
 
     this.appFacade
-      .getCurrentUserId()
+      .getCurrentUserDetails() // Utilisation de la nouvelle méthode
       .pipe(
-        tap((userId) => {
-          this.userId = userId;
-          if (userId) this.loadUserDetails(userId);
+        tap((user) => {
+          if (user) {
+            this.userId = user.id;
+            this.loadUserDetails(user.id);
+          }
         }),
-        catchError((error) => this.handleError('ID utilisateur', error))
+        catchError((error) => this.handleError('Détails utilisateur', error))
       )
       .subscribe();
   }
@@ -126,7 +128,6 @@ export class OrderComponent implements OnInit {
   loadCartData(userId: number) {
     this.cartItemService.loadCartItems(userId).subscribe({
       next: () => {
-        // abonnement au BehaviorSubject pour obtenir le total à jour
         this.cartItemService.cartTotal.subscribe((total) => {
           this.cartTotal = total;
         });
@@ -232,6 +233,7 @@ export class OrderComponent implements OnInit {
       'Une erreur est survenue. Veuillez réessayer plus tard.';
     return of(null);
   }
+
   toggleSummaryPopup() {
     this.showSummaryPopup = !this.showSummaryPopup;
   }
