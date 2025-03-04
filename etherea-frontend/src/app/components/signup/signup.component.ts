@@ -12,13 +12,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrls: ['./signup.component.css'],
 })
 export class SignupComponent implements OnInit {
-  errorMessage: string = ''; // Message d'erreur pour afficher les erreurs
-  signupForm!: FormGroup; // Formulaire d'inscription
+  errorMessage: string = '';
+  signupForm!: FormGroup;
   submitted = false; // Indicateur pour savoir si le formulaire a été soumis
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
   public errorMessages = {
-    // Messages d'erreur pour les champs du formulaire
     firstName: [{ type: 'required', message: 'Prénom requis' }],
     lastName: [{ type: 'required', message: 'Nom requis' }],
     username: [
@@ -45,43 +44,36 @@ export class SignupComponent implements OnInit {
     private formBuilder: FormBuilder
   ) {}
 
-  get firstName() {
-    // Méthode pour récupérer le champ du prénom du formulaire
-    return this.signupForm.get('firstName');
-  }
-
   get lastName() {
-    // Méthode pour récupérer le champ du nom du formulaire
     return this.signupForm.get('lastName');
   }
 
+  get firstName() {
+    return this.signupForm.get('firstName');
+  }
+
   get username() {
-    // Méthode pour récupérer le champ de l'email du formulaire
     return this.signupForm.get('username');
   }
 
   get password() {
-    // Méthode pour récupérer le champ du mot de passe du formulaire
     return this.signupForm.get('password');
   }
 
   ngOnInit() {
-    // Méthode du cycle de vie d'Angular appelée après l'initialisation du composant
     this.authService.AuthenticatedUser$.pipe(
       tap((user) => {
-        // Traitement lorsque de nouvelles données sont émises par l'observable
         if (user) {
           // Si un utilisateur est authentifié
           this.router.navigate(['/']);
         }
       }),
-      takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
 
     this.signupForm = this.formBuilder.group({
-      // Initialisation du formulaire d'inscription avec les champs et les validateurs requis
-      firstName: ['', [Validators.required]], // Champ du prénom avec validation de la présence
       lastName: ['', [Validators.required]],
+      firstName: ['', [Validators.required]],
       username: ['', [Validators.required, Validators.email]],
       password: [
         '',
@@ -97,8 +89,8 @@ export class SignupComponent implements OnInit {
   }
 
   onSubmit() {
-    // Méthode appelée lorsque le formulaire est soumis
-    this.submitted = true; // Indique que le formulaire a été soumis
+    // Indique que le formulaire a été soumis
+    this.submitted = true;
 
     if (this.signupForm.invalid) {
       // Vérifie si le formulaire est invalide
@@ -115,10 +107,8 @@ export class SignupComponent implements OnInit {
           },
           error: (err) => {
             if (err.status === 401) {
-              // Le statut 401 indique une authentification invalide
               this.errorMessage = "L'email ou le mot de passe est invalide.";
             } else {
-              // Pour toutes les autres erreurs, afficher un message générique
               this.errorMessage =
                 'Une erreur est survenue. Veuillez réessayer plus tard.';
             }

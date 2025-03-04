@@ -24,9 +24,7 @@ export class CreamComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   constructor(
-    private productService: ProductService,
     private authService: AuthService,
-    private favoriteService: FavoriteService,
     private appFacade: AppFacade,
     private router: Router,
     public productTypeService: ProductTypeService

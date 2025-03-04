@@ -42,20 +42,18 @@ export class PaymentComponent implements OnInit {
   async ngOnInit() {
     console.log('PaymentComponent initialisé.');
     try {
-      // Récupérer l'ID de l'utilisateur
-      const userId: number | null = await firstValueFrom(
-        this.appFacade.getCurrentUser()
+      // Récupérer les détails de l'utilisateur
+      const userDetails = await firstValueFrom(
+        this.appFacade.getCurrentUserDetails()
       );
 
-      if (!userId) {
+      if (!userDetails) {
         throw new Error('Utilisateur non authentifié.');
       }
 
-      const user = await firstValueFrom(this.appFacade.getUserDetails(userId));
-
-      if (user && user.lastName && user.firstName) {
-        this.userLastName = user.lastName;
-        this.userFirstName = user.firstName;
+      if (userDetails.lastName && userDetails.firstName) {
+        this.userLastName = userDetails.lastName;
+        this.userFirstName = userDetails.firstName;
       }
     } catch (error) {
       console.error(
@@ -118,15 +116,17 @@ export class PaymentComponent implements OnInit {
       }
 
       try {
-        const userId: number | null = await firstValueFrom(
-          this.appFacade.getCurrentUser()
+        const userDetails = await firstValueFrom(
+          this.appFacade.getCurrentUserDetails()
         );
 
-        if (!userId) {
+        if (!userDetails) {
           throw new Error('Utilisateur non authentifié.');
         }
 
-        const cartId = await firstValueFrom(this.appFacade.getCartId(userId));
+        const cartId = await firstValueFrom(
+          this.appFacade.getCartId(userDetails.id)
+        );
 
         if (!cartId) {
           throw new Error('Le panier est introuvable.');
@@ -206,11 +206,11 @@ export class PaymentComponent implements OnInit {
       this.cardCvcElement?.clear();
 
       // Rafraîchir les données du panier
-      const userId: number | null = await firstValueFrom(
-        this.appFacade.getCurrentUser()
+      const userDetails = await firstValueFrom(
+        this.appFacade.getCurrentUserDetails()
       );
-      if (userId) {
-        this.cartService.refreshCart(userId); // fonction pour rafraîchir le panier
+      if (userDetails) {
+        this.cartService.refreshCart(userDetails.id); // fonction pour rafraîchir le panier
       }
     } catch (error: any) {
       this.errorMessage = error.message || 'Erreur de paiement.';

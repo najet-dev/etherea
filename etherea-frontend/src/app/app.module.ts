@@ -42,6 +42,7 @@ import { NgxStripeModule } from 'ngx-stripe';
 import { environment } from '../environments/environment';
 import { CommonModule } from '@angular/common';
 import { PaymentComponent } from './components/payment/payment.component';
+import { EmailComponent } from './components/email/email.component';
 
 @NgModule({
   declarations: [
@@ -66,6 +67,7 @@ import { PaymentComponent } from './components/payment/payment.component';
     DeliveryMethodComponent,
     ProductDisplayComponent,
     PaymentComponent,
+    EmailComponent,
   ],
   imports: [
     CommonModule,
