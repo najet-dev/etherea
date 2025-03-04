@@ -15,7 +15,7 @@ export class SigninComponent implements OnInit {
   errorMessage: string = '';
   loginForm!: FormGroup;
   submitted = false;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
   public errorMessages = {
     username: [
@@ -57,7 +57,7 @@ export class SigninComponent implements OnInit {
           this.router.navigate(['/']);
         }
       }),
-      takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe();
 
     this.loginForm = this.formBuilder.group({
@@ -92,16 +92,14 @@ export class SigninComponent implements OnInit {
           },
           error: (err) => {
             if (err.status === 401) {
-              // Le statut 401 indique une authentification invalide
               this.errorMessage = "L'email ou le mot de passe est invalide.";
             } else {
-              // Pour toutes les autres erreurs, afficher un message générique
               this.errorMessage =
                 'Une erreur est survenue. Veuillez réessayer plus tard.';
             }
           },
         }),
-        takeUntilDestroyed(this.destroyRef) // Use takeUntilDestroyed
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }

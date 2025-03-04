@@ -10,6 +10,7 @@ import { SigninComponent } from './components/signin/signin.component';
 import { FavoriteComponent } from './components/favorite/favorite.component';
 import { OrderComponent } from './components/order/order.component';
 import { DeliveryMethodComponent } from './components/delivery-method/delivery-method.component';
+import { EmailComponent } from './components/email/email.component';
 
 const routes: Routes = [
   {
@@ -29,6 +30,7 @@ const routes: Routes = [
   { path: 'order', component: OrderComponent },
   { path: 'order/:addressId', component: OrderComponent },
   { path: 'deliveryMethod/:addressId', component: DeliveryMethodComponent },
+  { path: 'email', component: EmailComponent },
 
   {
     path: 'cream',

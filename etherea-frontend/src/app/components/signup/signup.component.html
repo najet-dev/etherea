@@ -14,26 +14,6 @@
           <div class="mb-3">
             <input
               type="text"
-              formControlName="firstName"
-              class="form-control"
-              id="firstName"
-              placeholder="Prénom"
-            />
-            <div *ngFor="let error of errorMessages.firstName">
-              <div
-                *ngIf="
-                  signupForm.get('firstName')?.hasError(error.type) &&
-                  (signupForm.get('firstName')?.dirty ||
-                    signupForm.get('firstName')?.touched)
-                "
-              >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
-            </div>
-          </div>
-          <div class="mb-3">
-            <input
-              type="text"
               formControlName="lastName"
               class="form-control"
               id="lastName"
@@ -51,6 +31,27 @@
               </div>
             </div>
           </div>
+          <div class="mb-3">
+            <input
+              type="text"
+              formControlName="firstName"
+              class="form-control"
+              id="firstName"
+              placeholder="Prénom"
+            />
+            <div *ngFor="let error of errorMessages.firstName">
+              <div
+                *ngIf="
+                  signupForm.get('firstName')?.hasError(error.type) &&
+                  (signupForm.get('firstName')?.dirty ||
+                    signupForm.get('firstName')?.touched)
+                "
+              >
+                <small class="error-message">{{ error.message }}</small>
+              </div>
+            </div>
+          </div>
+
           <div class="mb-3">
             <input
               type="email"

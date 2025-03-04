@@ -130,16 +130,14 @@ export class AppFacade {
   }
 
   // User
-  getCurrentUser(): Observable<number | null> {
-    return this.userService.getCurrentUser();
+  getCurrentUserDetails(): Observable<SignupRequest | null> {
+    return this.userService.getCurrentUserDetails();
   }
+
   getUserDetails(userId: number): Observable<SignupRequest | null> {
     return this.userService.getUserDetails(userId);
   }
 
-  getCurrentUserId(): Observable<number | null> {
-    return this.userService.getCurrentUser();
-  }
   //Method
   getDeliveryTypes(userId: number): Observable<DeliveryType[]> {
     return this.deliveryMethodService.getDeliveryTypes(userId);
