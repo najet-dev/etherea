@@ -26,7 +26,7 @@ import java.util.Map;
 public class CartItemController {
     @Autowired
     private CartItemService cartItemService;
-    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CartItemController.class);
     @GetMapping("/{userId}")
     public ResponseEntity<List<CartItemDTO>> getUserCart(@PathVariable Long userId) {
         try {
