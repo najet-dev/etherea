@@ -7,9 +7,22 @@
           class="nav-link text-dark"
           routerLink="/profile"
           routerLinkActive="active"
+          [class.active]="isInformationsActive()"
         >
           <i class="fas fa-info-circle mr-2"></i>
           Mes informations
+          <span class="greater-symbol">&gt;</span>
+        </a>
+        <hr class="category-divider" />
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link text-dark"
+          routerLink="/------------------"
+          routerLinkActive="active"
+        >
+          <i class="fas fa-heart mr-2"></i>
+          Mes adresses
           <span class="greater-symbol">&gt;</span>
         </a>
         <hr class="category-divider" />
