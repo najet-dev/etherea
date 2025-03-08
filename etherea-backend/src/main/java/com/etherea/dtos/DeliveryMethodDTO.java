@@ -51,7 +51,7 @@ public class DeliveryMethodDTO {
         this.pickupPointDetails = pickupPointDetails;
     }
     public static DeliveryMethodDTO fromEntity(DeliveryMethod deliveryMethod) {
-        Objects.requireNonNull(deliveryMethod, "Le mode de livraison ne peut pas être nul.");
+        Objects.requireNonNull(deliveryMethod, "Le mode de livraison ne peut pas être null.");
 
         return new DeliveryMethodDTO(
                 deliveryMethod.getId(),
@@ -64,7 +64,7 @@ public class DeliveryMethodDTO {
     public DeliveryMethod toEntity() {
         return new DeliveryMethod(
                 deliveryType.toEntity(),
-                null,  // L'utilisateur sera lié ailleurs
+                null,
                 deliveryAddress != null ? deliveryAddress.toDeliveryAddress() : null,
                 pickupPointDetails != null ? pickupPointDetails.toEntity() : null
         );
