@@ -11,6 +11,7 @@ import { FavoriteComponent } from './components/favorite/favorite.component';
 import { OrderComponent } from './components/order/order.component';
 import { DeliveryMethodComponent } from './components/delivery-method/delivery-method.component';
 import { EmailComponent } from './components/email/email.component';
+import { PasswordComponent } from './components/password/password.component';
 
 const routes: Routes = [
   {
@@ -31,6 +32,7 @@ const routes: Routes = [
   { path: 'order/:addressId', component: OrderComponent },
   { path: 'deliveryMethod/:addressId', component: DeliveryMethodComponent },
   { path: 'email', component: EmailComponent },
+  { path: 'password', component: PasswordComponent },
 
   {
     path: 'cream',

@@ -33,7 +33,6 @@ export class EmailComponent implements OnInit {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private router: Router,
     private formBuilder: FormBuilder
   ) {}
 

@@ -1,0 +1,83 @@
+<!-- Section Infos Rapides -->
+<section class="quick-info">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 col-sm-12 text-center">
+        <i class="fas fa-truck"></i>
+        <h5>LIVRAISON OFFERTE</h5>
+        <p>À partir de 50€ d'achat</p>
+      </div>
+      <div class="col-md-4 col-sm-12 text-center">
+        <i class="fas fa-check-circle"></i>
+        <h5>ENGAGEMENT QUALITÉ</h5>
+        <p>Qualité garantie sur tous nos produits</p>
+      </div>
+      <div class="col-md-4 col-sm-12 text-center">
+        <i class="fas fa-credit-card"></i>
+        <h5>PAIEMENT SÉCURISÉ</h5>
+        <p>Visa, Mastercard, Paypal</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer Principal -->
+<footer class="footer">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3 col-sm-6 footer-section">
+        <h5 class="footer-toggle" (click)="toggleSection('apropos')">
+          À PROPOS <i id="apropos-icon" class="fas fa-chevron-down"></i>
+        </h5>
+        <ul class="list-unstyled" id="apropos">
+          <li><a href="#">Notre histoire</a></li>
+          <li><a href="#">Nos conseils</a></li>
+          <li><a href="#">Contactez-nous</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 col-sm-6 footer-section">
+        <h5 class="footer-toggle" (click)="toggleSection('informations')">
+          INFORMATIONS
+          <i id="informations-icon" class="fas fa-chevron-down"></i>
+        </h5>
+        <ul class="list-unstyled" id="informations">
+          <li><a href="#">Mentions légales et cookies</a></li>
+          <li><a href="#">Conditions générales de ventes</a></li>
+          <li><a href="#">Livraisons et retours</a></li>
+          <li><a href="#">La marque</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 col-sm-6 footer-section">
+        <h5 class="footer-toggle" (click)="toggleSection('support')">
+          SUPPORT <i id="support-icon" class="fas fa-chevron-down"></i>
+        </h5>
+        <ul class="list-unstyled" id="support">
+          <li><a href="#">FAQ</a></li>
+          <li><a href="#">Suivi de commande</a></li>
+          <li><a href="#">Service client</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 col-sm-6 newsletter-section">
+        <h5>S'inscrire à la newsletter</h5>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Votre email" required />
+          <button type="submit">S'abonner</button>
+        </form>
+      </div>
+    </div>
+    <!-- Section Réseaux Sociaux -->
+    <div class="social-links text-center mt-4">
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-twitter"></i></a>
+      <a href="#"><i class="fab fa-youtube"></i></a>
+    </div>
+    <!-- Copyright -->
+    <div class="text-center mt-3">
+      <p>© 2024 Etherea. Tous droits réservés.</p>
+    </div>
+  </div>
+</footer>

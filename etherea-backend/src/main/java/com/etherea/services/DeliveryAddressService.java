@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class DeliveryAddressService {
-
     @Autowired
     private DeliveryAddressRepository deliveryAddressRepository;
     @Autowired

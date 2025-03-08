@@ -12,9 +12,7 @@ public class CommandRequestDTO {
     private Long paymentMethodId;
     private CartDTO cart;
     private BigDecimal total = BigDecimal.ZERO;
-
     public CommandRequestDTO() {}
-
     public CommandRequestDTO(LocalDateTime commandDate, String referenceCode, CommandStatus status,
                              Long deliveryAddressId, Long paymentMethodId, CartDTO cart) {
         this.commandDate = commandDate != null ? commandDate : LocalDateTime.now();
