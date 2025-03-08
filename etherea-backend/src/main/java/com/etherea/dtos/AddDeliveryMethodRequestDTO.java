@@ -85,5 +85,4 @@ public class AddDeliveryMethodRequestDTO {
     public void setOrderAmount(BigDecimal orderAmount) {
         this.orderAmount = orderAmount;
     }
-
 }

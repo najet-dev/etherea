@@ -1,14 +1,9 @@
 package com.etherea.services;
 
-import com.etherea.dtos.CartDTO;
 import com.etherea.dtos.CartItemDTO;
-import com.etherea.dtos.CommandRequestDTO;
 import com.etherea.dtos.VolumeDTO;
-import com.etherea.enums.CommandStatus;
 import com.etherea.enums.ProductType;
 import com.etherea.exception.CartItemNotFoundException;
-import com.etherea.exception.DeliveryAddressNotFoundException;
-import com.etherea.exception.CartNotFoundException;
 import com.etherea.exception.VolumeNotFoundException;
 import com.etherea.models.*;
 import com.etherea.exception.ProductNotFoundException;
@@ -21,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 

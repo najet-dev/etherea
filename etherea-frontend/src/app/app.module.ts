@@ -43,6 +43,8 @@ import { environment } from '../environments/environment';
 import { CommonModule } from '@angular/common';
 import { PaymentComponent } from './components/payment/payment.component';
 import { EmailComponent } from './components/email/email.component';
+import { PasswordComponent } from './components/password/password.component';
+import { FooterComponent } from './components/footer/footer.component';
 
 @NgModule({
   declarations: [
@@ -68,6 +70,8 @@ import { EmailComponent } from './components/email/email.component';
     ProductDisplayComponent,
     PaymentComponent,
     EmailComponent,
+    PasswordComponent,
+    FooterComponent,
   ],
   imports: [
     CommonModule,

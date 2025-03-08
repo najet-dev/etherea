@@ -1,4 +1,3 @@
-/* Conteneur principal des infos */
 .info-container {
   background: white;
   padding: 10px 15px;
@@ -33,9 +32,9 @@
 
 /* Flèche à droite */
 .arrow-icon {
+  color: var(--bg-color);
   font-size: 18px;
   text-decoration: none;
-  color: var(--bg-color);
 }
 
 .arrow-icon:hover {

@@ -14,6 +14,7 @@ import { SignupRequest } from '../components/models/SignupRequest.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UpdateEmailRequest } from '../components/models/UpdateEmailRequest.model';
 import { StorageService } from './storage.service';
+import { UpdatePasswordRequest } from '../components/models/UpdatePasswordRequest.model';
 
 @Injectable({
   providedIn: 'root',
@@ -101,6 +102,44 @@ export class UserService {
             errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
           }
           console.error('Erreur mise à jour email :', error);
+          return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+  updatePassword(
+    updatePasswordRequest: UpdatePasswordRequest
+  ): Observable<string> {
+    const url = `${this.apiUrl}/users/update-password`;
+    const token = this.storageService.getToken();
+
+    if (!token) {
+      return throwError(
+        () =>
+          new Error('Utilisateur non authentifié. Veuillez vous reconnecter.')
+      );
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+    updatePasswordRequest.token = token;
+
+    return this.httpClient
+      .put<string>(url, updatePasswordRequest, { headers })
+      .pipe(
+        tap(() => console.log('Mot de passe mis à jour avec succès')),
+        catchError((error) => {
+          let errorMessage =
+            'Erreur inconnue lors de la mise à jour du mot de passe.';
+          if (error.status === 400) {
+            errorMessage = "L'ancien mot de passe est incorrect.";
+          } else if (error.status === 401) {
+            errorMessage = 'Session expirée. Veuillez vous reconnecter.';
+          } else if (error.status === 500) {
+            errorMessage = 'Erreur serveur. Veuillez réessayer plus tard.';
+          }
+          console.error('Erreur mise à jour mot de passe :', error);
           return throwError(() => new Error(errorMessage));
         })
       );
