@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
+@Table(name = "cookie_consent", uniqueConstraints = @UniqueConstraint(columnNames = "userId"))
 public class CookieConsent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

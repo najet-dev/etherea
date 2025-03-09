@@ -12,7 +12,6 @@ public class CookieChoice {
     private String cookieName;
     @Column(nullable = false)
     private boolean accepted;
-
     @ManyToOne
     @JoinColumn(name = "cookie_consent_id", nullable = false)
     private CookieConsent cookieConsent;

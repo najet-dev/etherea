@@ -1,10 +1,7 @@
 package com.etherea.dtos;
 
 import com.etherea.models.CookieChoice;
-import com.etherea.models.CookieConsent;
-
 import java.util.Objects;
-
 public class CookieChoiceDTO {
     private String cookieName;
     private boolean accepted;

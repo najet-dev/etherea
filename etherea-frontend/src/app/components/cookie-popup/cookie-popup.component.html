@@ -1,0 +1,29 @@
+<div class="cookie-consent" *ngIf="showPopup">
+  <button class="close-btn" (click)="showPopup = false">✖</button>
+  <a (click)="showPopup = false">Continuer sans accepter</a>
+
+  <div>
+    <h2>Bienvenue chez Etherea</h2>
+    <p>
+      Pour vous proposer une belle expérience client et comprendre ce que vous
+      aimez le plus sur notre site, nous utilisons des cookies. Et comme nos
+      soins, ils sont personnalisables. Êtes-vous d'accord ?
+    </p>
+    <small>
+      Vous pourrez modifier vos préférences plus tard en cliquant sur
+      <strong>"Préférences de cookies"</strong> en pied de page.
+    </small>
+    <p>
+      <a href="/politique-confidentialite"
+        >Lire la politique de confidentialité</a
+      >
+    </p>
+
+    <!-- Boutons d'action -->
+    <div>
+      <p>Voulez-vous accepter tous les cookies ?</p>
+      <button (click)="acceptAllCookies()">Accepter tout</button>
+      <button (click)="showPopup = false">Personnaliser</button>
+    </div>
+  </div>
+</div>

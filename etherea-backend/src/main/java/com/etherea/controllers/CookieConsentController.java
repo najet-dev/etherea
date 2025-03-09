@@ -3,8 +3,13 @@ package com.etherea.controllers;
 import com.etherea.dtos.CookieConsentDTO;
 import com.etherea.dtos.SaveCookieConsentRequestDTO;
 import com.etherea.services.CookieConsentService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Controller for managing user cookie consent.
@@ -24,6 +29,17 @@ public class CookieConsentController {
         this.cookieConsentService = cookieConsentService;
     }
 
+    @GetMapping("/{userId}")
+    public ResponseEntity<CookieConsentDTO> getUserConsent(@PathVariable Long userId) {
+        CookieConsentDTO consent = cookieConsentService.getConsentForUser(userId);
+        return consent != null ? ResponseEntity.ok(consent) : ResponseEntity.notFound().build();
+    }
+    @GetMapping("/config")
+    public ResponseEntity<Map<String, List<String>>> getCookiesConfig() {
+        Map<String, List<String>> cookiesConfig = cookieConsentService.getCookiesConfig();
+        return ResponseEntity.ok(cookiesConfig);
+    }
+
     /**
      * Accepts all cookies, including non-essential ones.
      *
@@ -31,7 +47,7 @@ public class CookieConsentController {
      * @return ResponseEntity containing updated cookie consent details
      */
     @PostMapping("/accept-all")
-    public ResponseEntity<CookieConsentDTO> acceptAllCookies(@RequestBody SaveCookieConsentRequestDTO request) {
+    public ResponseEntity<CookieConsentDTO> acceptAllCookies(@Valid @RequestBody SaveCookieConsentRequestDTO request) {
         return ResponseEntity.ok(cookieConsentService.acceptAllCookies(request));
     }
 

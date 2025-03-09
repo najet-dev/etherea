@@ -45,6 +45,9 @@ import { PaymentComponent } from './components/payment/payment.component';
 import { EmailComponent } from './components/email/email.component';
 import { PasswordComponent } from './components/password/password.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { LegalInformationComponent } from './components/legal-information/legal-information.component';
+import { CookiesComponent } from './components/cookies/cookies.component';
+import { CookiePopupComponent } from './components/cookie-popup/cookie-popup.component';
 
 @NgModule({
   declarations: [
@@ -72,6 +75,9 @@ import { FooterComponent } from './components/footer/footer.component';
     EmailComponent,
     PasswordComponent,
     FooterComponent,
+    LegalInformationComponent,
+    CookiesComponent,
+    CookiePopupComponent,
   ],
   imports: [
     CommonModule,

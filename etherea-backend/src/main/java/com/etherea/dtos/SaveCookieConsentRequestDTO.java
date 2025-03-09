@@ -12,11 +12,9 @@ public class SaveCookieConsentRequestDTO {
         this.policyVersion = policyVersion;
         this.cookieChoices = (cookieChoices != null) ? cookieChoices : List.of();
     }
-
     public Long getUserId() {
         return userId;
     }
-
     public void setUserId(Long userId) {
         this.userId = userId;
     }

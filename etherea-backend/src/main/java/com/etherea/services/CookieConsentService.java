@@ -6,27 +6,50 @@ import com.etherea.dtos.SaveCookieConsentRequestDTO;
 import com.etherea.models.CookieChoice;
 import com.etherea.models.CookieConsent;
 import com.etherea.repositories.CookieConsentRepository;
+import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 @Service
 public class CookieConsentService {
+    private static final Logger logger = LoggerFactory.getLogger(CookieConsentService.class);
     private final CookieConsentRepository cookieConsentRepository;
+    @Value("#{'${cookie.essential}'.split(',')}")
+    private List<String> essentialCookies;
+
+    @Value("#{'${cookie.non-essential}'.split(',')}")
+    private List<String> nonEssentialCookies;
+
     public CookieConsentService(CookieConsentRepository cookieConsentRepository) {
         this.cookieConsentRepository = cookieConsentRepository;
     }
-
+    @Transactional(readOnly = true)
+    public CookieConsentDTO getConsentForUser(Long userId) {
+        return cookieConsentRepository.findByUserId(userId)
+                .map(CookieConsentDTO::fromEntity)
+                .orElseThrow(() -> new EntityNotFoundException("Consent not found for user ID: " + userId));
+    }
     /**
-     * Accepts all cookies (including non-essential ones).
-     *
-     * @param request Contains user ID and cookie policy version.
-     * @return CookieConsentDTO representing the current consent status.
+     * Récupère la configuration des cookies (essentiels et non-essentiels).
+     * @return Map contenant les cookies essentiels et non-essentiels
      */
+    public Map<String, List<String>> getCookiesConfig() {
+        Map<String, List<String>> cookiesConfig = new HashMap<>();
+        cookiesConfig.put("essential", essentialCookies);
+        cookiesConfig.put("non-essential", nonEssentialCookies);
+        return cookiesConfig;
+    }
     @Transactional
     public CookieConsentDTO acceptAllCookies(SaveCookieConsentRequestDTO request) {
         CookieConsent existingConsent = cookieConsentRepository.findByUserId(request.getUserId())
@@ -36,48 +59,32 @@ public class CookieConsentService {
         existingConsent.setCookiePolicyVersion(request.getPolicyVersion());
         existingConsent.setConsentDate(LocalDateTime.now());
 
-        // Pre-defined list of cookies to accept
-        List<String> allCookies = Stream.concat(ESSENTIAL_COOKIES.stream(), NON_ESSENTIAL_COOKIES.stream())
+        List<String> allCookies = Stream.concat(essentialCookies.stream(), nonEssentialCookies.stream())
                 .toList();
 
-        // Retrieve current choices from existing consent
-        List<CookieChoice> currentChoices = existingConsent.getCookies();
+        if (existingConsent.getCookies() == null) {
+            existingConsent.setCookies(new ArrayList<>());
+        }
 
-        // Update existing cookies or add new ones
         List<CookieChoice> updatedChoices = allCookies.stream()
-                .map(cookieName -> {
-                    // Check if the cookie already exists in current choices
-                    CookieChoice existingChoice = currentChoices.stream()
-                            .filter(choice -> choice.getCookieName().equals(cookieName))
-                            .findFirst()
-                            .orElse(null);
-
-                    if (existingChoice != null) {
-                        // If the cookie exists, update its acceptance status
-                        existingChoice.setAccepted(true);
-                        return existingChoice;
-                    } else {
-                        // If the cookie doesn't exist yet, create it
-                        return new CookieChoice(cookieName, true);
-                    }
-                })
+                .map(cookieName -> existingConsent.getCookies().stream()
+                        .filter(choice -> choice.getCookieName().equals(cookieName))
+                        .findFirst()
+                        .map(choice -> {
+                            choice.setAccepted(true);
+                            return choice;
+                        })
+                        .orElseGet(() -> new CookieChoice(cookieName, true)))
                 .collect(Collectors.toList());
 
-        // Associate cookies with the existing consent
         updatedChoices.forEach(choice -> choice.setCookieConsent(existingConsent));
         existingConsent.setCookies(updatedChoices);
 
         cookieConsentRepository.save(existingConsent);
+        logger.info("User {} accepted all cookies", request.getUserId());
 
         return CookieConsentDTO.fromEntity(existingConsent);
     }
-
-    /**
-     * Rejects all cookies except essential ones.
-     *
-     * @param request Contains user ID and cookie policy version.
-     * @return CookieConsentDTO representing the current consent status.
-     */
     @Transactional
     public CookieConsentDTO rejectAllCookies(SaveCookieConsentRequestDTO request) {
         CookieConsent existingConsent = cookieConsentRepository.findByUserId(request.getUserId())
@@ -87,24 +94,21 @@ public class CookieConsentService {
         existingConsent.setCookiePolicyVersion(request.getPolicyVersion());
         existingConsent.setConsentDate(LocalDateTime.now());
 
-        // Reject all cookies except essential ones
-        existingConsent.getCookies().forEach(choice -> {
-            if (!ESSENTIAL_COOKIES.contains(choice.getCookieName())) {
-                choice.setAccepted(false);
-            }
-        });
+        List<String> allCookies = Stream.concat(essentialCookies.stream(), nonEssentialCookies.stream()).toList();
+
+        List<CookieChoice> updatedChoices = allCookies.stream()
+                .map(cookieName -> new CookieChoice(cookieName, essentialCookies.contains(cookieName)))
+                .collect(Collectors.toList());
+
+        updatedChoices.forEach(choice -> choice.setCookieConsent(existingConsent));
+        existingConsent.setCookies(updatedChoices);
 
         cookieConsentRepository.save(existingConsent);
+        logger.info("User {} rejected all cookies except essential ones", request.getUserId());
 
         return CookieConsentDTO.fromEntity(existingConsent);
     }
 
-    /**
-     * Allows the user to customize their cookie choices.
-     *
-     * @param request Contains user ID, cookie policy version, and custom cookie choices.
-     * @return CookieConsentDTO representing the current consent status.
-     */
     @Transactional
     public CookieConsentDTO customizeCookies(SaveCookieConsentRequestDTO request) {
         CookieConsent existingConsent = cookieConsentRepository.findByUserId(request.getUserId())
@@ -112,41 +116,40 @@ public class CookieConsentService {
 
         existingConsent.setUserId(request.getUserId());
         existingConsent.setCookiePolicyVersion(request.getPolicyVersion());
+        existingConsent.setConsentDate(LocalDateTime.now());
 
-        List<CookieChoice> cookies = new ArrayList<>(existingConsent.getCookies());
+        if (request.getCookieChoices() == null) {
+            throw new IllegalArgumentException("Cookie choices must not be null");
+        }
 
-        // Update user's custom cookie choices
+        if (existingConsent.getCookies() == null) {
+            existingConsent.setCookies(new ArrayList<>());
+        }
+
+        List<CookieChoice> existingChoices = existingConsent.getCookies();
+
         for (CookieChoiceDTO newChoice : request.getCookieChoices()) {
-            // Find corresponding cookie in the existing list
-            CookieChoice existingChoice = cookies.stream()
+            if (!essentialCookies.contains(newChoice.getCookieName()) && !nonEssentialCookies.contains(newChoice.getCookieName())) {
+                throw new IllegalArgumentException("Invalid cookie name: " + newChoice.getCookieName());
+            }
+
+            CookieChoice cookieChoice = existingChoices.stream()
                     .filter(choice -> choice.getCookieName().equals(newChoice.getCookieName()))
                     .findFirst()
-                    .orElse(null); // If the cookie doesn't exist yet, create it
+                    .orElse(null);
 
-            if (existingChoice != null) {
-                // If the cookie exists, update its acceptance status
-                existingChoice.setAccepted(newChoice.isAccepted());
+            if (cookieChoice != null) {
+                cookieChoice.setAccepted(newChoice.isAccepted());
             } else {
-                // If the cookie doesn't exist, create it
                 CookieChoice newCookieChoice = new CookieChoice(newChoice.getCookieName(), newChoice.isAccepted());
                 newCookieChoice.setCookieConsent(existingConsent);
-                cookies.add(newCookieChoice);
+                existingChoices.add(newCookieChoice);
             }
         }
 
-        // Update the list of cookies in the consent
-        existingConsent.setCookies(cookies);
-
-        existingConsent.setConsentDate(LocalDateTime.now());
-
         cookieConsentRepository.save(existingConsent);
+        logger.info("User {} customized cookies", request.getUserId());
 
         return CookieConsentDTO.fromEntity(existingConsent);
     }
-    private static final List<String> ESSENTIAL_COOKIES = List.of(
-            "JSESSIONID", "cart_items", "cart_id", "user_session", "auth_token", "XSRF-TOKEN", "currency", "language"
-    );
-    private static final List<String> NON_ESSENTIAL_COOKIES = List.of(
-            "GOOGLE_ANALYTICS", "FACEBOOK_PIXEL", "TIKTOK_PIXEL"
-    );
 }

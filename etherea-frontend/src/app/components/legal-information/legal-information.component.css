@@ -1,0 +1,35 @@
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-top: 20px;
+  color: #333;
+}
+
+p {
+  line-height: 1.6;
+}
+
+.list-unstyled {
+  padding-left: 0;
+}
+
+.list-unstyled li {
+  margin-bottom: 8px;
+}
+
+a {
+  color: var(--main-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a:hover {
+  color: darkgreen;
+}
+
+.text-justify {
+  text-align: justify;
+}

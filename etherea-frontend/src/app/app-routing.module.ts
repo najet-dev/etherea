@@ -12,6 +12,8 @@ import { OrderComponent } from './components/order/order.component';
 import { DeliveryMethodComponent } from './components/delivery-method/delivery-method.component';
 import { EmailComponent } from './components/email/email.component';
 import { PasswordComponent } from './components/password/password.component';
+import { LegalInformationComponent } from './components/legal-information/legal-information.component';
+import { CookiesComponent } from './components/cookies/cookies.component';
 
 const routes: Routes = [
   {
@@ -33,6 +35,8 @@ const routes: Routes = [
   { path: 'deliveryMethod/:addressId', component: DeliveryMethodComponent },
   { path: 'email', component: EmailComponent },
   { path: 'password', component: PasswordComponent },
+  { path: 'legal-information', component: LegalInformationComponent },
+  { path: 'politique-cookies', component: CookiesComponent },
 
   {
     path: 'cream',
