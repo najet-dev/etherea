@@ -23,7 +23,7 @@ export class CookieConsentService {
    */
   private getSessionIdOrCreate(): Observable<string> {
     const sessionId = this.cookieService.get('sessionId');
-    console.log('sessionId from cookie:', sessionId); // Debug
+    console.log('sessionId from cookie:', sessionId);
     if (sessionId) {
       return new Observable((observer) => observer.next(sessionId));
     }
@@ -33,7 +33,7 @@ export class CookieConsentService {
       .pipe(
         switchMap((newSessionId: string) => {
           this.cookieService.set('sessionId', newSessionId, 30, '/');
-          console.log('New sessionId set:', newSessionId); // Debug
+          console.log('New sessionId set:', newSessionId);
           return new Observable<string>((observer) =>
             observer.next(newSessionId)
           );
