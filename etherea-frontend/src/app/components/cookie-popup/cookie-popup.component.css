@@ -1,44 +1,46 @@
-.cookie-consent {
+.cookie-banner {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background: #fff;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #222;
+  color: white;
+  text-align: center;
   padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
-  z-index: 1000;
 }
 
-button {
+.button-group button {
   margin: 5px;
-  padding: 8px 12px;
+  padding: 10px;
   border: none;
   cursor: pointer;
-  border-radius: 5px;
 }
 
-button:first-child {
+.accept {
   background-color: green;
   color: white;
 }
 
-button:nth-child(2) {
+.reject {
   background-color: red;
   color: white;
 }
 
-button:last-child {
-  background-color: gray;
+.customize {
+  background-color: orange;
   color: white;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 16px;
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  cursor: pointer;
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+}
+
+.modal-buttons {
+  margin-top: 15px;
 }

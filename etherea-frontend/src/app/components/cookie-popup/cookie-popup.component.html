@@ -1,29 +1,37 @@
-<div class="cookie-consent" *ngIf="showPopup">
-  <button class="close-btn" (click)="showPopup = false">✖</button>
-  <a (click)="showPopup = false">Continuer sans accepter</a>
+<!-- Bannière de consentement -->
+<div class="cookie-banner" *ngIf="showBanner">
+  <p>
+    Nous utilisons des cookies pour améliorer votre expérience. Vous pouvez
+    accepter, refuser ou personnaliser vos choix.
+  </p>
 
-  <div>
-    <h2>Bienvenue chez Etherea</h2>
-    <p>
-      Pour vous proposer une belle expérience client et comprendre ce que vous
-      aimez le plus sur notre site, nous utilisons des cookies. Et comme nos
-      soins, ils sont personnalisables. Êtes-vous d'accord ?
-    </p>
-    <small>
-      Vous pourrez modifier vos préférences plus tard en cliquant sur
-      <strong>"Préférences de cookies"</strong> en pied de page.
-    </small>
-    <p>
-      <a href="/politique-confidentialite"
-        >Lire la politique de confidentialité</a
-      >
-    </p>
+  <div class="button-group">
+    <button class="accept" (click)="acceptAll()">Accepter</button>
+    <button class="reject" (click)="rejectAll()">Refuser</button>
+    <button class="customize" (click)="openCustomization()">
+      Personnaliser
+    </button>
+  </div>
+</div>
 
-    <!-- Boutons d'action -->
-    <div>
-      <p>Voulez-vous accepter tous les cookies ?</p>
-      <button (click)="acceptAllCookies()">Accepter tout</button>
-      <button (click)="showPopup = false">Personnaliser</button>
+<!-- Modal pour la personnalisation des cookies -->
+<div class="modal" *ngIf="showCustomization">
+  <div class="modal-content">
+    <h3>Personnalisation des cookies</h3>
+    <form>
+      <label *ngFor="let cookie of cookieChoices">
+        <input
+          type="checkbox"
+          [(ngModel)]="cookie.accepted"
+          name="{{ cookie.cookieName }}"
+        />
+        {{ cookie.cookieName }}
+      </label>
+    </form>
+
+    <div class="modal-buttons">
+      <button (click)="saveCustomChoices()">Enregistrer</button>
+      <button (click)="closeCustomization()">Annuler</button>
     </div>
   </div>
 </div>

@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,6 +22,7 @@ import java.util.stream.Stream;
 public class CookieConsentService {
     private static final Logger logger = LoggerFactory.getLogger(CookieConsentService.class);
     private final CookieConsentRepository cookieConsentRepository;
+
     @Value("#{'${cookie.essential}'.split(',')}")
     private List<String> essentialCookies;
 
@@ -35,121 +33,164 @@ public class CookieConsentService {
         this.cookieConsentRepository = cookieConsentRepository;
     }
     @Transactional(readOnly = true)
-    public CookieConsentDTO getConsentForUser(Long userId) {
-        return cookieConsentRepository.findByUserId(userId)
-                .map(CookieConsentDTO::fromEntity)
-                .orElseThrow(() -> new EntityNotFoundException("Consent not found for user ID: " + userId));
+    public CookieConsentDTO getConsent(Long userId, String sessionId) {
+        if (sessionId == null && userId == null) {
+            throw new IllegalArgumentException("SessionId ou UserId requis.");
+        }
+
+        CookieConsent consent = null;
+
+        if (userId != null) {
+            consent = cookieConsentRepository.findByUserId(userId).orElse(null);
+        }
+
+        if (consent == null && sessionId != null) {
+            consent = cookieConsentRepository.findBySessionId(sessionId).orElse(null);
+        }
+
+        if (consent == null) {
+            throw new EntityNotFoundException("Aucun consentement trouvé.");
+        }
+
+        return CookieConsentDTO.fromEntity(consent);
     }
-    /**
-     * Récupère la configuration des cookies (essentiels et non-essentiels).
-     * @return Map contenant les cookies essentiels et non-essentiels
-     */
     public Map<String, List<String>> getCookiesConfig() {
         Map<String, List<String>> cookiesConfig = new HashMap<>();
         cookiesConfig.put("essential", essentialCookies);
         cookiesConfig.put("non-essential", nonEssentialCookies);
         return cookiesConfig;
     }
+
     @Transactional
     public CookieConsentDTO acceptAllCookies(SaveCookieConsentRequestDTO request) {
-        CookieConsent existingConsent = cookieConsentRepository.findByUserId(request.getUserId())
-                .orElse(new CookieConsent());
+        if (request.getCookiePolicyVersion() == null || request.getCookiePolicyVersion().isEmpty()) {
+            throw new IllegalArgumentException("La version de la politique de cookies doit être spécifiée.");
+        }
 
-        existingConsent.setUserId(request.getUserId());
-        existingConsent.setCookiePolicyVersion(request.getPolicyVersion());
-        existingConsent.setConsentDate(LocalDateTime.now());
+        CookieConsent consent = getOrCreateConsent(request.getUserId(), request.getSessionId(), request.getCookiePolicyVersion(), new ArrayList<>());
+
+        consent.setCookiePolicyVersion(request.getCookiePolicyVersion());
+        consent.setConsentDate(LocalDateTime.now());
+
+        List<String> allCookies = Stream.concat(essentialCookies.stream(), nonEssentialCookies.stream()).toList();
+        List<CookieChoice> updatedChoices = allCookies.stream()
+                .map(cookieName -> new CookieChoice(cookieName, true, consent))
+                .collect(Collectors.toList());
+
+        consent.setCookies(updatedChoices);
+        cookieConsentRepository.save(consent);
+
+        logger.info("Consentement accepté pour userId={} ou sessionId={}", request.getUserId(), request.getSessionId());
+
+        return CookieConsentDTO.fromEntity(consent);
+    }
+
+    @Transactional
+    public CookieConsentDTO rejectAllCookies(SaveCookieConsentRequestDTO request) {
+        if (request.getCookiePolicyVersion() == null || request.getCookiePolicyVersion().isEmpty()) {
+            throw new IllegalArgumentException("La version de la politique de cookies doit être spécifiée.");
+        }
+
+        CookieConsent consent = getOrCreateConsent(request.getUserId(), request.getSessionId(), request.getCookiePolicyVersion(), new ArrayList<>());
+        consent.setCookiePolicyVersion(request.getCookiePolicyVersion());
+        consent.setConsentDate(LocalDateTime.now());
 
         List<String> allCookies = Stream.concat(essentialCookies.stream(), nonEssentialCookies.stream())
                 .toList();
 
-        if (existingConsent.getCookies() == null) {
-            existingConsent.setCookies(new ArrayList<>());
+        List<CookieChoice> updatedChoices = new ArrayList<>();
+
+        for (String cookieName : allCookies) {
+            Optional<CookieChoice> existingChoiceOpt = Optional.ofNullable(consent.getCookies())
+                    .orElse(Collections.emptyList())
+                    .stream()
+                    .filter(choice -> choice.getCookieName().equals(cookieName))
+                    .findFirst();
+
+            if (existingChoiceOpt.isPresent()) {
+                existingChoiceOpt.get().setAccepted(essentialCookies.contains(cookieName));
+                updatedChoices.add(existingChoiceOpt.get());
+            } else {
+                CookieChoice newChoice = new CookieChoice(cookieName, essentialCookies.contains(cookieName));
+                newChoice.setCookieConsent(consent);
+                updatedChoices.add(newChoice);
+            }
         }
 
-        List<CookieChoice> updatedChoices = allCookies.stream()
-                .map(cookieName -> existingConsent.getCookies().stream()
-                        .filter(choice -> choice.getCookieName().equals(cookieName))
-                        .findFirst()
-                        .map(choice -> {
-                            choice.setAccepted(true);
-                            return choice;
-                        })
-                        .orElseGet(() -> new CookieChoice(cookieName, true)))
-                .collect(Collectors.toList());
+        consent.setCookies(updatedChoices);
+        cookieConsentRepository.save(consent);
 
-        updatedChoices.forEach(choice -> choice.setCookieConsent(existingConsent));
-        existingConsent.setCookies(updatedChoices);
+        logger.info("Consentement rejeté pour userId={} ou sessionId={}", request.getUserId(), request.getSessionId());
 
-        cookieConsentRepository.save(existingConsent);
-        logger.info("User {} accepted all cookies", request.getUserId());
-
-        return CookieConsentDTO.fromEntity(existingConsent);
-    }
-    @Transactional
-    public CookieConsentDTO rejectAllCookies(SaveCookieConsentRequestDTO request) {
-        CookieConsent existingConsent = cookieConsentRepository.findByUserId(request.getUserId())
-                .orElse(new CookieConsent());
-
-        existingConsent.setUserId(request.getUserId());
-        existingConsent.setCookiePolicyVersion(request.getPolicyVersion());
-        existingConsent.setConsentDate(LocalDateTime.now());
-
-        List<String> allCookies = Stream.concat(essentialCookies.stream(), nonEssentialCookies.stream()).toList();
-
-        List<CookieChoice> updatedChoices = allCookies.stream()
-                .map(cookieName -> new CookieChoice(cookieName, essentialCookies.contains(cookieName)))
-                .collect(Collectors.toList());
-
-        updatedChoices.forEach(choice -> choice.setCookieConsent(existingConsent));
-        existingConsent.setCookies(updatedChoices);
-
-        cookieConsentRepository.save(existingConsent);
-        logger.info("User {} rejected all cookies except essential ones", request.getUserId());
-
-        return CookieConsentDTO.fromEntity(existingConsent);
+        return CookieConsentDTO.fromEntity(consent);
     }
 
     @Transactional
     public CookieConsentDTO customizeCookies(SaveCookieConsentRequestDTO request) {
-        CookieConsent existingConsent = cookieConsentRepository.findByUserId(request.getUserId())
-                .orElse(new CookieConsent());
-
-        existingConsent.setUserId(request.getUserId());
-        existingConsent.setCookiePolicyVersion(request.getPolicyVersion());
-        existingConsent.setConsentDate(LocalDateTime.now());
-
-        if (request.getCookieChoices() == null) {
-            throw new IllegalArgumentException("Cookie choices must not be null");
+        if (request.getCookiePolicyVersion() == null || request.getCookiePolicyVersion().isEmpty()) {
+            throw new IllegalArgumentException("La version de la politique de cookies doit être spécifiée.");
         }
 
-        if (existingConsent.getCookies() == null) {
-            existingConsent.setCookies(new ArrayList<>());
+        if (request.getCookieChoices() == null || request.getCookieChoices().isEmpty()) {
+            throw new IllegalArgumentException("Les choix de cookies ne doivent pas être null ou vides.");
         }
 
-        List<CookieChoice> existingChoices = existingConsent.getCookies();
+        CookieConsent consent = getOrCreateConsent(request.getUserId(), request.getSessionId(), request.getCookiePolicyVersion(), new ArrayList<>());
+        consent.setCookiePolicyVersion(request.getCookiePolicyVersion());
+        consent.setConsentDate(LocalDateTime.now());
+
+        List<CookieChoice> existingChoices = consent.getCookies() != null ? new ArrayList<>(consent.getCookies()) : new ArrayList<>();
 
         for (CookieChoiceDTO newChoice : request.getCookieChoices()) {
             if (!essentialCookies.contains(newChoice.getCookieName()) && !nonEssentialCookies.contains(newChoice.getCookieName())) {
-                throw new IllegalArgumentException("Invalid cookie name: " + newChoice.getCookieName());
+                throw new IllegalArgumentException("Nom de cookie invalide : " + newChoice.getCookieName());
             }
 
-            CookieChoice cookieChoice = existingChoices.stream()
+            Optional<CookieChoice> existingChoiceOpt = existingChoices.stream()
                     .filter(choice -> choice.getCookieName().equals(newChoice.getCookieName()))
-                    .findFirst()
-                    .orElse(null);
+                    .findFirst();
 
-            if (cookieChoice != null) {
-                cookieChoice.setAccepted(newChoice.isAccepted());
+            if (existingChoiceOpt.isPresent()) {
+                CookieChoice existingChoice = existingChoiceOpt.get();
+                existingChoice.setAccepted(newChoice.isAccepted());
             } else {
                 CookieChoice newCookieChoice = new CookieChoice(newChoice.getCookieName(), newChoice.isAccepted());
-                newCookieChoice.setCookieConsent(existingConsent);
+                newCookieChoice.setCookieConsent(consent);
                 existingChoices.add(newCookieChoice);
             }
         }
 
-        cookieConsentRepository.save(existingConsent);
-        logger.info("User {} customized cookies", request.getUserId());
+        consent.setCookies(existingChoices);
+        cookieConsentRepository.save(consent);
 
-        return CookieConsentDTO.fromEntity(existingConsent);
+        logger.info("Consentement personnalisé pour userId={} ou sessionId={}", request.getUserId(), request.getSessionId());
+
+        return CookieConsentDTO.fromEntity(consent);
+    }
+
+    public CookieConsent getOrCreateConsent(Long userId, String sessionId, String cookiePolicyVersion, List<CookieChoice> cookies) {
+        CookieConsent consent = null;
+
+        if (userId != null) {
+            consent = cookieConsentRepository.findByUserId(userId).orElse(null);
+        }
+
+        if (consent == null && sessionId != null) {
+            consent = cookieConsentRepository.findBySessionId(sessionId).orElse(null);
+        }
+
+        if (consent == null) {
+            if (cookiePolicyVersion == null || cookiePolicyVersion.isEmpty()) {
+                throw new IllegalArgumentException("La version de la politique de cookies est obligatoire.");
+            }
+
+            consent = (userId != null)
+                    ? new CookieConsent(userId, cookiePolicyVersion, new ArrayList<>())
+                    : new CookieConsent(sessionId, cookiePolicyVersion, new ArrayList<>());
+
+            cookieConsentRepository.save(consent);
+        }
+
+        return consent;
     }
 }

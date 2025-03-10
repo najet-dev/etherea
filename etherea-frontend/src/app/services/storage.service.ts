@@ -24,14 +24,6 @@ export class StorageService {
     this.setLoggedIn(true);
   }
 
-  // Méthode pour générer un token temporaire (si l'utilisateur n'est pas connecté)
-  generateTemporaryToken(): string {
-    // Générer un token simple ou temporaire (par exemple, une clé aléatoire)
-    const token = 'temp-' + Math.random().toString(36).substring(2); // Exemple de token temporaire
-    this.saveToken(token);
-    return token;
-  }
-
   // Méthode pour récupérer le token JWT depuis le stockage local
   getToken(): string | null {
     const token = localStorage.getItem(TOKEN_KEY);

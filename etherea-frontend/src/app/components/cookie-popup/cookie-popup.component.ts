@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CookieConsentService } from 'src/app/services/cookie-consent.service';
 import { SaveCookieConsentRequest } from '../models/SaveCookieConsentRequest.model';
 import { CookieChoice } from '../models/cookie-choice.model';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-cookie-popup',
@@ -9,18 +10,21 @@ import { CookieChoice } from '../models/cookie-choice.model';
   styleUrls: ['./cookie-popup.component.css'],
 })
 export class CookiePopupComponent implements OnInit {
-  showPopup: boolean = false;
+  showBanner = false;
+  showCustomization = false;
+  cookieChoices: CookieChoice[] = [];
   essentialCookies: string[] = [];
   nonEssentialCookies: string[] = [];
 
-  constructor(private cookieConsentService: CookieConsentService) {}
+  constructor(
+    private cookieService: CookieService,
+    private cookieConsentService: CookieConsentService
+  ) {}
 
-  ngOnInit() {
-    const consentGiven = localStorage.getItem('cookie_consent');
-    if (!consentGiven) {
-      this.showPopup = true;
-      this.loadCookieConfig();
-    }
+  ngOnInit(): void {
+    const consentGiven = this.cookieService.get('cookieConsent');
+    this.showBanner = !consentGiven; // Afficher ou non le pop-up en fonction du consentement
+    this.loadCookieConfig();
   }
 
   /**
@@ -42,36 +46,98 @@ export class CookiePopupComponent implements OnInit {
     });
   }
 
-  acceptAllCookies() {
-    // Transformer les noms de cookies en objets CookieChoice avec la propriété accepted
-    const allCookies: CookieChoice[] = [
-      ...this.essentialCookies,
-      ...this.nonEssentialCookies,
-    ].map((cookieName) => ({
-      cookieName,
-      accepted: true, // On accepte tous les cookies
-    }));
+  /**
+   * Accepter tous les cookies (essentiels et non-essentiels)
+   */
+  acceptAll(): void {
+    const allCookies = [
+      ...this.essentialCookies.map((name: string) => ({
+        cookieName: name,
+        accepted: true,
+      })),
+      ...this.nonEssentialCookies.map((name: string) => ({
+        cookieName: name,
+        accepted: true,
+      })),
+    ];
 
-    const request: SaveCookieConsentRequest = {
-      userId: 1,
-      cookiePolicyVersion: '1.0',
-      cookieChoices: allCookies,
-    };
+    this.cookieConsentService.getSessionId().subscribe({
+      next: (sessionId) => {
+        const request: SaveCookieConsentRequest = {
+          userId: null,
+          sessionId: sessionId,
+          cookiePolicyVersion: '1.0',
+          cookieChoices: allCookies,
+        };
 
-    console.log(
-      'Envoi de la requête pour accepter tous les cookies...',
-      request
-    );
+        console.log('Request to accept all cookies:', request);
 
-    this.cookieConsentService.acceptAllCookies(request).subscribe({
-      next: (response) => {
-        console.log('Cookies acceptés avec succès :', response);
-        localStorage.setItem('cookie_consent', 'accepted');
-        this.showPopup = false;
+        this.cookieConsentService.acceptAllCookies(request).subscribe({
+          next: (response) => {
+            console.log('Consent saved:', response);
+            this.cookieService.set('cookieConsent', 'accepted', 30, '/');
+            this.showBanner = false;
+          },
+          error: (error) => {
+            console.error('Erreur lors de l’acceptation des cookies:', error);
+          },
+        });
       },
       error: (error) => {
-        console.error('Erreur lors de l’acceptation des cookies :', error);
+        console.error('Erreur lors de la récupération du sessionId:', error);
       },
     });
+  }
+
+  /**
+   * Rejeter tous les cookies (y compris les non-essentiels)
+   */
+  rejectAll(): void {
+    const request: SaveCookieConsentRequest = {
+      userId: null, // Ou récupérez un ID d'utilisateur si nécessaire
+      sessionId: this.cookieService.get('sessionId') || null,
+      cookiePolicyVersion: '1.0',
+      cookieChoices: this.essentialCookies.map((cookieName) => ({
+        cookieName,
+        accepted: false,
+      })),
+    };
+
+    this.cookieConsentService.rejectAllCookies(request).subscribe(() => {
+      this.cookieService.set('cookieConsent', 'rejected', 30, '/'); // Sauvegarder le rejet dans un cookie
+      this.showBanner = false;
+    });
+  }
+
+  /**
+   * Ouvrir le panneau de personnalisation des cookies
+   */
+  openCustomization(): void {
+    this.showCustomization = true;
+  }
+
+  /**
+   * Sauvegarder les choix de cookies personnalisés
+   */
+  saveCustomChoices(): void {
+    const request: SaveCookieConsentRequest = {
+      userId: null, // Ou récupérez un ID d'utilisateur si nécessaire
+      sessionId: this.cookieService.get('sessionId') || null,
+      cookiePolicyVersion: '1.0',
+      cookieChoices: this.cookieChoices,
+    };
+
+    this.cookieConsentService.customizeCookies(request).subscribe(() => {
+      this.cookieService.set('cookieConsent', 'custom', 30, '/'); // Sauvegarder le consentement personnalisé dans un cookie
+      this.showCustomization = false;
+      this.showBanner = false;
+    });
+  }
+
+  /**
+   * Fermer la personnalisation sans enregistrer
+   */
+  closeCustomization(): void {
+    this.showCustomization = false;
   }
 }

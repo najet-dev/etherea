@@ -3,73 +3,90 @@ package com.etherea.controllers;
 import com.etherea.dtos.CookieConsentDTO;
 import com.etherea.dtos.SaveCookieConsentRequestDTO;
 import com.etherea.services.CookieConsentService;
-import jakarta.validation.Valid;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-/**
- * Controller for managing user cookie consent.
- * Provides endpoints to accept, reject, or customize cookies.
- */
 @RestController
 @RequestMapping("/cookies")
+@CrossOrigin
 public class CookieConsentController {
     private final CookieConsentService cookieConsentService;
 
-    /**
-     * Constructor to initialize the CookieConsentService.
-     *
-     * @param cookieConsentService Service handling cookie consent logic
-     */
     public CookieConsentController(CookieConsentService cookieConsentService) {
         this.cookieConsentService = cookieConsentService;
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<CookieConsentDTO> getUserConsent(@PathVariable Long userId) {
-        CookieConsentDTO consent = cookieConsentService.getConsentForUser(userId);
-        return consent != null ? ResponseEntity.ok(consent) : ResponseEntity.notFound().build();
+    // générer un sessionId
+    @GetMapping("/session")
+    public ResponseEntity<String> getSessionId(HttpServletRequest request, HttpServletResponse response) {
+        String sessionId = null;
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("sessionId".equals(cookie.getName())) {
+                    sessionId = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (sessionId == null) {
+            sessionId = UUID.randomUUID().toString();
+            Cookie sessionCookie = new Cookie("sessionId", sessionId);
+            sessionCookie.setPath("/");
+            sessionCookie.setHttpOnly(true);
+            sessionCookie.setMaxAge(60 * 60 * 24 * 30); // 30 jours
+            response.addCookie(sessionCookie);
+
+            cookieConsentService.getOrCreateConsent(null, sessionId, "default_version", new ArrayList<>());
+        }
+
+        return ResponseEntity.ok(sessionId);
+    }
+    @GetMapping
+    public ResponseEntity<CookieConsentDTO> getUserConsent(
+            @CookieValue(value = "sessionId", required = false) String sessionId,
+            @RequestParam(required = false) Long userId) {
+        // Si aucun des deux n'est fourni, renvoyer une erreur ou générer un nouveau sessionId
+        if (sessionId == null && userId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Utiliser sessionId de préférence, ou userId si sessionId est inexistant
+        return ResponseEntity.ok(cookieConsentService.getConsent(userId, sessionId));
     }
     @GetMapping("/config")
     public ResponseEntity<Map<String, List<String>>> getCookiesConfig() {
         Map<String, List<String>> cookiesConfig = cookieConsentService.getCookiesConfig();
         return ResponseEntity.ok(cookiesConfig);
     }
-
-    /**
-     * Accepts all cookies, including non-essential ones.
-     *
-     * @param request Contains user ID and cookie policy version
-     * @return ResponseEntity containing updated cookie consent details
-     */
     @PostMapping("/accept-all")
-    public ResponseEntity<CookieConsentDTO> acceptAllCookies(@Valid @RequestBody SaveCookieConsentRequestDTO request) {
+    public ResponseEntity<CookieConsentDTO> acceptAllCookies(
+            @CookieValue(value = "sessionId", required = false) String sessionId,
+            @Valid @RequestBody SaveCookieConsentRequestDTO request) {
+        request = new SaveCookieConsentRequestDTO(request.getUserId(), sessionId, request.getCookiePolicyVersion(), request.getCookieChoices());
         return ResponseEntity.ok(cookieConsentService.acceptAllCookies(request));
     }
-
-    /**
-     * Rejects all cookies except essential ones.
-     *
-     * @param request Contains user ID and cookie policy version
-     * @return ResponseEntity containing updated cookie consent details
-     */
     @PostMapping("/reject-all")
-    public ResponseEntity<CookieConsentDTO> rejectAllCookies(@RequestBody SaveCookieConsentRequestDTO request) {
+    public ResponseEntity<CookieConsentDTO> rejectAllCookies(
+            @CookieValue(value = "sessionId", required = false) String sessionId,
+            @Valid @RequestBody SaveCookieConsentRequestDTO request) {
+        request = new SaveCookieConsentRequestDTO(request.getUserId(), sessionId, request.getCookiePolicyVersion(), request.getCookieChoices());
         return ResponseEntity.ok(cookieConsentService.rejectAllCookies(request));
     }
 
-    /**
-     * Allows users to customize their cookie preferences.
-     *
-     * @param request Contains user ID, cookie policy version, and user-selected cookie preferences
-     * @return ResponseEntity containing updated cookie consent details
-     */
     @PostMapping("/customize")
-    public ResponseEntity<CookieConsentDTO> customizeCookies(@RequestBody SaveCookieConsentRequestDTO request) {
+    public ResponseEntity<CookieConsentDTO> customizeCookies(
+            @CookieValue(value = "sessionId", required = false) String sessionId,
+            @Valid @RequestBody SaveCookieConsentRequestDTO request) {
+        request = new SaveCookieConsentRequestDTO(request.getUserId(), sessionId, request.getCookiePolicyVersion(), request.getCookieChoices());
         return ResponseEntity.ok(cookieConsentService.customizeCookies(request));
     }
 }

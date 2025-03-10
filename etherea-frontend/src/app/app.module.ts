@@ -48,6 +48,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { LegalInformationComponent } from './components/legal-information/legal-information.component';
 import { CookiesComponent } from './components/cookies/cookies.component';
 import { CookiePopupComponent } from './components/cookie-popup/cookie-popup.component';
+import { CookieService } from 'ngx-cookie-service';
 
 @NgModule({
   declarations: [
@@ -100,6 +101,7 @@ import { CookiePopupComponent } from './components/cookie-popup/cookie-popup.com
     { provide: LOCALE_ID, useValue: 'fr' },
     FavoriteService,
     AppFacade,
+    CookieService,
   ],
   bootstrap: [AppComponent],
 })

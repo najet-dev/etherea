@@ -1,6 +1,5 @@
 package com.etherea.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -19,6 +18,11 @@ public class CookieChoice {
     public CookieChoice(String cookieName, boolean accepted) {
         this.cookieName = cookieName;
         this.accepted = accepted;
+    }
+    public CookieChoice(String cookieName, boolean accepted, CookieConsent cookieConsent) {
+        this.cookieName = cookieName;
+        this.accepted = accepted;
+        this.cookieConsent = cookieConsent;
     }
     public Long getId() {
         return id;
