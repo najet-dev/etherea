@@ -1,14 +1,16 @@
 package com.etherea.dtos;
 
+import com.etherea.enums.CookiePolicyVersion;
+
 import java.util.List;
 
 public class SaveCookieConsentRequestDTO {
     private Long userId;
     private String sessionId;
-    private String cookiePolicyVersion;
+    private CookiePolicyVersion cookiePolicyVersion;
     private List<CookieChoiceDTO> cookieChoices;
     public SaveCookieConsentRequestDTO() {}
-    public SaveCookieConsentRequestDTO(Long userId, String sessionId, String cookiePolicyVersion, List<CookieChoiceDTO> cookieChoices) {
+    public SaveCookieConsentRequestDTO(Long userId, String sessionId, CookiePolicyVersion cookiePolicyVersion, List<CookieChoiceDTO> cookieChoices) {
         this.userId = userId;
         this.sessionId = sessionId;
         this.cookiePolicyVersion = cookiePolicyVersion;
@@ -26,10 +28,10 @@ public class SaveCookieConsentRequestDTO {
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
-    public String getCookiePolicyVersion() {
+    public CookiePolicyVersion getCookiePolicyVersion() {
         return cookiePolicyVersion;
     }
-    public void setCookiePolicyVersion(String cookiePolicyVersion) {
+    public void setCookiePolicyVersion(CookiePolicyVersion cookiePolicyVersion) {
         this.cookiePolicyVersion = cookiePolicyVersion;
     }
     public void setCookieChoices(List<CookieChoiceDTO> cookieChoices) {

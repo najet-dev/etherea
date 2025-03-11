@@ -22,6 +22,7 @@ public class CookieChoiceDTO {
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
     }
+
     // Conversion Entité to DTO
     public static CookieChoiceDTO fromEntity(CookieChoice cookieChoice) {
         Objects.requireNonNull(cookieChoice, "Le choix de cookie ne peut pas être null.");

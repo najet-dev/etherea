@@ -3,6 +3,7 @@ package com.etherea.services;
 import com.etherea.dtos.CookieChoiceDTO;
 import com.etherea.dtos.CookieConsentDTO;
 import com.etherea.dtos.SaveCookieConsentRequestDTO;
+import com.etherea.enums.CookiePolicyVersion;
 import com.etherea.models.CookieChoice;
 import com.etherea.models.CookieConsent;
 import com.etherea.repositories.CookieConsentRepository;
@@ -22,13 +23,10 @@ import java.util.stream.Stream;
 public class CookieConsentService {
     private static final Logger logger = LoggerFactory.getLogger(CookieConsentService.class);
     private final CookieConsentRepository cookieConsentRepository;
-
     @Value("#{'${cookie.essential}'.split(',')}")
     private List<String> essentialCookies;
-
     @Value("#{'${cookie.non-essential}'.split(',')}")
     private List<String> nonEssentialCookies;
-
     public CookieConsentService(CookieConsentRepository cookieConsentRepository) {
         this.cookieConsentRepository = cookieConsentRepository;
     }
@@ -60,10 +58,9 @@ public class CookieConsentService {
         cookiesConfig.put("non-essential", nonEssentialCookies);
         return cookiesConfig;
     }
-
     @Transactional
     public CookieConsentDTO acceptAllCookies(SaveCookieConsentRequestDTO request) {
-        if (request.getCookiePolicyVersion() == null || request.getCookiePolicyVersion().isEmpty()) {
+        if (request.getCookiePolicyVersion() == null) {
             throw new IllegalArgumentException("La version de la politique de cookies doit être spécifiée.");
         }
 
@@ -84,10 +81,9 @@ public class CookieConsentService {
 
         return CookieConsentDTO.fromEntity(consent);
     }
-
     @Transactional
     public CookieConsentDTO rejectAllCookies(SaveCookieConsentRequestDTO request) {
-        if (request.getCookiePolicyVersion() == null || request.getCookiePolicyVersion().isEmpty()) {
+        if (request.getCookiePolicyVersion() == null) {
             throw new IllegalArgumentException("La version de la politique de cookies doit être spécifiée.");
         }
 
@@ -124,10 +120,9 @@ public class CookieConsentService {
 
         return CookieConsentDTO.fromEntity(consent);
     }
-
     @Transactional
     public CookieConsentDTO customizeCookies(SaveCookieConsentRequestDTO request) {
-        if (request.getCookiePolicyVersion() == null || request.getCookiePolicyVersion().isEmpty()) {
+        if (request.getCookiePolicyVersion() == null) {
             throw new IllegalArgumentException("La version de la politique de cookies doit être spécifiée.");
         }
 
@@ -168,7 +163,7 @@ public class CookieConsentService {
         return CookieConsentDTO.fromEntity(consent);
     }
 
-    public CookieConsent getOrCreateConsent(Long userId, String sessionId, String cookiePolicyVersion, List<CookieChoice> cookies) {
+    public CookieConsent getOrCreateConsent(Long userId, String sessionId, CookiePolicyVersion cookiePolicyVersion, List<CookieChoice> cookies) {
         CookieConsent consent = null;
 
         if (userId != null) {
@@ -180,7 +175,7 @@ public class CookieConsentService {
         }
 
         if (consent == null) {
-            if (cookiePolicyVersion == null || cookiePolicyVersion.isEmpty()) {
+            if (cookiePolicyVersion == null) {
                 throw new IllegalArgumentException("La version de la politique de cookies est obligatoire.");
             }
 

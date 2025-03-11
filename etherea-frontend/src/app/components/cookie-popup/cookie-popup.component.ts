@@ -3,6 +3,7 @@ import { CookieConsentService } from 'src/app/services/cookie-consent.service';
 import { SaveCookieConsentRequest } from '../models/SaveCookieConsentRequest.model';
 import { CookieChoice } from '../models/cookie-choice.model';
 import { CookieService } from 'ngx-cookie-service';
+import { CookiePolicyVersion } from '../models/CookiePolicyVersion.enum';
 
 @Component({
   selector: 'app-cookie-popup',
@@ -23,7 +24,7 @@ export class CookiePopupComponent implements OnInit {
 
   ngOnInit(): void {
     const consentGiven = this.cookieService.get('cookieConsent');
-    this.showBanner = !consentGiven; // Afficher ou non le pop-up en fonction du consentement
+    this.showBanner = !consentGiven;
     this.loadCookieConfig();
   }
 
@@ -66,7 +67,7 @@ export class CookiePopupComponent implements OnInit {
         const request: SaveCookieConsentRequest = {
           userId: null,
           sessionId: sessionId,
-          cookiePolicyVersion: '1.0',
+          cookiePolicyVersion: CookiePolicyVersion.V1_0,
           cookieChoices: allCookies,
         };
 
@@ -90,13 +91,13 @@ export class CookiePopupComponent implements OnInit {
   }
 
   /**
-   * Rejeter tous les cookies (y compris les non-essentiels)
+   * Rejeter tous les cookies
    */
   rejectAll(): void {
     const request: SaveCookieConsentRequest = {
-      userId: null, // Ou récupérez un ID d'utilisateur si nécessaire
+      userId: null,
       sessionId: this.cookieService.get('sessionId') || null,
-      cookiePolicyVersion: '1.0',
+      cookiePolicyVersion: CookiePolicyVersion.V1_0,
       cookieChoices: this.essentialCookies.map((cookieName) => ({
         cookieName,
         accepted: false,
@@ -104,14 +105,11 @@ export class CookiePopupComponent implements OnInit {
     };
 
     this.cookieConsentService.rejectAllCookies(request).subscribe(() => {
-      this.cookieService.set('cookieConsent', 'rejected', 30, '/'); // Sauvegarder le rejet dans un cookie
+      this.cookieService.set('cookieConsent', 'rejected', 30, '/');
       this.showBanner = false;
     });
   }
 
-  /**
-   * Ouvrir le panneau de personnalisation des cookies
-   */
   openCustomization(): void {
     this.showCustomization = true;
   }
@@ -121,14 +119,14 @@ export class CookiePopupComponent implements OnInit {
    */
   saveCustomChoices(): void {
     const request: SaveCookieConsentRequest = {
-      userId: null, // Ou récupérez un ID d'utilisateur si nécessaire
+      userId: null,
       sessionId: this.cookieService.get('sessionId') || null,
-      cookiePolicyVersion: '1.0',
+      cookiePolicyVersion: CookiePolicyVersion.V1_0,
       cookieChoices: this.cookieChoices,
     };
 
     this.cookieConsentService.customizeCookies(request).subscribe(() => {
-      this.cookieService.set('cookieConsent', 'custom', 30, '/'); // Sauvegarder le consentement personnalisé dans un cookie
+      this.cookieService.set('cookieConsent', 'custom', 30, '/');
       this.showCustomization = false;
       this.showBanner = false;
     });
