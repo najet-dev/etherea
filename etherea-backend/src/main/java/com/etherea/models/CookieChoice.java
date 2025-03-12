@@ -1,6 +1,5 @@
 package com.etherea.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -12,7 +11,6 @@ public class CookieChoice {
     private String cookieName;
     @Column(nullable = false)
     private boolean accepted;
-
     @ManyToOne
     @JoinColumn(name = "cookie_consent_id", nullable = false)
     private CookieConsent cookieConsent;
@@ -21,8 +19,16 @@ public class CookieChoice {
         this.cookieName = cookieName;
         this.accepted = accepted;
     }
+    public CookieChoice(String cookieName, boolean accepted, CookieConsent cookieConsent) {
+        this.cookieName = cookieName;
+        this.accepted = accepted;
+        this.cookieConsent = cookieConsent;
+    }
     public Long getId() {
         return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
     }
     public CookieConsent getCookieConsent() {
         return cookieConsent;
