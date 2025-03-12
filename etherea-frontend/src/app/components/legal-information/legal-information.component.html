@@ -1,5 +1,5 @@
 <div class="container mt-4">
-  <h1 class="text-center">Mentions légales</h1>
+  <h1>Mentions légales</h1>
 
   <p class="text-justify">
     Les informations suivantes sont fournies en vertu des articles 6, 19 et 20
@@ -78,9 +78,7 @@
   <p>
     Pour plus d’informations sur la gestion de vos données personnelles,
     veuillez consulter notre
-    <a routerLink="/charte-donnees-personnelles"
-      >Charte des données personnelles</a
-    >.
+    <a routerLink="/personal-Data-Charter">Charte des données personnelles</a>.
   </p>
 
   <h2 class="mt-4">Droits de propriété intellectuelle attachés au Site</h2>
@@ -100,7 +98,10 @@
     directeur de la publication.
   </p>
 
-  <p>
-    <a href="#">Modifier mes cookies</a>
-  </p>
+  <div>
+    <a class="btn btn-link p-0" (click)="showCookiePopup()">
+      Modifier mes cookies
+    </a>
+  </div>
+  <app-cookie-popup></app-cookie-popup>
 </div>

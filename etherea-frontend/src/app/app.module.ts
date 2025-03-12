@@ -49,6 +49,7 @@ import { LegalInformationComponent } from './components/legal-information/legal-
 import { CookiesComponent } from './components/cookies/cookies.component';
 import { CookiePopupComponent } from './components/cookie-popup/cookie-popup.component';
 import { CookieService } from 'ngx-cookie-service';
+import { PersonalDataCharterComponent } from './components/personal-data-charter/personal-data-charter.component';
 
 @NgModule({
   declarations: [
@@ -79,6 +80,7 @@ import { CookieService } from 'ngx-cookie-service';
     LegalInformationComponent,
     CookiesComponent,
     CookiePopupComponent,
+    PersonalDataCharterComponent,
   ],
   imports: [
     CommonModule,
@@ -93,6 +95,7 @@ import { CookieService } from 'ngx-cookie-service';
     ReactiveFormsModule,
     MatDialogModule,
     MatPaginatorModule,
+    FormsModule,
     NgxStripeModule.forRoot(environment.stripePublicKey),
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

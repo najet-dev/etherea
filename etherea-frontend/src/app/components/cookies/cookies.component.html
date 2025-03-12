@@ -1,5 +1,5 @@
 <div class="container my-5">
-  <h1 class="text-center">Politique en matière de cookies</h1>
+  <h1>Politique en matière de cookies</h1>
   <p>
     Cette Politique relative aux cookies a pour objectif de vous aider à
     comprendre comment Etherea, en sa qualité de responsable du traitement de
@@ -163,7 +163,11 @@
   </p>
   <p>Dernière mise à jour : <strong>09-03-2025</strong></p>
 
-  <p>
-    <a routerLink="/gestion-cookies">Modifier mes cookies</a>
-  </p>
+  <div>
+    <a class="btn btn-link p-0" (click)="showCookiePopup()">
+      Modifier mes cookies
+    </a>
+  </div>
+
+  <app-cookie-popup></app-cookie-popup>
 </div>

@@ -3,10 +3,28 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  background: #222;
+  background: var(--bg-color);
   color: white;
   text-align: center;
   padding: 15px;
+}
+.text {
+  text-align: justify;
+  margin: 25px 10px;
+}
+.btnRecapitulatif {
+  background: transparent;
+  border: none;
+  font-size: 26px;
+  cursor: pointer;
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  z-index: 1050;
+}
+
+.btnRecapitulatif:hover {
+  color: red;
 }
 
 .button-group button {
@@ -17,7 +35,7 @@
 }
 
 .accept {
-  background-color: green;
+  background-color: darkgreen;
   color: white;
 }
 
@@ -30,17 +48,148 @@
   background-color: orange;
   color: white;
 }
-
+/* Modal pour personnalisation des cookies */
 .modal {
+  display: block !important;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: white;
   padding: 20px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  z-index: 10000 !important;
+  width: 90%;
+  max-width: 600px;
+  height: auto;
+  max-height: 80vh;
+  overflow-y: auto;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
+.modal-content {
+  padding: 20px;
+}
+
+h3 {
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.cookie-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  flex-direction: row-reverse; /* Afficher la checkbox à droite du texte */
+}
+
+.cookie-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.cookie-checkbox:checked {
+  background-color: darkgreen;
+  border-color: darkgreen;
+  position: relative;
+}
+
+/* Ajout d'une coche blanche lorsque la case est cochée */
+.cookie-checkbox:checked::after {
+  content: "✔";
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+/*bouton banniere*/
 .modal-buttons {
-  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 0 10px;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button:focus {
+  outline: none;
+}
+
+/*bouton pop up*/
+.modal-buttons button {
+  background-color: var(--main-color);
+  color: var(--bg-color);
+  width: 40%;
+}
+
+.modal-buttons button:last-child {
+  border-color: var(--main-color);
+}
+.modal-buttons button:hover {
+  background-color: rgb(238, 233, 233);
+  border: solid 1px green;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: red;
+}
+
+@media (max-width: 768px) {
+  .cookie-banner p {
+    font-size: 14px;
+  }
+  .button-group {
+    flex-direction: column;
+    align-items: center;
+  }
+  .modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+  .modal-content {
+    padding: 15px;
+  }
+  .modal-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  .modal-buttons button {
+    width: 50%;
+  }
 }

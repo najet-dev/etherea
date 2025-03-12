@@ -14,6 +14,7 @@ import { EmailComponent } from './components/email/email.component';
 import { PasswordComponent } from './components/password/password.component';
 import { LegalInformationComponent } from './components/legal-information/legal-information.component';
 import { CookiesComponent } from './components/cookies/cookies.component';
+import { PersonalDataCharterComponent } from './components/personal-data-charter/personal-data-charter.component';
 
 const routes: Routes = [
   {
@@ -37,6 +38,7 @@ const routes: Routes = [
   { path: 'password', component: PasswordComponent },
   { path: 'legal-information', component: LegalInformationComponent },
   { path: 'politique-cookies', component: CookiesComponent },
+  { path: 'personal-Data-Charter', component: PersonalDataCharterComponent },
 
   {
     path: 'cream',
