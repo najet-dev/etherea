@@ -45,6 +45,11 @@ import { PaymentComponent } from './components/payment/payment.component';
 import { EmailComponent } from './components/email/email.component';
 import { PasswordComponent } from './components/password/password.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { LegalInformationComponent } from './components/legal-information/legal-information.component';
+import { CookiesComponent } from './components/cookies/cookies.component';
+import { CookiePopupComponent } from './components/cookie-popup/cookie-popup.component';
+import { CookieService } from 'ngx-cookie-service';
+import { PersonalDataCharterComponent } from './components/personal-data-charter/personal-data-charter.component';
 
 @NgModule({
   declarations: [
@@ -72,6 +77,10 @@ import { FooterComponent } from './components/footer/footer.component';
     EmailComponent,
     PasswordComponent,
     FooterComponent,
+    LegalInformationComponent,
+    CookiesComponent,
+    CookiePopupComponent,
+    PersonalDataCharterComponent,
   ],
   imports: [
     CommonModule,
@@ -86,6 +95,7 @@ import { FooterComponent } from './components/footer/footer.component';
     ReactiveFormsModule,
     MatDialogModule,
     MatPaginatorModule,
+    FormsModule,
     NgxStripeModule.forRoot(environment.stripePublicKey),
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
@@ -94,6 +104,7 @@ import { FooterComponent } from './components/footer/footer.component';
     { provide: LOCALE_ID, useValue: 'fr' },
     FavoriteService,
     AppFacade,
+    CookieService,
   ],
   bootstrap: [AppComponent],
 })

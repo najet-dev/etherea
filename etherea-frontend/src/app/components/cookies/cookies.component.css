@@ -1,0 +1,9 @@
+a {
+  color: var(--main-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a:hover {
+  color: darkgreen;
+}

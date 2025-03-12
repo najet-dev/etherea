@@ -1,0 +1,60 @@
+<!-- Bannière de consentement -->
+<div class="cookie-banner" *ngIf="showBanner">
+  <p>
+    Nous utilisons des cookies pour améliorer votre expérience. Vous pouvez
+    accepter, refuser ou personnaliser vos choix.
+  </p>
+
+  <div class="button-group">
+    <button class="accept" (click)="acceptAllCookies()">Accepter</button>
+    <button class="reject" (click)="rejectCookies()">Refuser</button>
+    <button class="customize" (click)="toggleCustomization()">
+      Personnaliser
+    </button>
+  </div>
+</div>
+
+<!-- Modal pour la personnalisation des cookies -->
+<div class="modal" *ngIf="showCustomization">
+  <div class="modal-content">
+    <!-- Croix pour fermer -->
+    <button
+      type="button"
+      class="btn btnRecapitulatif"
+      data-bs-dismiss="modal"
+      aria-label="Close"
+      (click)="toggleCustomization()"
+    >
+      &times;
+    </button>
+    <p class="text">
+      Nous utilisons des cookies pour analyser votre expérience sur notre site,
+      vous proposer une navigation simplifiée et optimale et vous apporter de
+      temps à autre des publicités de qualité.
+    </p>
+    <form>
+      <div *ngIf="cookieChoices.length > 0; else noCookies">
+        <div
+          *ngFor="let cookie of cookieChoices; let i = index"
+          class="cookie-item"
+        >
+          <input
+            type="checkbox"
+            [(ngModel)]="cookieChoices[i].accepted"
+            [name]="'cookie_' + i"
+            class="cookie-checkbox"
+          />
+          <label>{{ cookie.cookieName }}</label>
+        </div>
+      </div>
+      <ng-template #noCookies>
+        <p>Aucun cookie disponible pour personnalisation.</p>
+      </ng-template>
+    </form>
+
+    <div class="modal-buttons">
+      <button (click)="saveCustomChoices()">Enregistrer</button>
+      <button (click)="toggleCustomization()">Annuler</button>
+    </div>
+  </div>
+</div>

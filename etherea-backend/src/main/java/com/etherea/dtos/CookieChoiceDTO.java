@@ -1,10 +1,7 @@
 package com.etherea.dtos;
 
 import com.etherea.models.CookieChoice;
-import com.etherea.models.CookieConsent;
-
 import java.util.Objects;
-
 public class CookieChoiceDTO {
     private String cookieName;
     private boolean accepted;
@@ -25,12 +22,13 @@ public class CookieChoiceDTO {
     public void setAccepted(boolean accepted) {
         this.accepted = accepted;
     }
-    // Conversion Entité ➝ DTO
+
+    // Conversion Entité to DTO
     public static CookieChoiceDTO fromEntity(CookieChoice cookieChoice) {
         Objects.requireNonNull(cookieChoice, "Le choix de cookie ne peut pas être null.");
         return new CookieChoiceDTO(cookieChoice.getCookieName(), cookieChoice.isAccepted());
     }
-    // Conversion DTO ➝ Entité
+    // Conversion DTO to Entité
     public CookieChoice toEntity() {
         return new CookieChoice(this.cookieName, this.accepted);
     }
