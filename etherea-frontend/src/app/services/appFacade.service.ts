@@ -17,6 +17,9 @@ import { PaymentResponse } from '../components/models/PaymentResponse.model';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { DeliveryType } from '../components/models/DeliveryType.model';
 import { UpdateDeliveryMethodRequest } from '../components/models/UpdateDeliveryMethodRequest.model';
+import { CookieConsentService } from './cookie-consent.service';
+import { CookieConsent } from '../components/models/CookieConsent.model';
+import { CookieChoice } from '../components/models/cookie-choice.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +32,8 @@ export class AppFacade {
     public deliveryAddressService: DeliveryAddressService,
     private userService: UserService,
     public deliveryMethodService: DeliveryMethodService,
-    public paymentService: PaymentService
+    public paymentService: PaymentService,
+    private cookieConsentService: CookieConsentService
   ) {}
 
   // cartItem
@@ -167,5 +171,21 @@ export class AppFacade {
     paymentMethodId: string
   ): Observable<PaymentResponse> {
     return this.paymentService.confirmPayment(paymentIntentId, paymentMethodId);
+  }
+  //cookie-consent
+  acceptAllCookies(sessionId: string): Observable<CookieConsent | null> {
+    return this.cookieConsentService.acceptAllCookies(sessionId);
+  }
+  rejectAllCookies(sessionId: string): Observable<CookieConsent | null> {
+    return this.cookieConsentService.rejectAllCookies(sessionId);
+  }
+  customizeCookies(
+    sessionId: string,
+    cookieChoices: CookieChoice[]
+  ): Observable<CookieConsent | null> {
+    return this.cookieConsentService.customizeCookies(sessionId, cookieChoices);
+  }
+  getCookiesList(): Observable<CookieChoice[]> {
+    return this.cookieConsentService.getCookiesList();
   }
 }

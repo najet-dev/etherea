@@ -50,6 +50,8 @@ import { CookiesComponent } from './components/cookies/cookies.component';
 import { CookiePopupComponent } from './components/cookie-popup/cookie-popup.component';
 import { CookieService } from 'ngx-cookie-service';
 import { PersonalDataCharterComponent } from './components/personal-data-charter/personal-data-charter.component';
+import { SaleConditionComponent } from './components/sale-condition/sale-condition.component';
+import { FaqComponent } from './components/faq/faq.component';
 
 @NgModule({
   declarations: [
@@ -81,6 +83,8 @@ import { PersonalDataCharterComponent } from './components/personal-data-charter
     CookiesComponent,
     CookiePopupComponent,
     PersonalDataCharterComponent,
+    SaleConditionComponent,
+    FaqComponent,
   ],
   imports: [
     CommonModule,

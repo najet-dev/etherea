@@ -12,18 +12,18 @@
 }
 
 .quick-info h5 {
-  color: green;
-  font-weight: bold;
+  color: darkgreen;
+  font-weight: 500;
 }
 
 .footer {
   background-color: #f0fff0;
   padding: 30px 0;
-  border-top: 2px solid green;
+  border-top: 2px solid darkgreen;
 }
 
-.footer h5 {
-  color: green;
+.footer h4 {
+  color: darkgreen;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -65,7 +65,7 @@
 .newsletter-form input {
   flex: 1;
   padding: 10px;
-  border: 2px solid green;
+  border: 2px solid darkgreen;
   border-radius: 5px;
   font-size: 16px;
   max-width: 100%;
@@ -73,7 +73,7 @@
 }
 
 .newsletter-form button {
-  background-color: green;
+  background-color: darkgreen;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -85,13 +85,20 @@
 }
 
 .newsletter-form button:hover {
-  background-color: darkgreen;
+  background-color: var(--main-color);
 }
 .newsletter-form button:hover {
-  background-color: darkgreen;
+  background-color: var(--main-color);
 }
-
-@media (max-width: 768px) {
+.fab {
+  font-size: 20px;
+  padding: 15px;
+  color: darkgreen;
+}
+.fab:hover {
+  color: var(--main-color);
+}
+@media (max-width: 992px) {
   /* Empiler les sections sur les petits écrans */
   .footer .col-sm-6 {
     width: 100% !important;
@@ -118,7 +125,7 @@
   }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .footer .col-md-3 {
     width: 25% !important;
   }

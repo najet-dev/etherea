@@ -1,0 +1,32 @@
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Foire Aux Questions (FAQ)</h2>
+
+  <div class="row">
+    <div
+      class="col-md-4 col-sm-6 mb-4"
+      *ngFor="let item of faqItems"
+      (click)="selectedCategory = item"
+      [class.active]="selectedCategory === item"
+    >
+      <div class="card text-center p-3 shadow-sm">
+        <i class="fa-3x mb-3" [ngClass]="item.icon"></i>
+        <h3>{{ item.title }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Affichage des questions si une catégorie est sélectionnée -->
+  <div *ngIf="selectedCategory" class="mt-4">
+    <h2>{{ selectedCategory.title }}</h2>
+    <ul class="list-group">
+      <li
+        class="list-group-item"
+        *ngFor="let question of selectedCategory.questions"
+      >
+        <strong>{{ question.question }}</strong
+        ><br />
+        <p class="faq-answer">{{ question.answer }}</p>
+      </li>
+    </ul>
+  </div>
+</div>

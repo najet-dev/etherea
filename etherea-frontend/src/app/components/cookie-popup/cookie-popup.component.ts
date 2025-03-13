@@ -55,7 +55,8 @@ export class CookiePopupComponent implements OnInit {
     });
 
     const hasConsented = this.storageService.getItem('cookieConsent');
-    this.showBanner = !hasConsented;
+    console.log('Consentement déjà enregistré ?', hasConsented);
+    this.showBanner = !hasConsented; // La bannière ne s'affichera plus si l'utilisateur a déjà consenti.
   }
 
   /**
@@ -114,16 +115,38 @@ export class CookiePopupComponent implements OnInit {
       return;
     }
 
+    console.log(
+      'Tentative d’enregistrement des choix cookies...',
+      this.cookieChoices
+    );
+
     this.cookieConsentService
       .customizeCookies(this.sessionId, [...this.cookieChoices])
-      .subscribe((response) => {
-        if (response) {
+      .subscribe({
+        next: (response) => {
           console.log('Consentement personnalisé enregistré:', response);
-          this.showCustomization = false;
-          this.showBanner = false;
-        }
+
+          if (response) {
+            // Stocke le consentement et masque la bannière
+            this.storageService.setItem('cookieConsent', 'true');
+            this.showCustomization = false;
+            this.showBanner = false;
+
+            console.log('Bannière masquée.');
+
+            // Met à jour l'affichage
+            this.cdr.markForCheck();
+          }
+        },
+        error: (error) => {
+          console.error(
+            'Erreur lors de l’enregistrement du consentement.',
+            error
+          );
+        },
       });
   }
+
   openPopup(): void {
     this.showCustomization = true;
     this.cdr.detectChanges();
