@@ -15,6 +15,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { UpdateEmailRequest } from '../components/models/UpdateEmailRequest.model';
 import { StorageService } from './storage.service';
 import { UpdatePasswordRequest } from '../components/models/UpdatePasswordRequest.model';
+import { Newsletter } from '../components/models/newsletter.model';
 
 @Injectable({
   providedIn: 'root',
@@ -64,11 +65,6 @@ export class UserService {
       );
   }
   updateEmail(updateEmailRequest: UpdateEmailRequest): Observable<string> {
-    console.log(
-      "Données envoyées pour la mise à jour de l'email :",
-      updateEmailRequest
-    );
-
     const url = `${this.apiUrl}/users/update-email`;
     const token = this.storageService.getToken();
 
@@ -141,6 +137,27 @@ export class UserService {
           }
           console.error('Erreur mise à jour mot de passe :', error);
           return throwError(() => new Error(errorMessage));
+        })
+      );
+  }
+  subscribeToNewsletter(
+    newsletter: Newsletter
+  ): Observable<{ message: string }> {
+    return this.httpClient
+      .post<{ message: string }>(
+        `${this.apiUrl}/newsletter/subscribe`,
+        newsletter
+      )
+      .pipe(
+        tap((response) => console.log('Réponse du serveur:', response.message)),
+        catchError((error) => {
+          console.error(
+            "Erreur lors de l'inscription à la newsletter :",
+            error
+          );
+          return throwError(
+            () => new Error(error.error?.message || 'Erreur inconnue.')
+          );
         })
       );
   }

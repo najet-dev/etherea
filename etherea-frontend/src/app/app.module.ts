@@ -52,6 +52,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { PersonalDataCharterComponent } from './components/personal-data-charter/personal-data-charter.component';
 import { SaleConditionComponent } from './components/sale-condition/sale-condition.component';
 import { FaqComponent } from './components/faq/faq.component';
+import { StoryComponent } from './components/story/story.component';
 
 @NgModule({
   declarations: [
@@ -85,6 +86,7 @@ import { FaqComponent } from './components/faq/faq.component';
     PersonalDataCharterComponent,
     SaleConditionComponent,
     FaqComponent,
+    StoryComponent,
   ],
   imports: [
     CommonModule,

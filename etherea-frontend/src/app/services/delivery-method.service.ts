@@ -6,7 +6,7 @@ import { catchError, tap } from 'rxjs/operators';
 import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
 import { PickupPointDetails } from '../components/models/pickupPointDetails.model';
 import { CartWithDelivery } from '../components/models/CartWithDelivery.model';
-import { AddDeliveryMethodRequest } from '../components/models/AddDeliveryMethodRequest.model';
+import { AddDeliveryMethodRequest } from '../components/models/addDeliveryMethodRequest.model';
 import { DeliveryName } from '../components/models/DeliveryName.enum';
 import { DeliveryType } from '../components/models/DeliveryType.model';
 import { UpdateDeliveryMethodRequest } from '../components/models/UpdateDeliveryMethodRequest.model';

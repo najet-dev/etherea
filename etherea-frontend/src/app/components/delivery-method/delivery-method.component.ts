@@ -20,7 +20,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DeliveryMethodService } from 'src/app/services/delivery-method.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
-import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest.model';
+import { AddDeliveryMethodRequest } from '../models/addDeliveryMethodRequest.model';
 import { DeliveryName } from '../models/DeliveryName.enum';
 import { UpdateDeliveryMethodRequest } from '../models/UpdateDeliveryMethodRequest.model';
 import { DeliveryType } from '../models/DeliveryType.model';

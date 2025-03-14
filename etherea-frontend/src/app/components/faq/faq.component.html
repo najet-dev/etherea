@@ -6,9 +6,11 @@
       class="col-md-4 col-sm-6 mb-4"
       *ngFor="let item of faqItems"
       (click)="selectedCategory = item"
-      [class.active]="selectedCategory === item"
     >
-      <div class="card text-center p-3 shadow-sm">
+      <div
+        class="card text-center p-3 shadow-sm"
+        [class.active]="selectedCategory === item"
+      >
         <i class="fa-3x mb-3" [ngClass]="item.icon"></i>
         <h3>{{ item.title }}</h3>
       </div>

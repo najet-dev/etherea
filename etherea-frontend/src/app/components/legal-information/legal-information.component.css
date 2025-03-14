@@ -31,3 +31,6 @@ a {
 a:hover {
   color: darkgreen;
 }
+.btn-link {
+  margin-left: -10px;
+}

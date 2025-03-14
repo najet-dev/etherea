@@ -11,7 +11,7 @@ import { AuthService } from 'src/app/services/auth.service';
   templateUrl: './email.component.html',
   styleUrls: ['./email.component.css'],
 })
-export class EmailComponent implements OnInit {
+export class EmailComponent {
   userId: number = 0;
   updateEmailForm!: FormGroup;
   errorMessage: string = '';

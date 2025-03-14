@@ -20,6 +20,8 @@ import { UpdateDeliveryMethodRequest } from '../components/models/UpdateDelivery
 import { CookieConsentService } from './cookie-consent.service';
 import { CookieConsent } from '../components/models/CookieConsent.model';
 import { CookieChoice } from '../components/models/cookie-choice.model';
+import { UpdateEmailRequest } from '../components/models/UpdateEmailRequest.model';
+import { UpdatePasswordRequest } from '../components/models/UpdatePasswordRequest.model';
 
 @Injectable({
   providedIn: 'root',
@@ -142,6 +144,15 @@ export class AppFacade {
     return this.userService.getUserDetails(userId);
   }
 
+  updateEmail(updateEmailRequest: UpdateEmailRequest): Observable<string> {
+    return this.userService.updateEmail(updateEmailRequest);
+  }
+  updatePassword(
+    updatePasswordRequest: UpdatePasswordRequest
+  ): Observable<string> {
+    return this.userService.updatePassword(updatePasswordRequest);
+  }
+
   //Method
   getDeliveryTypes(userId: number): Observable<DeliveryType[]> {
     return this.deliveryMethodService.getDeliveryTypes(userId);
@@ -173,6 +184,9 @@ export class AppFacade {
     return this.paymentService.confirmPayment(paymentIntentId, paymentMethodId);
   }
   //cookie-consent
+  getSessionId(): Observable<string> {
+    return this.cookieConsentService.getSessionId();
+  }
   acceptAllCookies(sessionId: string): Observable<CookieConsent | null> {
     return this.cookieConsentService.acceptAllCookies(sessionId);
   }

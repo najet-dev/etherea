@@ -62,6 +62,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/payments/**").permitAll()
                                 .requestMatchers("/command/**").permitAll()
                                 .requestMatchers("/cookies/**").permitAll()
+                                .requestMatchers("/newsletter/**").permitAll()
 
                                 .anyRequest().authenticated()
                 );

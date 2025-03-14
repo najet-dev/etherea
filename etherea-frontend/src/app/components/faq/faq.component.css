@@ -1,3 +1,6 @@
 .faq-answer {
   white-space: pre-line;
 }
+.active {
+  border: 2px solid darkgreen;
+}

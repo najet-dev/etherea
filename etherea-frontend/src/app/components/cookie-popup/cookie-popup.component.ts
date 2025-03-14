@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CookieConsentService } from 'src/app/services/cookie-consent.service';
 import { CookieChoice } from '../models/cookie-choice.model';
 import { StorageService } from 'src/app/services/storage.service';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-cookie-popup',
@@ -17,13 +18,13 @@ export class CookiePopupComponent implements OnInit {
   isLoading = true;
 
   constructor(
-    private cookieConsentService: CookieConsentService,
+    private appFacade: AppFacade,
     private storageService: StorageService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.cookieConsentService.getSessionId().subscribe({
+    this.appFacade.getSessionId().subscribe({
       next: (sessionId) => {
         if (sessionId) {
           this.sessionId = sessionId;
@@ -37,7 +38,7 @@ export class CookiePopupComponent implements OnInit {
     });
 
     // Récupérer la liste des cookies
-    this.cookieConsentService.getCookiesList().subscribe({
+    this.appFacade.getCookiesList().subscribe({
       next: (cookies) => {
         console.log('Cookies récupérés :', cookies);
 
@@ -68,14 +69,12 @@ export class CookiePopupComponent implements OnInit {
       return;
     }
 
-    this.cookieConsentService
-      .acceptAllCookies(this.sessionId)
-      .subscribe((response) => {
-        if (response) {
-          this.storageService.setItem('cookieConsent', 'true');
-          this.showBanner = false;
-        }
-      });
+    this.appFacade.acceptAllCookies(this.sessionId).subscribe((response) => {
+      if (response) {
+        this.storageService.setItem('cookieConsent', 'true');
+        this.showBanner = false;
+      }
+    });
   }
 
   /**
@@ -87,14 +86,12 @@ export class CookiePopupComponent implements OnInit {
       return;
     }
 
-    this.cookieConsentService
-      .rejectAllCookies(this.sessionId)
-      .subscribe((response) => {
-        if (response) {
-          this.storageService.setItem('cookieConsent', 'true');
-          this.showBanner = false;
-        }
-      });
+    this.appFacade.rejectAllCookies(this.sessionId).subscribe((response) => {
+      if (response) {
+        this.storageService.setItem('cookieConsent', 'true');
+        this.showBanner = false;
+      }
+    });
   }
 
   /**
@@ -120,7 +117,7 @@ export class CookiePopupComponent implements OnInit {
       this.cookieChoices
     );
 
-    this.cookieConsentService
+    this.appFacade
       .customizeCookies(this.sessionId, [...this.cookieChoices])
       .subscribe({
         next: (response) => {

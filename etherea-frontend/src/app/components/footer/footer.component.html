@@ -30,9 +30,21 @@
           À propos <i id="apropos-icon" class="fas fa-chevron-down"></i>
         </h4>
         <ul class="list-unstyled" id="apropos">
-          <li><a href="#">Notre histoire</a></li>
+          <li><a routerLink="/story">Notre histoire</a></li>
+          <li><a href="#">La marque</a></li>
           <li><a href="#">Nos conseils</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 col-sm-6 footer-section">
+        <h4 class="footer-toggle" (click)="toggleSection('support')">
+          Support<i id="support-icon" class="fas fa-chevron-down"></i>
+        </h4>
+        <ul class="list-unstyled" id="support">
+          <li><a routerLink="/faq">FAQ</a></li>
           <li><a href="#">Contactez-nous</a></li>
+          <li><a href="#">Suivi de commande</a></li>
+          <li><a href="#">Service client</a></li>
         </ul>
       </div>
 
@@ -53,28 +65,24 @@
               >Charte des données personnelles</a
             >
           </li>
-          <li><a href="#">Livraisons et retours</a></li>
-          <li><a href="#">La marque</a></li>
-        </ul>
-      </div>
-
-      <div class="col-md-3 col-sm-6 footer-section">
-        <h4 class="footer-toggle" (click)="toggleSection('support')">
-          Support<i id="support-icon" class="fas fa-chevron-down"></i>
-        </h4>
-        <ul class="list-unstyled" id="support">
-          <li><a routerLink="/faq">FAQ</a></li>
-          <li><a href="#">Suivi de commande</a></li>
-          <li><a href="#">Service client</a></li>
         </ul>
       </div>
 
       <div class="col-md-3 col-sm-6 newsletter-section">
         <h4>S'inscrire à la newsletter</h4>
-        <form class="newsletter-form">
-          <input type="email" placeholder="Votre email" required />
-          <button type="submit">S'abonner</button>
+        <form class="newsletter-form" (ngSubmit)="onSubscribe()">
+          <input
+            type="email"
+            placeholder="Votre email"
+            [(ngModel)]="email"
+            name="email"
+            required
+          />
+          <button type="submit" [disabled]="!email">S'abonner</button>
         </form>
+
+        <!-- Message d'inscription -->
+        <p *ngIf="message" class="subscription-message">{{ message }}</p>
       </div>
     </div>
     <!-- Section Réseaux Sociaux -->

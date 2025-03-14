@@ -17,6 +17,7 @@ import { CookiesComponent } from './components/cookies/cookies.component';
 import { PersonalDataCharterComponent } from './components/personal-data-charter/personal-data-charter.component';
 import { SaleConditionComponent } from './components/sale-condition/sale-condition.component';
 import { FaqComponent } from './components/faq/faq.component';
+import { StoryComponent } from './components/story/story.component';
 
 const routes: Routes = [
   {
@@ -43,6 +44,7 @@ const routes: Routes = [
   { path: 'personal-Data-Charter', component: PersonalDataCharterComponent },
   { path: 'sale-condition', component: SaleConditionComponent },
   { path: 'faq', component: FaqComponent },
+  { path: 'story', component: StoryComponent },
 
   {
     path: 'cream',
