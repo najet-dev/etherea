@@ -1,5 +1,5 @@
-import { DeliveryAddress } from './DeliveryAddress.model';
-import { DeliveryType } from './DeliveryType.model';
+import { DeliveryAddress } from './deliveryAddress.model';
+import { DeliveryType } from './deliveryType.model';
 import { PickupPointDetails } from './pickupPointDetails.model';
 
 export interface DeliveryMethod {

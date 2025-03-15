@@ -1,7 +1,7 @@
-import { Product } from './Product.model';
-import { FaceProduct } from './FaceProduct.model';
-import { HairProduct } from './HairProduct.model';
-import { ProductVolume } from './ProductVolume.model';
+import { Product } from './product.model';
+import { FaceProduct } from './faceProduct.model';
+import { HairProduct } from './hairProduct.model';
+import { ProductVolume } from './productVolume.model';
 
 export interface Cart {
   id: number;

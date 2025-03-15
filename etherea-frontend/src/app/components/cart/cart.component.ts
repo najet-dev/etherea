@@ -1,15 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CartService } from 'src/app/services/cart.service';
 import { Cart } from 'src/app/components/models/cart.model';
 import { AuthService } from 'src/app/services/auth.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { Product } from '../models/Product.model';
-import { ProductVolume } from '../models/ProductVolume.model';
+import { Product } from '../models/product.model';
+import { ProductVolume } from '../models/productVolume.model';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { ProductTypeService } from 'src/app/services/product-type.service';
-import { HairProduct } from '../models/HairProduct.model';
+import { HairProduct } from '../models/hairProduct.model';
 import { CartCalculationService } from 'src/app/services/cart-calculation.service';
 
 @Component({

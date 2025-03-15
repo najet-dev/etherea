@@ -10,14 +10,14 @@ import { SigninComponent } from './components/signin/signin.component';
 import { FavoriteComponent } from './components/favorite/favorite.component';
 import { OrderComponent } from './components/order/order.component';
 import { DeliveryMethodComponent } from './components/delivery-method/delivery-method.component';
-import { EmailComponent } from './components/email/email.component';
-import { PasswordComponent } from './components/password/password.component';
 import { LegalInformationComponent } from './components/legal-information/legal-information.component';
 import { CookiesComponent } from './components/cookies/cookies.component';
 import { PersonalDataCharterComponent } from './components/personal-data-charter/personal-data-charter.component';
 import { SaleConditionComponent } from './components/sale-condition/sale-condition.component';
 import { FaqComponent } from './components/faq/faq.component';
 import { StoryComponent } from './components/story/story.component';
+import { UpdateEmailComponent } from './components/update-email/update-email.component';
+import { UpdatePasswordComponent } from './components/update-password/update-password.component';
 
 const routes: Routes = [
   {
@@ -37,8 +37,8 @@ const routes: Routes = [
   { path: 'order', component: OrderComponent },
   { path: 'order/:addressId', component: OrderComponent },
   { path: 'deliveryMethod/:addressId', component: DeliveryMethodComponent },
-  { path: 'email', component: EmailComponent },
-  { path: 'password', component: PasswordComponent },
+  { path: 'updateEmail', component: UpdateEmailComponent },
+  { path: 'updatePassword', component: UpdatePasswordComponent },
   { path: 'legal-information', component: LegalInformationComponent },
   { path: 'politique-cookies', component: CookiesComponent },
   { path: 'personal-Data-Charter', component: PersonalDataCharterComponent },

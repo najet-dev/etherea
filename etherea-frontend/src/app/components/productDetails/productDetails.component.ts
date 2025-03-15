@@ -8,12 +8,12 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 import { DestroyRef, inject } from '@angular/core';
 import { SigninRequest } from '../models/signinRequest.model';
 import { ProductSummaryComponent } from '../product-summary/product-summary.component';
-import { ProductType } from '../models/ProductType.enum';
+import { ProductType } from '../models/productType.enum';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { Cart } from '../models/cart.model';
-import { HairProduct } from '../models/HairProduct.model';
-import { FaceProduct } from '../models/FaceProduct.model';
-import { ProductVolume } from '../models/ProductVolume.model';
+import { HairProduct } from '../models/hairProduct.model';
+import { FaceProduct } from '../models/faceProduct.model';
+import { ProductVolume } from '../models/productVolume.model';
 
 @Component({
   selector: 'app-product-details',

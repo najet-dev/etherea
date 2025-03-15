@@ -42,8 +42,6 @@ import { NgxStripeModule } from 'ngx-stripe';
 import { environment } from '../environments/environment';
 import { CommonModule } from '@angular/common';
 import { PaymentComponent } from './components/payment/payment.component';
-import { EmailComponent } from './components/email/email.component';
-import { PasswordComponent } from './components/password/password.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { LegalInformationComponent } from './components/legal-information/legal-information.component';
 import { CookiesComponent } from './components/cookies/cookies.component';
@@ -53,6 +51,8 @@ import { PersonalDataCharterComponent } from './components/personal-data-charter
 import { SaleConditionComponent } from './components/sale-condition/sale-condition.component';
 import { FaqComponent } from './components/faq/faq.component';
 import { StoryComponent } from './components/story/story.component';
+import { UpdateEmailComponent } from './components/update-email/update-email.component';
+import { UpdatePasswordComponent } from './components/update-password/update-password.component';
 
 @NgModule({
   declarations: [
@@ -77,8 +77,8 @@ import { StoryComponent } from './components/story/story.component';
     DeliveryMethodComponent,
     ProductDisplayComponent,
     PaymentComponent,
-    EmailComponent,
-    PasswordComponent,
+    UpdateEmailComponent,
+    UpdatePasswordComponent,
     FooterComponent,
     LegalInformationComponent,
     CookiesComponent,
@@ -87,6 +87,7 @@ import { StoryComponent } from './components/story/story.component';
     SaleConditionComponent,
     FaqComponent,
     StoryComponent,
+    UpdatePasswordComponent,
   ],
   imports: [
     CommonModule,

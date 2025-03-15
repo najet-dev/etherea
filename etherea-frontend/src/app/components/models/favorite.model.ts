@@ -1,6 +1,4 @@
-import { Cart } from './cart.model';
-import { Product } from './Product.model';
-import { ProductVolume } from './ProductVolume.model';
+import { Product } from './product.model';
 
 export interface Favorite {
   id: number;

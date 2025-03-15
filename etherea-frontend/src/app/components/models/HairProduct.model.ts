@@ -1,6 +1,6 @@
-import { Product } from './Product.model';
-import { ProductType } from './ProductType.enum';
-import { ProductVolume } from './ProductVolume.model';
+import { Product } from './product.model';
+import { ProductType } from './productType.enum';
+import { ProductVolume } from './productVolume.model';
 
 export interface HairProduct extends Product {
   type: ProductType.HAIR;

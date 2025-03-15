@@ -12,10 +12,10 @@ import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
 import { SignupRequest } from '../components/models/SignupRequest.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { UpdateEmailRequest } from '../components/models/UpdateEmailRequest.model';
 import { StorageService } from './storage.service';
-import { UpdatePasswordRequest } from '../components/models/UpdatePasswordRequest.model';
 import { Newsletter } from '../components/models/newsletter.model';
+import { UpdateEmailRequest } from '../components/models/updateEmailRequest.model';
+import { UpdatePasswordRequest } from '../components/models/updatePasswordRequest.model';
 
 @Injectable({
   providedIn: 'root',

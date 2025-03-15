@@ -1,17 +1,16 @@
-import { Component, OnInit, DestroyRef, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { UserService } from 'src/app/services/user.service';
-import { tap } from 'rxjs/operators';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { tap } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
-  selector: 'app-email',
-  templateUrl: './email.component.html',
-  styleUrls: ['./email.component.css'],
+  selector: 'app-update-email',
+  templateUrl: './update-email.component.html',
+  styleUrls: ['./update-email.component.css'],
 })
-export class EmailComponent {
+export class UpdateEmailComponent {
   userId: number = 0;
   updateEmailForm!: FormGroup;
   errorMessage: string = '';
@@ -77,7 +76,7 @@ export class EmailComponent {
     }
 
     const updateEmailRequest = {
-      userId: this.userId, // Ajoute l'ID utilisateur
+      userId: this.userId,
       currentEmail: this.updateEmailForm.value.currentEmail,
       newEmail: this.updateEmailForm.value.newEmail,
     };

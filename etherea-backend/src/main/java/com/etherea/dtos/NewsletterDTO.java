@@ -4,6 +4,7 @@ import com.etherea.models.Newsletter;
 public class NewsletterDTO {
     private Long id;
     private String email;
+    public NewsletterDTO() { }
     public NewsletterDTO(Long id, String email) {
         this.id = id;
         this.email = email;

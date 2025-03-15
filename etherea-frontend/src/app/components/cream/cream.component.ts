@@ -1,17 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Product } from '../models/Product.model';
+import { Product } from '../models/product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
-import { ProductService } from 'src/app/services/product.service';
-import { FavoriteService } from 'src/app/services/favorite.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { ProductVolume } from '../models/ProductVolume.model';
-import { ProductTypeService } from 'src/app/services/product-type.service'; // Ajout du service
-import { FaceProduct } from '../models'; // Assurez-vous que ce modèle est correctement importé
+import { ProductTypeService } from 'src/app/services/product-type.service';
+import { FaceProduct } from '../models/faceProduct.model';
 
 @Component({
   selector: 'app-day-cream',
