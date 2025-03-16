@@ -1,0 +1,115 @@
+<div class="container py-5">
+  <h2 class="text-center mb-4">La Marque</h2>
+
+  <div class="row align-items-center mb-4">
+    <div class="col-lg-6 mb-3">
+      <img
+        src="/assets/laboratoire.webp"
+        class="img-fluid rounded shadow"
+        alt="Illustration savoir-faire"
+      />
+    </div>
+    <div class="col-lg-6">
+      <h2 class="fw-600">
+        Notre savoir-faire formulatoire en toute transparence
+      </h2>
+      <p>
+        Nous nous engageons à tout vous dire sur nos formules, nos ingrédients,
+        nos méthodes et nos lieux de production. Nous décryptons pour vous les
+        formules de nos produits et détaillons le rôle des ingrédients.
+      </p>
+    </div>
+  </div>
+
+  <div class="row align-items-center flex-lg-row-reverse mb-4">
+    <div class="col-lg-6 mb-3">
+      <img
+        src="/assets/environement.webp"
+        class="img-fluid rounded shadow"
+        alt="Illustration engagement planète"
+      />
+    </div>
+    <div class="col-lg-6">
+      <h2 class="fw-600">Un engagement pour la planète</h2>
+      <p>
+        Nous sélectionnons nos plantes en fonction de notre engagement pour la
+        planète en veillant à ce que les cultures respectent les bonnes
+        pratiques agricoles, en privilégiant un sourcing local et en mesurant
+        notre impact sur la biodiversité.
+      </p>
+    </div>
+  </div>
+
+  <div class="row align-items-center mb-4">
+    <div class="col-lg-6 mb-3">
+      <img
+        src="/assets/test.webp"
+        class="img-fluid rounded shadow"
+        alt="Illustration laboratoire"
+      />
+    </div>
+    <div class="col-lg-6">
+      <h2 class="fw-600">Les coulisses de notre laboratoire</h2>
+      <p>
+        Nous vous dévoilons les coulisses de notre laboratoire et de nos usines
+        et vous présentons ceux qui participent à l'élaboration de vos soins.
+        Nous vous expliquons pourquoi vendre sans intermédiaire nous permet
+        d'être une marque généreuse avec vous.
+      </p>
+    </div>
+  </div>
+</div>
+<div class="section" (click)="toggleSection('formules')">
+  On vous dit tout sur nos formules
+  <i
+    [ngClass]="{ rotate: sectionsState['formules'] }"
+    class="fas fa-chevron-down"
+  ></i>
+</div>
+<div *ngIf="sectionsState['formules']">
+  <p class="paragraphe">
+    Notre charte de formulation nous engage au plus haut niveau d'exigence et
+    nous permet d'allier efficacité, sensorialité et tolérance. Expert en
+    cosmétique anti-âge, 85% de nos soins visage et corps contiennent au moins
+    70% ingrédients d'origine naturelle. Tous les composants de nos formules
+    sont sélectionnés pour respecter la santé de votre peau. Nous vous informons
+    sur chaque ingrédient qui compose nos formules pour garantir l'efficacité,
+    la sensorialité et la tolérance. Retrouvez nos ingrédients actifs
+    directement sur les pages de produits du site. Notre service client est
+    également à votre écoute pour vous répondre en toute transparence.
+  </p>
+</div>
+
+<div class="section" (click)="toggleSection('tests')">
+  On vous dit tout sur nos tests
+  <i
+    [ngClass]="{ rotate: sectionsState['tests'] }"
+    class="fas fa-chevron-down"
+  ></i>
+</div>
+<div *ngIf="sectionsState['tests']">
+  <p class="paragraphe">
+    Nos soins visages sont testés sous contrôle dermatologique et nos soins
+    contour des yeux sous contrôle ophtalmologique. Chacune de nos formules est
+    signée par un dermatologue. Si un produit ne convient pas à votre peau,
+    notre système de cosmétovigilance nous permet de vérifier le contexte
+    d'utilisation du produit et de déterminer avec l'aide d'un dermatologue les
+    facteurs exogènes qui ont pu interagir.
+  </p>
+</div>
+
+<div class="section" (click)="toggleSection('qualite')">
+  On vous dit tout sur nos contrôles qualité et traçabilité
+  <i
+    [ngClass]="{ rotate: sectionsState['qualite'] }"
+    class="fas fa-chevron-down"
+  ></i>
+</div>
+<div *ngIf="sectionsState['qualite']">
+  <p class="paragraphe">
+    Pour chaque lot de fabrication, nous réalisons le contrôle des matières
+    premières puis des contrôles sur les produits finis. Pour chaque produit
+    nous indiquons le numéro de lot pour la traçabilité et la date limite de
+    consommation.
+  </p>
+</div>

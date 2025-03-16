@@ -1,16 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ProductService } from 'src/app/services/product.service';
-import { Product } from '../models/Product.model';
+import { Product } from '../models/product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
-import { FavoriteService } from 'src/app/services/favorite.service';
 import { Router } from '@angular/router';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
-import { HairProduct } from '../models';
+import { HairProduct } from '../models/hairProduct.model';
 
 @Component({
   selector: 'app-hair',
@@ -20,7 +18,7 @@ import { HairProduct } from '../models';
 export class HairComponent implements OnInit {
   products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
-  private destroyRef = inject(DestroyRef); // Inject DestroyRef
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,

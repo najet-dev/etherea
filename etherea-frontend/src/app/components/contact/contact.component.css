@@ -1,0 +1,105 @@
+.container {
+  margin-top: 2rem;
+  padding: 0 15px;
+}
+
+.cardbody-color {
+  padding: 2rem;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-control {
+  border: none;
+  border-bottom: 1px solid rgb(186, 183, 183);
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 16px;
+  padding: 10px;
+  width: 100%;
+}
+
+.form-control:focus {
+  border-bottom: 2px solid var(--main-color);
+  outline: none;
+  box-shadow: none;
+}
+.message {
+  border: 2px solid rgb(186, 183, 183);
+  margin-top: 15px;
+}
+.error-message {
+  color: red;
+}
+.success-message {
+  background-color: #d4edda;
+  color: darkgreen;
+  border: 2px solid #c3e6cb;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+  margin-top: 20px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 770px) {
+  .col-md-6 {
+    width: 100%;
+  }
+
+  .cardbody-color {
+    padding: 1.5rem;
+  }
+
+  .form-control {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .btn-primary {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 10px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  .form-control {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .btn-primary {
+    font-size: 14px;
+    padding: 12px;
+  }
+}

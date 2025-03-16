@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CookieConsentService } from 'src/app/services/cookie-consent.service';
 import { CookieChoice } from '../models/cookie-choice.model';
 import { StorageService } from 'src/app/services/storage.service';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-cookie-popup',
@@ -17,13 +18,13 @@ export class CookiePopupComponent implements OnInit {
   isLoading = true;
 
   constructor(
-    private cookieConsentService: CookieConsentService,
+    private appFacade: AppFacade,
     private storageService: StorageService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.cookieConsentService.getSessionId().subscribe({
+    this.appFacade.getSessionId().subscribe({
       next: (sessionId) => {
         if (sessionId) {
           this.sessionId = sessionId;
@@ -37,7 +38,7 @@ export class CookiePopupComponent implements OnInit {
     });
 
     // Récupérer la liste des cookies
-    this.cookieConsentService.getCookiesList().subscribe({
+    this.appFacade.getCookiesList().subscribe({
       next: (cookies) => {
         console.log('Cookies récupérés :', cookies);
 
@@ -55,7 +56,8 @@ export class CookiePopupComponent implements OnInit {
     });
 
     const hasConsented = this.storageService.getItem('cookieConsent');
-    this.showBanner = !hasConsented;
+    console.log('Consentement déjà enregistré ?', hasConsented);
+    this.showBanner = !hasConsented; // La bannière ne s'affichera plus si l'utilisateur a déjà consenti.
   }
 
   /**
@@ -67,14 +69,12 @@ export class CookiePopupComponent implements OnInit {
       return;
     }
 
-    this.cookieConsentService
-      .acceptAllCookies(this.sessionId)
-      .subscribe((response) => {
-        if (response) {
-          this.storageService.setItem('cookieConsent', 'true');
-          this.showBanner = false;
-        }
-      });
+    this.appFacade.acceptAllCookies(this.sessionId).subscribe((response) => {
+      if (response) {
+        this.storageService.setItem('cookieConsent', 'true');
+        this.showBanner = false;
+      }
+    });
   }
 
   /**
@@ -86,14 +86,12 @@ export class CookiePopupComponent implements OnInit {
       return;
     }
 
-    this.cookieConsentService
-      .rejectAllCookies(this.sessionId)
-      .subscribe((response) => {
-        if (response) {
-          this.storageService.setItem('cookieConsent', 'true');
-          this.showBanner = false;
-        }
-      });
+    this.appFacade.rejectAllCookies(this.sessionId).subscribe((response) => {
+      if (response) {
+        this.storageService.setItem('cookieConsent', 'true');
+        this.showBanner = false;
+      }
+    });
   }
 
   /**
@@ -114,16 +112,38 @@ export class CookiePopupComponent implements OnInit {
       return;
     }
 
-    this.cookieConsentService
+    console.log(
+      'Tentative d’enregistrement des choix cookies...',
+      this.cookieChoices
+    );
+
+    this.appFacade
       .customizeCookies(this.sessionId, [...this.cookieChoices])
-      .subscribe((response) => {
-        if (response) {
+      .subscribe({
+        next: (response) => {
           console.log('Consentement personnalisé enregistré:', response);
-          this.showCustomization = false;
-          this.showBanner = false;
-        }
+
+          if (response) {
+            // Stocke le consentement et masque la bannière
+            this.storageService.setItem('cookieConsent', 'true');
+            this.showCustomization = false;
+            this.showBanner = false;
+
+            console.log('Bannière masquée.');
+
+            // Met à jour l'affichage
+            this.cdr.markForCheck();
+          }
+        },
+        error: (error) => {
+          console.error(
+            'Erreur lors de l’enregistrement du consentement.',
+            error
+          );
+        },
       });
   }
+
   openPopup(): void {
     this.showCustomization = true;
     this.cdr.detectChanges();

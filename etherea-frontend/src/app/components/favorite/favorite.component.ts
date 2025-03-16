@@ -1,13 +1,13 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { Favorite } from '../models/favorite.model';
-import { Product } from '../models/Product.model';
-import { ProductVolume } from '../models/ProductVolume.model';
+import { Product } from '../models/product.model';
+import { ProductVolume } from '../models/productVolume.model';
 import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
-import { HairProduct } from '../models/HairProduct.model';
-import { FaceProduct } from '../models/FaceProduct.model';
+import { HairProduct } from '../models/hairProduct.model';
+import { FaceProduct } from '../models/faceProduct.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Cart } from '../models/cart.model';
 import { forkJoin, map, switchMap } from 'rxjs';

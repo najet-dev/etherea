@@ -38,22 +38,12 @@ public class ProductService {
     private static final String UPLOAD_DIR = "assets";
     private final ModelMapper modelMapper = new ModelMapper();
     public List<ProductDTO> getProducts(int limit) {
-        List<Product> facialProducts = productRepository.findByType(
-                ProductType.FACE,
-                PageRequest.of(0, limit / 2, Sort.by(Sort.Direction.ASC, "id"))
-        ).getContent();
+        List<Product> products = productRepository.findByTypeIn(
+                Arrays.asList(ProductType.FACE, ProductType.HAIR),
+                PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "id"))
+        );
 
-        List<Product> hairProducts = productRepository.findByType(
-                ProductType.HAIR,
-                PageRequest.of(0, limit / 2, Sort.by(Sort.Direction.ASC, "id"))
-        ).getContent();
-
-        List<Product> allProducts = new ArrayList<>();
-        allProducts.addAll(facialProducts);
-        allProducts.addAll(hairProducts);
-        Collections.shuffle(allProducts);
-
-        return allProducts.stream()
+        return products.stream()
                 .map(ProductDTO::fromProduct)
                 .collect(Collectors.toList());
     }

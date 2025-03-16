@@ -18,7 +18,6 @@ import { MatListModule } from '@angular/material/list';
 import { CreamComponent } from './components/cream/cream.component';
 import { NewComponent } from './components/new/new.component';
 import { HairComponent } from './components/hair/hair.component';
-import { ContactComponent } from './components/contact/contact.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -42,14 +41,19 @@ import { NgxStripeModule } from 'ngx-stripe';
 import { environment } from '../environments/environment';
 import { CommonModule } from '@angular/common';
 import { PaymentComponent } from './components/payment/payment.component';
-import { EmailComponent } from './components/email/email.component';
-import { PasswordComponent } from './components/password/password.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { LegalInformationComponent } from './components/legal-information/legal-information.component';
 import { CookiesComponent } from './components/cookies/cookies.component';
 import { CookiePopupComponent } from './components/cookie-popup/cookie-popup.component';
 import { CookieService } from 'ngx-cookie-service';
 import { PersonalDataCharterComponent } from './components/personal-data-charter/personal-data-charter.component';
+import { SaleConditionComponent } from './components/sale-condition/sale-condition.component';
+import { FaqComponent } from './components/faq/faq.component';
+import { StoryComponent } from './components/story/story.component';
+import { UpdateEmailComponent } from './components/update-email/update-email.component';
+import { UpdatePasswordComponent } from './components/update-password/update-password.component';
+import { ContactComponent } from './components/contact/contact.component';
+import { BrandComponent } from './components/brand/brand.component';
 
 @NgModule({
   declarations: [
@@ -74,13 +78,18 @@ import { PersonalDataCharterComponent } from './components/personal-data-charter
     DeliveryMethodComponent,
     ProductDisplayComponent,
     PaymentComponent,
-    EmailComponent,
-    PasswordComponent,
+    UpdateEmailComponent,
+    UpdatePasswordComponent,
     FooterComponent,
     LegalInformationComponent,
     CookiesComponent,
     CookiePopupComponent,
     PersonalDataCharterComponent,
+    SaleConditionComponent,
+    FaqComponent,
+    StoryComponent,
+    UpdatePasswordComponent,
+    BrandComponent,
   ],
   imports: [
     CommonModule,

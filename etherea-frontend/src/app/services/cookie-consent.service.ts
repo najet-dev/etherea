@@ -4,8 +4,8 @@ import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { CookieService } from 'ngx-cookie-service';
-import { CookieConsent } from '../components/models/CookieConsent.model';
-import { SaveCookieConsentRequest } from '../components/models/SaveCookieConsentRequest.model';
+import { CookieConsent } from '../components/models/cookieConsent.model';
+import { SaveCookieConsentRequest } from '../components/models/saveCookieConsentRequest.model';
 import { CookiePolicyVersion } from '../components/models/CookiePolicyVersion.enum';
 import { CookieChoice } from '../components/models/cookie-choice.model';
 

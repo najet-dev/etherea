@@ -4,14 +4,14 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { tap } from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { UserService } from 'src/app/services/user.service';
-import { UpdatePasswordRequest } from '../models/UpdatePasswordRequest.model';
+import { UpdatePasswordRequest } from '../models/updatePasswordRequest.model';
 
 @Component({
-  selector: 'app-password',
-  templateUrl: './password.component.html',
-  styleUrls: ['./password.component.css'],
+  selector: 'app-update-password',
+  templateUrl: './update-password.component.html',
+  styleUrls: ['./update-password.component.css'],
 })
-export class PasswordComponent {
+export class UpdatePasswordComponent {
   userId: number = 0;
   updatePasswordForm!: FormGroup;
   errorMessage: string = '';

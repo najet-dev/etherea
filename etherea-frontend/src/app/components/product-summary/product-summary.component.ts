@@ -5,11 +5,11 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Product } from '../models/Product.model';
-import { ProductType } from '../models/ProductType.enum';
+import { Product } from '../models/product.model';
+import { ProductType } from '../models/productType.enum';
 import { Cart } from '../models/cart.model';
-import { ProductVolume } from '../models/ProductVolume.model';
 import { ProductTypeService } from 'src/app/services/product-type.service';
+import { ProductVolume } from '../models/productVolume.model';
 
 @Component({
   selector: 'app-product-summary-modal',

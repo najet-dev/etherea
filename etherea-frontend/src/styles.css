@@ -36,6 +36,7 @@ body {
 .card {
   border: 1px solid black;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
 }
 .card:hover {
   border-color: green;
@@ -94,6 +95,3 @@ body {
   text-decoration: none;
   text-align: center;
 }
-
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -10,8 +10,8 @@ import { switchMap, filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 
-import { DeliveryAddress } from '../models/DeliveryAddress.model';
-import { DeliveryMethod } from '../models/DeliveryMethod.model';
+import { DeliveryAddress } from '../models/deliveryAddress.model';
+import { DeliveryMethod } from '../models/deliveryMethod.model';
 import { PickupPointDetails } from '../models/pickupPointDetails.model';
 import { Cart } from '../models/cart.model';
 
@@ -20,10 +20,10 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DeliveryMethodService } from 'src/app/services/delivery-method.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
-import { AddDeliveryMethodRequest } from '../models/AddDeliveryMethodRequest.model';
+import { AddDeliveryMethodRequest } from '../models/addDeliveryMethodRequest.model';
 import { DeliveryName } from '../models/DeliveryName.enum';
-import { UpdateDeliveryMethodRequest } from '../models/UpdateDeliveryMethodRequest.model';
-import { DeliveryType } from '../models/DeliveryType.model';
+import { UpdateDeliveryMethodRequest } from '../models/updateDeliveryMethodRequest.model';
+import { DeliveryType } from '../models/deliveryType.model';
 
 @Component({
   selector: 'app-delivery-method',

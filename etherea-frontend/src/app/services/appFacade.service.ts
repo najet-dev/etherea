@@ -5,18 +5,23 @@ import { ProductService } from './product.service';
 import { CartService } from './cart.service';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
-import { Product } from '../components/models/Product.model';
-import { DeliveryAddress } from '../components/models/DeliveryAddress.model';
+import { Product } from '../components/models/product.model';
+import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 import { SignupRequest } from '../components/models/SignupRequest.model';
 import { UserService } from './user.service';
 import { DeliveryAddressService } from './delivery-address.service';
 import { DeliveryMethodService } from './delivery-method.service';
 import { PaymentService } from './payment.service';
-import { PaymentRequest } from '../components/models/PaymentRequest.model';
-import { PaymentResponse } from '../components/models/PaymentResponse.model';
-import { DeliveryMethod } from '../components/models/DeliveryMethod.model';
-import { DeliveryType } from '../components/models/DeliveryType.model';
-import { UpdateDeliveryMethodRequest } from '../components/models/UpdateDeliveryMethodRequest.model';
+import { PaymentRequest } from '../components/models/paymentRequest.model';
+import { PaymentResponse } from '../components/models/paymentResponse.model';
+import { DeliveryMethod } from '../components/models/deliveryMethod.model';
+import { DeliveryType } from '../components/models/deliveryType.model';
+import { UpdateDeliveryMethodRequest } from '../components/models/updateDeliveryMethodRequest.model';
+import { CookieConsentService } from './cookie-consent.service';
+import { CookieConsent } from '../components/models/cookieConsent.model';
+import { CookieChoice } from '../components/models/cookie-choice.model';
+import { UpdateEmailRequest } from '../components/models/updateEmailRequest.model';
+import { UpdatePasswordRequest } from '../components/models/updatePasswordRequest.model';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +34,8 @@ export class AppFacade {
     public deliveryAddressService: DeliveryAddressService,
     private userService: UserService,
     public deliveryMethodService: DeliveryMethodService,
-    public paymentService: PaymentService
+    public paymentService: PaymentService,
+    private cookieConsentService: CookieConsentService
   ) {}
 
   // cartItem
@@ -138,6 +144,15 @@ export class AppFacade {
     return this.userService.getUserDetails(userId);
   }
 
+  updateEmail(updateEmailRequest: UpdateEmailRequest): Observable<string> {
+    return this.userService.updateEmail(updateEmailRequest);
+  }
+  updatePassword(
+    updatePasswordRequest: UpdatePasswordRequest
+  ): Observable<string> {
+    return this.userService.updatePassword(updatePasswordRequest);
+  }
+
   //Method
   getDeliveryTypes(userId: number): Observable<DeliveryType[]> {
     return this.deliveryMethodService.getDeliveryTypes(userId);
@@ -167,5 +182,24 @@ export class AppFacade {
     paymentMethodId: string
   ): Observable<PaymentResponse> {
     return this.paymentService.confirmPayment(paymentIntentId, paymentMethodId);
+  }
+  //cookie-consent
+  getSessionId(): Observable<string> {
+    return this.cookieConsentService.getSessionId();
+  }
+  acceptAllCookies(sessionId: string): Observable<CookieConsent | null> {
+    return this.cookieConsentService.acceptAllCookies(sessionId);
+  }
+  rejectAllCookies(sessionId: string): Observable<CookieConsent | null> {
+    return this.cookieConsentService.rejectAllCookies(sessionId);
+  }
+  customizeCookies(
+    sessionId: string,
+    cookieChoices: CookieChoice[]
+  ): Observable<CookieConsent | null> {
+    return this.cookieConsentService.customizeCookies(sessionId, cookieChoices);
+  }
+  getCookiesList(): Observable<CookieChoice[]> {
+    return this.cookieConsentService.getCookiesList();
   }
 }

@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { PaymentRequest } from '../components/models/PaymentRequest.model';
-import { PaymentResponse } from '../components/models/PaymentResponse.model';
+import { PaymentRequest } from '../components/models/paymentRequest.model';
+import { PaymentResponse } from '../components/models/paymentResponse.model';
 
 @Injectable({
   providedIn: 'root',
