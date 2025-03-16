@@ -18,6 +18,8 @@ import { FaqComponent } from './components/faq/faq.component';
 import { StoryComponent } from './components/story/story.component';
 import { UpdateEmailComponent } from './components/update-email/update-email.component';
 import { UpdatePasswordComponent } from './components/update-password/update-password.component';
+import { ContactComponent } from './components/contact/contact.component';
+import { BrandComponent } from './components/brand/brand.component';
 
 const routes: Routes = [
   {
@@ -45,6 +47,8 @@ const routes: Routes = [
   { path: 'sale-condition', component: SaleConditionComponent },
   { path: 'faq', component: FaqComponent },
   { path: 'story', component: StoryComponent },
+  { path: 'contact', component: ContactComponent },
+  { path: 'brand', component: BrandComponent },
 
   {
     path: 'cream',
@@ -60,13 +64,6 @@ const routes: Routes = [
     path: 'new',
     loadChildren: () =>
       import('./components/new/new.module').then((m) => m.NewModule),
-  },
-  {
-    path: 'contact',
-    loadChildren: () =>
-      import('./components/contact/contact.module').then(
-        (m) => m.ContactModule
-      ),
   },
   {
     path: 'admin',

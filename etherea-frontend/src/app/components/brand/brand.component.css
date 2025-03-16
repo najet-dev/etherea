@@ -1,0 +1,65 @@
+.img-fluid {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+}
+
+p {
+  font-size: 16px;
+  text-align: justify;
+  line-height: 1.6;
+  margin: 0 auto;
+  word-wrap: break-word;
+  width: 100%;
+}
+
+.section {
+  width: 100%;
+  max-width: 100%;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  margin: 10px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.paragraphe {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.rotate {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease-in-out;
+}
+
+.section-content {
+  width: 100%;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+@media (max-width: 768px) {
+  .img-fluid {
+    max-width: 100%;
+  }
+  .section {
+    width: 100%;
+  }
+  p {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+  .paragraphe {
+    font-size: 14px;
+    padding: 15px;
+  }
+}

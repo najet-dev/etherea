@@ -18,7 +18,6 @@ import { MatListModule } from '@angular/material/list';
 import { CreamComponent } from './components/cream/cream.component';
 import { NewComponent } from './components/new/new.component';
 import { HairComponent } from './components/hair/hair.component';
-import { ContactComponent } from './components/contact/contact.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -53,6 +52,8 @@ import { FaqComponent } from './components/faq/faq.component';
 import { StoryComponent } from './components/story/story.component';
 import { UpdateEmailComponent } from './components/update-email/update-email.component';
 import { UpdatePasswordComponent } from './components/update-password/update-password.component';
+import { ContactComponent } from './components/contact/contact.component';
+import { BrandComponent } from './components/brand/brand.component';
 
 @NgModule({
   declarations: [
@@ -88,6 +89,7 @@ import { UpdatePasswordComponent } from './components/update-password/update-pas
     FaqComponent,
     StoryComponent,
     UpdatePasswordComponent,
+    BrandComponent,
   ],
   imports: [
     CommonModule,

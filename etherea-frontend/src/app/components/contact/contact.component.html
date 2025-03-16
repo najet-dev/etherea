@@ -1,1 +1,132 @@
-<p>contact works!</p>
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <h2 class="text-center text-dark mt-5">Nous contactez</h2>
+
+      <!-- Affichage du message de succès à la place du formulaire -->
+      <div *ngIf="formSubmitted" class="text-center success-message">
+        {{ successMessage }}
+      </div>
+
+      <div class="card my-5 rounded" *ngIf="!formSubmitted">
+        <form
+          #contactForm="ngForm"
+          (ngSubmit)="sendMessage()"
+          class="card-body cardbody-color p-lg-5"
+        >
+          <div class="mb-3">
+            <label for="firstName"
+              >Nom <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              id="firstName"
+              [(ngModel)]="contact.firstName"
+              name="firstName"
+              class="form-control"
+              required
+              #firstName="ngModel"
+            />
+            <div
+              *ngIf="firstName.invalid && firstName.touched"
+              class="error-message"
+            >
+              Le nom est requis.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="lastName"
+              >Prénom <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              id="lastName"
+              [(ngModel)]="contact.lastName"
+              name="lastName"
+              class="form-control"
+              required
+              #lastName="ngModel"
+            />
+            <div
+              *ngIf="lastName.invalid && lastName.touched"
+              class="error-message"
+            >
+              Le prénom est requis.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="email">Email <span class="text-danger">*</span></label>
+            <input
+              type="email"
+              id="email"
+              [(ngModel)]="contact.email"
+              name="email"
+              class="form-control"
+              required
+              email
+              #email="ngModel"
+            />
+            <div *ngIf="email.invalid && email.touched" class="error-message">
+              Entrez un email valide.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="subject"
+              >Sujet <span class="text-danger">*</span></label
+            >
+            <input
+              type="text"
+              id="subject"
+              [(ngModel)]="contact.subject"
+              name="subject"
+              class="form-control"
+              required
+              #subject="ngModel"
+            />
+            <div
+              *ngIf="subject.invalid && subject.touched"
+              class="error-message"
+            >
+              Le sujet est requis.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="message"
+              >Votre message <span class="text-danger">*</span></label
+            >
+            <textarea
+              id="message"
+              [(ngModel)]="contact.message"
+              name="message"
+              class="form-control message"
+              rows="5"
+              required
+              minlength="100"
+              #message="ngModel"
+            ></textarea>
+            <div
+              *ngIf="message.invalid && message.touched"
+              class="error-message"
+            >
+              Le message doit contenir au moins 2000 caractères.
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="contactForm.invalid"
+            >
+              Envoyer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
