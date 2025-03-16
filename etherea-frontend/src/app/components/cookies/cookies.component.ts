@@ -11,7 +11,11 @@ export class CookiesComponent {
 
   showCookiePopup(): void {
     if (this.cookiePopup) {
-      this.cookiePopup.openPopup();
+      this.cookiePopup.showCustomization = false;
+      this.cookiePopup.ngOnInit(); // Rafraîchir la liste des cookies
+      setTimeout(() => {
+        this.cookiePopup.openPopup(); // Réouvrir après mise à jour
+      }, 100); // Laisser un léger délai pour éviter les conflits d'affichage
     }
   }
 }

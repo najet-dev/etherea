@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output, OnInit, Input } from '@angular/core';
 import { CartService } from '../../services/cart.service';
-import { PaymentOption } from '../models/PaymentOption.enum';
+import { PaymentOption } from '../models/paymentOption.enum';
 
 import {
   loadStripe,

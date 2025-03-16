@@ -1,0 +1,25 @@
+.image-container {
+  position: relative;
+  width: 100%;
+  height: 75vh; /* La hauteur est de 75% de la hauteur de la fenêtre */
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Assure que l'image couvre toute la zone sans déformation */
+}
+
+.overlay-text {
+  position: absolute;
+  top: 60%; /* Positionne le texte au milieu verticalement */
+  left: 53%; /* Positionne le texte au centre horizontalement */
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Ajuste le texte pour qu'il soit exactement au centre */
+  color: black; /* Couleur du texte */
+  font-size: 24px; /* Taille de la police */
+  text-align: center;
+  width: 100%;
+}

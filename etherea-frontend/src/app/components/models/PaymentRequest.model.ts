@@ -1,4 +1,4 @@
-import { PaymentOption } from './PaymentOption.enum';
+import { PaymentOption } from './paymentOption.enum';
 
 export interface PaymentRequest {
   paymentOption: PaymentOption;

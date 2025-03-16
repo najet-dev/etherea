@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { catchError, map, of, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DeliveryAddress } from '../models/DeliveryAddress.model';
+import { DeliveryAddress } from '../models/deliveryAddress.model';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { Cart } from '../models/cart.model';
 import { CartItemService } from 'src/app/services/cart-item.service';

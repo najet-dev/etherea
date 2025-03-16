@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
-import { DeliveryAddress } from '../components/models/DeliveryAddress.model';
+import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { AuthService } from './auth.service';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -13,10 +12,7 @@ export class DeliveryAddressService {
   private deliveryAddressSubject = new BehaviorSubject<DeliveryAddress[]>([]);
   deliveryAddress$ = this.deliveryAddressSubject.asObservable();
 
-  constructor(
-    private httpClient: HttpClient,
-    private authService: AuthService
-  ) {}
+  constructor(private httpClient: HttpClient) {}
 
   getUserDeliveryAddresses(userId: number): Observable<DeliveryAddress[]> {
     return this.httpClient

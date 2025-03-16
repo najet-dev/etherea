@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Product } from '../components/models/Product.model';
-import { HairProduct } from '../components/models/HairProduct.model';
-import { ProductType } from '../components/models/ProductType.enum';
-import { FaceProduct } from '../components/models/FaceProduct.model';
+import { Product } from '../components/models/product.model';
+import { HairProduct } from '../components/models/hairProduct.model';
+import { ProductType } from '../components/models/productType.enum';
+import { FaceProduct } from '../components/models/faceProduct.model';
 
 @Injectable({
   providedIn: 'root',

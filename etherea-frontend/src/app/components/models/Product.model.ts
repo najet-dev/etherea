@@ -1,4 +1,4 @@
-import { ProductType } from './ProductType.enum';
+import { ProductType } from './productType.enum';
 
 export interface Product {
   id: number;

@@ -17,8 +17,8 @@ export class SidebarComponent {
   isInformationsActive(): boolean {
     return (
       this.router.url.includes('/informations') ||
-      this.router.url.includes('/email') ||
-      this.router.url.includes('/password')
+      this.router.url.includes('/updateEmail') ||
+      this.router.url.includes('/updatePassword')
     );
   }
 }

@@ -13,7 +13,6 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.core.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.GrantedAuthority;
-
 
 import com.etherea.enums.ERole;
 import com.etherea.models.Role;
@@ -64,30 +62,36 @@ public class AuthController {
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
     }
+
+    /**
+     * Endpoint for user authentication.
+     *
+     * @param loginRequest The login request containing username and password.
+     * @return JWT response with user details and token, or an unauthorized status if authentication fails.
+     */
     @PostMapping("/signin")
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
-            // Charge les détails de l'utilisateur à partir du service
+            // Load user details from the service
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(loginRequest.getUsername());
 
-            // Authentification de l'utilisateur
+            // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-            // Met à jour le contexte de sécurité
+            // Update security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Génère le token JWT
+            // Generate JWT token
             String jwtToken = jwtUtils.generateJwtToken(userDetails.getUsername());
 
-            // Obtient les rôles de l'utilisateur
+            // Retrieve user roles
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
             System.out.println("Roles retrieved: " + roles);
 
-
-            // Crée la réponse avec les informations de l'utilisateur et le token JWT
+            // Create response with user details and JWT token
             JwtResponse jwtResponse = new JwtResponse(
                     jwtToken,
                     userDetails.getId(),
@@ -97,19 +101,26 @@ public class AuthController {
             return ResponseEntity.ok().body(jwtResponse);
 
         } catch (AuthenticationException e) {
-            // Gère l'échec de l'authentification
+            // Handle authentication failure
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    /**
+     * Endpoint for user registration.
+     *
+     * @param signUpRequest The request containing user details and roles.
+     * @return Response entity indicating success or failure of registration.
+     */
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
         }
-        // Create new user's account
+        // Create new user account
         User user = new User(signUpRequest.getFirstName(),
                 signUpRequest.getLastName(),
-                signUpRequest.getUsername(),  // l'e-mail
+                signUpRequest.getUsername(),  // Email
                 encoder.encode(signUpRequest.getPassword()));
 
         Set<String> strRoles = signUpRequest.getRoles();
@@ -143,10 +154,17 @@ public class AuthController {
                 throw new IllegalArgumentException("Invalid role: " + role);
         }
     }
+
+    /**
+     * Endpoint for user logout.
+     *
+     * @param request The HTTP request.
+     * @return Response entity indicating success or failure of logout.
+     */
     @PostMapping("/logout")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> logoutUser(HttpServletRequest request) {
-        // Vérifie si l'utilisateur est authentifié avant de le déconnecter
+        // Check if the user is authenticated before logging out
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             SecurityContextLogoutHandler securityContextLogoutHandler = new SecurityContextLogoutHandler();
             securityContextLogoutHandler.logout(request, null, null);

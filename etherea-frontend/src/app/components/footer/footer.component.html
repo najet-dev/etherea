@@ -26,53 +26,62 @@
   <div class="container">
     <div class="row">
       <div class="col-md-3 col-sm-6 footer-section">
-        <h5 class="footer-toggle" (click)="toggleSection('apropos')">
-          À PROPOS <i id="apropos-icon" class="fas fa-chevron-down"></i>
-        </h5>
+        <h4 class="footer-toggle" (click)="toggleSection('apropos')">
+          À propos <i id="apropos-icon" class="fas fa-chevron-down"></i>
+        </h4>
         <ul class="list-unstyled" id="apropos">
-          <li><a href="#">Notre histoire</a></li>
+          <li><a routerLink="/story">Notre histoire</a></li>
+          <li><a routerLink="/brand">La marque</a></li>
           <li><a href="#">Nos conseils</a></li>
-          <li><a href="#">Contactez-nous</a></li>
         </ul>
       </div>
 
       <div class="col-md-3 col-sm-6 footer-section">
-        <h5 class="footer-toggle" (click)="toggleSection('informations')">
-          INFORMATIONS
+        <h4 class="footer-toggle" (click)="toggleSection('support')">
+          Support<i id="support-icon" class="fas fa-chevron-down"></i>
+        </h4>
+        <ul class="list-unstyled" id="support">
+          <li><a routerLink="/faq">FAQ</a></li>
+          <li><a routerLink="/contact">Contactez-nous</a></li>
+          <li><a href="#">Suivi de commande</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 col-sm-6 footer-section">
+        <h4 class="footer-toggle" (click)="toggleSection('informations')">
+          Informations
           <i id="informations-icon" class="fas fa-chevron-down"></i>
-        </h5>
+        </h4>
         <ul class="list-unstyled" id="informations">
           <li>
             <a routerLink="/legal-information">Mentions légales et cookies</a>
           </li>
-          <li><a href="#">Conditions générales de ventes</a></li>
+          <li>
+            <a routerLink="sale-condition">Conditions générales de ventes</a>
+          </li>
           <li>
             <a routerLink="/personal-Data-Charter"
               >Charte des données personnelles</a
             >
           </li>
-          <li><a href="#">Livraisons et retours</a></li>
-          <li><a href="#">La marque</a></li>
-        </ul>
-      </div>
-
-      <div class="col-md-3 col-sm-6 footer-section">
-        <h5 class="footer-toggle" (click)="toggleSection('support')">
-          SUPPORT <i id="support-icon" class="fas fa-chevron-down"></i>
-        </h5>
-        <ul class="list-unstyled" id="support">
-          <li><a href="#">FAQ</a></li>
-          <li><a href="#">Suivi de commande</a></li>
-          <li><a href="#">Service client</a></li>
         </ul>
       </div>
 
       <div class="col-md-3 col-sm-6 newsletter-section">
-        <h5>S'inscrire à la newsletter</h5>
-        <form class="newsletter-form">
-          <input type="email" placeholder="Votre email" required />
-          <button type="submit">S'abonner</button>
+        <h4>S'inscrire à la newsletter</h4>
+        <form class="newsletter-form" (ngSubmit)="onSubscribe()">
+          <input
+            type="email"
+            placeholder="Votre email"
+            [(ngModel)]="email"
+            name="email"
+            required
+          />
+          <button type="submit" [disabled]="!email">S'abonner</button>
         </form>
+
+        <!-- Message d'inscription -->
+        <p *ngIf="message" class="subscription-message">{{ message }}</p>
       </div>
     </div>
     <!-- Section Réseaux Sociaux -->
