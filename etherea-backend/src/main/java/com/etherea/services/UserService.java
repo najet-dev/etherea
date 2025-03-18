@@ -138,7 +138,7 @@ public class UserService {
             }
         }
 
-        // Sauvegarder l'ancien mot de passe dans l'historique avant de le changer
+        // Sauvegarder l'ancien mot de passe
         passwordHistoryRepository.save(new PasswordHistory(user, user.getPassword()));
 
         // Mettre à jour le mot de passe
