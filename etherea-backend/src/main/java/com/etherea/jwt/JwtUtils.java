@@ -17,7 +17,7 @@ public class JwtUtils {
     private long jwtExpirationMs;
     private final SecretKey secretKey;
     public JwtUtils() {
-        // Utilisez la méthode Keys.secretKeyFor pour générer une clé HMAC-SHA sécurisée
+        //méthode Keys.secretKeyFor pour générer une clé HMAC-SHA sécurisée
         this.secretKey = Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
     }
     public String generateJwtToken(String username) {

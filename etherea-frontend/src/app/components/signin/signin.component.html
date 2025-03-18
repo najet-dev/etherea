@@ -1,6 +1,6 @@
-<div class="container">
-  <div class="row">
-    <div class="col-md-6 offset-md-3">
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-xl-6 col-lg-8 col-md-10 col-12">
       <h2 class="text-center text-dark mt-5">Connexion</h2>
       <div class="card my-5 rounded">
         <div *ngIf="errorMessage" class="error-message">
@@ -8,7 +8,7 @@
         </div>
         <form
           [formGroup]="loginForm"
-          class="card-body cardbody-color p-lg-5"
+          class="card-body cardbody-color p-lg-5 p-md-4 p-sm-3"
           (ngSubmit)="onSubmit()"
         >
           <div class="mb-3">
@@ -17,22 +17,23 @@
               formControlName="username"
               class="form-control"
               id="Username"
-              aria-describedby="emailHelp"
               placeholder="Email"
             />
             <div *ngFor="let error of errorMessages.username">
-              <div
+              <small
                 *ngIf="
                   loginForm.get('username')?.hasError(error.type) &&
                   (loginForm.get('username')?.dirty ||
                     loginForm.get('username')?.touched)
                 "
+                class="error-message"
               >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
+                {{ error.message }}
+              </small>
             </div>
           </div>
-          <div class="mb-5">
+
+          <div class="mb-4">
             <input
               type="password"
               formControlName="password"
@@ -41,26 +42,32 @@
               placeholder="Mot de passe"
             />
             <div *ngFor="let error of errorMessages.password">
-              <div
+              <small
                 *ngIf="
                   loginForm.get('password')?.hasError(error.type) &&
                   (loginForm.get('password')?.dirty ||
                     loginForm.get('password')?.touched)
                 "
+                class="error-message"
               >
-                <small class="error-message">{{ error.message }}</small>
-              </div>
+                {{ error.message }}
+              </small>
             </div>
+            <a routerLink="/forgot-password" class="forgot-password"
+              >Mot de passe oublié ?</a
+            >
           </div>
+
           <div class="text-center">
             <button
               type="submit"
-              class="btn-primary"
+              class="btn-primary w-100"
               [disabled]="!loginForm.valid"
             >
               Connexion
             </button>
           </div>
+
           <div class="connect">
             <h5>
               Vous n'avez pas encore de compte?

@@ -20,6 +20,8 @@ import { UpdateEmailComponent } from './components/update-email/update-email.com
 import { UpdatePasswordComponent } from './components/update-password/update-password.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { BrandComponent } from './components/brand/brand.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 const routes: Routes = [
   {
@@ -49,7 +51,8 @@ const routes: Routes = [
   { path: 'story', component: StoryComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'brand', component: BrandComponent },
-
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   {
     path: 'cream',
     loadChildren: () =>

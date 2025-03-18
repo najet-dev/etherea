@@ -65,6 +65,7 @@ public class WebSecurityConfig {
                                 .requestMatchers("/newsletter/**").permitAll()
                                 .requestMatchers("/newsletter/**").permitAll()
                                 .requestMatchers("/contacts/**").permitAll()
+                                .requestMatchers("/resetToken/**").permitAll()
 
                                 .anyRequest().authenticated()
                 );
