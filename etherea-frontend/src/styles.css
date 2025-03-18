@@ -42,8 +42,6 @@ body {
   border-color: green;
   box-shadow: 0 0 30px rgba(0, 128, 0, 0.5);
 }
-/* --- BOUTON CONNEXION --- */
-/* --- BOUTON INSCRIPTION --- */
 .btn-primary {
   width: 100%;
   max-width: 300px;

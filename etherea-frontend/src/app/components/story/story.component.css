@@ -1,25 +1,57 @@
-.image-container {
-  position: relative;
-  width: 100%;
-  height: 75vh; /* La hauteur est de 75% de la hauteur de la fenêtre */
+.img-fluid {
+  width: 80%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 10px auto;
 }
 
-.banner-image {
+p {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  text-align: justify;
+  line-height: 1.6;
+  margin: 0 auto;
   width: 100%;
-  height: 100%;
-  object-fit: cover; /* Assure que l'image couvre toute la zone sans déformation */
+  max-width: 100%;
+  white-space: normal;
+  gap: 5px;
 }
 
-.overlay-text {
-  position: absolute;
-  top: 60%; /* Positionne le texte au milieu verticalement */
-  left: 53%; /* Positionne le texte au centre horizontalement */
-  transform: translate(
-    -50%,
-    -50%
-  ); /* Ajuste le texte pour qu'il soit exactement au centre */
-  color: black; /* Couleur du texte */
-  font-size: 24px; /* Taille de la police */
-  text-align: center;
-  width: 100%;
+@media (max-width: 768px) {
+  .img-fluid {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  h2 {
+    width: 100%;
+    text-align: center;
+  }
+
+  .col-lg-6 p {
+    margin-top: 10px;
+    text-align: justify;
+    padding: 0 15px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+  .img-fluid {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  h2 {
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+  }
+
+  .col-lg-6 p {
+    margin-top: 10px;
+    text-align: justify;
+    padding: 0 15px;
+  }
 }

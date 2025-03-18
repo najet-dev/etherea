@@ -54,6 +54,8 @@ import { UpdateEmailComponent } from './components/update-email/update-email.com
 import { UpdatePasswordComponent } from './components/update-password/update-password.component';
 import { ContactComponent } from './components/contact/contact.component';
 import { BrandComponent } from './components/brand/brand.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 
 @NgModule({
   declarations: [
@@ -90,6 +92,8 @@ import { BrandComponent } from './components/brand/brand.component';
     StoryComponent,
     UpdatePasswordComponent,
     BrandComponent,
+    ResetPasswordComponent,
+    ForgotPasswordComponent,
   ],
   imports: [
     CommonModule,
@@ -105,6 +109,7 @@ import { BrandComponent } from './components/brand/brand.component';
     MatDialogModule,
     MatPaginatorModule,
     FormsModule,
+    ReactiveFormsModule,
     NgxStripeModule.forRoot(environment.stripePublicKey),
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
