@@ -106,24 +106,20 @@
 }
 .subscription-message {
   margin-top: 10px;
-  font-size: 14px;
-  font-weight: bold;
-  color: red;
+  font-size: 16px;
+  color: darkgreen;
 }
 
 @media (max-width: 992px) {
-  /* Empiler les sections sur les petits écrans */
   .footer .col-sm-6 {
     width: 100% !important;
-    margin-bottom: 20px; /* Ajouter un espacement entre les sections */
+    margin-bottom: 20px;
   }
 
-  /* Afficher les icônes de flèches sur tous les écrans */
   .footer-toggle i {
     display: inline-block;
   }
 
-  /* Assurez-vous que les listes sont toujours cachées sur les petits écrans */
   .footer ul {
     display: none;
   }

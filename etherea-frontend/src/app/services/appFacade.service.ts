@@ -22,6 +22,12 @@ import { CookieConsent } from '../components/models/cookieConsent.model';
 import { CookieChoice } from '../components/models/cookie-choice.model';
 import { UpdateEmailRequest } from '../components/models/updateEmailRequest.model';
 import { UpdatePasswordRequest } from '../components/models/updatePasswordRequest.model';
+import { ForgotPasswordResponse } from '../components/models/forgotPasswordResponse.model';
+import { ForgotPasswordRequest } from '../components/models/forgotPasswordRequest.model';
+import { PasswordResetService } from './password-reset.service';
+import { ResetPasswordRequest } from '../components/models/resetPasswordRequest.model';
+import { ResetPasswordResponse } from '../components/models/resetPasswordResponse.model';
+import { Newsletter } from '../components/models/newsletter.model';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +41,8 @@ export class AppFacade {
     private userService: UserService,
     public deliveryMethodService: DeliveryMethodService,
     public paymentService: PaymentService,
-    private cookieConsentService: CookieConsentService
+    private cookieConsentService: CookieConsentService,
+    private passwordResetService: PasswordResetService
   ) {}
 
   // cartItem
@@ -152,6 +159,11 @@ export class AppFacade {
   ): Observable<string> {
     return this.userService.updatePassword(updatePasswordRequest);
   }
+  subscribeToNewsletter(
+    newsletter: Newsletter
+  ): Observable<{ message: string }> {
+    return this.userService.subscribeToNewsletter(newsletter);
+  }
 
   //Method
   getDeliveryTypes(userId: number): Observable<DeliveryType[]> {
@@ -201,5 +213,16 @@ export class AppFacade {
   }
   getCookiesList(): Observable<CookieChoice[]> {
     return this.cookieConsentService.getCookiesList();
+  }
+  //password
+  sendResetLink(
+    request: ForgotPasswordRequest
+  ): Observable<ForgotPasswordResponse> {
+    return this.passwordResetService.sendResetLink(request);
+  }
+  resetPassword(
+    request: ResetPasswordRequest
+  ): Observable<ResetPasswordResponse> {
+    return this.passwordResetService.resetPassword(request);
   }
 }

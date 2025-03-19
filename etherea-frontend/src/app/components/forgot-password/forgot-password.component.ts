@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AppFacade } from 'src/app/services/appFacade.service';
 import { PasswordResetService } from 'src/app/services/password-reset.service';
 
 @Component({
@@ -13,10 +14,7 @@ export class ForgotPasswordComponent {
   errorMessage: string = '';
   isLoading: boolean = false;
 
-  constructor(
-    private fb: FormBuilder,
-    private passwordResetService: PasswordResetService
-  ) {
+  constructor(private fb: FormBuilder, private appFacade: AppFacade) {
     this.forgotPasswordForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
     });
@@ -27,7 +25,7 @@ export class ForgotPasswordComponent {
       this.isLoading = true;
       const email = this.forgotPasswordForm.value.email;
 
-      this.passwordResetService.sendResetLink({ email }).subscribe({
+      this.appFacade.sendResetLink({ email }).subscribe({
         next: () => {
           this.successMessage = `Si un compte est retrouvé à l'adresse email "${email}", vous allez recevoir un email pour réinitialiser votre mot de passe.`;
           this.errorMessage = '';
