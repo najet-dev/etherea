@@ -24,15 +24,23 @@ public class PasswordResetService {
     private EmailService emailService;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     public void sendPasswordResetLink(ForgotPasswordRequestDTO request) {
         User user = userRepository.findByUsername(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("Aucun utilisateur trouvé avec cet email"));
+                .orElseThrow(() -> new UserNotFoundException("No users found with this email"));
 
-        // Supprimer les anciens tokens du même utilisateur
-        resetTokenRepository.deleteByUser(user);
+        Optional<ResetToken> existingToken = resetTokenRepository.findByUser(user);
 
-        // Générer un nouveau token
-        ResetToken resetToken = new ResetToken(user);
+        ResetToken resetToken;
+        if (existingToken.isPresent()) {
+            resetToken = existingToken.get();
+            if (resetToken.isExpired() || resetToken.isUsed()) {
+                resetToken.refreshToken(); // Refresh token if expired or used
+            }
+        } else {
+            resetToken = new ResetToken(user);
+        }
+
         resetTokenRepository.save(resetToken);
 
         String resetLink = "http://localhost:4200/reset-password?token=" + resetToken.getToken();
@@ -60,42 +68,32 @@ public class PasswordResetService {
     }
     public void resetPassword(ResetPasswordRequestDTO request) {
         ResetToken resetToken = resetTokenRepository.findByToken(request.getToken())
-                .orElseThrow(() -> new IllegalArgumentException("Token invalide ou expiré"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired token"));
 
         if (resetToken.isExpired() || resetToken.isUsed()) {
-            throw new IllegalArgumentException("Le token a expiré ou a déjà été utilisé.");
+            throw new IllegalArgumentException("The token has expired or has already been used");
         }
 
         User user = resetToken.getUser();
 
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            throw new IllegalArgumentException("Les mots de passe ne correspondent pas.");
+            throw new IllegalArgumentException("Passwords don't match");
         }
 
         if (!isValidPassword(request.getNewPassword())) {
-            throw new IllegalArgumentException("Le mot de passe doit contenir au moins 8 caractères, "
-                    + "une majuscule, une minuscule, un chiffre et un caractère spécial.");
+            throw new IllegalArgumentException("The password must contain at least 8 characters, ”\n" + " + “one uppercase, one lowercase, one number and one special character");
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
-        // Marquer le token comme utilisé et l'invalider
+        // Mark token as used
         resetToken.markAsUsed();
         resetTokenRepository.save(resetToken);
     }
 
-    /**
-     * Vérifie si un mot de passe respecte les critères de sécurité :
-     * - Minimum 8 caractères
-     * - Au moins une majuscule
-     * - Au moins une minuscule
-     * - Au moins un chiffre
-     * - Au moins un caractère spécial (@#$%^&+=!)
-     */
     private boolean isValidPassword(String password) {
         String passwordRegex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$";
         return password.matches(passwordRegex);
     }
-
 }

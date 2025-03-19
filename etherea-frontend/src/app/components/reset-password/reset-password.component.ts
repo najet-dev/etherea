@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PasswordResetService } from '../../services/password-reset.service';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -13,20 +14,35 @@ export class ResetPasswordComponent implements OnInit {
   token!: string;
   message: string = '';
 
+  errorMessages = {
+    newPassword: [
+      { type: 'required', message: 'Ce champ est obligatoire' },
+      {
+        type: 'minlength',
+        message: 'Le mot de passe doit contenir au moins 8 caractères.',
+      },
+    ],
+    confirmPassword: [
+      {
+        type: 'required',
+        message: 'Ce champ est obligatoire',
+      },
+    ],
+  };
+
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private passwordResetService: PasswordResetService
+    private passwordResetService: PasswordResetService,
+    private appFacade: AppFacade
   ) {}
 
   ngOnInit(): void {
-    // Récupérer le token depuis l'URL
     this.token = this.route.snapshot.queryParams['token'];
-    // Vérifier si le token est bien présent, sinon rediriger
     if (!this.token) {
       this.message = 'Lien de réinitialisation invalide.';
-      setTimeout(() => this.router.navigate(['/login']), 3000);
+      setTimeout(() => this.router.navigate(['/signin']), 3000);
       return;
     }
 
@@ -36,7 +52,6 @@ export class ResetPasswordComponent implements OnInit {
     });
   }
 
-  // Vérification de la correspondance des mots de passe
   passwordsMatch(): boolean {
     return (
       this.resetForm.value.newPassword === this.resetForm.value.confirmPassword
@@ -55,10 +70,10 @@ export class ResetPasswordComponent implements OnInit {
       confirmPassword: this.resetForm.value.confirmPassword,
     };
 
-    this.passwordResetService.resetPassword(requestData).subscribe({
+    this.appFacade.resetPassword(requestData).subscribe({
       next: (response) => {
         this.message = response.message;
-        setTimeout(() => this.router.navigate(['/login']), 3000);
+        setTimeout(() => this.router.navigate(['/signin']), 4000);
       },
       error: (error) => {
         this.message =

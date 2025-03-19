@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 @Repository
 public interface NewsletterRepository extends JpaRepository<Newsletter, Long> {
-    Optional<Newsletter> findByUser(User user);
-}
+    Optional<Newsletter> findByEmail(String email);}
