@@ -1,4 +1,5 @@
 package com.etherea.dtos;
+
 import com.etherea.models.Newsletter;
 
 public class NewsletterDTO {
@@ -22,7 +23,6 @@ public class NewsletterDTO {
         this.email = email;
     }
     public static NewsletterDTO fromEntity(Newsletter newsletter) {
-        String email = newsletter.getUser() != null ? newsletter.getUser().getUsername() : null;
-        return new NewsletterDTO(newsletter.getId(), email);
+        return new NewsletterDTO(newsletter.getId(), newsletter.getEmail());
     }
 }

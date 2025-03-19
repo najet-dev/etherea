@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface ResetTokenRepository extends JpaRepository<ResetToken, Long> {
     Optional<ResetToken> findByToken(String token);
 
-    Optional<ResetToken> findByUserId(Long userId);
-    void deleteByUser(User user);}
+    Optional<ResetToken> findByUser(User user);
+    void deleteByUser(User user);
+}

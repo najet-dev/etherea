@@ -14,7 +14,7 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class NewsletterController {
     private final NewsletterService newsletterService;
-    public final EmailService emailService;
+    private final EmailService emailService;
 
     public NewsletterController(NewsletterService newsletterService, EmailService emailService) {
         this.newsletterService = newsletterService;
@@ -22,17 +22,17 @@ public class NewsletterController {
     }
 
     /**
-     * Endpoint to subscribe to the newsletter using a DTO.
+     * Endpoint pour s'abonner à la newsletter.
      *
-     * @param newsletterDTO DTO containing the user's email.
-     * @return Response entity with a success or error message.
+     * @param newsletterDTO DTO contenant l'email.
+     * @return Réponse avec message de succès ou d'échec.
      */
     @PostMapping("/subscribe")
     public ResponseEntity<Map<String, String>> subscribe(@RequestBody NewsletterDTO newsletterDTO) {
         String message = newsletterService.subscribe(newsletterDTO);
         Map<String, String> response = new HashMap<>();
 
-        if ("This user is already subscribed.".equals(message)) {
+        if ("Cet email est déjà abonné.".equals(message)) {
             response.put("message", message);
             return ResponseEntity.status(409).body(response);
         }
@@ -42,21 +42,10 @@ public class NewsletterController {
     }
 
     /**
-     * Endpoint to get newsletter information by ID.
+     * Endpoint pour envoyer la newsletter à tous les abonnés.
      *
-     * @param id The newsletter subscription ID.
-     * @return The newsletter DTO.
-     */
-    @GetMapping("/{id}")
-    public NewsletterDTO getNewsletter(@PathVariable Long id) {
-        return newsletterService.getNewsletter(id);
-    }
-
-    /**
-     * Endpoint to send the newsletter to all subscribers.
-     *
-     * @param request Object containing the subject and content of the newsletter.
-     * @return Response entity with a success or error message.
+     * @param request Objet contenant le sujet et le contenu de la newsletter.
+     * @return Réponse indiquant le succès ou l'échec de l'envoi.
      */
     @PostMapping("/send")
     public ResponseEntity<Map<String, String>> sendNewsletter(@RequestBody Map<String, String> request) {
@@ -66,25 +55,25 @@ public class NewsletterController {
         Map<String, String> response = new HashMap<>();
 
         if (subject == null || subject.isEmpty() || content == null || content.isEmpty()) {
-            response.put("message", "Subject and content cannot be empty.");
+            response.put("message", "Le sujet et le contenu ne peuvent pas être vides.");
             return ResponseEntity.badRequest().body(response);
         }
 
         try {
             newsletterService.sendNewsletterToAllSubscribers(subject, content);
-            response.put("message", "Newsletter successfully sent!");
+            response.put("message", "Newsletter envoyée avec succès !");
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            response.put("message", "Error sending newsletter: " + e.getMessage());
+            response.put("message", "Erreur lors de l'envoi de la newsletter : " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }
 
     /**
-     * Endpoint to unsubscribe a user from the newsletter via their email.
+     * Endpoint pour se désinscrire de la newsletter via un email.
      *
-     * @param email The email of the user to unsubscribe.
-     * @return Response entity with a confirmation message.
+     * @param email L'email de l'utilisateur à désinscrire.
+     * @return Réponse indiquant le succès ou l'échec de la désinscription.
      */
     @GetMapping("/unsubscribe")
     public ResponseEntity<Map<String, String>> unsubscribe(@RequestParam String email) {
@@ -93,7 +82,7 @@ public class NewsletterController {
         String message = newsletterService.unsubscribe(email);
         response.put("message", message);
 
-        if ("User not found in the newsletter list.".equals(message)) {
+        if ("Cet email n'est pas abonné.".equals(message)) {
             return ResponseEntity.status(404).body(response);
         }
 
