@@ -56,6 +56,7 @@ import { ContactComponent } from './components/contact/contact.component';
 import { BrandComponent } from './components/brand/brand.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { PurchasesComponent } from './components/purchases/purchases.component';
 
 @NgModule({
   declarations: [
@@ -94,6 +95,7 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
     BrandComponent,
     ResetPasswordComponent,
     ForgotPasswordComponent,
+    PurchasesComponent,
   ],
   imports: [
     CommonModule,
