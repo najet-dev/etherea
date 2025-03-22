@@ -4,6 +4,7 @@ import com.etherea.dtos.CartDTO;
 import com.etherea.dtos.CommandRequestDTO;
 import com.etherea.dtos.PaymentRequestDTO;
 import com.etherea.dtos.PaymentResponseDTO;
+import com.etherea.enums.CartStatus;
 import com.etherea.enums.CommandStatus;
 import com.etherea.enums.PaymentStatus;
 import com.etherea.exception.CartNotFoundException;
@@ -91,24 +92,33 @@ public class PaymentService {
         return new PaymentResponseDTO(paymentStatus, paymentIntent.getId(),paymentIntent.getClientSecret());
     }
     private void processSuccessfulPayment(PaymentMethod paymentMethod) {
-        Cart cart = cartRepository.findById(paymentMethod.getCartId())
-                .orElseThrow(() -> new CartNotFoundException("Shopping cart not found"));
 
-        if (cart.isUsed()) {
-            throw new IllegalStateException("The shopping cart has already been used for an order");
+        //Trouver l'ID utilisateur à partir du cartId
+        Long userId = cartRepository.findUserIdByCartId(paymentMethod.getCartId())
+                .orElseThrow(() -> new CartNotFoundException("Aucun utilisateur trouvé pour le panier ID : " + paymentMethod.getCartId()));
+
+        //Récupérer le panier actif de cet utilisateur
+        Cart cart = cartRepository.findFirstByUserIdAndStatusOrderByIdDesc(userId, CartStatus.ACTIVE)
+                .orElseThrow(() -> new CartNotFoundException("Aucun panier actif trouvé pour l'utilisateur ID : " + userId));
+
+        // Vérifier si le panier est déjà commandé
+        if (cart.getStatus() == CartStatus.ORDERED) {
+            throw new IllegalStateException("Le panier a déjà été utilisé pour une commande.");
         }
 
+        //Récupérer l'utilisateur et son adresse de livraison
         User user = cart.getUser();
         DeliveryAddress deliveryAddress = user.getDefaultAddress();
         if (deliveryAddress == null) {
-            throw new IllegalStateException("Default delivery address not found by user");
+            throw new IllegalStateException("Aucune adresse de livraison par défaut trouvée pour cet utilisateur.");
         }
 
+        //Création de la commande
         CommandRequestDTO commandRequestDTO = new CommandRequestDTO();
         commandRequestDTO.setCommandDate(LocalDateTime.now());
         commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());
         commandRequestDTO.setStatus(CommandStatus.PENDING);
-        commandRequestDTO.setCart(CartDTO.fromCart(cart, null));
+        commandRequestDTO.setCartId(cart.getId());
         commandRequestDTO.setTotal(cart.calculateFinalTotal());
         commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
         commandRequestDTO.setPaymentMethodId(paymentMethod.getId());
@@ -116,8 +126,10 @@ public class PaymentService {
         Command createdCommand = commandService.createCommand(commandRequestDTO);
         commandService.updateCommandStatus(createdCommand.getId(), CommandStatus.PAID);
 
+        //Mettre à jour le panier après le paiement
         cart.getItems().clear();
-        cart.setUsed(true);
+        cart.setStatus(CartStatus.ORDERED);
         cartRepository.save(cart);
     }
+
 }

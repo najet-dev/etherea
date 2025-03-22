@@ -22,21 +22,21 @@ public class DeliveryMethodService {
     private final CartRepository cartRepository;
     public final DeliveryAddressRepository deliveryAddressRepository;
     private final DeliveryAddressService deliveryAddressService;
-    @Autowired
-    private DeliveryMethodRepository deliveryMethodRepository;
-    @Autowired
-    private PickupPointDetailsRepository pickupPointDetailsRepository;
+    private final DeliveryMethodRepository deliveryMethodRepository;
+    private final PickupPointDetailsRepository pickupPointDetailsRepository;
     private static final Logger logger = LoggerFactory.getLogger(DeliveryMethodService.class);
 
     public DeliveryMethodService(UserRepository userRepository, DeliveryTypeRepository deliveryTypeRepository,
-                               CartRepository cartRepository, DeliveryAddressRepository deliveryAddressRepository,
-                               DeliveryAddressService deliveryAddressService) {
+                                 CartRepository cartRepository, DeliveryAddressRepository deliveryAddressRepository,
+                                 DeliveryAddressService deliveryAddressService, DeliveryMethodRepository deliveryMethodRepository,
+                                 PickupPointDetailsRepository pickupPointDetailsRepository) {
         this.userRepository = userRepository;
         this.deliveryTypeRepository = deliveryTypeRepository;
         this.cartRepository = cartRepository;
         this.deliveryAddressRepository = deliveryAddressRepository;
-        this.deliveryAddressService = deliveryAddressService;}
-
+        this.deliveryAddressService = deliveryAddressService;
+        this.deliveryMethodRepository = deliveryMethodRepository;
+        this.pickupPointDetailsRepository = pickupPointDetailsRepository;}
     public List<DeliveryTypeDTO> getDeliveryOptions(Long userId) {
         DeliveryAddressDTO defaultAddress = getDefaultAddress(userId);
         BigDecimal cartTotal = getCartTotal(userId);

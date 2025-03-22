@@ -22,8 +22,6 @@ public class User {
     private Set<Role> roles = new HashSet<>();
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Cart cart;
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<CartItem> cartItems = new ArrayList<>();
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Favorite> favorites = new ArrayList<>();
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -79,17 +77,11 @@ public class User {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
-    public List<CartItem> getCartItems() {
-        return cartItems;
-    }
     public List<Favorite> getFavorites() {
         return favorites;
     }
     public void setFavorites(List<Favorite> favorites) {
         this.favorites = favorites;
-    }
-    public void setCartItems(List<CartItem> cartItems) {
-        this.cartItems = cartItems;
     }
     public List<Command> getCommands() {
         return commands;

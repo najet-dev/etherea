@@ -102,17 +102,15 @@ public class DeliveryMethodController {
      * @return ResponseEntity with saved DeliveryMethodDTO if successful, or error message if not found or validation fails.
      */
     @PostMapping("/add")
-    public ResponseEntity<?> addDeliveryMethod(@Valid @RequestBody AddDeliveryMethodRequestDTO requestDTO) {
+    public ResponseEntity<?> addDeliveryMethod(@RequestBody AddDeliveryMethodRequestDTO requestDTO) {
         try {
-            DeliveryMethodDTO savedDeliveryMethod = deliveryMethodService.addDeliveryMethod(requestDTO);
-            return ResponseEntity.ok(savedDeliveryMethod);
-        } catch (UserNotFoundException | CartNotFoundException | DeliveryAddressNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+            logger.info("Ajout d'un mode de livraison pour l'utilisateur ID: {}", requestDTO.getUserId());
+            DeliveryMethodDTO deliveryMethod = deliveryMethodService.addDeliveryMethod(requestDTO);
+            return ResponseEntity.ok(deliveryMethod);
         } catch (Exception e) {
-            logger.error("Internal error while adding delivery method", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "An internal server error occurred."));
+            logger.error("Erreur interne lors de l'ajout du mode de livraison", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erreur interne : " + e.getMessage());
         }
     }
 

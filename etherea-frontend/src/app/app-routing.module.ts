@@ -22,6 +22,7 @@ import { ContactComponent } from './components/contact/contact.component';
 import { BrandComponent } from './components/brand/brand.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { PurchasesComponent } from './components/purchases/purchases.component';
 
 const routes: Routes = [
   {
@@ -53,6 +54,8 @@ const routes: Routes = [
   { path: 'brand', component: BrandComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'purchases', component: PurchasesComponent },
+
   {
     path: 'cream',
     loadChildren: () =>

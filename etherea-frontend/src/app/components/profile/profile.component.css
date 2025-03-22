@@ -3,14 +3,12 @@
   padding: 10px 15px;
 }
 
-/* Ligne de séparation */
 .separator {
   height: 1px;
   background: #ccc;
   margin: 10px 0;
 }
 
-/* Ligne contenant l'info */
 .info-row {
   display: flex;
   align-items: center;
@@ -18,19 +16,16 @@
   padding: 10px 0;
 }
 
-/* Label (Email / Mot de passe) */
 .info-label {
   font-size: 14px;
   color: #666;
 }
 
-/* Valeur affichée */
 .info-value {
   font-size: 16px;
   font-weight: bold;
 }
 
-/* Flèche à droite */
 .arrow-icon {
   color: var(--bg-color);
   font-size: 18px;

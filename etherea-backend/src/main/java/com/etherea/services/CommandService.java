@@ -1,6 +1,8 @@
 package com.etherea.services;
 
 import com.etherea.dtos.CommandRequestDTO;
+import com.etherea.dtos.CommandResponseDTO;
+import com.etherea.enums.CartStatus;
 import com.etherea.enums.CommandStatus;
 import com.etherea.exception.CartNotFoundException;
 import com.etherea.exception.CommandNotFoundException;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CommandService {
@@ -24,11 +28,23 @@ public class CommandService {
     @Autowired
     private DeliveryAddressRepository deliveryAddressRepository;
     @Autowired
-    private DeliveryMethodRepository deliveryMethodRepository;
-    @Autowired
     private PaymentRepository paymentRepository;
     @Autowired
     private EmailService emailService;
+
+    // Récupère toutes les commandes associées à un utilisateur donné
+    public List<CommandResponseDTO> getCommandsByUserId(Long userId) {
+        return commandRepository.findByUserId(userId)  // Recherche les commandes par ID utilisateur
+                .stream()
+                .map(CommandResponseDTO::fromEntity)   // Convertit chaque entité en DTO
+                .collect(Collectors.toList());         // Collecte les résultats dans une liste
+    }
+
+    // Récupère une commande spécifique d'un utilisateur donné
+    public Optional<CommandResponseDTO> getCommandByUserIdAndCommandId(Long userId, Long commandId) {
+        return commandRepository.findByIdAndUserId(commandId, userId)  // Recherche par ID de commande et ID utilisateur
+                .map(CommandResponseDTO::fromEntity);                  // Convertit l'entité en DTO si trouvée
+    }
 
     /**
      * Creates a command using the provided CommandRequestDTO.
@@ -48,14 +64,14 @@ public class CommandService {
         PaymentMethod paymentMethod = paymentRepository.findById(commandRequestDTO.getPaymentMethodId())
                 .orElseThrow(() -> new IllegalArgumentException("Payment method not found for ID: " + commandRequestDTO.getPaymentMethodId()));
 
-        Cart cart = cartRepository.findById(commandRequestDTO.getCart().getCartId())
-                .orElseThrow(() -> new CartNotFoundException("Cart not found for ID: " + commandRequestDTO.getCart().getCartId()));
+        Cart cart = cartRepository.findById(commandRequestDTO.getCartId())
+                .orElseThrow(() -> new CartNotFoundException("Cart not found for ID: " + commandRequestDTO.getCartId()));
 
         if (cart.getItems().isEmpty()) {
             throw new IllegalArgumentException("Cannot create order for an empty cart.");
         }
 
-        if (cart.isUsed()) {
+        if (cart.getStatus() == CartStatus.ORDERED) {
             throw new IllegalStateException("The cart has already been used for an order.");
         }
 
@@ -78,7 +94,7 @@ public class CommandService {
 
         commandRepository.saveAndFlush(command);
 
-        cart.setUsed(true);
+        cart.setStatus(CartStatus.ORDERED);
         cartRepository.save(cart);
 
         return command;
@@ -103,6 +119,7 @@ public class CommandService {
 
         return commandItems;
     }
+
     /**
      * Updates the status of a command.
      *
@@ -124,6 +141,7 @@ public class CommandService {
             emailService.sendOrderConfirmation(command.getUser().getUsername(), subject, emailContent);
         }
     }
+
     @Transactional
     private String generateOrderConfirmationEmail(Command command) {
         StringBuilder emailContent = new StringBuilder();
@@ -165,7 +183,7 @@ public class CommandService {
             // Reset shopping cart
             Cart cart = command.getCart();
             if (cart != null) {
-                cart.setUsed(false);
+                cart.setStatus(CartStatus.ACTIVE);
                 cartRepository.save(cart);
             }
 
