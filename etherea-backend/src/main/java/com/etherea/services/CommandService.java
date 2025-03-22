@@ -4,9 +4,7 @@ import com.etherea.dtos.CommandRequestDTO;
 import com.etherea.dtos.CommandResponseDTO;
 import com.etherea.enums.CartStatus;
 import com.etherea.enums.CommandStatus;
-import com.etherea.exception.CartNotFoundException;
-import com.etherea.exception.CommandNotFoundException;
-import com.etherea.exception.DeliveryAddressNotFoundException;
+import com.etherea.exception.*;
 import com.etherea.models.*;
 import com.etherea.repositories.*;
 import jakarta.transaction.Transactional;
@@ -29,6 +27,8 @@ public class CommandService {
     private DeliveryAddressRepository deliveryAddressRepository;
     @Autowired
     private PaymentRepository paymentRepository;
+    @Autowired
+    private DeliveryMethodRepository deliveryMethodRepository;
     @Autowired
     private EmailService emailService;
 
@@ -55,24 +55,32 @@ public class CommandService {
     @Transactional
     public Command createCommand(CommandRequestDTO commandRequestDTO) {
         if (commandRequestDTO == null) {
-            throw new IllegalArgumentException("CommandRequestDTO cannot be null.");
+            throw new CommandNotFoundException("CommandRequestDTO cannot be null.");
+        }
+
+        // Check if an order already exists for this shopping cart
+        if (commandRepository.existsByCartId(commandRequestDTO.getCartId())) {
+            throw new CommandNotFoundException("An order already exists for this shopping cart");
         }
 
         DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(commandRequestDTO.getDeliveryAddressId())
                 .orElseThrow(() -> new DeliveryAddressNotFoundException("Delivery address not found for ID: " + commandRequestDTO.getDeliveryAddressId()));
 
         PaymentMethod paymentMethod = paymentRepository.findById(commandRequestDTO.getPaymentMethodId())
-                .orElseThrow(() -> new IllegalArgumentException("Payment method not found for ID: " + commandRequestDTO.getPaymentMethodId()));
+                .orElseThrow(() -> new PaymentMethodNotFoundException("Payment method not found for ID: " + commandRequestDTO.getPaymentMethodId()));
 
         Cart cart = cartRepository.findById(commandRequestDTO.getCartId())
                 .orElseThrow(() -> new CartNotFoundException("Cart not found for ID: " + commandRequestDTO.getCartId()));
 
+        DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(commandRequestDTO.getDeliveryMethodId())
+                .orElseThrow(() -> new DeliveryMethodNotFoundException("Delivery method not found for ID: " + commandRequestDTO.getDeliveryMethodId()));
+
         if (cart.getItems().isEmpty()) {
-            throw new IllegalArgumentException("Cannot create order for an empty cart.");
+            throw new CartNotFoundException("Cannot create order for an empty cart.");
         }
 
         if (cart.getStatus() == CartStatus.ORDERED) {
-            throw new IllegalStateException("The cart has already been used for an order.");
+            throw new CommandNotFoundException("The cart has already been used for an order.");
         }
 
         Command command = new Command();
@@ -85,8 +93,9 @@ public class CommandService {
         command.setStatus(commandRequestDTO.getStatus());
         command.setDeliveryAddress(deliveryAddress);
         command.setPaymentMethod(paymentMethod);
+        command.setDeliveryMethod(deliveryMethod);
 
-        // Extracted method call
+        // Create order items
         List<CommandItem> commandItems = createCommandItems(cart, command);
         command.setCommandItems(commandItems);
 
@@ -141,7 +150,6 @@ public class CommandService {
             emailService.sendOrderConfirmation(command.getUser().getUsername(), subject, emailContent);
         }
     }
-
     @Transactional
     private String generateOrderConfirmationEmail(Command command) {
         StringBuilder emailContent = new StringBuilder();

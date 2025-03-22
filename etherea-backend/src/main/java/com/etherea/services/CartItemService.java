@@ -14,8 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Service
 public class CartItemService {
     @Autowired
@@ -30,81 +32,83 @@ public class CartItemService {
     private CartRepository cartRepository;
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
 
+
     /**
-     * Retrieves all cart items for a specific user.
-     * Only cart items related to HAIR or FACE product types are included.
+     * Retrieves items from a user's active shopping cart
      */
     public List<CartItemDTO> getCartItemsByUserId(Long userId) {
-        List<CartItem> cartItems = cartItemRepository.findByCart_User_Id(userId);
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return Collections.emptyList();
+        }
 
-        List<CartItem> filteredItems = cartItems.stream()
+        // Find the user's active shopping cart
+        Cart activeCart = user.getCarts().stream()
+                .filter(cart -> cart.getStatus() == CartStatus.ACTIVE)
+                .findFirst()
+                .orElse(null);
+
+        if (activeCart == null) {
+            return Collections.emptyList();
+        }
+
+        // Filter items with the right product types and convert them into DTOs
+        return activeCart.getItems().stream()
                 .filter(cartItem -> {
                     ProductType type = cartItem.getProduct().getType();
                     return type == ProductType.HAIR || type == ProductType.FACE;
                 })
-                .toList();
-
-        logger.info("Filtered cart items for user {}: {}", userId, filteredItems.size());
-
-        return filteredItems.stream()
                 .map(CartItemDTO::fromCartItem)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Adds a product to the user's active cart.
+     * Adds a product to a user's active shopping cart
      */
     @Transactional
     public void addProductToUserCart(CartItemDTO cartItemDTO) {
         if (cartItemDTO.getQuantity() <= 0) {
-            throw new IllegalArgumentException("La quantité doit être supérieure à 0.");
+            throw new IllegalArgumentException("Quantity must be greater than 0.");
         }
 
         Long userId = cartItemDTO.getUserId();
         Long productId = cartItemDTO.getProductId();
         VolumeDTO volumeDTO = cartItemDTO.getVolume();
 
-        // Vérifier s'il y a plusieurs paniers actifs et désactiver les anciens
-        List<Cart> activeCarts = cartRepository.findByUserIdAndStatus(userId, CartStatus.ACTIVE);
-        if (!activeCarts.isEmpty()) {
-            activeCarts.forEach(cart -> cart.setStatus(CartStatus.ORDERED));
-            cartRepository.saveAll(activeCarts);
-        }
-
-        //Récupérer ou créer un seul panier actif
-        Cart cart = cartRepository.findFirstByUserIdAndStatusOrderByIdDesc(userId, CartStatus.ACTIVE)
+        // Retrieve or create an active shopping cart for the user
+        Cart cart = cartRepository.findActiveCartByUser(userId)
                 .orElseGet(() -> {
                     User user = userRepository.findById(userId)
-                            .orElseThrow(() -> new UserNotFoundException("Utilisateur introuvable avec l'ID : " + userId));
+                            .orElseThrow(() -> new UserNotFoundException("User ID not found : " + userId));
                     Cart newCart = new Cart(user);
                     newCart.setStatus(CartStatus.ACTIVE);
                     return cartRepository.save(newCart);
                 });
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Produit non trouvé avec l'ID : " + productId));
+                .orElseThrow(() -> new ProductNotFoundException("Product ID not found : " + productId));
 
         Volume volume = null;
         if (product.getType() == ProductType.HAIR) {
             if (volumeDTO == null) {
-                throw new IllegalArgumentException("Les produits de type HAIR nécessitent un volume.");
+                throw new ProductNotFoundException("HAIR products require a high volume.");
             }
             volume = volumeRepository.findById(volumeDTO.getId())
-                    .orElseThrow(() -> new VolumeNotFoundException("Volume introuvable avec l'ID : " + volumeDTO.getId()));
+                    .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID : " + volumeDTO.getId()));
         }
 
-        //Vérifier si le produit est déjà dans le panier
+        // Check if the product is already in the shopping cart
         CartItem existingCartItem = cartItemRepository.findByCartAndProductAndVolume(cart, product, volume);
         if (existingCartItem != null) {
             int newQuantity = existingCartItem.getQuantity() + cartItemDTO.getQuantity();
             if (product.getStockQuantity() < newQuantity - existingCartItem.getQuantity()) {
-                throw new IllegalArgumentException("Stock insuffisant pour le produit " + product.getName());
+                throw new ProductNotFoundException("Insufficient stock for the product " + product.getName());
             }
             existingCartItem.setQuantity(newQuantity);
             existingCartItem.setSubTotal(existingCartItem.calculateSubtotal());
         } else {
             if (product.getStockQuantity() < cartItemDTO.getQuantity()) {
-                throw new IllegalArgumentException("Stock insuffisant pour le produit " + product.getName());
+                throw new ProductNotFoundException("Insufficient stock for the product " + product.getName());
             }
 
             CartItem newCartItem = cartItemDTO.toCartItem();
@@ -122,7 +126,7 @@ public class CartItemService {
     }
 
     /**
-     * Updates the total price of the user's cart.
+     * Updates shopping cart total
      */
     private void updateCartTotal(Cart cart) {
         cart.calculateTotalAmount();
@@ -130,40 +134,40 @@ public class CartItemService {
     }
 
     /**
-     * Updates the quantity of a specific cart item.
+     * Updates the quantity of an item in the active shopping cart
      */
     @Transactional
     public void updateCartItemQuantity(CartItemDTO cartItemDTO) {
         if (cartItemDTO.getQuantity() <= 0) {
-            throw new IllegalArgumentException("La quantité doit être supérieure à 0.");
+            throw new IllegalArgumentException("Quantity must be greater than 0");
         }
 
         Long userId = cartItemDTO.getUserId();
         Long productId = cartItemDTO.getProductId();
         VolumeDTO volumeDTO = cartItemDTO.getVolume();
 
-        Cart cart = cartRepository.findFirstByUserIdAndStatusOrderByIdDesc(userId, CartStatus.ACTIVE)
-                .orElseThrow(() -> new EntityNotFoundException("Aucun panier actif trouvé pour l'utilisateur " + userId));
+        Cart cart = cartRepository.findActiveCartByUser(userId)
+                .orElseThrow(() -> new EntityNotFoundException("No active cart found for user " + userId));
 
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Produit non trouvé avec l'ID : " + productId));
+                .orElseThrow(() -> new ProductNotFoundException("Product not found with ID : " + productId));
 
         Volume volume = null;
         if (product.getType() == ProductType.HAIR && volumeDTO != null) {
             volume = volumeRepository.findById(volumeDTO.getId())
-                    .orElseThrow(() -> new VolumeNotFoundException("Volume introuvable avec l'ID : " + volumeDTO.getId()));
+                    .orElseThrow(() -> new VolumeNotFoundException("Volume not found with ID : " + volumeDTO.getId()));
         }
 
         CartItem cartItem = cartItemRepository.findByCartAndProductAndVolume(cart, product, volume);
         if (cartItem == null) {
-            throw new CartItemNotFoundException("Aucun CartItem trouvé pour cet utilisateur et ce produit.");
+            throw new CartItemNotFoundException("No CartItems found for this user and this product.");
         }
 
         int previousQuantity = cartItem.getQuantity();
         int newQuantity = cartItemDTO.getQuantity();
 
         if (product.getStockQuantity() < (newQuantity - previousQuantity)) {
-            throw new IllegalArgumentException("Stock insuffisant pour le produit.");
+            throw new ProductNotFoundException("Insufficient stock for the product.");
         }
 
         product.setStockQuantity(product.getStockQuantity() - (newQuantity - previousQuantity));
@@ -178,12 +182,12 @@ public class CartItemService {
     }
 
     /**
-     * Deletes a specific cart item from the user's cart.
+     * Deletes an item from the shopping cart
      */
     @Transactional
     public void deleteCartItem(Long id) {
         CartItem cartItemToDelete = cartItemRepository.findById(id)
-                .orElseThrow(() -> new CartItemNotFoundException("CartItem avec id " + id + " non trouvé"));
+                .orElseThrow(() -> new CartItemNotFoundException("CartItem with id " + id + " no found"));
 
         Product product = cartItemToDelete.getProduct();
         int quantity = cartItemToDelete.getQuantity();

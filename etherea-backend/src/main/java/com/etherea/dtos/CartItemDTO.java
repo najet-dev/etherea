@@ -78,13 +78,14 @@ public class CartItemDTO {
                 cartItem.getVolume() != null ? VolumeDTO.fromVolume(cartItem.getVolume()) : null,
                 cartItem.calculateSubtotal(),
                 cartItem.getCart() != null && cartItem.getCart().getUser() != null ? cartItem.getCart().getUser().getId() : null, // ✅ User ID extrait ici
-                cartItem.getCart() != null ? CartDTO.fromCart(cartItem.getCart()) : null
+                null  // Do not convert `Cart` to avoid the infinite loop
         );
     }
     public CartItem toCartItem() {
         CartItem cartItem = new CartItem();
         cartItem.setId(this.id);
         cartItem.setQuantity(this.quantity);
+        cartItem.setCart(null);
 
         if (this.productId != null) {
             Product product = new Product();
@@ -94,10 +95,6 @@ public class CartItemDTO {
 
         if (this.volume != null) {
             cartItem.setVolume(this.volume.toVolume());
-        }
-
-        if (this.cart != null) {
-            cartItem.setCart(this.cart.toCart());
         }
 
         return cartItem;

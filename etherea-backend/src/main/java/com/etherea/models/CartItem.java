@@ -12,10 +12,10 @@ public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private int quantity;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore
     private Product product;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "volume_id", nullable = true)
@@ -64,15 +64,12 @@ public class CartItem {
     public void setVolume(Volume volume) {
         this.volume = volume;
     }
-
     public Cart getCart() {
         return cart;
     }
-
     public void setCart(Cart cart) {
         this.cart = cart;
     }
-
     public BigDecimal getSubTotal() {
         return subTotal;
     }

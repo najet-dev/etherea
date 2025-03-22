@@ -14,10 +14,13 @@ import java.util.Optional;
 @Repository
 public interface CartRepository  extends JpaRepository<Cart, Long> {
     Optional<Cart> findByUserId(Long userId);
-
-    List<Cart> findByUserIdAndStatus(Long userId, CartStatus status);
-    Optional<Cart> findFirstByUserIdAndStatusOrderByIdDesc(Long userId, CartStatus status);
+    Optional<Cart> findTopByUserIdAndStatusOrderByIdDesc(Long userId, CartStatus status);
     @Query("SELECT c.user.id FROM Cart c WHERE c.id = :cartId")
     Optional<Long> findUserIdByCartId(@Param("cartId") Long cartId);
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId AND c.status = 'ACTIVE'")
+    Optional<Cart> findActiveCartByUser(@Param("userId") Long userId);
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId AND c.status = 'ACTIVE' ORDER BY c.id DESC")
+    Optional<Cart> findLatestActiveCart(@Param("userId") Long userId);
+
 }
 

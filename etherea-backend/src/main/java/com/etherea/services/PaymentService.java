@@ -1,6 +1,5 @@
 package com.etherea.services;
 
-import com.etherea.dtos.CartDTO;
 import com.etherea.dtos.CommandRequestDTO;
 import com.etherea.dtos.PaymentRequestDTO;
 import com.etherea.dtos.PaymentResponseDTO;
@@ -11,6 +10,7 @@ import com.etherea.exception.CartNotFoundException;
 import com.etherea.models.*;
 import com.etherea.repositories.CartRepository;
 import com.etherea.repositories.CommandRepository;
+import com.etherea.repositories.DeliveryMethodRepository;
 import com.etherea.repositories.PaymentRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -30,6 +30,8 @@ public class PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
     @Autowired
+    private DeliveryMethodRepository deliveryMethodRepository;
+    @Autowired
     private CommandRepository commandRepository;
     @Autowired
     private CommandService commandService;
@@ -37,6 +39,15 @@ public class PaymentService {
     private StripeService stripeService;
     @Autowired
     private CartService cartService;
+
+    /**
+     * Creates a payment intent using Stripe for a specified cart.
+     *
+     * @param paymentRequestDTO Payment request containing cart and payment details.
+     * @param userId The ID of the user making the payment.
+     * @return A PaymentResponseDTO containing the payment status, transaction ID, and client secret.
+     * @throws StripeException If an error occurs with the Stripe payment service.
+     */
     @Transactional
     public PaymentResponseDTO createPaymentIntent(PaymentRequestDTO paymentRequestDTO, Long userId) throws StripeException {
         Long cartId = (paymentRequestDTO.getCartId() != null)
@@ -60,13 +71,22 @@ public class PaymentService {
         paymentMethod.setCartId(paymentRequestDTO.getCartId());
         paymentRepository.save(paymentMethod);
 
-        // Create a DTO response containing the `transactionId` and the `clientSecret`.
+        // Return a DTO with transactionId and clientSecret
         return new PaymentResponseDTO(
                 PaymentStatus.PENDING,
                 paymentIntent.getId(),
                 paymentIntent.getClientSecret()
         );
     }
+
+    /**
+     * Confirms a payment using the provided payment intent and payment method IDs.
+     *
+     * @param paymentIntentId The ID of the payment intent.
+     * @param paymentMethodId The ID of the payment method.
+     * @return A PaymentResponseDTO containing the final payment status, transaction ID, and client secret.
+     * @throws StripeException If an error occurs with the Stripe payment service.
+     */
     @Transactional
     public PaymentResponseDTO confirmPayment(String paymentIntentId, String paymentMethodId) throws StripeException {
 
@@ -89,31 +109,40 @@ public class PaymentService {
             processSuccessfulPayment(paymentMethod);
         }
 
-        return new PaymentResponseDTO(paymentStatus, paymentIntent.getId(),paymentIntent.getClientSecret());
+        return new PaymentResponseDTO(paymentStatus, paymentIntent.getId(), paymentIntent.getClientSecret());
     }
+
+    /**
+     * Handles the post-payment process for a successful payment.
+     * This includes creating a new order and updating the cart status.
+     *
+     * @param paymentMethod The payment method associated with the successful payment.
+     */
     private void processSuccessfulPayment(PaymentMethod paymentMethod) {
-
-        //Trouver l'ID utilisateur à partir du cartId
+        // Retrieve user ID from cartId
         Long userId = cartRepository.findUserIdByCartId(paymentMethod.getCartId())
-                .orElseThrow(() -> new CartNotFoundException("Aucun utilisateur trouvé pour le panier ID : " + paymentMethod.getCartId()));
+                .orElseThrow(() -> new CartNotFoundException("No user found for cart ID: " + paymentMethod.getCartId()));
 
-        //Récupérer le panier actif de cet utilisateur
-        Cart cart = cartRepository.findFirstByUserIdAndStatusOrderByIdDesc(userId, CartStatus.ACTIVE)
-                .orElseThrow(() -> new CartNotFoundException("Aucun panier actif trouvé pour l'utilisateur ID : " + userId));
+        // Retrieve the active cart
+        Cart cart = cartRepository.findTopByUserIdAndStatusOrderByIdDesc(userId, CartStatus.ACTIVE)
+                .orElseThrow(() -> new CartNotFoundException("No active cart found for user ID: " + userId));
 
-        // Vérifier si le panier est déjà commandé
         if (cart.getStatus() == CartStatus.ORDERED) {
-            throw new IllegalStateException("Le panier a déjà été utilisé pour une commande.");
+            throw new IllegalStateException("The cart has already been used for an order.");
         }
 
-        //Récupérer l'utilisateur et son adresse de livraison
+        // Retrieve the user and their default delivery address
         User user = cart.getUser();
         DeliveryAddress deliveryAddress = user.getDefaultAddress();
         if (deliveryAddress == null) {
-            throw new IllegalStateException("Aucune adresse de livraison par défaut trouvée pour cet utilisateur.");
+            throw new IllegalStateException("No default delivery address found for this user.");
         }
 
-        //Création de la commande
+        // Retrieve the delivery method
+        DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(cart.getDeliveryMethod().getId())
+                .orElseThrow(() -> new IllegalStateException("No delivery method found for this cart."));
+
+        // Create a new command (order)
         CommandRequestDTO commandRequestDTO = new CommandRequestDTO();
         commandRequestDTO.setCommandDate(LocalDateTime.now());
         commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());
@@ -122,14 +151,15 @@ public class PaymentService {
         commandRequestDTO.setTotal(cart.calculateFinalTotal());
         commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
         commandRequestDTO.setPaymentMethodId(paymentMethod.getId());
+        commandRequestDTO.setDeliveryMethodId(deliveryMethod.getId());
 
+        // Create the order before changing the cart status
         Command createdCommand = commandService.createCommand(commandRequestDTO);
         commandService.updateCommandStatus(createdCommand.getId(), CommandStatus.PAID);
 
-        //Mettre à jour le panier après le paiement
+        // Clear the cart and mark it as ORDERED
         cart.getItems().clear();
         cart.setStatus(CartStatus.ORDERED);
         cartRepository.save(cart);
     }
-
 }
