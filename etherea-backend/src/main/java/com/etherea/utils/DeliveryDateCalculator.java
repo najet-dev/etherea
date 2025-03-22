@@ -13,7 +13,6 @@ import java.util.Set;
 @Component
 public class DeliveryDateCalculator {
     private final Set<LocalDate> publicHolidays;
-
     @Autowired
     public DeliveryDateCalculator(HolidayProvider holidayProvider) {
         this.publicHolidays = (holidayProvider != null) ? holidayProvider.getPublicHolidays() : Collections.emptySet();

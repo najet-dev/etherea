@@ -2,7 +2,6 @@ package com.etherea.models;
 
 import com.etherea.enums.CommandStatus;
 import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,27 +16,31 @@ public class Command {
     private String referenceCode;
     @Enumerated(EnumType.STRING)
     private CommandStatus status;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne( fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne( fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
+    @ManyToOne( fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "delivery_method_id")
+    private DeliveryMethod deliveryMethod;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "cart_id", nullable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id", unique = true, nullable = false)
     private Cart cart;
     @OneToMany(mappedBy = "command", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandItem> commandItems = new ArrayList<>();
     private BigDecimal total;
     public Command() {}
-    public Command(LocalDateTime commandDate, String referenceCode, CommandStatus status, DeliveryAddress deliveryAddress, Cart cart) {
+    public Command(LocalDateTime commandDate, String referenceCode, CommandStatus status, DeliveryAddress deliveryAddress, DeliveryMethod deliveryMethod, Cart cart) {
         this.commandDate = commandDate;
         this.referenceCode = referenceCode;
         this.status = status;
         this.deliveryAddress = deliveryAddress;
+        this.deliveryMethod = deliveryMethod;
         this.cart = cart;
         this.total = cart.calculateFinalTotal(); // Initialize total from shopping cart
     }
@@ -76,6 +79,11 @@ public class Command {
     }
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }public DeliveryMethod getDeliveryMethod() {
+        return deliveryMethod;
+    }
+    public void setDeliveryMethod(DeliveryMethod deliveryMethod) {
+        this.deliveryMethod = deliveryMethod;
     }
     public User getUser() {
         return user;
@@ -100,15 +108,5 @@ public class Command {
     }
     public void setTotal(BigDecimal total) {
         this.total = total;
-    }
-    private void setDefaultCommandDate() {
-        if (this.commandDate == null) {
-            this.commandDate = LocalDateTime.now();
-        }
-    }
-    private void generateReferenceCode() {
-        if (this.referenceCode == null) {
-            this.referenceCode = "CMD-" + System.currentTimeMillis();
-        }
     }
 }

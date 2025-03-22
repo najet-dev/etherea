@@ -1,0 +1,72 @@
+<div class="container-fluid">
+  <div class="row">
+    <!-- Bouton pour ouvrir le menu sur mobile -->
+    <button
+      class="btn btnFavorite d-md-none my-3"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileSidebar"
+    >
+      Menu
+    </button>
+
+    <!-- Sidebar responsive (offcanvas sur mobile) -->
+    <div class="offcanvas offcanvas-start d-md-none" id="mobileSidebar">
+      <div class="offcanvas-header">
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <app-sidebar></app-sidebar>
+      </div>
+    </div>
+
+    <!-- Sidebar classique sur desktop -->
+    <div class="col-md-4 col-lg-3 d-none d-md-block">
+      <app-sidebar></app-sidebar>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="col-md-8 col-lg-9">
+      <div class="container mt-5">
+        <div class="row">
+          <div class="col-12 text-center">
+            <h2>Mes commandes</h2>
+          </div>
+        </div>
+
+        <div class="row justify-content-center mt-4">
+          <div class="col-12">
+            <div *ngIf="errorMessage" class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+
+            <table *ngIf="commands.length > 0" class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Référence</th>
+                  <th>Statut</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let command of commands">
+                  <td>{{ command.commandDate | date : "dd/MM/yyyy" }}</td>
+                  <td>{{ command.referenceCode }}</td>
+                  <td class="status">{{ command.status }}</td>
+                  <td>
+                    {{ command.total | currency : "EUR" : "symbol" : "1.2-2" }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

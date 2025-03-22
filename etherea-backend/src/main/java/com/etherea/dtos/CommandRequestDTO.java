@@ -1,27 +1,36 @@
 package com.etherea.dtos;
 
 import com.etherea.enums.CommandStatus;
+import com.etherea.models.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class CommandRequestDTO {
-    private LocalDateTime commandDate;
+    private LocalDateTime commandDate = LocalDateTime.now();
     private String referenceCode;
     private CommandStatus status = CommandStatus.PENDING;
+    @NotNull @Positive
     private Long deliveryAddressId;
+    @NotNull @Positive
     private Long paymentMethodId;
-    private CartDTO cart;
+    @NotNull @Positive
+    private Long deliveryMethodId;
+    @NotNull @Positive
+    private Long cartId;
+    @NotNull @Positive
+    private Long userId;
     private BigDecimal total = BigDecimal.ZERO;
     public CommandRequestDTO() {}
-    public CommandRequestDTO(LocalDateTime commandDate, String referenceCode, CommandStatus status,
-                             Long deliveryAddressId, Long paymentMethodId, CartDTO cart) {
-        this.commandDate = commandDate != null ? commandDate : LocalDateTime.now();
+    public CommandRequestDTO(String referenceCode, Long deliveryAddressId, Long paymentMethodId, Long deliveryMethodId, Long cartId, Long userId) {
         this.referenceCode = referenceCode;
-        this.status = status != null ? status : CommandStatus.PENDING;
         this.deliveryAddressId = deliveryAddressId;
         this.paymentMethodId = paymentMethodId;
-        this.cart = cart;
-        this.total = cart != null ? cart.getFinalTotal() : BigDecimal.ZERO;
+        this.deliveryMethodId = deliveryMethodId;
+        this.cartId = cartId;
+        this.userId = userId;
     }
     public LocalDateTime getCommandDate() {
         return commandDate;
@@ -45,30 +54,61 @@ public class CommandRequestDTO {
         return deliveryAddressId;
     }
     public void setDeliveryAddressId(Long deliveryAddressId) {
-        if (deliveryAddressId == null || deliveryAddressId <= 0) {
-            throw new IllegalArgumentException("Delivery address ID must be a positive value.");
-        }
         this.deliveryAddressId = deliveryAddressId;
     }
     public Long getPaymentMethodId() {
         return paymentMethodId;
     }
     public void setPaymentMethodId(Long paymentMethodId) {
-        if (paymentMethodId == null || paymentMethodId <= 0) {
-            throw new IllegalArgumentException("Payment method ID must be a positive value.");
-        }
         this.paymentMethodId = paymentMethodId;
     }
-    public CartDTO getCart() {
-        return cart;
+    public Long getDeliveryMethodId() {
+        return deliveryMethodId;
     }
-    public void setCart(CartDTO cart) {
-        this.cart = cart;
+    public void setDeliveryMethodId(Long deliveryMethodId) {
+        this.deliveryMethodId = deliveryMethodId;
+    }
+    public Long getCartId() {
+        return cartId;
+    }
+    public void setCartId(Long cartId) {
+        this.cartId = cartId;
+    }
+    public Long getUserId() {
+        return userId;
+    }
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
     public BigDecimal getTotal() {
         return total;
     }
     public void setTotal(BigDecimal total) {
         this.total = total;
+    }
+
+    // Convert Entity to DTO
+    public static CommandRequestDTO fromEntity(Command command) {
+        return new CommandRequestDTO(
+                command.getReferenceCode(),
+                Optional.ofNullable(command.getDeliveryAddress()).map(DeliveryAddress::getId).orElse(null),
+                Optional.ofNullable(command.getPaymentMethod()).map(PaymentMethod::getId).orElse(null),
+                Optional.ofNullable(command.getDeliveryMethod()).map(DeliveryMethod::getId).orElse(null),
+                Optional.ofNullable(command.getCart()).map(Cart::getId).orElse(null),
+                Optional.ofNullable(command.getUser()).map(User::getId).orElse(null)
+        );
+    }
+    public Command toEntity(DeliveryAddress deliveryAddress, PaymentMethod paymentMethod, DeliveryMethod deliveryMethod, User user, Cart cart) {
+        Command command = new Command();
+        command.setCommandDate(this.commandDate);
+        command.setReferenceCode(this.referenceCode);
+        command.setStatus(this.status);
+        command.setDeliveryAddress(deliveryAddress);
+        command.setPaymentMethod(paymentMethod);
+        command.setDeliveryMethod(deliveryMethod);
+        command.setUser(user);
+        command.setCart(cart);
+        command.setTotal(this.total);
+        return command;
     }
 }

@@ -1,5 +1,6 @@
 package com.etherea.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,10 +21,9 @@ public class User {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
-    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Cart cart;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<CartItem> cartItems = new ArrayList<>();
+    @JsonIgnore
+    private List<Cart> carts = new ArrayList<>();
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Favorite> favorites = new ArrayList<>();
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -70,26 +70,20 @@ public class User {
     public Set<Role> getRoles() {
         return roles;
     }
-    public Cart getCart() {
-        return cart;
+    public List<Cart> getCarts() {
+        return carts;
     }
-    public void setCart(Cart cart) {
-        this.cart = cart;
+    public void setCarts(List<Cart> carts) {
+        this.carts = carts;
     }
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
-    }
-    public List<CartItem> getCartItems() {
-        return cartItems;
     }
     public List<Favorite> getFavorites() {
         return favorites;
     }
     public void setFavorites(List<Favorite> favorites) {
         this.favorites = favorites;
-    }
-    public void setCartItems(List<CartItem> cartItems) {
-        this.cartItems = cartItems;
     }
     public List<Command> getCommands() {
         return commands;
