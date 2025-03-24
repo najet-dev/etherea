@@ -1,5 +1,5 @@
 import { CookieChoice } from './cookie-choice.model';
-import { CookiePolicyVersion } from './CookiePolicyVersion.enum';
+import { CookiePolicyVersion } from './cookiePolicyVersion.enum';
 
 export interface SaveCookieConsentRequest {
   userId: number | null;

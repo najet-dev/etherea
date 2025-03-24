@@ -58,9 +58,10 @@ public class CookieConsentDTO {
     public void setCookieChoices(List<CookieChoiceDTO> cookieChoices) {
         this.cookieChoices = cookieChoices;
     }
-    // Conversion Entité to DTO
+
+    // Entity to DTO conversion
     public static CookieConsentDTO fromEntity(CookieConsent cookieConsent) {
-        Objects.requireNonNull(cookieConsent, "Le consentement des cookies ne peut pas être null.");
+        Objects.requireNonNull(cookieConsent, "Cookie consent cannot be null");
         return new CookieConsentDTO(
                 cookieConsent.getId(),
                 cookieConsent.getUserId(),

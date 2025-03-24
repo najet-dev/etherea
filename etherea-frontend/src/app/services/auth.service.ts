@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { environment } from 'src/environments/environment';
 import { SigninRequest } from '../components/models/signinRequest.model';
 import { Router } from '@angular/router';
-import { SignupRequest } from '../components/models/SignupRequest.model';
+import { SignupRequest } from '../components/models/signupRequest.model';
+import { Role } from '../components/models/role.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -21,11 +22,6 @@ export class AuthService {
     private router: Router
   ) {}
 
-  /**
-   * Inscription d'un nouvel utilisateur
-   * @param signupData Les données d'inscription
-   * @returns Un observable contenant les données d'inscription
-   */
   signup(signupData: SignupRequest): Observable<SignupRequest> {
     return this.httpClient
       .post<SignupRequest>(`${this.apiUrl}/api/auth/signup`, signupData)
@@ -37,11 +33,6 @@ export class AuthService {
       );
   }
 
-  /**
-   * Connexion d'un utilisateur existant
-   * @param signinData Les données de connexion
-   * @returns Un observable contenant les données de connexion
-   */
   signin(signinData: SigninRequest): Observable<SigninRequest> {
     return this.httpClient
       .post<SigninRequest>(`${this.apiUrl}/api/auth/signin`, signinData, {
@@ -59,18 +50,56 @@ export class AuthService {
           console.error('Signin error:', error);
           return throwError(() => new Error(errorMessage));
         }),
-        tap((signin) => {
+        switchMap((signin) => {
+          console.log('Signin response:', signin); // Log pour voir les rôles
+
+          if (!signin.accessToken || !this.isValidJwt(signin.accessToken)) {
+            console.error('Token JWT invalide.');
+            return throwError(() => new Error('Token JWT invalide.'));
+          }
+
           this.storageService.saveToken(signin.accessToken);
           this.AuthenticatedUser$.next(signin);
-          console.log('User signed in successfully:', signin);
+
+          // Vérification du rôle admin
+          const isAdmin = signin.roles.includes('ROLE_ADMIN');
+          console.log(
+            isAdmin
+              ? 'User signed in with ADMIN role.'
+              : 'User signed in without ADMIN role.'
+          );
+
+          // Redirection vers le tableau de bord de l'admin si l'utilisateur a le rôle "ADMIN"
+          if (isAdmin) {
+            this.router.navigate(['/admin/admin-dashboard']);
+          } else {
+            console.log('Redirection vers /');
+            this.router.navigate(['/']);
+          }
+
+          return of(signin);
         })
       );
   }
 
-  /**
-   * Déconnexion de l'utilisateur
-   * @returns Un Observable indiquant l'état de la déconnexion
-   */
+  private isValidJwt(token: string): boolean {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return !!payload && typeof payload === 'object';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  isAdmin(): boolean {
+    const user = this.AuthenticatedUser$.getValue();
+    console.log('User:', user); // Vérifiez si `roles` est bien un tableau et son contenu
+    if (user && user.roles) {
+      return user.roles.includes('ROLE_ADMIN');
+    }
+    return false;
+  }
+
   logout(): Observable<void> {
     const token = this.storageService.getToken();
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
@@ -79,7 +108,7 @@ export class AuthService {
       .post<void>(`${this.apiUrl}/api/auth/logout`, {}, { headers })
       .pipe(
         tap(() => {
-          this.storageService.removeToken(); // Supprime le token lors de la déconnexion
+          this.storageService.removeToken();
           this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
         }),
@@ -92,13 +121,10 @@ export class AuthService {
       );
   }
 
-  /**
-   * Obtenir l'utilisateur actuel
-   * @returns Un observable de l'utilisateur actuel
-   */
   getCurrentUser(): Observable<SigninRequest | null> {
     return this.AuthenticatedUser$.asObservable().pipe(
       tap((user) => {
+        console.log('User from AuthenticatedUser$:', user); // Log pour vérifier l'utilisateur
         if (!user) {
           console.error('Aucun utilisateur authentifié');
         }

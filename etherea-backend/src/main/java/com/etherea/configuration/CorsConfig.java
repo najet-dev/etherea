@@ -6,6 +6,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.List;
+
 @Configuration
 public class CorsConfig {
 
@@ -14,21 +16,22 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
 
-        // Ajoute plusieurs origines autorisées
+        // Autoriser les origines spécifiques (Angular)
         config.addAllowedOrigin("http://localhost:4200");
-        config.addAllowedOriginPattern("http://localhost:*");  // En cas de besoin pour toutes les origines localhost
+        config.addAllowedOriginPattern("http://localhost:*");
+        config.setAllowedOriginPatterns(List.of("http://localhost:4200", "http://localhost:*"));
 
-        // Autoriser tous les en-têtes
+
+        // Autoriser tous les en-têtes et toutes les méthodes HTTP
         config.addAllowedHeader("*");
-
-        // Autoriser toutes les méthodes HTTP
         config.addAllowedMethod("*");
 
-        // Autoriser les cookies
+        // Autoriser les cookies et les informations d'identification
         config.setAllowCredentials(true);
 
-        // Enregistre la configuration pour toutes les routes
+        // Enregistrer la configuration pour toutes les routes
         source.registerCorsConfiguration("/**", config);
+
         return new CorsFilter(source);
     }
 }

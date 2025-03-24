@@ -14,6 +14,7 @@ import { Cart } from '../models/cart.model';
 import { HairProduct } from '../models/hairProduct.model';
 import { FaceProduct } from '../models/faceProduct.model';
 import { ProductVolume } from '../models/productVolume.model';
+import { StockStatus } from '../models/stock-status.enum';
 
 @Component({
   selector: 'app-product-details',
@@ -44,11 +45,12 @@ export class ProductDetailsComponent implements OnInit {
       description: '',
       type: ProductType.FACE,
       stockQuantity: 0,
-      stockStatus: '',
+      stockStatus: StockStatus.AVAILABLE,
       benefits: '',
       usageTips: '',
       ingredients: '',
       characteristics: '',
+      basePrice: 0,
       image: '',
       isFavorite: false,
     },
@@ -295,11 +297,12 @@ export class ProductDetailsComponent implements OnInit {
         description: '',
         type: ProductType.FACE,
         stockQuantity: 0,
-        stockStatus: '',
+        stockStatus: StockStatus.AVAILABLE,
         benefits: '',
         usageTips: '',
         ingredients: '',
         characteristics: '',
+        basePrice: 0,
         image: '',
         isFavorite: false,
       },

@@ -6,7 +6,7 @@ import { environment } from 'src/environments/environment';
 import { CookieService } from 'ngx-cookie-service';
 import { CookieConsent } from '../components/models/cookieConsent.model';
 import { SaveCookieConsentRequest } from '../components/models/saveCookieConsentRequest.model';
-import { CookiePolicyVersion } from '../components/models/CookiePolicyVersion.enum';
+import { CookiePolicyVersion } from '../components/models/cookiePolicyVersion.enum';
 import { CookieChoice } from '../components/models/cookie-choice.model';
 
 @Injectable({

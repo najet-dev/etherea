@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductDTO {
     private Long id;
     private String name;
@@ -24,11 +23,10 @@ public class ProductDTO {
     private String ingredients;
     private String characteristics;
     private String image;
-    private List<VolumeDTO> volumes;
     public ProductDTO() {}
     public ProductDTO(Long id, String name, String description, ProductType type, BigDecimal basePrice, int stockQuantity,
                       StockStatus stockStatus, String benefits, String usageTips, String ingredients,
-                      String characteristics, String image, List<VolumeDTO> volumes) {
+                      String characteristics, String image) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -41,7 +39,6 @@ public class ProductDTO {
         this.ingredients = ingredients;
         this.characteristics = characteristics;
         this.image = image;
-        this.volumes = volumes;
     }
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -67,10 +64,6 @@ public class ProductDTO {
     public void setCharacteristics(String characteristics) { this.characteristics = characteristics; }
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
-    public List<VolumeDTO> getVolumes() { return volumes; }
-    public void setVolumes(List<VolumeDTO> volumes) { this.volumes = volumes; }
-
-    // Conversion methods
     public static ProductDTO fromProduct(Product product) {
         return new ProductDTO(
                 product.getId(),
@@ -84,10 +77,7 @@ public class ProductDTO {
                 product.getUsageTips(),
                 product.getIngredients(),
                 product.getCharacteristics(),
-                product.getImage(),
-                product.getVolumes() != null
-                        ? product.getVolumes().stream().map(VolumeDTO::fromVolume).collect(Collectors.toList())
-                        : null
+                product.getImage()
         );
     }
     public Product toProduct() {
@@ -98,19 +88,13 @@ public class ProductDTO {
         product.setType(this.type);
         product.setBasePrice(this.basePrice);
         product.setStockQuantity(this.stockQuantity);
+        product.setStockStatus(this.stockStatus);
         product.setBenefits(this.benefits);
         product.setUsageTips(this.usageTips);
         product.setIngredients(this.ingredients);
         product.setCharacteristics(this.characteristics);
         product.setImage(this.image);
 
-        if (this.volumes != null) {
-            this.volumes.forEach(volumeDTO -> {
-                Volume volume = volumeDTO.toVolume();
-                volume.setProduct(product);
-                product.addVolume(volume);
-            });
-        }
         return product;
     }
 }

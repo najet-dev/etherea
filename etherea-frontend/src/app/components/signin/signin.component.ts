@@ -86,8 +86,14 @@ export class SigninComponent implements OnInit {
       .signin(this.loginForm.value)
       .pipe(
         tap({
-          next: () => {
-            this.router.navigate(['/']);
+          next: (user) => {
+            // Si l'utilisateur est un admin, rediriger vers l'admin dashboard
+            if (this.authService.isAdmin()) {
+              this.router.navigate(['/admin/admin-dashboard']);
+            } else {
+              // Sinon, rediriger vers la page d'accueil
+              this.router.navigate(['/']);
+            }
             this.loginForm.reset();
           },
           error: (err) => {
