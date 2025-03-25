@@ -13,10 +13,17 @@
             <tr>
               <th scope="col">Nom du produit</th>
               <th scope="col">Type</th>
-              <th scope="col">Description</th>
-              <th scope="col">Bénéfices</th>
-              <th scope="col">Ingrédients</th>
-              <th scope="col">Conseils d'utilisation</th>
+              <th scope="col">Image</th>
+              <th scope="col" style="width: 15%">Description</th>
+              <!-- Ajustement de la largeur -->
+              <th scope="col" style="width: 15%">Bénéfices</th>
+              <!-- Ajustement de la largeur -->
+              <th scope="col" style="width: 15%">Ingrédients</th>
+              <!-- Ajustement de la largeur -->
+              <th scope="col" style="width: 15%">Conseils d'utilisation</th>
+              <!-- Ajustement de la largeur -->
+              <th scope="col">Prix</th>
+              <th scope="col">Caractéristique</th>
               <th scope="col">Quantité en stock</th>
               <th scope="col">État du stock</th>
               <th scope="col">Actions</th>
@@ -26,12 +33,15 @@
             <tr *ngFor="let product of products$ | async">
               <td>{{ product.name }}</td>
               <td>{{ product.type }}</td>
-              <td>{{ product.description }}</td>
-              <td>{{ product.benefits }}</td>
-              <td>{{ product.ingredients }}</td>
-              <td>{{ product.usageTips }}</td>
-              <td>{{ product.stockQuantity }}</td>
+              <td>{{ product.image }}</td>
+              <td class="text-wrap">{{ product.description }}</td>
+              <td class="text-wrap">{{ product.benefits }}</td>
+              <td class="text-wrap">{{ product.ingredients }}</td>
+              <td class="text-wrap">{{ product.usageTips }}</td>
+              <td>{{ product.basePrice }}</td>
+              <td>{{ product.characteristics }}</td>
               <td>{{ product.stockStatus }}</td>
+              <td>{{ product.stockQuantity }}</td>
               <td>
                 <div class="d-flex justify-content-center gap-2">
                   <button
@@ -48,7 +58,7 @@
                   </button>
                   <button
                     class="btn btn-danger btn-sm custom-btn"
-                    [routerLink]="['/admin', 'delete-product']"
+                    (click)="deleteProduct(product.id)"
                   >
                     Supprimer
                   </button>

@@ -43,17 +43,18 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductsByType(pageable, type));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         try {
             ProductDTO productDTO = productService.getProductById(id);
-            return ResponseEntity.ok(Map.of("product", productDTO));
+
+            return ResponseEntity.ok(productDTO);
         } catch (ProductNotFoundException e) {
             logger.error("Product not found: ID {}", id, e);
+
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Product not found with ID: " + id));
+                    .body(null);  
         }
     }
-
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, String>> saveProduct(
             @RequestParam("image") MultipartFile file,

@@ -32,18 +32,18 @@ public class CommandService {
     @Autowired
     private EmailService emailService;
 
-    // Récupère toutes les commandes associées à un utilisateur donné
+    // Retrieves all commands associated with a given user
     public List<CommandResponseDTO> getCommandsByUserId(Long userId) {
-        return commandRepository.findByUserId(userId)  // Recherche les commandes par ID utilisateur
+        return commandRepository.findByUserId(userId)  // Search orders by user ID
                 .stream()
-                .map(CommandResponseDTO::fromEntity)   // Convertit chaque entité en DTO
-                .collect(Collectors.toList());         // Collecte les résultats dans une liste
+                .map(CommandResponseDTO::fromEntity)   // Convert each entity into a DTO
+                .collect(Collectors.toList());         // Collect results in a list
     }
 
-    // Récupère une commande spécifique d'un utilisateur donné
+    // Retrieves a specific command from a given user
     public Optional<CommandResponseDTO> getCommandByUserIdAndCommandId(Long userId, Long commandId) {
-        return commandRepository.findByIdAndUserId(commandId, userId)  // Recherche par ID de commande et ID utilisateur
-                .map(CommandResponseDTO::fromEntity);                  // Convertit l'entité en DTO si trouvée
+        return commandRepository.findByIdAndUserId(commandId, userId)  // Search by order ID and user ID
+                .map(CommandResponseDTO::fromEntity);                  // Convert entity to DTO if found
     }
 
     /**
@@ -101,7 +101,7 @@ public class CommandService {
 
         command.setTotal(cart.calculateFinalTotal());
 
-        commandRepository.saveAndFlush(command);
+        commandRepository.save(command);
 
         cart.setStatus(CartStatus.ORDERED);
         cartRepository.save(cart);

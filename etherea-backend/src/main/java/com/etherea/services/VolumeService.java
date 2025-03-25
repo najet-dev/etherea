@@ -1,12 +1,10 @@
 package com.etherea.services;
 
-import com.etherea.dtos.UserDTO;
 import com.etherea.dtos.VolumeDTO;
 import com.etherea.enums.ProductType;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.VolumeNotFoundException;
 import com.etherea.models.Product;
-import com.etherea.models.User;
 import com.etherea.models.Volume;
 import com.etherea.repositories.ProductRepository;
 import com.etherea.repositories.VolumeRepository;
@@ -22,28 +20,39 @@ import java.util.stream.Collectors;
 public class VolumeService {
     @Autowired
     private VolumeRepository volumeRepository;
+
     @Autowired
     private ProductRepository productRepository;
+
     public List<VolumeDTO> getAllVolumes() {
         List<Volume> volumes = volumeRepository.findAll();
 
-        // Convert Volume entities to VolumeDTO objects
+        // Convert Volume entities to VolumeDTO objects with productName
         return volumes.stream()
-                .map(VolumeDTO::fromVolume)
+                .map(volume -> new VolumeDTO(
+                        volume.getId(),
+                        volume.getProduct().getName(),
+                        volume.getVolume(),
+                        volume.getPrice())
+                )
                 .collect(Collectors.toList());
     }
     @Transactional
-    public VolumeDTO addVolume(Long productId, VolumeDTO volumeDTO) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Produit non trouvé avec ID: " + productId));
+    public VolumeDTO addVolume(String productName, VolumeDTO volumeDTO) {
+        Product product = productRepository.findByName(productName)
+                .orElseThrow(() -> {
+                    System.out.println("Produit non trouvé avec le nom: " + productName);
+                    return new ProductNotFoundException("Produit non trouvé avec le nom: " + productName);
+                });
 
         if (product.getType() != ProductType.HAIR) {
+            System.out.println("Produit de type incorrect, attendu HAIR");
             throw new VolumeNotFoundException("Les volumes ne peuvent être ajoutés que pour les produits de type HAIR.");
         }
 
         Volume volume = volumeDTO.toVolume(product);
         volume = volumeRepository.save(volume);
-        return VolumeDTO.fromVolume(volume);
+        return new VolumeDTO(volume.getId(), product.getName(), volume.getVolume(), volume.getPrice());
     }
     @Transactional
     public VolumeDTO updateVolume(Long volumeId, VolumeDTO volumeDTO) {
@@ -59,8 +68,9 @@ public class VolumeService {
         }
 
         existingVolume = volumeRepository.save(existingVolume);
-        return VolumeDTO.fromVolume(existingVolume);
+        return new VolumeDTO(existingVolume.getId(), existingVolume.getProduct().getName(), existingVolume.getVolume(), existingVolume.getPrice());
     }
+
     public boolean deleteVolume(Long id) {
         if (volumeRepository.existsById(id)) {
             volumeRepository.deleteById(id);

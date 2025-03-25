@@ -2,6 +2,10 @@
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
       <h2 class="text-center">Ajouter un produit</h2>
+      <div *ngIf="successMessage" class="alert alert-success floating-alert">
+        {{ successMessage }}
+      </div>
+
       <form (ngSubmit)="onSubmit()" enctype="multipart/form-data">
         <div class="mb-3">
           <label for="name" class="form-label">Nom du produit</label>
@@ -144,7 +148,7 @@
           </select>
         </div>
         <div class="text-center">
-          <button type="submit" class="btn btn-success w-100">Ajouter</button>
+          <button type="submit" class="btn-primary w-100">Ajouter</button>
         </div>
       </form>
     </div>

@@ -6,6 +6,9 @@ import { UserListComponent } from './user-list/user-list.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { AddProductComponent } from './add-product/add-product.component';
 import { UpdateProductComponent } from './update-product/update-product.component';
+import { VolumeListComponent } from './volume-list/volume-list.component';
+import { AddVolumeComponent } from './add-volume/add-volume.component';
+import { UpdateVolumeComponent } from './update-volume/update-volume.component';
 
 const routes: Routes = [
   {
@@ -31,6 +34,9 @@ const routes: Routes = [
       },
       { path: 'add-product', component: AddProductComponent },
       { path: 'update-product', component: UpdateProductComponent },
+      { path: 'admin-volumes', component: VolumeListComponent },
+      { path: 'add-volume', component: AddVolumeComponent },
+      { path: 'update-volume', component: UpdateVolumeComponent },
     ],
   },
 ];

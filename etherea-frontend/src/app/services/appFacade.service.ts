@@ -28,6 +28,8 @@ import { PasswordResetService } from './password-reset.service';
 import { ResetPasswordRequest } from '../components/models/resetPasswordRequest.model';
 import { ResetPasswordResponse } from '../components/models/resetPasswordResponse.model';
 import { Newsletter } from '../components/models/newsletter.model';
+import { VolumeService } from './volume.service';
+import { Volume } from '../components/models/volume.model';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +44,8 @@ export class AppFacade {
     public deliveryMethodService: DeliveryMethodService,
     public paymentService: PaymentService,
     private cookieConsentService: CookieConsentService,
-    private passwordResetService: PasswordResetService
+    private passwordResetService: PasswordResetService,
+    private volumeService: VolumeService
   ) {}
 
   // cartItem
@@ -224,5 +227,9 @@ export class AppFacade {
     request: ResetPasswordRequest
   ): Observable<ResetPasswordResponse> {
     return this.passwordResetService.resetPassword(request);
+  }
+  //
+  getVolumes(): Observable<Volume[]> {
+    return this.volumeService.getVolumes();
   }
 }

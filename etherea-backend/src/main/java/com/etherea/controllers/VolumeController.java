@@ -1,6 +1,5 @@
 package com.etherea.controllers;
 
-import com.etherea.dtos.UserDTO;
 import com.etherea.dtos.VolumeDTO;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.services.VolumeService;
@@ -19,31 +18,33 @@ import java.util.Map;
 public class VolumeController {
     @Autowired
     private VolumeService volumeService;
+
+    // Méthode pour récupérer tous les volumes
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAllUsers() {
+    public ResponseEntity<List<VolumeDTO>> getAllVolumes() {
         List<VolumeDTO> volumes = volumeService.getAllVolumes();
-        Map<String, Object> response = new HashMap<>();
 
         if (volumes.isEmpty()) {
-            response.put("message", "No volumes found");
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
-        response.put("message", "Volumes successfully recovered.");
-        response.put("users", volumes);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(volumes);
     }
-    @PostMapping("/products/{productId}")
-    public ResponseEntity<VolumeDTO> addVolume(@PathVariable Long productId, @RequestBody VolumeDTO volumeDTO) {
+    @PostMapping("/products/{productName}")
+    public ResponseEntity<VolumeDTO> addVolume(@PathVariable String productName, @RequestBody VolumeDTO volumeDTO) {
         try {
-            VolumeDTO createdVolume = volumeService.addVolume(productId, volumeDTO);
+            VolumeDTO createdVolume = volumeService.addVolume(productName, volumeDTO);
             return new ResponseEntity<>(createdVolume, HttpStatus.CREATED);
+        } catch (ProductNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // Méthode pour mettre à jour un volume
     @PutMapping("/{volumeId}")
     public ResponseEntity<VolumeDTO> updateVolume(@PathVariable Long volumeId, @RequestBody VolumeDTO volumeDTO) {
         try {
@@ -57,6 +58,8 @@ public class VolumeController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    // Méthode pour supprimer un volume
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteVolume(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();

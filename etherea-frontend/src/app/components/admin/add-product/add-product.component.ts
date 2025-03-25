@@ -26,11 +26,11 @@ export class AddProductComponent {
   ProductType = ProductType;
   selectedFile: File | null = null;
   StockStatus = StockStatus;
+  successMessage = ''; // Variable pour le message de succès
 
   constructor(private productService: ProductService) {}
 
   // Méthode pour traiter le changement d'image
-  // Gestion du fichier sélectionné
   onFileChange(event: any): void {
     const file = event.target.files[0];
     if (file) {
@@ -48,6 +48,8 @@ export class AddProductComponent {
     this.productService.addProduct(this.product, this.selectedFile).subscribe({
       next: (response) => {
         console.log('Produit ajouté avec succès:', response);
+        this.successMessage = 'Produit ajouté avec succès.';
+        this.resetForm();
       },
       error: (error) => {
         console.error("Erreur lors de l'ajout du produit:", error);
@@ -56,5 +58,27 @@ export class AddProductComponent {
         console.log('Ajout du produit terminé.');
       },
     });
+  }
+
+  // Méthode pour réinitialiser le formulaire après ajout
+  resetForm(): void {
+    this.product = {
+      id: 0,
+      name: '',
+      description: '',
+      type: ProductType.FACE,
+      benefits: '',
+      usageTips: '',
+      ingredients: '',
+      basePrice: 0,
+      characteristics: '',
+      stockQuantity: 1,
+      stockStatus: StockStatus.AVAILABLE,
+      image: '',
+    };
+    this.selectedFile = null;
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000);
   }
 }

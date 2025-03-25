@@ -7,13 +7,13 @@ import java.math.BigDecimal;
 
 public class VolumeDTO {
     private Long id;
-    private Long productId;
+    private String productName;
     private int volume;
     private BigDecimal price;
     public VolumeDTO() {}
-    public VolumeDTO(Long id, Long productId, int volume, BigDecimal price) {
+    public VolumeDTO(Long id, String productName, int volume, BigDecimal price) {
         this.id = id;
-        this.productId = productId;
+        this.productName = productName;
         this.volume = volume;
         this.price = price;
     }
@@ -23,11 +23,11 @@ public class VolumeDTO {
     public void setId(Long id) {
         this.id = id;
     }
-    public Long getProductId() {
-        return productId;
+    public String getProductName() {
+        return productName;
     }
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
     public int getVolume() {
         return volume;
@@ -49,7 +49,7 @@ public class VolumeDTO {
         }
         return new VolumeDTO(
                 volume.getId(),
-                volume.getProduct().getId(),
+                volume.getProduct().getName(),
                 volume.getVolume(),
                 volume.getPrice()
         );
@@ -59,7 +59,7 @@ public class VolumeDTO {
         volume.setProduct(product);
         volume.setId(this.id);
         volume.setPrice(this.price);
+        volume.setVolume(this.volume);
         return volume;
     }
-
 }

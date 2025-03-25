@@ -80,17 +80,18 @@ export class ProductDetailsComponent implements OnInit {
     this.route.params
       .pipe(
         switchMap((params) => {
-          console.log('Route params:', params); // Ici pour vérifier les paramètres de la route
-          return this.appFacade.getProductById(params['id']); // Appel de l'API
+          console.log('Route params:', params);
+          return this.appFacade.getProductById(Number(params['id']));
         }),
         catchError((error) => {
-          console.error('Error fetching product:', error); // En cas d'erreur dans la récupération
+          console.error('Error fetching product:', error);
           return of(null);
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((product) => {
-        console.log('Fetched product:', product); // Log après réception de la réponse
+        console.log('Fetched product:', product);
+
         if (product) {
           if (this.productTypeService.isHairProduct(product)) {
             console.log('This is a Hair Product');
