@@ -65,7 +65,13 @@ public class UserService {
                     return new UserNotFoundException("No user found with ID: " + id);
                 });
     }
-
+    public boolean deleteUser(Long id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
     public boolean updateEmail(UpdateEmailRequestDTO updateEmailRequestDTO, String token) {
         // Extract user email from token
         String emailFromToken = jwtUtils.getUserNameFromJwtToken(token);

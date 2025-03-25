@@ -7,7 +7,7 @@ import { DeliveryMethod } from '../components/models/deliveryMethod.model';
 import { PickupPointDetails } from '../components/models/pickupPointDetails.model';
 import { CartWithDelivery } from '../components/models/cartWithDelivery.model';
 import { AddDeliveryMethodRequest } from '../components/models/addDeliveryMethodRequest.model';
-import { DeliveryName } from '../components/models/DeliveryName.enum';
+import { DeliveryName } from '../components/models/deliveryName.enum';
 import { DeliveryType } from '../components/models/deliveryType.model';
 import { UpdateDeliveryMethodRequest } from '../components/models/updateDeliveryMethodRequest.model';
 

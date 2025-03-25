@@ -77,24 +77,25 @@ public class CartItemDTO {
                 cartItem.getProduct() != null ? cartItem.getProduct().getId() : null,
                 cartItem.getVolume() != null ? VolumeDTO.fromVolume(cartItem.getVolume()) : null,
                 cartItem.calculateSubtotal(),
-                cartItem.getCart() != null && cartItem.getCart().getUser() != null ? cartItem.getCart().getUser().getId() : null, // ✅ User ID extrait ici
+                cartItem.getCart() != null && cartItem.getCart().getUser() != null ? cartItem.getCart().getUser().getId() : null,
                 null  // Do not convert `Cart` to avoid the infinite loop
         );
     }
-    public CartItem toCartItem() {
+    public CartItem toCartItem(Product product) {
         CartItem cartItem = new CartItem();
         cartItem.setId(this.id);
         cartItem.setQuantity(this.quantity);
-        cartItem.setCart(null);
+        cartItem.setCart(null);  // Assuming you don't need to set cart here
 
-        if (this.productId != null) {
-            Product product = new Product();
+        // Set the product object by passing the product parameter
+        if (this.productId != null && product != null) {
             product.setId(this.productId);
             cartItem.setProduct(product);
         }
 
+        // Ensure that the volume is set correctly
         if (this.volume != null) {
-            cartItem.setVolume(this.volume.toVolume());
+            cartItem.setVolume(this.volume.toVolume(product));
         }
 
         return cartItem;

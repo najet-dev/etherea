@@ -10,7 +10,7 @@ import {
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
-import { SignupRequest } from '../components/models/SignupRequest.model';
+import { SignupRequest } from '../components/models/signupRequest.model';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { StorageService } from './storage.service';
 import { Newsletter } from '../components/models/newsletter.model';
@@ -64,6 +64,14 @@ export class UserService {
         })
       );
   }
+  getAllUsers(): Observable<SignupRequest[]> {
+    return this.httpClient.get<SignupRequest[]>(`${this.apiUrl}/users`);
+  }
+
+  deleteUser(userId: number): Observable<void> {
+    return this.httpClient.get<void>(`${this.apiUrl}/users/${userId}`);
+  }
+
   updateEmail(updateEmailRequest: UpdateEmailRequest): Observable<string> {
     const url = `${this.apiUrl}/users/update-email`;
     const token = this.storageService.getToken();

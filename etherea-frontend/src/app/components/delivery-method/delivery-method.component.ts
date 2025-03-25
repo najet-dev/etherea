@@ -21,7 +21,7 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/addDeliveryMethodRequest.model';
-import { DeliveryName } from '../models/DeliveryName.enum';
+import { DeliveryName } from '../models/deliveryName.enum';
 import { UpdateDeliveryMethodRequest } from '../models/updateDeliveryMethodRequest.model';
 import { DeliveryType } from '../models/deliveryType.model';
 

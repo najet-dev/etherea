@@ -21,7 +21,6 @@ public class CartService {
     @PersistenceContext
     private EntityManager entityManager;
     private static final Logger logger = LoggerFactory.getLogger(CartService.class);
-
     @Transactional
     public Long getCartIdByUserId(Long userId) {
         return cartRepository.findLatestActiveCart(userId)

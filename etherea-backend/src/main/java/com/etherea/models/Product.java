@@ -61,7 +61,7 @@ public class Product {
         this.stockQuantity = stockQuantity;
     }
     public StockStatus getStockStatus() { return stockStatus; }
-    private void setStockStatus(StockStatus stockStatus) { this.stockStatus = stockStatus; }
+    public void setStockStatus(StockStatus stockStatus) { this.stockStatus = stockStatus; }
     public String getBenefits() { return benefits; }
     public void setBenefits(String benefits) { this.benefits = benefits; }
     public String getUsageTips() { return usageTips; }

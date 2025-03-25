@@ -6,7 +6,6 @@ public class UpdateEmailRequestDTO {
     private Long userId;
     private String currentEmail;
     private String newEmail;
-
     public Long getUserId() {
         return userId;
     }

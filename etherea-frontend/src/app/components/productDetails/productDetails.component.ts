@@ -14,6 +14,7 @@ import { Cart } from '../models/cart.model';
 import { HairProduct } from '../models/hairProduct.model';
 import { FaceProduct } from '../models/faceProduct.model';
 import { ProductVolume } from '../models/productVolume.model';
+import { StockStatus } from '../models/stock-status.enum';
 
 @Component({
   selector: 'app-product-details',
@@ -44,11 +45,12 @@ export class ProductDetailsComponent implements OnInit {
       description: '',
       type: ProductType.FACE,
       stockQuantity: 0,
-      stockStatus: '',
+      stockStatus: StockStatus.AVAILABLE,
       benefits: '',
       usageTips: '',
       ingredients: '',
       characteristics: '',
+      basePrice: 0,
       image: '',
       isFavorite: false,
     },
@@ -69,6 +71,7 @@ export class ProductDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    console.log('Initializing ProductDetailsComponent');
     this.loadProductDetails();
     this.loadCurrentUser();
   }
@@ -76,7 +79,10 @@ export class ProductDetailsComponent implements OnInit {
   loadProductDetails(): void {
     this.route.params
       .pipe(
-        switchMap((params) => this.appFacade.getProductById(params['id'])),
+        switchMap((params) => {
+          console.log('Route params:', params);
+          return this.appFacade.getProductById(Number(params['id']));
+        }),
         catchError((error) => {
           console.error('Error fetching product:', error);
           return of(null);
@@ -84,18 +90,23 @@ export class ProductDetailsComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((product) => {
+        console.log('Fetched product:', product);
+
         if (product) {
           if (this.productTypeService.isHairProduct(product)) {
+            console.log('This is a Hair Product');
             this.product = product as HairProduct;
 
-            // Manage volumes
+            // Gestion des volumes
             if (this.product.volumes?.length) {
               this.selectedVolume = this.product.volumes[0];
+              console.log('Selected Volume:', this.selectedVolume);
               this.cartItems.selectedVolume = { ...this.selectedVolume };
               this.cartItems.subTotal =
                 this.cartItems.quantity * this.selectedVolume.price;
             }
           } else if (this.productTypeService.isFaceProduct(product)) {
+            console.log('This is a Face Product');
             this.product = product as FaceProduct;
           }
 
@@ -295,11 +306,12 @@ export class ProductDetailsComponent implements OnInit {
         description: '',
         type: ProductType.FACE,
         stockQuantity: 0,
-        stockStatus: '',
+        stockStatus: StockStatus.AVAILABLE,
         benefits: '',
         usageTips: '',
         ingredients: '',
         characteristics: '',
+        basePrice: 0,
         image: '',
         isFavorite: false,
       },

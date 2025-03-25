@@ -15,5 +15,7 @@ import java.util.Optional;
 public interface CommandRepository  extends JpaRepository<Command, Long> {
     List<Command> findByUserId(Long userId);
     Optional<Command> findByIdAndUserId(Long commandId, Long userId);
+    Optional<Command> findByCartIdAndUserId(Long cartId, Long userId);
+
     boolean existsByCartId(Long cartId);
 }

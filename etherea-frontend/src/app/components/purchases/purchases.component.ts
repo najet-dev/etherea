@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommandResponse } from '../models/CommandResponse.model';
 import { OrderService } from 'src/app/services/order.service';
-import { SignupRequest } from '../models/SignupRequest.model';
+import { SignupRequest } from '../models/signupRequest.model';
 import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({

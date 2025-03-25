@@ -21,7 +21,6 @@ import { HairComponent } from './components/hair/hair.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AdminComponent } from './components/admin/admin.component';
 import { AccesComponent } from './components/acces/access.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { SignupComponent } from './components/signup/signup.component';
@@ -69,7 +68,6 @@ import { PurchasesComponent } from './components/purchases/purchases.component';
     ContactComponent,
     ProductDetailsComponent,
     CartComponent,
-    AdminComponent,
     AccesComponent,
     ProfileComponent,
     SignupComponent,

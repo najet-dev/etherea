@@ -1,0 +1,13 @@
+.custom-btn {
+  min-width: 100px; /* Largeur minimale pour uniformiser */
+}
+
+.message-success {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050;
+  width: 50%;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}

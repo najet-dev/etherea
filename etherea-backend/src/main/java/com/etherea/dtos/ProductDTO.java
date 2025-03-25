@@ -7,10 +7,10 @@ import com.etherea.models.Volume;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductDTO {
     private Long id;
     private String name;
@@ -24,7 +24,7 @@ public class ProductDTO {
     private String ingredients;
     private String characteristics;
     private String image;
-    private List<VolumeDTO> volumes;
+    private List<VolumeDTO> volumes = new ArrayList<>();
     public ProductDTO() {}
     public ProductDTO(Long id, String name, String description, ProductType type, BigDecimal basePrice, int stockQuantity,
                       StockStatus stockStatus, String benefits, String usageTips, String ingredients,
@@ -69,8 +69,6 @@ public class ProductDTO {
     public void setImage(String image) { this.image = image; }
     public List<VolumeDTO> getVolumes() { return volumes; }
     public void setVolumes(List<VolumeDTO> volumes) { this.volumes = volumes; }
-
-    // Conversion methods
     public static ProductDTO fromProduct(Product product) {
         return new ProductDTO(
                 product.getId(),
@@ -87,8 +85,7 @@ public class ProductDTO {
                 product.getImage(),
                 product.getVolumes() != null
                         ? product.getVolumes().stream().map(VolumeDTO::fromVolume).collect(Collectors.toList())
-                        : null
-        );
+                        : null        );
     }
     public Product toProduct() {
         Product product = new Product();
@@ -98,19 +95,20 @@ public class ProductDTO {
         product.setType(this.type);
         product.setBasePrice(this.basePrice);
         product.setStockQuantity(this.stockQuantity);
+        product.setStockStatus(this.stockStatus);
         product.setBenefits(this.benefits);
         product.setUsageTips(this.usageTips);
         product.setIngredients(this.ingredients);
         product.setCharacteristics(this.characteristics);
         product.setImage(this.image);
-
         if (this.volumes != null) {
             this.volumes.forEach(volumeDTO -> {
-                Volume volume = volumeDTO.toVolume();
+                Volume volume = volumeDTO.toVolume(product);
                 volume.setProduct(product);
                 product.addVolume(volume);
             });
         }
+
         return product;
     }
 }
