@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 @RestController
@@ -20,13 +21,22 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private JwtUtils jwtUtils;
+    @GetMapping("/users")
+    public ResponseEntity<Map<String, Object>> getAllUsers() {
+        List<UserDTO> users = userService.getAllUsers();
+        Map<String, Object> response = new HashMap<>();
+
+        if (users.isEmpty()) {
+            response.put("message", "No user found");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        }
+
+        response.put("message", "Users successfully recovered");
+        response.put("users", users);
+        return ResponseEntity.ok(response);
+    }
     @Autowired
     private UserService userService;
-    @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
-    }
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
@@ -34,6 +44,18 @@ public class UserController {
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("User not found with ID: " + id);
+        }
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
+        Map<String, String> response = new HashMap<>();
+
+        if (userService.deleteUser(id)) {
+            response.put("message", "User successfully deleted");
+            return ResponseEntity.ok(response);
+        } else {
+            response.put("message", "User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
     @PutMapping("/update-email")

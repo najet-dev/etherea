@@ -1,10 +1,8 @@
 package com.etherea.jwt;
 
 import com.etherea.models.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
+import com.etherea.services.UserDetailsImpl;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,6 +11,8 @@ import jakarta.annotation.PostConstruct;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -39,21 +39,21 @@ public class JwtUtils {
                 .signWith(secretKey)
                 .compact();
     }
-    public String generateJwtToken(User user) {
+    public String generateJwtToken(User user, long customExpirationMs) {
         Set<String> roles = user.getRoles().stream()
                 .map(role -> role.getName().name())
                 .collect(Collectors.toSet());
 
+        long expirationTime = customExpirationMs > 0 ? customExpirationMs : jwtExpirationMs;
+
         return Jwts.builder()
                 .setSubject(user.getUsername())
-                .claim("roles", roles) // Ajout des rôles dans le token
+                .claim("roles", roles)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(secretKey)
                 .compact();
     }
-
-
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -62,7 +62,6 @@ public class JwtUtils {
                 .getBody()
                 .getSubject();
     }
-
     public boolean validateJwtToken(String authToken) {
         try {
             Jws<Claims> claims = Jwts.parserBuilder()
@@ -70,8 +69,17 @@ public class JwtUtils {
                     .build()
                     .parseClaimsJws(authToken);
             return !claims.getBody().getExpiration().before(new Date());
-        } catch (JwtException e) {
-            throw new JwtException("Invalid JWT token: " + e.getMessage(), e);
+        } catch (ExpiredJwtException e) {
+            System.err.println("Token expiré: " + e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            System.err.println("Token non supporté: " + e.getMessage());
+        } catch (MalformedJwtException e) {
+            System.err.println("Token mal formé: " + e.getMessage());
+        } catch (JwtException e) {  // Replacing SignatureException with JwtException
+            System.err.println("Erreur JWT: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Token vide ou invalide: " + e.getMessage());
         }
+        return false;
     }
 }

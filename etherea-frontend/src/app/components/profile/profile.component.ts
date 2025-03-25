@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { SignupRequest } from '../models/SignupRequest.model';
-import { UserService } from 'src/app/services/user.service';
+import { SignupRequest } from '../models/signupRequest.model';
 import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({

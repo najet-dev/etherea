@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
+
 @Service
 public class PaymentService {
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
@@ -145,13 +147,19 @@ public class PaymentService {
         // Create a new command (order)
         CommandRequestDTO commandRequestDTO = new CommandRequestDTO();
         commandRequestDTO.setCommandDate(LocalDateTime.now());
-        commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());
+        commandRequestDTO.setReferenceCode("CMD" + System.currentTimeMillis());  // Ensure this generates a unique reference code
         commandRequestDTO.setStatus(CommandStatus.PENDING);
         commandRequestDTO.setCartId(cart.getId());
         commandRequestDTO.setTotal(cart.calculateFinalTotal());
         commandRequestDTO.setDeliveryAddressId(deliveryAddress.getId());
         commandRequestDTO.setPaymentMethodId(paymentMethod.getId());
         commandRequestDTO.setDeliveryMethodId(deliveryMethod.getId());
+
+        // Check if the cart has already been used in a command
+        Optional<Command> existingCommand = commandRepository.findByCartIdAndUserId(cart.getId(), userId);
+        if (existingCommand.isPresent()) {
+            throw new IllegalStateException("This cart has already been used for an order.");
+        }
 
         // Create the order before changing the cart status
         Command createdCommand = commandService.createCommand(commandRequestDTO);

@@ -1,4 +1,4 @@
-import { DeliveryName } from './DeliveryName.enum';
+import { DeliveryName } from './deliveryName.enum';
 
 export interface DeliveryType {
   id: number;

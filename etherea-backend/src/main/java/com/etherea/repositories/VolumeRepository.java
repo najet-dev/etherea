@@ -8,8 +8,4 @@ import java.util.List;
 
 @Repository
 public interface VolumeRepository extends JpaRepository<Volume, Long> {
-    void deleteByProductId(Long productId);
-    List<Volume> findByProductId(Long productId);
-
-
 }

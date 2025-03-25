@@ -1,12 +1,12 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { Product } from '../models/product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { ProductTypeService } from 'src/app/services/product-type.service'; // Import du service
+import { ProductTypeService } from 'src/app/services/product-type.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Product } from '../models/product.model';
 
 @Component({
   selector: 'app-home',

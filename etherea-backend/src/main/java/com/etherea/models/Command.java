@@ -28,7 +28,7 @@ public class Command {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id", unique = true, nullable = false)
     private Cart cart;
     @OneToMany(mappedBy = "command", cascade = CascadeType.ALL, orphanRemoval = true)

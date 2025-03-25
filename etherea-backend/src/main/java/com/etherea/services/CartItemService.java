@@ -111,7 +111,7 @@ public class CartItemService {
                 throw new ProductNotFoundException("Insufficient stock for the product " + product.getName());
             }
 
-            CartItem newCartItem = cartItemDTO.toCartItem();
+            CartItem newCartItem = cartItemDTO.toCartItem(product);
             newCartItem.setProduct(product);
             newCartItem.setVolume(volume);
             newCartItem.setCart(cart);
