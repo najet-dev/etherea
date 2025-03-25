@@ -5,7 +5,7 @@ import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { ProductTypeService } from 'src/app/services/product-type.service'; // Import du service
+import { ProductTypeService } from 'src/app/services/product-type.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({

@@ -4,7 +4,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { Product } from '../models/Product.model';
+import { Product } from '../models/product.model';
 import { ProductVolume } from '../models/productVolume.model';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 import { ProductTypeService } from 'src/app/services/product-type.service';

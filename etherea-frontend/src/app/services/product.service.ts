@@ -2,7 +2,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, catchError, of, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Product } from '../components/models/Product.model';
+import { Product } from '../components/models/product.model';
 import { StorageService } from './storage.service';
 import { UpdateProduct } from '../components/models/updateProduct.model';
 
