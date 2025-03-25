@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Product } from '../models';
+import { Product } from '../models/product.model';
 
 @Component({
   selector: 'app-home',
