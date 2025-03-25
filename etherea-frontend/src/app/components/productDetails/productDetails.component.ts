@@ -71,6 +71,7 @@ export class ProductDetailsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    console.log('Initializing ProductDetailsComponent');
     this.loadProductDetails();
     this.loadCurrentUser();
   }
@@ -78,26 +79,33 @@ export class ProductDetailsComponent implements OnInit {
   loadProductDetails(): void {
     this.route.params
       .pipe(
-        switchMap((params) => this.appFacade.getProductById(params['id'])),
+        switchMap((params) => {
+          console.log('Route params:', params); // Ici pour vérifier les paramètres de la route
+          return this.appFacade.getProductById(params['id']); // Appel de l'API
+        }),
         catchError((error) => {
-          console.error('Error fetching product:', error);
+          console.error('Error fetching product:', error); // En cas d'erreur dans la récupération
           return of(null);
         }),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe((product) => {
+        console.log('Fetched product:', product); // Log après réception de la réponse
         if (product) {
           if (this.productTypeService.isHairProduct(product)) {
+            console.log('This is a Hair Product');
             this.product = product as HairProduct;
 
-            // Manage volumes
+            // Gestion des volumes
             if (this.product.volumes?.length) {
               this.selectedVolume = this.product.volumes[0];
+              console.log('Selected Volume:', this.selectedVolume);
               this.cartItems.selectedVolume = { ...this.selectedVolume };
               this.cartItems.subTotal =
                 this.cartItems.quantity * this.selectedVolume.price;
             }
           } else if (this.productTypeService.isFaceProduct(product)) {
+            console.log('This is a Face Product');
             this.product = product as FaceProduct;
           }
 

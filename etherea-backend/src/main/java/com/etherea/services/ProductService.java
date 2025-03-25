@@ -50,9 +50,20 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
     public ProductDTO getProductById(Long id) {
-        return productRepository.findById(id)
-                .map(ProductDTO::fromProduct)
+        Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("No product found with ID: " + id));
+
+        ProductDTO productDTO = ProductDTO.fromProduct(product);
+
+        // Si le produit est de type HAIR, récupérer les volumes associés
+        if (product.getType() == ProductType.HAIR) {
+            List<VolumeDTO> volumeDTOs = product.getVolumes().stream()
+                    .map(VolumeDTO::fromVolume)
+                    .collect(Collectors.toList());
+            productDTO.setVolumes(volumeDTOs);
+        }
+
+        return productDTO;
     }
     @Transactional
     public void saveProduct(ProductDTO productDTO, MultipartFile file) {
@@ -67,11 +78,14 @@ public class ProductService {
         productRepository.save(product);
     }
     @Transactional
-    public void updateProduct(Long productId, UpdateProductDTO updatedProductDTO, MultipartFile file) {
+    public void updateProduct(ProductDTO updatedProductDTO, MultipartFile file) {
+        Long productId = updatedProductDTO.getId();
+        if (productId == null) {
+            throw new ProductNotFoundException("Product ID is required");
+        }
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ProductNotFoundException("No product found with ID: " + productId));
 
-        // Mise à jour des champs généraux
         if (StringUtils.hasText(updatedProductDTO.getName())) {
             existingProduct.setName(updatedProductDTO.getName());
         }
@@ -102,17 +116,16 @@ public class ProductService {
         if (updatedProductDTO.getType() != null) {
             existingProduct.setType(updatedProductDTO.getType());
         }
-        // Gestion du type de produit
+
         if (existingProduct.getType() == ProductType.FACE) {
             if (updatedProductDTO.getBasePrice() == null) {
                 throw new IllegalArgumentException("Base price must be set for FACE products.");
             }
             existingProduct.setBasePrice(updatedProductDTO.getBasePrice());
         } else if (existingProduct.getType() == ProductType.HAIR) {
-            existingProduct.setBasePrice(null); // le prix de base est null pour HAIR
+            existingProduct.setBasePrice(null);
         }
 
-        // Gestion de l'image
         if (file != null && !file.isEmpty()) {
             String uploadedImagePath = handleFileUpload(file);
             if (uploadedImagePath != null) {
@@ -122,6 +135,7 @@ public class ProductService {
 
         productRepository.save(existingProduct);
     }
+
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new ProductNotFoundException("Product with ID " + id + " not found");

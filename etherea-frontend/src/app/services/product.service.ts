@@ -1,9 +1,10 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, of, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Product } from '../components/models/product.model';
+import { Product } from '../components/models/Product.model';
 import { StorageService } from './storage.service';
+import { UpdateProduct } from '../components/models/updateProduct.model';
 
 @Injectable({
   providedIn: 'root',
@@ -50,8 +51,18 @@ export class ProductService {
   }
 
   getProductById(id: number): Observable<Product> {
-    return this.httpClient.get<Product>(`${this.apiUrl}/products/${id}`);
+    console.log('Fetching product with ID:', id);
+    return this.httpClient.get<Product>(`${this.apiUrl}/products/${id}`).pipe(
+      tap((product) => {
+        console.log('Fetched product from API:', product);
+      }),
+      catchError((error) => {
+        console.error('Error fetching product from API:', error);
+        return of();
+      })
+    );
   }
+
   addProduct(product: Product, image: File): Observable<Product> {
     const formData = new FormData();
     formData.append('image', image, image.name);
@@ -67,6 +78,30 @@ export class ProductService {
 
     return this.httpClient
       .post<Product>(`${this.apiUrl}/products/add`, formData, { headers })
+      .pipe(
+        catchError((error) => {
+          console.error('Error adding product:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+  updateProduct(updatepPoduct: Product, image: File): Observable<Product> {
+    const formData = new FormData();
+    formData.append('image', image, image.name);
+
+    //ajoute le JSON sous forme de texte
+    formData.append('product', JSON.stringify(updatepPoduct));
+
+    const token = this.storageService.getToken(); // Récupérer le token JWT
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`, // token JWT ajouter
+    });
+
+    return this.httpClient
+      .put<UpdateProduct>(`${this.apiUrl}/products/update`, formData, {
+        headers,
+      })
       .pipe(
         catchError((error) => {
           console.error('Error adding product:', error);

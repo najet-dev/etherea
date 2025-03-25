@@ -9,7 +9,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Favorite } from '../components/models/favorite.model';
 import { AuthService } from './auth.service';
-import { Product } from '../components/models/product.model';
+import { Product } from '../components/models/Product.model';
 
 @Injectable()
 export class FavoriteService {

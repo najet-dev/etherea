@@ -56,10 +56,10 @@ public class VolumeDTO {
     }
     public Volume toVolume(Product product) {
         Volume volume = new Volume();
-        volume.setId(this.id);
         volume.setProduct(product);
-        volume.setVolume(this.volume);
+        volume.setId(this.id);
         volume.setPrice(this.price);
         return volume;
     }
+
 }

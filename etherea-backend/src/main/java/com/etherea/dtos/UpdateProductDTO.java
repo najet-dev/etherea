@@ -5,6 +5,7 @@ import com.etherea.enums.StockStatus;
 
 import java.math.BigDecimal;
 public class UpdateProductDTO {
+    private Long id;
     private String name;
     private String description;
     private ProductType type;
@@ -18,7 +19,8 @@ public class UpdateProductDTO {
     private String image;
     public UpdateProductDTO() {
     }
-    public UpdateProductDTO(String name, String description, ProductType type, BigDecimal basePrice, int stockQuantity, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+    public UpdateProductDTO(Long id, String name, String description, ProductType type, BigDecimal basePrice, int stockQuantity, StockStatus stockStatus, String benefits, String usageTips, String ingredients, String characteristics, String image) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.type = type;
@@ -31,10 +33,15 @@ public class UpdateProductDTO {
         this.characteristics = characteristics;
         this.image = image;
     }
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }

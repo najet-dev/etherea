@@ -8,6 +8,7 @@ import { ProductListComponent } from './product-list/product-list.component';
 import { AdminMenuComponent } from './admin-menu/admin-menu.component';
 import { AddProductComponent } from './add-product/add-product.component';
 import { FormsModule } from '@angular/forms';
+import { UpdateProductComponent } from './update-product/update-product.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { FormsModule } from '@angular/forms';
     ProductListComponent,
     AdminMenuComponent,
     AddProductComponent,
+    UpdateProductComponent,
   ],
   imports: [CommonModule, AdminRoutingModule, FormsModule],
 })

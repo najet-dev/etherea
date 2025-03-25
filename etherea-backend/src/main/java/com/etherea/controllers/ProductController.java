@@ -45,13 +45,15 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getProductById(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(Map.of("product", productService.getProductById(id)));
+            ProductDTO productDTO = productService.getProductById(id);
+            return ResponseEntity.ok(Map.of("product", productDTO));
         } catch (ProductNotFoundException e) {
             logger.error("Product not found: ID {}", id, e);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Product not found with ID: " + id));
         }
     }
+
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, String>> saveProduct(
             @RequestParam("image") MultipartFile file,
@@ -82,18 +84,17 @@ public class ProductController {
                     .body(Map.of("error", "Unexpected error: " + e.getMessage()));
         }
     }
-    @PutMapping(value = "/update/{productId}", consumes = "multipart/form-data")
+    @PutMapping(value = "/update", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, String>> updateProduct(
-            @PathVariable Long productId,
             @RequestParam(value = "image", required = false) MultipartFile file,
             @RequestParam("product") String updatedProductJson) {
         try {
             logger.info("Request Body: {}", updatedProductJson);
 
             ObjectMapper objectMapper = new ObjectMapper();
-            UpdateProductDTO updatedProductDTO = objectMapper.readValue(updatedProductJson, UpdateProductDTO.class);
+            ProductDTO updatedProductDTO = objectMapper.readValue(updatedProductJson, ProductDTO.class);
 
-            productService.updateProduct(productId, updatedProductDTO, file);
+            productService.updateProduct(updatedProductDTO, file);
             return ResponseEntity.ok(Map.of("message", "Product updated successfully"));
 
         } catch (JsonProcessingException e) {

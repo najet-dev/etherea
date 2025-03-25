@@ -1,4 +1,4 @@
-import { Product } from './product.model';
+import { Product } from './Product.model';
 
 export interface Favorite {
   id: number;

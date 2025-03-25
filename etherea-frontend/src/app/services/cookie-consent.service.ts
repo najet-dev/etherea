@@ -4,10 +4,10 @@ import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { CookieService } from 'ngx-cookie-service';
-import { CookieConsent } from '../components/models/cookieConsent.model';
-import { SaveCookieConsentRequest } from '../components/models/saveCookieConsentRequest.model';
 import { CookiePolicyVersion } from '../components/models/cookiePolicyVersion.enum';
 import { CookieChoice } from '../components/models/cookie-choice.model';
+import { CookieConsent } from '../components/models/cookieConsent.model';
+import { SaveCookieConsentRequest } from '../components/models/saveCookieConsentRequest.model';
 
 @Injectable({
   providedIn: 'root',
