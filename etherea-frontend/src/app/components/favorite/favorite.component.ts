@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
 import { Favorite } from '../models/favorite.model';
-import { Product } from '../models/Product.model';
+import { Product } from '../models/product.model';
 import { ProductVolume } from '../models/productVolume.model';
 import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';

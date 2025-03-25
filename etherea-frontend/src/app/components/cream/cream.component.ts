@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Product } from '../models/Product.model';
+import { Product } from '../models/product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';

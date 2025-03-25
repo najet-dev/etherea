@@ -5,7 +5,7 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Product } from '../models/Product.model';
+import { Product } from '../models/product.model';
 import { ProductType } from '../models/productType.enum';
 import { Cart } from '../models/cart.model';
 import { ProductTypeService } from 'src/app/services/product-type.service';

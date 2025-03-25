@@ -1,4 +1,4 @@
-import { Product } from './Product.model';
+import { Product } from './product.model';
 import { ProductType } from './productType.enum';
 
 export interface FaceProduct extends Product {
