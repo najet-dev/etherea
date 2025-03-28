@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 public class ProductService {
     @Autowired
     private ProductRepository productRepository;
-
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private static final String UPLOAD_DIR = "assets";
     private final ModelMapper modelMapper = new ModelMapper();
@@ -135,7 +134,6 @@ public class ProductService {
 
         productRepository.save(existingProduct);
     }
-
     public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new ProductNotFoundException("Product with ID " + id + " not found");

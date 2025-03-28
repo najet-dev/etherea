@@ -20,12 +20,9 @@ import java.util.stream.Collectors;
 public class JwtUtils {
     @Value("${etherea.app.jwtSecret}")
     private String jwtSecret;
-
     @Value("${etherea.app.jwtExpirationMs}")
     private long jwtExpirationMs;
-
     private SecretKey secretKey;
-
     @PostConstruct
     public void init() {
         this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());

@@ -3,5 +3,10 @@ export interface CommandResponse {
   commandDate: string;
   referenceCode: string;
   status: string;
+  firstName: string;
+  lastName: string;
+  deliveryAddress: string;
+  paymentMethod: string;
+  deliveryMethod: string;
   total: number;
 }

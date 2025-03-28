@@ -3,10 +3,14 @@ package com.etherea.controllers;
 import com.etherea.dtos.UpdateEmailRequestDTO;
 import com.etherea.dtos.UpdatePasswordRequestDTO;
 import com.etherea.dtos.UserDTO;
+import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UnauthorizedAccessException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.jwt.JwtUtils;
+import com.etherea.models.User;
 import com.etherea.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,20 +25,19 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private JwtUtils jwtUtils;
-    @GetMapping("/users")
-    public ResponseEntity<Map<String, Object>> getAllUsers() {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.getAllUsers();
-        Map<String, Object> response = new HashMap<>();
 
         if (users.isEmpty()) {
-            response.put("message", "No user found");
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
-        response.put("message", "Users successfully recovered");
-        response.put("users", users);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(users);
     }
+
     @Autowired
     private UserService userService;
     @GetMapping("/{id}")
@@ -46,16 +49,16 @@ public class UserController {
                     .body("User not found with ID: " + id);
         }
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
-        Map<String, String> response = new HashMap<>();
-
-        if (userService.deleteUser(id)) {
-            response.put("message", "User successfully deleted");
-            return ResponseEntity.ok(response);
-        } else {
-            response.put("message", "User not found");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
+        } catch (ProductNotFoundException e) {
+            logger.error("User not found: ID {}", id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Product not found with ID: " + id));
         }
     }
     @PutMapping("/update-email")

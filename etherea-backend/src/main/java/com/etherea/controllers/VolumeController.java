@@ -6,6 +6,7 @@ import com.etherea.services.VolumeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -20,6 +21,7 @@ public class VolumeController {
     private VolumeService volumeService;
 
     // Méthode pour récupérer tous les volumes
+
     @GetMapping
     public ResponseEntity<List<VolumeDTO>> getAllVolumes() {
         List<VolumeDTO> volumes = volumeService.getAllVolumes();
@@ -30,6 +32,7 @@ public class VolumeController {
 
         return ResponseEntity.ok(volumes);
     }
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/products/{productName}")
     public ResponseEntity<VolumeDTO> addVolume(@PathVariable String productName, @RequestBody VolumeDTO volumeDTO) {
         try {
@@ -45,6 +48,7 @@ public class VolumeController {
     }
 
     // Méthode pour mettre à jour un volume
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{volumeId}")
     public ResponseEntity<VolumeDTO> updateVolume(@PathVariable Long volumeId, @RequestBody VolumeDTO volumeDTO) {
         try {
@@ -60,6 +64,7 @@ public class VolumeController {
     }
 
     // Méthode pour supprimer un volume
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteVolume(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
