@@ -1,6 +1,8 @@
 package com.etherea.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.HashSet;
 import java.util.Set;
 
 public class SignupRequest {
@@ -12,7 +14,7 @@ public class SignupRequest {
     private String username;
     @JsonProperty("password")
     private String password;
-    @JsonProperty("role")
+    @JsonProperty("roles")
     private Set<String> roles;
     public String getFirstName() {
         return firstName;

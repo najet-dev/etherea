@@ -2,6 +2,14 @@
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
       <h2 class="text-center">Mise à jour du Volume</h2>
+      <div>
+        <button
+          class="btn btn-secondary btn-back"
+          [routerLink]="['/admin', 'admin-volumes']"
+        >
+          Retour à la liste des volumes
+        </button>
+      </div>
       <div *ngIf="successMessage" class="alert alert-success floating-alert">
         {{ successMessage }}
       </div>

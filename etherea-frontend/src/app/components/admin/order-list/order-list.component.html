@@ -1,0 +1,55 @@
+<div class="container mt-5">
+  <div class="row mb-3 d-flex justify-content-between align-items-center">
+    <div class="col-auto">
+      <h2>Gestion des commandes</h2>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="table-responsive">
+        <table class="table table-striped table-bordered text-center">
+          <thead>
+            <tr>
+              <th scope="col">Id</th>
+              <th scope="col">Date</th>
+              <th scope="col">Nom</th>
+              <th scope="col">Prénom</th>
+              <th scope="col">Référence code</th>
+              <th scope="col">Statut</th>
+              <th scope="col">Id de l'adresse</th>
+              <th scope="col">Id du mode de livraison</th>
+              <th scope="col">Id du mode de paiement</th>
+              <th scope="col">Total</th>
+              <th scope="col">Changer Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of orders">
+              <td>{{ order.id }}</td>
+              <td>{{ order.commandDate }}</td>
+              <td>{{ order.firstName }}</td>
+              <td>{{ order.lastName }}</td>
+              <td>{{ order.referenceCode }}</td>
+              <td>{{ order.status }}</td>
+              <td>{{ order.deliveryAddress }}</td>
+              <td>{{ order.deliveryMethod }}</td>
+              <td>{{ order.paymentMethod }}</td>
+              <td>{{ order.total }}</td>
+              <td>
+                <select
+                  [(ngModel)]="order.status"
+                  (ngModelChange)="onStatusChange(order)"
+                >
+                  <option *ngFor="let status of statuses" [ngValue]="status">
+                    {{ status }}
+                  </option>
+                </select>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

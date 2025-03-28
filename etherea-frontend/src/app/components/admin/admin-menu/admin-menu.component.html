@@ -1,17 +1,17 @@
 <nav class="admin-menu">
+  <a class="navbar-brand">
+    <img class="logo" src="/assets/logo.png" alt="logo" />
+  </a>
+
   <!-- Le bouton hamburger, qui se transforme en croix -->
-  <div class="menu-toggle" (click)="toggleMenu()">
-    <span *ngIf="!isMenuActive">&#9776;</span>
-    <span *ngIf="isMenuActive">&times;</span>
+  <div class="menu-toggle" (click)="toggleMenu()" [class.active]="isMenuActive">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 
   <!-- Menu qui s'affiche lorsque isMenuActive est true -->
   <ul class="menu" [class.active]="isMenuActive">
-    <li>
-      <a routerLink="/admin/admin-dashboard" routerLinkActive="active"
-        >Dashboard</a
-      >
-    </li>
     <li>
       <a routerLink="/admin/admin-users" routerLinkActive="active"
         >Utilisateurs</a
@@ -24,6 +24,11 @@
     </li>
     <li>
       <a routerLink="/admin/admin-volumes" routerLinkActive="active">Volumes</a>
+    </li>
+    <li>
+      <a routerLink="/admin/admin-orders" routerLinkActive="active"
+        >Commandes</a
+      >
     </li>
   </ul>
 </nav>

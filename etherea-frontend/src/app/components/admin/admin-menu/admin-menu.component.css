@@ -1,14 +1,23 @@
-/* admin-menu.component.scss */
-
 /* Style de base pour le menu */
 .admin-menu {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #333;
-  padding: 10px;
-}
+  background-color: #ffffff; /* Couleur de fond du menu */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre légère */
+  padding: 12px 24px; /* Espacement intérieur */
 
+  /* Ajout du logo Etherea à gauche */
+  .logo {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333333; /* Couleur du logo */
+  }
+}
+.logo {
+  width: 80%;
+  cursor: pointer;
+}
 .menu {
   list-style-type: none;
   margin: 0;
@@ -21,92 +30,78 @@
 }
 
 .menu a {
-  color: white;
+  color: #333333; /* Couleur du texte des liens */
   text-decoration: none;
   padding: 10px;
   display: block;
+  transition: color 0.3s ease; /* Animation de transition pour le texte */
 }
 
-/* Cacher le menu burger sur les grands écrans (écrans de bureau) */
+.menu a:hover {
+  color: darkgreen;
+}
+
+/* Bouton hamburger */
 .menu-toggle {
-  display: block; /* Affiché par défaut sur petit écran */
-  font-size: 30px;
-  color: white;
+  display: none; /* Caché par défaut sur les grands écrans */
   cursor: pointer;
-  position: relative;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
+}
+
+.menu-toggle.active {
+  transform: rotate(45deg); /* Transformation en croix */
 }
 
 .menu-toggle span {
-  width: 100%;
-  height: 4px;
+  display: block;
+  width: 25px;
+  height: 3px;
+  background-color: #333333; /* Couleur des barres du hamburger */
+  margin-bottom: 5px; /* Espacement entre les barres */
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-/* Lorsque l'écran est inférieur à 768px, on affiche le hamburger */
+/* Media Queries pour la responsivité */
+
 @media (max-width: 768px) {
+  .admin-menu {
+    padding: 12px; /* Réduction de l'espacement pour les petits écrans */
+  }
+
   .menu {
-    display: none; /* Cacher le menu sur petits écrans */
     flex-direction: column;
     width: 100%;
+    display: none; /* Caché par défaut sur les petits écrans */
   }
 
   .menu.active {
-    display: flex; /* Afficher le menu si la classe 'active' est ajoutée */
+    display: flex; /* Affichage du menu actif */
   }
 
   .menu li {
-    margin: 10px 0;
-  }
-
-  /* Afficher le bouton hamburger uniquement sur petit écran */
-  .menu-toggle {
-    display: block;
-  }
-
-  /* Transformation de l'icône hamburger en croix */
-  .menu-toggle span:first-child {
-    transform: rotate(45deg);
-  }
-
-  .menu-toggle span:nth-child(2) {
-    opacity: 0; /* Masquer la barre du milieu */
-  }
-
-  .menu-toggle span:last-child {
-    transform: rotate(
-      -45deg
-    ); /* Rotation de la dernière barre pour former une croix */
-  }
-}
-
-/* Sur les écrans plus grands (comme sur les écrans de bureau) */
-@media (min-width: 769px) {
-  .menu-toggle {
-    display: none; /* Masquer l'icône hamburger sur les grands écrans */
-  }
-
-  .menu {
-    display: flex; /* Afficher le menu horizontalement */
-  }
-
-  .menu li {
-    margin: 0 15px; /* Espacement entre les éléments du menu */
-  }
-}
-
-/* Pour les très petits écrans comme les téléphones portables */
-@media (max-width: 480px) {
-  .admin-menu {
-    padding: 8px;
+    margin: 10px 0; /* Espacement entre les éléments du menu */
   }
 
   .menu a {
-    padding: 8px;
+    padding: 8px; /* Réduction du padding des liens */
+  }
+
+  .menu-toggle {
+    display: flex; /* Affichage du bouton hamburger */
+  }
+}
+
+@media (min-width: 769px) {
+  .menu-toggle {
+    display: none; /* Caché sur les grands écrans */
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-menu {
+    padding: 8px; /* Ajustement de l'espacement pour les très petits écrans */
+  }
+
+  .menu a {
+    padding: 8px; /* Ajustement du padding des liens */
   }
 }

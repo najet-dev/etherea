@@ -6,5 +6,5 @@ export interface SignupRequest {
   lastName: string;
   username: string;
   password: string;
-  roles?: Role;
+  roles: Role[];
 }

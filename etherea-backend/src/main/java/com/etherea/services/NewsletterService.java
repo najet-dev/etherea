@@ -14,11 +14,9 @@ import java.util.Optional;
 public class NewsletterService {
 
     @Value("${app.url}")
-    private String baseUrl;  // Injecte l'URL du backend
-
+    private String baseUrl;
     private final NewsletterRepository newsletterRepository;
     private final EmailService emailService;
-
     public NewsletterService(NewsletterRepository newsletterRepository, EmailService emailService) {
         this.newsletterRepository = newsletterRepository;
         this.emailService = emailService;

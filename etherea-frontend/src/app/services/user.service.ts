@@ -11,7 +11,11 @@ import {
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
 import { SignupRequest } from '../components/models/signupRequest.model';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { StorageService } from './storage.service';
 import { Newsletter } from '../components/models/newsletter.model';
 import { UpdateEmailRequest } from '../components/models/updateEmailRequest.model';
@@ -69,9 +73,26 @@ export class UserService {
   }
 
   deleteUser(userId: number): Observable<void> {
-    return this.httpClient.get<void>(`${this.apiUrl}/users/${userId}`);
-  }
+    const token = this.storageService.getToken(); // Récupérer le token JWT
 
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`, // Ajouter le token JWT
+    });
+
+    return this.httpClient
+      .delete<void>(`${this.apiUrl}/users/${userId}`, { headers })
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Erreur lors de la suppression du produit:', error);
+          return throwError(
+            () =>
+              new Error(
+                'Impossible de supprimer le produit. Veuillez réessayer.'
+              )
+          );
+        })
+      );
+  }
   updateEmail(updateEmailRequest: UpdateEmailRequest): Observable<string> {
     const url = `${this.apiUrl}/users/update-email`;
     const token = this.storageService.getToken();

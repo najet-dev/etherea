@@ -56,6 +56,11 @@ import { BrandComponent } from './components/brand/brand.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { PurchasesComponent } from './components/purchases/purchases.component';
+import { OrderDetailsComponent } from './components/order-details/order-details.component';
+import { TipsComponent } from './components/tips/tips.component';
+import { HydrationComponent } from './components/tips/hydration/hydration.component';
+import { CapillaryCareComponent } from './components/tips/capillary-care/capillary-care.component';
+import { SolarProtectionComponent } from './components/tips/solar-protection/solar-protection.component';
 
 @NgModule({
   declarations: [
@@ -94,6 +99,11 @@ import { PurchasesComponent } from './components/purchases/purchases.component';
     ResetPasswordComponent,
     ForgotPasswordComponent,
     PurchasesComponent,
+    OrderDetailsComponent,
+    TipsComponent,
+    HydrationComponent,
+    CapillaryCareComponent,
+    SolarProtectionComponent,
   ],
   imports: [
     CommonModule,

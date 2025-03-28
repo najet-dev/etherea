@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { UserService } from 'src/app/services/user.service';
 import { SignupRequest } from '../../models/signupRequest.model';
+import { catchError, of, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-user-list',
@@ -9,34 +12,51 @@ import { SignupRequest } from '../../models/signupRequest.model';
 })
 export class UserListComponent {
   users: SignupRequest[] = [];
+  private destroyRef = inject(DestroyRef);
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService, private appFacade: AppFacade) {}
 
   ngOnInit(): void {
-    this.getUsers();
+    this.loadUsers();
   }
 
-  getUsers(): void {
-    this.userService.getAllUsers().subscribe({
-      next: (users) => {
-        console.log(users); // Vérification des données reçues
+  loadUsers(): void {
+    this.userService
+      .getAllUsers()
+      .pipe(
+        tap((users) => {
+          if (Array.isArray(users)) {
+            this.users = users;
+          } else {
+            console.error('Données invalides reçues :', users);
+            this.users = [];
+          }
+        }),
+        catchError((error) => {
+          console.error(
+            'Erreur lors de la récupération des utilisateurs:',
+            error
+          );
+          this.users = [];
+          return of([]);
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
+  }
+
+  deleteUser(userId: number) {
+    this.userService
+      .deleteUser(userId)
+      .pipe(
+        switchMap(() => this.appFacade.getUsers()), // Recharger la liste des produits après suppression
+        catchError((error) => {
+          console.error('Erreur lors de la suppression du produit:', error);
+          return of([]);
+        })
+      )
+      .subscribe((users) => {
         this.users = users;
-      },
-      error: (error) => {
-        console.error(
-          'Erreur lors de la récupération des utilisateurs:',
-          error
-        );
-      },
-      complete: () => {
-        console.log('Récupération des utilisateurs terminée.');
-      },
-    });
-  }
-
-  deleteUser(userId: number): void {
-    this.userService.deleteUser(userId).subscribe(() => {
-      this.getUsers(); // Rafraîchir la liste après la suppression
-    });
+      });
   }
 }

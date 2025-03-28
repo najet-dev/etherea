@@ -92,7 +92,7 @@ export class AuthService {
 
   isAdmin(): boolean {
     const user = this.AuthenticatedUser$.getValue();
-    console.log('User:', user); // Vérifiez si `roles` est bien un tableau et son contenu
+    console.log('User:', user);
     if (user && user.roles) {
       return user.roles.includes('ROLE_ADMIN');
     }
