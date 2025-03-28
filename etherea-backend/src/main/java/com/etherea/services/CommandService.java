@@ -37,7 +37,7 @@ public class CommandService {
 
     // Retrieves all commands
     public List<CommandResponseDTO> getAllCommands() {
-        return commandRepository.findAll()  // Récupérer toutes les commandes depuis le repository
+        return commandRepository.findAll()
                 .stream()
                 .map(CommandResponseDTO::fromEntity)
                 .collect(Collectors.toList());
