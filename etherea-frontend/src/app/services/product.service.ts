@@ -126,6 +126,7 @@ export class ProductService {
         })
       );
   }
+
   deleteProduct(productId: number): Observable<void> {
     const token = this.storageService.getToken(); // Récupérer le token JWT
 

@@ -12,7 +12,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class VolumeListComponent {
   volumes: Volume[] = [];
-  showSuccessMessage = false;
   private destroyRef = inject(DestroyRef);
 
   constructor(
@@ -50,13 +49,6 @@ export class VolumeListComponent {
     this.volumeService
       .deleteVolume(volumeId)
       .pipe(
-        tap(() => {
-          this.showSuccessMessage = true;
-
-          setTimeout(() => {
-            this.showSuccessMessage = false;
-          }, 3000);
-        }),
         switchMap(() => this.appFacade.getVolumes()), // Recharger la liste des volumes après la suppression
         catchError((error) => {
           console.error('Erreur lors de la suppression du volume:', error);

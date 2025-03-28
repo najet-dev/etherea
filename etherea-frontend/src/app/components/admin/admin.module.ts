@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdminComponent } from './admin.component';
-import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { AdminMenuComponent } from './admin-menu/admin-menu.component';
@@ -12,11 +11,12 @@ import { UpdateProductComponent } from './update-product/update-product.componen
 import { VolumeListComponent } from './volume-list/volume-list.component';
 import { AddVolumeComponent } from './add-volume/add-volume.component';
 import { UpdateVolumeComponent } from './update-volume/update-volume.component';
+import { AddUserComponent } from './add-user/add-user.component';
+import { OrderListComponent } from './order-list/order-list.component';
 
 @NgModule({
   declarations: [
     AdminComponent,
-    AdminDashboardComponent,
     UserListComponent,
     ProductListComponent,
     AdminMenuComponent,
@@ -25,6 +25,8 @@ import { UpdateVolumeComponent } from './update-volume/update-volume.component';
     VolumeListComponent,
     AddVolumeComponent,
     UpdateVolumeComponent,
+    AddUserComponent,
+    OrderListComponent,
   ],
   imports: [CommonModule, AdminRoutingModule, FormsModule],
 })

@@ -22,7 +22,7 @@
 .card-title,
 .card-text {
   font-size: 15px;
-  height: 40px; /* Ajuste selon le nombre de lignes max souhaité */
+  height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: normal;

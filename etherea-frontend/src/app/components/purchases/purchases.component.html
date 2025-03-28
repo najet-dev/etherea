@@ -54,7 +54,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let command of commands">
+                <tr
+                  *ngFor="let command of commands"
+                  (click)="viewCommandDetails(command.id)"
+                >
                   <td>{{ command.commandDate | date : "dd/MM/yyyy" }}</td>
                   <td>{{ command.referenceCode }}</td>
                   <td class="status">{{ command.status }}</td>

@@ -146,6 +146,9 @@ export class AppFacade {
   }
 
   // User
+  getUsers(limit?: number): Observable<SignupRequest[]> {
+    return this.userService.getAllUsers();
+  }
   getCurrentUserDetails(): Observable<SignupRequest | null> {
     return this.userService.getCurrentUserDetails();
   }

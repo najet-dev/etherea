@@ -16,7 +16,6 @@ export class ProductListComponent {
   products$: Observable<Product[]> = new Observable<Product[]>();
   userId: number | null = null;
   private destroyRef = inject(DestroyRef);
-  showSuccessMessage = false;
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
@@ -48,14 +47,6 @@ export class ProductListComponent {
     this.productService
       .deleteProduct(productId)
       .pipe(
-        tap(() => {
-          this.showSuccessMessage = true;
-
-          // Masquer le message après 3 secondes
-          setTimeout(() => {
-            this.showSuccessMessage = false;
-          }, 3000);
-        }),
         switchMap(() => this.appFacade.getProducts()), // Recharger la liste des produits après suppression
         catchError((error) => {
           console.error('Erreur lors de la suppression du produit:', error);
