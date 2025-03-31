@@ -13,6 +13,9 @@ import { AddVolumeComponent } from './add-volume/add-volume.component';
 import { UpdateVolumeComponent } from './update-volume/update-volume.component';
 import { AddUserComponent } from './add-user/add-user.component';
 import { OrderListComponent } from './order-list/order-list.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatIconModule } from '@angular/material/icon'; // Ajout du module
 
 @NgModule({
   declarations: [
@@ -28,6 +31,13 @@ import { OrderListComponent } from './order-list/order-list.component';
     AddUserComponent,
     OrderListComponent,
   ],
-  imports: [CommonModule, AdminRoutingModule, FormsModule],
+  imports: [
+    CommonModule,
+    AdminRoutingModule,
+    FormsModule,
+    MatDialogModule,
+    MatPaginatorModule,
+    MatIconModule,
+  ],
 })
 export class AdminModule {}

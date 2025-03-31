@@ -1,0 +1,39 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.return-link {
+  text-decoration: none;
+  color: #555;
+  cursor: pointer;
+}
+
+.return-link:hover {
+  text-decoration: underline;
+}
+
+.current-page {
+  color: black;
+  margin-left: 5px;
+}
+
+.advice-card {
+  background: #f8f9fa;
+  transition: transform 0.3s ease-in-out;
+}
+
+.advice-card:hover {
+  transform: scale(1.05);
+}
+.advice-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+a {
+  text-decoration: none;
+  color: black;
+}

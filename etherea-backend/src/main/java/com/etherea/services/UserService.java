@@ -3,6 +3,7 @@ package com.etherea.services;
 import com.etherea.dtos.UpdateEmailRequestDTO;
 import com.etherea.dtos.UpdatePasswordRequestDTO;
 import com.etherea.dtos.UserDTO;
+import com.etherea.dtos.VolumeDTO;
 import com.etherea.enums.ERole;
 import com.etherea.exception.InvalidEmailException;
 import com.etherea.exception.ProductNotFoundException;
@@ -12,12 +13,15 @@ import com.etherea.jwt.JwtUtils;
 import com.etherea.models.PasswordHistory;
 import com.etherea.models.Role;
 import com.etherea.models.User;
+import com.etherea.models.Volume;
 import com.etherea.repositories.PasswordHistoryRepository;
 import com.etherea.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -43,14 +47,12 @@ public class UserService {
      *
      * @return A list of UserDTO objects representing all users.
      */
-    public List<UserDTO> getAllUsers() {
-        // Retrieve all users
-        List<User> users = userRepository.findAll();
+    public Page<UserDTO> getAllUsers(int page, int size) {
+        // Retrieve page of users
+        Page<User> usersPage = userRepository.findAll(PageRequest.of(page, size));
 
-        // Convert User entities to UserDTO objects
-        return users.stream()
-                .map(UserDTO::fromUser)
-                .collect(Collectors.toList());
+        // Convert Page<User> to Page<UserDTO>
+        return usersPage.map(UserDTO::fromUser);
     }
 
     /**

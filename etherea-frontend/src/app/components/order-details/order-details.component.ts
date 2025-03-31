@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommandItem } from '../models/CommandItem.model';
+import { CommandItem } from '../models/commandItem.model';
 import { OrderService } from 'src/app/services/order.service';
 import { ActivatedRoute } from '@angular/router';
 

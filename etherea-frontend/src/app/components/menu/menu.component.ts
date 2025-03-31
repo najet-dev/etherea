@@ -6,6 +6,7 @@ import { CartService } from 'src/app/services/cart.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { Cart } from '../models/cart.model';
+import { Product } from '../models';
 
 @Component({
   selector: 'app-menu',

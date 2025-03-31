@@ -1,4 +1,9 @@
 <div class="container mt-5 py-5">
+  <div class="breadcrumb">
+    <a [routerLink]="'/'" class="return-link"> Accueil </a>
+    <span class="current-page"> > Nos conseils</span>
+  </div>
+
   <div class="row">
     <div class="col-12 text-center">
       <h2>Nos Conseils</h2>
@@ -8,53 +13,53 @@
       </p>
     </div>
   </div>
-  <div class="row text-center">
-    <div class="col-md-4">
-      <div class="advice-card shadow p-4 rounded">
-        <a routerLink="/tips/hydration">
+
+  <!-- Affichage dynamique des conseils -->
+  <div class="row text-center" *ngIf="tips.length > 0; else noTips">
+    <div class="col-md-4" *ngFor="let tip of tips">
+      <a [routerLink]="'/tips/' + tip.id">
+        <div class="advice-card shadow p-4 rounded">
           <img
-            src="/assets/conseil1.jpg"
+            [src]="tip.image || '/assets/default.jpg'"
             class="advice-img mb-3"
-            alt="Conseil 1"
+            [alt]="tip.title"
           />
-        </a>
-        <h4>Hydratation quotidienne</h4>
-        <p>
-          Adoptez une routine hydratante adaptée à votre type de peau pour un
-          teint éclatant.
-        </p>
-      </div>
+          <h4>{{ tip.title }}</h4>
+          <p>{{ tip.description }}</p>
+        </div>
+      </a>
     </div>
-    <div class="col-md-4">
-      <div class="advice-card shadow p-4 rounded">
-        <a routerLink="/tips/capillary-care">
-          <img
-            src="/assets/conseil2.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 2"
-          />
-        </a>
-        <h4>Soins capillaires naturels</h4>
-        <p>
-          Utilisez des huiles végétales pour nourrir vos cheveux en profondeur.
-        </p>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="advice-card shadow p-4 rounded">
-        <a routerLink="/tips/solar-protection">
-          <img
-            src="/assets/conseil3.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 3"
-          />
-        </a>
-        <h4>Protection solaire</h4>
-        <p>
-          Protégez votre peau avec des soins SPF pour prévenir le vieillissement
-          cutané.
-        </p>
-      </div>
-    </div>
+  </div>
+
+  <!-- Message si aucun conseil n'est disponible -->
+  <ng-template #noTips>
+    <div class="text-center text-muted">Aucun conseil disponible.</div>
+  </ng-template>
+
+  <!-- Pagination avec Angular Material -->
+  <div
+    class="d-flex justify-content-center align-items-center gap-3 mt-3"
+    *ngIf="totalPages > 1"
+  >
+    <!-- Flèche gauche -->
+    <button
+      class="btn btn-light"
+      (click)="previousPage()"
+      [disabled]="currentPage === 0"
+    >
+      <mat-icon>navigate_before</mat-icon>
+    </button>
+
+    <!-- Numéro de page -->
+    <span>Page {{ currentPage + 1 }} sur {{ totalPages }}</span>
+
+    <!-- Flèche droite -->
+    <button
+      class="btn btn-light"
+      (click)="nextPage()"
+      [disabled]="currentPage >= totalPages - 1"
+    >
+      <mat-icon>navigate_next</mat-icon>
+    </button>
   </div>
 </div>

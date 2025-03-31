@@ -11,6 +11,7 @@ import io.micrometer.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/products")
 public class ProductController {
@@ -31,9 +32,18 @@ public class ProductController {
         this.productService = productService;
     }
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getProducts(@RequestParam(defaultValue = "10") int limit) {
-        return ResponseEntity.ok(productService.getProducts(limit));
+    public ResponseEntity<Page<ProductDTO>> getProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ProductDTO> productsPage = productService.getProducts(page, size);
+
+        if (productsPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.ok(productsPage);
     }
+
     @GetMapping("/type")
     public ResponseEntity<List<ProductDTO>> getProductsByTypeAndPagination(
             @RequestParam(defaultValue = "0") int page,
@@ -46,13 +56,18 @@ public class ProductController {
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         try {
             ProductDTO productDTO = productService.getProductById(id);
-
             return ResponseEntity.ok(productDTO);
         } catch (ProductNotFoundException e) {
             logger.error("Product not found: ID {}", id, e);
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(null);  
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDTO>> searchProductsByName(@RequestParam String name) {
+        try {
+            return ResponseEntity.ok(productService.getProductsByName(name));
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
     @PostMapping(value = "/add", consumes = "multipart/form-data")

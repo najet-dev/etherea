@@ -10,8 +10,8 @@ import {
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CommandStatus } from '../components/models/commandStatus.enum';
+import { CommandItem } from '../components/models/commandItem.model';
 import { CommandResponse } from '../components/models/commandResponse.model';
-import { CommandItem } from '../components/models/CommandItem.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,9 +21,23 @@ export class OrderService {
 
   constructor(private httpClient: HttpClient) {}
 
-  // Récupérer toutes les commandes d'un utilisateur
-  getAllOrders(): Observable<CommandResponse[]> {
-    return this.httpClient.get<CommandResponse[]>(`${this.apiUrl}/command`);
+  // Récupérer toutes les commandes des utilisateur
+  getAllOrders(page: number = 0, size: number = 10) {
+    return this.httpClient
+      .get<{
+        content: CommandResponse[];
+        totalElements: number;
+        totalPages: number;
+      }>(`${this.apiUrl}/command?page=${page}&size=${size}`)
+      .pipe(
+        tap((response) => console.log('API Response:', response)),
+        catchError((error) => {
+          console.error('Erreur lors de la récupération des commandes:', error);
+          return throwError(
+            () => new Error('Impossible de récupérer les commandes.')
+          );
+        })
+      );
   }
 
   // Récupérer une seule commande d'un utilisateur

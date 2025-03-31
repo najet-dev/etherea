@@ -61,6 +61,8 @@ import { TipsComponent } from './components/tips/tips.component';
 import { HydrationComponent } from './components/tips/hydration/hydration.component';
 import { CapillaryCareComponent } from './components/tips/capillary-care/capillary-care.component';
 import { SolarProtectionComponent } from './components/tips/solar-protection/solar-protection.component';
+import { RouterModule } from '@angular/router';
+import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
 
 @NgModule({
   declarations: [
@@ -104,10 +106,12 @@ import { SolarProtectionComponent } from './components/tips/solar-protection/sol
     HydrationComponent,
     CapillaryCareComponent,
     SolarProtectionComponent,
+    TipDetailComponent,
   ],
   imports: [
     CommonModule,
     BrowserModule,
+    RouterModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatIconModule,
@@ -118,10 +122,9 @@ import { SolarProtectionComponent } from './components/tips/solar-protection/sol
     ReactiveFormsModule,
     MatDialogModule,
     MatPaginatorModule,
-    FormsModule,
-    ReactiveFormsModule,
     NgxStripeModule.forRoot(environment.stripePublicKey),
   ],
+  exports: [RouterModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

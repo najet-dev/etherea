@@ -68,15 +68,32 @@ export class UserService {
         })
       );
   }
-  getAllUsers(): Observable<SignupRequest[]> {
-    return this.httpClient.get<SignupRequest[]>(`${this.apiUrl}/users`);
+  getAllUsers(page: number = 0, size: number = 5) {
+    return this.httpClient
+      .get<{
+        content: SignupRequest[];
+        totalElements: number;
+        totalPages: number;
+      }>(`${this.apiUrl}/users?page=${page}&size=${size}`)
+      .pipe(
+        tap((response) => console.log('API Response:', response)),
+        catchError((error) => {
+          console.error(
+            'Erreur lors de la récupération des utilisateurs:',
+            error
+          );
+          return throwError(
+            () => new Error('Impossible de récupérer les utilisateurs.')
+          );
+        })
+      );
   }
 
   deleteUser(userId: number): Observable<void> {
     const token = this.storageService.getToken(); // Récupérer le token JWT
 
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajouter le token JWT
+      Authorization: `Bearer ${token}`, // Ajout du token JWT
     });
 
     return this.httpClient

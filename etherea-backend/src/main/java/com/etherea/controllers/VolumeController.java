@@ -4,6 +4,7 @@ import com.etherea.dtos.VolumeDTO;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.services.VolumeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,10 +22,11 @@ public class VolumeController {
     private VolumeService volumeService;
 
     // Méthode pour récupérer tous les volumes
-
     @GetMapping
-    public ResponseEntity<List<VolumeDTO>> getAllVolumes() {
-        List<VolumeDTO> volumes = volumeService.getAllVolumes();
+    public ResponseEntity<Page<VolumeDTO>> getAllVolumes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<VolumeDTO> volumes = volumeService.getAllVolumes(page, size);
 
         if (volumes.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

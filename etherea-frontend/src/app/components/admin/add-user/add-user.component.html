@@ -1,15 +1,10 @@
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
+      <a [routerLink]="['/admin', 'admin-users']" class="return-link">
+        &#8592; Liste des utilisateurs
+      </a>
       <h2 class="text-center">Ajouter un utilisateurs</h2>
-      <div>
-        <button
-          class="btn btn-secondary btn-back"
-          [routerLink]="['/admin', 'admin-users']"
-        >
-          Retour à la liste des utilisateurs
-        </button>
-      </div>
       <div *ngIf="successMessage" class="alert alert-success floating-alert">
         {{ successMessage }}
       </div>

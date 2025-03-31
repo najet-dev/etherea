@@ -4,6 +4,7 @@ import { VolumeService } from 'src/app/services/volume.service';
 import { catchError, of, switchMap, tap } from 'rxjs';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-volume-list',
@@ -12,51 +13,73 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class VolumeListComponent {
   volumes: Volume[] = [];
+  totalPages: number = 0;
+  totalElements: number = 0;
+  currentPage: number = 0;
+  pageSize: number = 10;
   private destroyRef = inject(DestroyRef);
 
-  constructor(
-    private appFacade: AppFacade,
-    private volumeService: VolumeService
-  ) {}
+  constructor(private appFacade: AppFacade) {}
 
   ngOnInit(): void {
     this.loadVolumes();
   }
 
-  loadVolumes(): void {
+  loadVolumes(page: number = 0): void {
     this.appFacade
-      .getVolumes()
+      .getAllVolumes(page, this.pageSize)
       .pipe(
-        tap((volumes) => {
-          if (Array.isArray(volumes)) {
-            this.volumes = volumes;
-          } else {
-            console.error('Données invalides reçues :', volumes);
-            this.volumes = [];
-          }
+        tap((response) => {
+          this.volumes = response.content;
+          this.totalPages = response.totalPages;
+          this.totalElements = response.totalElements;
+          this.currentPage = page;
         }),
         catchError((error) => {
           console.error('Erreur lors de la récupération des volumes:', error);
           this.volumes = [];
           return of([]);
         }),
-        takeUntilDestroyed(this.destroyRef) // Annuler la requête si le composant est détruit
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
 
+  onPageChanged(event: PageEvent): void {
+    this.currentPage = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadVolumes(this.currentPage); // Charger les volumes pour la page sélectionnée
+  }
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadVolumes(this.currentPage);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadVolumes(this.currentPage);
+    }
+  }
+
   deleteVolume(volumeId: number): void {
-    this.volumeService
+    this.appFacade
       .deleteVolume(volumeId)
       .pipe(
-        switchMap(() => this.appFacade.getVolumes()), // Recharger la liste des volumes après la suppression
+        switchMap(() =>
+          this.appFacade.getAllVolumes(this.currentPage, this.pageSize)
+        ),
         catchError((error) => {
           console.error('Erreur lors de la suppression du volume:', error);
-          return of([]);
+          return of({ content: [], totalElements: 0, totalPages: 0 });
         })
       )
-      .subscribe((volumes) => {
-        this.volumes = volumes; // Mettre à jour la liste des volumes affichée
+      .subscribe((response) => {
+        this.volumes = response.content;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
       });
   }
 }

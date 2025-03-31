@@ -28,6 +28,7 @@ import { HydrationComponent } from './components/tips/hydration/hydration.compon
 import { TipsComponent } from './components/tips/tips.component';
 import { CapillaryCareComponent } from './components/tips/capillary-care/capillary-care.component';
 import { SolarProtectionComponent } from './components/tips/solar-protection/solar-protection.component';
+import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
 
 const routes: Routes = [
   {
@@ -65,6 +66,7 @@ const routes: Routes = [
   { path: 'tips/hydration', component: HydrationComponent },
   { path: 'tips/capillary-care', component: CapillaryCareComponent },
   { path: 'tips/solar-protection', component: SolarProtectionComponent },
+  { path: 'tips/:id', component: TipDetailComponent },
 
   {
     path: 'cream',

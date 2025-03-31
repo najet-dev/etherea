@@ -9,6 +9,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { FaceProduct } from '../models/faceProduct.model';
+import { SearchService } from 'src/app/services/search.service';
 
 @Component({
   selector: 'app-day-cream',
@@ -24,7 +25,8 @@ export class CreamComponent implements OnInit {
     private authService: AuthService,
     private appFacade: AppFacade,
     private router: Router,
-    public productTypeService: ProductTypeService
+    public productTypeService: ProductTypeService,
+    private searchService: SearchService
   ) {}
 
   ngOnInit(): void {

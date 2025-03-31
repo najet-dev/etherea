@@ -30,6 +30,9 @@ import { ResetPasswordResponse } from '../components/models/resetPasswordRespons
 import { Newsletter } from '../components/models/newsletter.model';
 import { VolumeService } from './volume.service';
 import { Volume } from '../components/models/volume.model';
+import { CommandResponse } from '../components/models/commandResponse.model';
+import { OrderService } from './order.service';
+import { CommandStatus } from '../components/models/commandStatus.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -42,6 +45,7 @@ export class AppFacade {
     public deliveryAddressService: DeliveryAddressService,
     private userService: UserService,
     public deliveryMethodService: DeliveryMethodService,
+    private orderService: OrderService,
     public paymentService: PaymentService,
     private cookieConsentService: CookieConsentService,
     private passwordResetService: PasswordResetService,
@@ -97,8 +101,15 @@ export class AppFacade {
   }
 
   // Products
-  getProducts(limit?: number): Observable<Product[]> {
-    return this.productService.getProducts(limit);
+  getAllProducts(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: Product[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.productService.getAllProducts(page, size);
   }
 
   getProductsByType(
@@ -146,8 +157,15 @@ export class AppFacade {
   }
 
   // User
-  getUsers(limit?: number): Observable<SignupRequest[]> {
-    return this.userService.getAllUsers();
+  getAllUsers(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: SignupRequest[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.userService.getAllUsers(page, size);
   }
   getCurrentUserDetails(): Observable<SignupRequest | null> {
     return this.userService.getCurrentUserDetails();
@@ -155,6 +173,9 @@ export class AppFacade {
 
   getUserDetails(userId: number): Observable<SignupRequest | null> {
     return this.userService.getUserDetails(userId);
+  }
+  deleteUser(userId: number): Observable<void> {
+    return this.userService.deleteUser(userId);
   }
 
   updateEmail(updateEmailRequest: UpdateEmailRequest): Observable<string> {
@@ -190,6 +211,23 @@ export class AppFacade {
   //cart
   getCartId(userId: number): Observable<number> {
     return this.cartService.getCartId(userId);
+  }
+  //order
+  getAllOrders(
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: CommandResponse[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.orderService.getAllOrders(page, size);
+  }
+  updateOrderStatus(
+    orderId: number,
+    newStatus: string
+  ): Observable<CommandStatus> {
+    return this.orderService.updateOrderStatus(orderId, newStatus);
   }
   //payment
   createPayment(paymentRequest: PaymentRequest): Observable<PaymentResponse> {
@@ -231,8 +269,19 @@ export class AppFacade {
   ): Observable<ResetPasswordResponse> {
     return this.passwordResetService.resetPassword(request);
   }
-  //
-  getVolumes(): Observable<Volume[]> {
-    return this.volumeService.getVolumes();
+  //volume
+  getAllVolumes(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: Volume[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.volumeService.getAllVolumes(page, size);
+  }
+
+  deleteVolume(voulumeId: number): Observable<void> {
+    return this.volumeService.deleteVolume(voulumeId);
   }
 }
