@@ -6,7 +6,6 @@ import { CartService } from './cart.service';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
 import { Product } from '../components/models/product.model';
-import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 import { SignupRequest } from '../components/models/signupRequest.model';
 import { UserService } from './user.service';
 import { DeliveryAddressService } from './delivery-address.service';
@@ -35,6 +34,7 @@ import { OrderService } from './order.service';
 import { CommandStatus } from '../components/models/commandStatus.enum';
 import { Tip } from '../components/models/tip.model';
 import { TipService } from './tip.service';
+import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 
 @Injectable({
   providedIn: 'root',
