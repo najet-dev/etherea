@@ -1,0 +1,55 @@
+<section>
+  <div class="container-fluid">
+    <div class="row">
+      <button
+        class="btn btnFavorite d-md-none my-3"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#mobileSidebar"
+      >
+        Menu
+      </button>
+
+      <div class="offcanvas offcanvas-start d-md-none" id="mobileSidebar">
+        <div class="offcanvas-header">
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+          ></button>
+        </div>
+        <div class="offcanvas-body">
+          <app-sidebar></app-sidebar>
+        </div>
+      </div>
+
+      <div class="col-md-4 col-lg-3 d-none d-md-block">
+        <app-sidebar></app-sidebar>
+      </div>
+
+      <div class="col-md-8 col-lg-9">
+        <h2 class="title-Adress">1. Adresse de livraison</h2>
+        <div *ngIf="!isLoading">
+          <!-- Affiche toutes les adresses -->
+          <div *ngFor="let address of deliveryAddresses" class="card mb-4">
+            <div class="card-body">
+              <ng-container *ngIf="address">
+                <p>{{ address.user.firstName }} {{ address.user.lastName }}</p>
+                <p>{{ address.address }}</p>
+                <p>{{ address.zipCode }} {{ address.city }}</p>
+                <p>{{ address.country }}</p>
+                <p class="d-flex align-items-center custom-phone">
+                  <span>{{ address.phoneNumber }}</span>
+                  <button class="btn btn-link ms-auto">Modifier</button>
+                </p>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary mb-3" (click)="openAddAddressDialog()">
+          Ajouter une adresse
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

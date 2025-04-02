@@ -1,8 +1,6 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
 import { TipService } from 'src/app/services/tip.service';
 import { Tip } from '../models/tip.model';
-import { PageEvent } from '@angular/material/paginator';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, of, tap } from 'rxjs';
 
 @Component({
@@ -11,11 +9,14 @@ import { catchError, of, tap } from 'rxjs';
   styleUrls: ['./tips.component.css'],
 })
 export class TipsComponent implements OnInit {
+  @Input() showPagination: boolean = true; // Permet d'afficher ou non la pagination
+  @Input() showBreadcrumb: boolean = true; // Ajout pour afficher ou non le breadcrumb
+
   tips: Tip[] = [];
   totalPages: number = 0;
   totalElements: number = 0;
   currentPage: number = 0;
-  pageSize: number = 10;
+  pageSize: number = 3;
   private destroyRef = inject(DestroyRef);
 
   constructor(private tipService: TipService) {}
@@ -29,6 +30,7 @@ export class TipsComponent implements OnInit {
       .getAlltips(page, this.pageSize)
       .pipe(
         tap((response) => {
+          console.log('Réponse API:', response);
           this.tips = response.content;
           this.totalPages = response.totalPages;
           this.totalElements = response.totalElements;
@@ -38,17 +40,11 @@ export class TipsComponent implements OnInit {
           console.error('Erreur lors de la récupération des conseils:', error);
           this.tips = [];
           return of([]);
-        }),
-        takeUntilDestroyed(this.destroyRef)
+        })
       )
       .subscribe();
   }
 
-  onPageChanged(event: PageEvent): void {
-    this.currentPage = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.loadTips(this.currentPage);
-  }
   previousPage(): void {
     if (this.currentPage > 0) {
       this.currentPage--;

@@ -33,6 +33,8 @@ import { Volume } from '../components/models/volume.model';
 import { CommandResponse } from '../components/models/commandResponse.model';
 import { OrderService } from './order.service';
 import { CommandStatus } from '../components/models/commandStatus.enum';
+import { Tip } from '../components/models/tip.model';
+import { TipService } from './tip.service';
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +51,8 @@ export class AppFacade {
     public paymentService: PaymentService,
     private cookieConsentService: CookieConsentService,
     private passwordResetService: PasswordResetService,
-    private volumeService: VolumeService
+    private volumeService: VolumeService,
+    private tipService: TipService
   ) {}
 
   // cartItem
@@ -283,5 +286,16 @@ export class AppFacade {
 
   deleteVolume(voulumeId: number): Observable<void> {
     return this.volumeService.deleteVolume(voulumeId);
+  }
+  //tips
+  getAllTips(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: Tip[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.tipService.getAlltips(page, size);
   }
 }

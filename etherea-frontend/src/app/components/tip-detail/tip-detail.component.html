@@ -1,8 +1,13 @@
-<div class="container d-flex justify-content-center align-items-center">
-  <div class="row">
-    <div class="col-md-12 mx-auto">
+<div class="breadcrumb">
+  <a [routerLink]="'/tips'" class="return-link"> Nos conseils </a>
+  <span class="current-page"> > Conseil</span>
+</div>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10 col-12">
       <div class="content">
-        <p>{{ tips.content }}</p>
+        <div [innerHTML]="formattedContent"></div>
       </div>
     </div>
   </div>

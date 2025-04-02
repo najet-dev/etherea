@@ -15,7 +15,8 @@ import { AddUserComponent } from './add-user/add-user.component';
 import { OrderListComponent } from './order-list/order-list.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatIconModule } from '@angular/material/icon'; // Ajout du module
+import { MatIconModule } from '@angular/material/icon';
+import { TipListComponent } from './tip-list/tip-list.component'; // Ajout du module
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { MatIconModule } from '@angular/material/icon'; // Ajout du module
     UpdateVolumeComponent,
     AddUserComponent,
     OrderListComponent,
+    TipListComponent,
   ],
   imports: [
     CommonModule,

@@ -14,22 +14,23 @@ export class DeliveryAddressService {
 
   constructor(private httpClient: HttpClient) {}
 
+  /**
+   * Récupère toutes les adresses de livraison d'un utilisateur.
+   */
   getUserDeliveryAddresses(userId: number): Observable<DeliveryAddress[]> {
     return this.httpClient
       .get<DeliveryAddress[]>(`${this.apiUrl}/deliveryAddresses/${userId}`)
       .pipe(
-        catchError((error) => {
-          console.error(
-            'Erreur lors de la récupération des adresses de livraison:',
-            error
-          );
-          return throwError(
-            () => new Error('Erreur lors de la récupération des adresses.')
-          );
-        })
+        tap((addresses) => this.deliveryAddressSubject.next(addresses)),
+        catchError(
+          this.handleError('Erreur lors de la récupération des adresses.')
+        )
       );
   }
 
+  /**
+   * Récupère une adresse de livraison spécifique.
+   */
   getDeliveryAddress(
     userId: number,
     addressId: number
@@ -40,15 +41,13 @@ export class DeliveryAddressService {
       )
       .pipe(
         tap((address) => console.log('Adresse récupérée :', address)),
-        catchError((error) => {
-          console.error('Erreur lors de la récupération de l’adresse :', error);
-          return throwError(
-            () => new Error('Impossible de récupérer l’adresse.')
-          );
-        })
+        catchError(this.handleError('Impossible de récupérer l’adresse.'))
       );
   }
 
+  /**
+   * Ajoute une nouvelle adresse de livraison pour un utilisateur.
+   */
   addDeliveryAddress(
     userId: number,
     deliveryAddress: DeliveryAddress
@@ -61,18 +60,28 @@ export class DeliveryAddressService {
       .pipe(
         tap((newAddress) => {
           console.log('Nouvelle adresse ajoutée avec succès:', newAddress);
+          this.deliveryAddressSubject.next([
+            ...this.deliveryAddressSubject.value,
+            newAddress,
+          ]);
         }),
-        catchError((error) => {
-          console.error('Error adding delivery address:', error);
-          return throwError(() => error);
-        })
+        catchError(this.handleError('Erreur lors de l’ajout de l’adresse.'))
       );
   }
 
+  /**
+   * Met à jour une adresse de livraison existante.
+   */
   updateDeliveryAddress(
     userId: number,
     deliveryAddress: DeliveryAddress
   ): Observable<DeliveryAddress> {
+    if (!deliveryAddress.id) {
+      return throwError(
+        () => new Error('L’ID de l’adresse est requis pour la mise à jour.')
+      );
+    }
+
     return this.httpClient
       .put<DeliveryAddress>(
         `${this.apiUrl}/deliveryAddresses/${userId}`,
@@ -80,12 +89,29 @@ export class DeliveryAddressService {
       )
       .pipe(
         tap((updatedAddress) => {
-          console.log('Adresse modifiée avec succès:', updatedAddress);
+          console.log('Adresse mise à jour avec succès:', updatedAddress);
+          this.refreshAddresses(userId);
         }),
-        catchError((error) => {
-          console.error('Error updating delivery address:', error);
-          return throwError(() => error);
-        })
+        catchError(
+          this.handleError('Erreur lors de la mise à jour de l’adresse.')
+        )
       );
+  }
+
+  /**
+   * Met à jour la liste des adresses après modification.
+   */
+  private refreshAddresses(userId: number): void {
+    this.getUserDeliveryAddresses(userId).subscribe();
+  }
+
+  /**
+   * Gestion centralisée des erreurs HTTP.
+   */
+  private handleError(message: string) {
+    return (error: HttpErrorResponse) => {
+      console.error(`${message}`, error);
+      return throwError(() => new Error(`${message} Veuillez réessayer.`));
+    };
   }
 }

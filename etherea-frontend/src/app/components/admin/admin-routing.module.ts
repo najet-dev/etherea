@@ -10,6 +10,7 @@ import { AddVolumeComponent } from './add-volume/add-volume.component';
 import { UpdateVolumeComponent } from './update-volume/update-volume.component';
 import { AddUserComponent } from './add-user/add-user.component';
 import { OrderListComponent } from './order-list/order-list.component';
+import { TipListComponent } from './tip-list/tip-list.component';
 
 const routes: Routes = [
   {
@@ -32,6 +33,7 @@ const routes: Routes = [
       { path: 'add-volume', component: AddVolumeComponent },
       { path: 'update-volume', component: UpdateVolumeComponent },
       { path: 'admin-orders', component: OrderListComponent },
+      { path: 'admin-tips', component: TipListComponent },
     ],
   },
 ];

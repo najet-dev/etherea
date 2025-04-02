@@ -1,0 +1,47 @@
+<h2>Ajouter une adresse</h2>
+<form [formGroup]="addressForm">
+  <div class="form-group">
+    <label>Prénom</label>
+    <input formControlName="firstName" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label>Nom</label>
+    <input formControlName="lastName" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label>Adresse</label>
+    <input formControlName="address" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label>Code postal</label>
+    <input formControlName="zipCode" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label>Ville</label>
+    <input formControlName="city" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label>Pays</label>
+    <input formControlName="country" class="form-control" />
+  </div>
+  <div class="form-group">
+    <label>Téléphone</label>
+    <input formControlName="phoneNumber" class="form-control" />
+  </div>
+  <div class="form-check">
+    <input
+      type="checkbox"
+      formControlName="isPrimary"
+      class="form-check-input"
+    />
+    <label class="form-check-label">Définir comme adresse principale</label>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="close()">
+      Annuler
+    </button>
+    <button type="button" class="btn btn-primary" (click)="saveAddress()">
+      Enregistrer
+    </button>
+  </div>
+</form>

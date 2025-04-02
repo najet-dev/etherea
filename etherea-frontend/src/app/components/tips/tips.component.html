@@ -1,31 +1,27 @@
+<!-- Fil d'Ariane (affiché uniquement si showBreadcrumb est true) -->
+<div class="breadcrumb" *ngIf="showBreadcrumb">
+  <a [routerLink]="'/'" class="return-link"> Accueil </a>
+  <span class="current-page"> > Nos conseils</span>
+</div>
+
 <div class="container mt-5 py-5">
-  <div class="breadcrumb">
-    <a [routerLink]="'/'" class="return-link"> Accueil </a>
-    <span class="current-page"> > Nos conseils</span>
-  </div>
-
-  <div class="row">
-    <div class="col-12 text-center">
-      <h2>Nos Conseils</h2>
-      <p class="text-muted">
-        Découvrez nos astuces et conseils pour prendre soin de votre peau et de
-        vos cheveux naturellement.
-      </p>
-    </div>
-  </div>
-
-  <!-- Affichage dynamique des conseils -->
   <div class="row text-center" *ngIf="tips.length > 0; else noTips">
-    <div class="col-md-4" *ngFor="let tip of tips">
-      <a [routerLink]="'/tips/' + tip.id">
-        <div class="advice-card shadow p-4 rounded">
+    <div
+      class="col-md-4 col-sm-6 col-12 d-flex align-items-stretch mb-4"
+      *ngFor="let tip of tips"
+    >
+      <a [routerLink]="'/tips/' + tip.id" class="w-100">
+        <div class="advice-card shadow p-4 rounded d-flex flex-column">
           <img
             [src]="tip.image || '/assets/default.jpg'"
             class="advice-img mb-3"
             [alt]="tip.title"
           />
-          <h4>{{ tip.title }}</h4>
-          <p>{{ tip.description }}</p>
+          <h4 class="advice-title">{{ tip.title }}</h4>
+          <p class="advice-description">{{ tip.description }}</p>
+          <div class="mt-auto">
+            <button class="btn-primary">Lire plus</button>
+          </div>
         </div>
       </a>
     </div>
@@ -36,12 +32,11 @@
     <div class="text-center text-muted">Aucun conseil disponible.</div>
   </ng-template>
 
-  <!-- Pagination avec Angular Material -->
+  <!-- Pagination (affichée uniquement si showPagination est true) -->
   <div
     class="d-flex justify-content-center align-items-center gap-3 mt-3"
-    *ngIf="totalPages > 1"
+    *ngIf="showPagination && totalElements > 0"
   >
-    <!-- Flèche gauche -->
     <button
       class="btn btn-light"
       (click)="previousPage()"
@@ -50,10 +45,8 @@
       <mat-icon>navigate_before</mat-icon>
     </button>
 
-    <!-- Numéro de page -->
     <span>Page {{ currentPage + 1 }} sur {{ totalPages }}</span>
 
-    <!-- Flèche droite -->
     <button
       class="btn btn-light"
       (click)="nextPage()"

@@ -58,11 +58,10 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { PurchasesComponent } from './components/purchases/purchases.component';
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { TipsComponent } from './components/tips/tips.component';
-import { HydrationComponent } from './components/tips/hydration/hydration.component';
-import { CapillaryCareComponent } from './components/tips/capillary-care/capillary-care.component';
-import { SolarProtectionComponent } from './components/tips/solar-protection/solar-protection.component';
 import { RouterModule } from '@angular/router';
 import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
+import { AddressesComponent } from './components/addresses/addresses.component';
+import { AddressEditDialogComponent } from './components/address-edit-dialog/address-edit-dialog.component';
 
 @NgModule({
   declarations: [
@@ -103,10 +102,9 @@ import { TipDetailComponent } from './components/tip-detail/tip-detail.component
     PurchasesComponent,
     OrderDetailsComponent,
     TipsComponent,
-    HydrationComponent,
-    CapillaryCareComponent,
-    SolarProtectionComponent,
     TipDetailComponent,
+    AddressesComponent,
+    AddressEditDialogComponent,
   ],
   imports: [
     CommonModule,

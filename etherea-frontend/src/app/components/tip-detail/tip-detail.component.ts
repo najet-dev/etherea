@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TipService } from 'src/app/services/tip.service';
 import { Tip } from '../models/tip.model';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-tip-detail',
@@ -10,9 +11,14 @@ import { Tip } from '../models/tip.model';
 })
 export class TipDetailComponent implements OnInit {
   tips!: Tip;
+  formattedContent!: SafeHtml;
   isLoading: boolean = true;
 
-  constructor(private route: ActivatedRoute, private tipService: TipService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private tipService: TipService,
+    private sanitizer: DomSanitizer
+  ) {}
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -20,6 +26,9 @@ export class TipDetailComponent implements OnInit {
       this.tipService.getTipById(+id).subscribe({
         next: (data) => {
           this.tips = data;
+          this.formattedContent = this.sanitizer.bypassSecurityTrustHtml(
+            this.tips.content
+          );
           this.isLoading = false;
         },
         error: (err) => {

@@ -91,7 +91,6 @@
   </div>
 </div>
 <!-- Section Best Sellers -->
-<!-- Section Best Sellers -->
 <div class="container best-sellers mt-5">
   <div class="row">
     <div class="col-12 text-center">
@@ -159,55 +158,7 @@
       <h2>Nos Conseils</h2>
     </div>
   </div>
-  <div class="row text-center">
-    <div class="col-md-4">
-      <a routerLink="/tips/hydration">
-        <div class="advice-card shadow p-4 rounded">
-          <img
-            src="/assets/moisturizing-facial.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 1"
-          />
 
-          <h4>Hydratation quotidienne</h4>
-          <p>
-            Adoptez une routine hydratante adaptée à votre type de peau pour un
-            teint éclatant.
-          </p>
-        </div>
-      </a>
-    </div>
-    <div class="col-md-4">
-      <a routerLink="/tips/capillary-care">
-        <div class="advice-card shadow p-4 rounded">
-          <img
-            src="/assets/capillary-hair.webp"
-            class="advice-img mb-3"
-            alt="Conseil 2"
-          />
-          <h4>Soins capillaires naturels</h4>
-          <p>
-            Utilisez des huiles végétales pour nourrir vos cheveux en
-            profondeur.
-          </p>
-        </div>
-      </a>
-    </div>
-    <div class="col-md-4">
-      <a routerLink="/tips/solar-protection">
-        <div class="advice-card shadow p-4 rounded">
-          <img
-            src="/assets/solar.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 3"
-          />
-          <h4>Protection solaire</h4>
-          <p>
-            Protégez votre peau avec des soins SPF pour prévenir le
-            vieillissement cutané.
-          </p>
-        </div>
-      </a>
-    </div>
-  </div>
+  <!-- Affichage des conseils sans breadcrumb ni pagination -->
+  <app-tips [showPagination]="false" [showBreadcrumb]="false"></app-tips>
 </div>
