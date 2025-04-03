@@ -28,7 +28,6 @@ p {
   margin-bottom: 40px;
 }
 
-/* Images des catégories */
 .category-img {
   width: 250px;
   height: 250px;
@@ -41,9 +40,25 @@ p {
   transform: scale(1.1) rotate(5deg);
 }
 
-/* Bouton */
-.btn-primary {
-  margin-top: 10px;
+.btn {
+  width: 100%;
+  max-width: 300px;
+  margin: 10px auto;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 400;
+  border-radius: 5px;
+  background-color: var(--main-color);
+  border-radius: 5px;
+  color: var(--bg-color);
+  border: none;
+  cursor: pointer;
+  transition: 0.5s;
+}
+
+.btn:hover {
+  background: var(--text-color);
+  border: 0.1rem solid var(--main-color);
 }
 .category-link {
   text-decoration: none;
@@ -60,6 +75,10 @@ p {
   text-decoration: none;
 }
 /* Section Nos Conseils */
+a {
+  text-decoration: none;
+  color: black;
+}
 .advice-card {
   background: #f8f9fa;
   transition: transform 0.3s ease-in-out;
@@ -76,7 +95,6 @@ p {
   border-radius: 50%;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .category-img {
     width: 200px;

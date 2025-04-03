@@ -10,32 +10,25 @@ import com.etherea.repositories.ProductRepository;
 import com.etherea.repositories.VolumeRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 public class VolumeService {
     @Autowired
     private VolumeRepository volumeRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
-    public List<VolumeDTO> getAllVolumes() {
-        List<Volume> volumes = volumeRepository.findAll();
-
-        // Convert Volume entities to VolumeDTO objects with productName
-        return volumes.stream()
-                .map(volume -> new VolumeDTO(
-                        volume.getId(),
-                        volume.getProduct().getName(),
-                        volume.getVolume(),
-                        volume.getPrice())
-                )
-                .collect(Collectors.toList());
+    public Page<VolumeDTO> getAllVolumes(int page, int size) {
+        Page<Volume> volumePage = volumeRepository.findAll(PageRequest.of(page, size));
+        return volumePage.map(volume -> new VolumeDTO(
+                volume.getId(),
+                volume.getProduct().getName(),
+                volume.getVolume(),
+                volume.getPrice())
+        );
     }
     @Transactional
     public VolumeDTO addVolume(String productName, VolumeDTO volumeDTO) {

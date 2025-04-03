@@ -5,6 +5,7 @@ import com.etherea.dtos.CommandResponseDTO;
 import com.etherea.dtos.UserDTO;
 import com.etherea.enums.CommandStatus;
 import com.etherea.services.CommandService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,16 +21,17 @@ public class CommandController {
     public CommandController(CommandService commandService) {
         this.commandService = commandService;
     }
-    // Endpoint pour récupérer toutes les commandes
     @GetMapping
-    public ResponseEntity<List<CommandResponseDTO>>getAllCommands() {
-        List<CommandResponseDTO> commands = commandService.getAllCommands();
+    public ResponseEntity<Page<CommandResponseDTO>> getAllCommands(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<CommandResponseDTO> commandsPage = commandService.getAllCommands(page, size);
 
-        if (commands.isEmpty()) {
+        if (commandsPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
-        return ResponseEntity.ok(commands);
+        return ResponseEntity.ok(commandsPage);
     }
 
     /**

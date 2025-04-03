@@ -21,18 +21,27 @@ export class ProductService {
     private storageService: StorageService
   ) {}
 
-  getProducts(limit: number = 0): Observable<Product[]> {
-    const url =
-      limit > 0
-        ? `${this.apiUrl}/products?limit=${limit}`
-        : `${this.apiUrl}/products`;
-    return this.httpClient.get<Product[]>(url).pipe(
-      catchError((error) => {
-        console.error('Error fetching products:', error);
-        console.error('Failed to load products. Please try again later.');
-        return [];
-      })
-    );
+  getAllProducts(
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: Product[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.httpClient
+      .get<{ content: Product[]; totalElements: number; totalPages: number }>(
+        `${this.apiUrl}/products?page=${page}&size=${size}`
+      )
+      .pipe(
+        tap((response) => console.log('API Response:', response)),
+        catchError((error) => {
+          console.error('Erreur lors de la récupération des produits:', error);
+          return throwError(
+            () => new Error('Impossible de récupérer les produits.')
+          );
+        })
+      );
   }
 
   getProductsByType(
@@ -64,6 +73,26 @@ export class ProductService {
         return of();
       })
     );
+  }
+
+  // Méthode pour rechercher des produits par nom
+  searchProductsByName(name: string): Observable<Product[]> {
+    if (!name.trim()) {
+      return of([]); // Ne pas envoyer de requête si la recherche est vide
+    }
+
+    console.log('Envoi de la requête de recherche avec:', name);
+    const params = new HttpParams().set('name', name.trim());
+
+    return this.httpClient
+      .get<Product[]>(`${this.apiUrl}/products/search`, { params })
+      .pipe(
+        tap((response) => console.log('Réponse reçue:', response)),
+        catchError((error) => {
+          console.error('Erreur lors de la recherche:', error);
+          return of([]); // Retourne un tableau vide en cas d'erreur
+        })
+      );
   }
 
   addProduct(product: Product, image: File): Observable<Product> {

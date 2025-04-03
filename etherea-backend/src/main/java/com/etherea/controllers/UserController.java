@@ -12,12 +12,11 @@ import com.etherea.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 @RestController
 @RequestMapping("/users")
@@ -26,18 +25,18 @@ public class UserController {
     @Autowired
     private JwtUtils jwtUtils;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userService.getAllUsers();
+    public ResponseEntity<Page<UserDTO>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<UserDTO> usersPage = userService.getAllUsers(page, size);
 
-        if (users.isEmpty()) {
+        if (usersPage.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
 
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(usersPage);
     }
-
     @Autowired
     private UserService userService;
     @GetMapping("/{id}")
@@ -49,7 +48,6 @@ public class UserController {
                     .body("User not found with ID: " + id);
         }
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
         try {

@@ -10,6 +10,8 @@ import com.etherea.models.*;
 import com.etherea.repositories.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,11 +38,12 @@ public class CommandService {
     private CommandItemRepository commandItemRepository;
 
     // Retrieves all commands
-    public List<CommandResponseDTO> getAllCommands() {
-        return commandRepository.findAll()
-                .stream()
-                .map(CommandResponseDTO::fromEntity)
-                .collect(Collectors.toList());
+    public Page<CommandResponseDTO> getAllCommands(int page, int size) {
+        // Récupérer une page de commandes
+        Page<Command> commandsPage = commandRepository.findAll(PageRequest.of(page, size));
+
+        // Convertir Page<Command> en Page<CommandResponseDTO>
+        return commandsPage.map(CommandResponseDTO::fromEntity);
     }
 
     // Retrieves all commands associated with a given user

@@ -10,12 +10,23 @@ import { AddVolumeComponent } from './add-volume/add-volume.component';
 import { UpdateVolumeComponent } from './update-volume/update-volume.component';
 import { AddUserComponent } from './add-user/add-user.component';
 import { OrderListComponent } from './order-list/order-list.component';
+import { TipListComponent } from './tip-list/tip-list.component';
+import { AdminDashbordComponent } from './admin-dashbord/admin-dashbord.component';
 
 const routes: Routes = [
   {
     path: '',
     component: AdminComponent,
     children: [
+      {
+        path: '',
+        redirectTo: 'admin-dashboard',
+        pathMatch: 'full',
+      },
+      {
+        path: 'admin-dashboard',
+        component: AdminDashbordComponent,
+      },
       {
         path: 'admin-users',
         component: UserListComponent,
@@ -32,6 +43,7 @@ const routes: Routes = [
       { path: 'add-volume', component: AddVolumeComponent },
       { path: 'update-volume', component: UpdateVolumeComponent },
       { path: 'admin-orders', component: OrderListComponent },
+      { path: 'admin-tips', component: TipListComponent },
     ],
   },
 ];

@@ -28,7 +28,7 @@
   </div>
 </div>
 
-<!-- Nouvelle section avec les catégories -->
+<!-- section avec les catégories -->
 <div class="container mt-5">
   <div class="row">
     <div class="col-12 text-center">
@@ -99,7 +99,7 @@
   </div>
   <div class="row">
     <div
-      *ngFor="let product of products$ | async"
+      *ngFor="let product of (products$ | async)?.slice(0, 4)"
       class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex align-items-stretch"
     >
       <div class="card mb-4 d-flex flex-column">
@@ -150,6 +150,7 @@
     </div>
   </div>
 </div>
+
 <!-- Section Nos Conseils -->
 <div class="container mt-5 py-5">
   <div class="row">
@@ -157,53 +158,7 @@
       <h2>Nos Conseils</h2>
     </div>
   </div>
-  <div class="row text-center">
-    <div class="col-md-4">
-      <div class="advice-card shadow p-4 rounded">
-        <a routerLink="/tips/hydration">
-          <img
-            src="/assets/conseil1.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 1"
-          />
-        </a>
-        <h4>Hydratation quotidienne</h4>
-        <p>
-          Adoptez une routine hydratante adaptée à votre type de peau pour un
-          teint éclatant.
-        </p>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="advice-card shadow p-4 rounded">
-        <a routerLink="/tips/capillary-care">
-          <img
-            src="/assets/conseil2.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 2"
-          />
-        </a>
-        <h4>Soins capillaires naturels</h4>
-        <p>
-          Utilisez des huiles végétales pour nourrir vos cheveux en profondeur.
-        </p>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="advice-card shadow p-4 rounded">
-        <a routerLink="/tips/solar-protection">
-          <img
-            src="/assets/conseil3.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 3"
-          />
-        </a>
-        <h4>Protection solaire</h4>
-        <p>
-          Protégez votre peau avec des soins SPF pour prévenir le vieillissement
-          cutané.
-        </p>
-      </div>
-    </div>
-  </div>
+
+  <!-- Affichage des conseils sans breadcrumb ni pagination -->
+  <app-tips [showPagination]="false" [showBreadcrumb]="false"></app-tips>
 </div>

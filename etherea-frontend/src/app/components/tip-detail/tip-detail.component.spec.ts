@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { HydrationComponent } from './hydration.component';
+import { TipDetailComponent } from './tip-detail.component';
 
-describe('HydrationComponent', () => {
-  let component: HydrationComponent;
-  let fixture: ComponentFixture<HydrationComponent>;
+describe('TipDetailComponent', () => {
+  let component: TipDetailComponent;
+  let fixture: ComponentFixture<TipDetailComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [HydrationComponent]
+      declarations: [TipDetailComponent]
     });
-    fixture = TestBed.createComponent(HydrationComponent);
+    fixture = TestBed.createComponent(TipDetailComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

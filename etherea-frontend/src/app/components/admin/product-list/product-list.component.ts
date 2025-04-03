@@ -1,11 +1,17 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { Product } from '../../models';
-import { catchError, Observable, of, switchMap, tap } from 'rxjs';
-import { AuthService } from 'src/app/services/auth.service';
-import { AppFacade } from 'src/app/services/appFacade.service';
-import { ProductTypeService } from 'src/app/services/product-type.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  catchError,
+  Observable,
+  of,
+  switchMap,
+  tap,
+  debounceTime,
+  distinctUntilChanged,
+} from 'rxjs';
 import { ProductService } from 'src/app/services/product.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-product-list',
@@ -13,48 +19,94 @@ import { ProductService } from 'src/app/services/product.service';
   styleUrls: ['./product-list.component.css'],
 })
 export class ProductListComponent {
-  products$: Observable<Product[]> = new Observable<Product[]>();
-  userId: number | null = null;
+  products: Product[] = [];
+  currentPage: number = 0;
+  totalPages: number = 1;
+  pageSize: number = 10;
+  searchQuery: string = '';
+  searchControl = new FormControl('');
+
   private destroyRef = inject(DestroyRef);
-  constructor(
-    private authService: AuthService,
-    private appFacade: AppFacade,
-    public productTypeService: ProductTypeService,
-    private productService: ProductService
-  ) {}
+
+  constructor(private productService: ProductService) {}
+
   ngOnInit(): void {
     this.loadProducts();
-    this.authService
-      .getCurrentUser()
+
+    // Ajoute un écouteur pour l'input de recherche avec debounce
+    this.searchControl.valueChanges
       .pipe(
-        tap((user) => (this.userId = user ? user.id : null)),
+        debounceTime(300), // Attendre 300ms après la dernière frappe
+        distinctUntilChanged(), // Ne pas relancer la requête si la recherche n'a pas changé
+        tap(() => this.searchProducts()),
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
   }
 
   loadProducts(): void {
-    this.products$ = this.appFacade.getProducts().pipe(
-      catchError((error) => {
-        console.error('Error fetching products:', error);
-        return of([]);
-      }),
-      takeUntilDestroyed(this.destroyRef)
-    );
+    this.productService
+      .getAllProducts(this.currentPage, this.pageSize)
+      .pipe(
+        tap((response) => {
+          this.products = response.content;
+          this.totalPages = response.totalPages;
+        }),
+        catchError((error) => {
+          console.error('Erreur lors de la récupération des produits:', error);
+          this.products = [];
+          return of([]);
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
   }
 
-  deleteProduct(productId: number) {
+  searchProducts(): void {
+    if (this.searchQuery.trim().length > 1) {
+      this.productService.searchProductsByName(this.searchQuery).subscribe(
+        (results) => {
+          this.products = results;
+        },
+        (error) => {
+          console.error('Erreur lors de la recherche:', error);
+          this.products = [];
+        }
+      );
+    } else {
+      this.loadProducts(); // Recharger tous les produits si la recherche est vide
+    }
+  }
+
+  deleteProduct(productId: number): void {
     this.productService
       .deleteProduct(productId)
       .pipe(
-        switchMap(() => this.appFacade.getProducts()), // Recharger la liste des produits après suppression
+        switchMap(() =>
+          this.productService.getAllProducts(this.currentPage, this.pageSize)
+        ),
         catchError((error) => {
           console.error('Erreur lors de la suppression du produit:', error);
-          return of([]); // Retourner une liste vide en cas d'erreur pour éviter le plantage
+          return of({ content: [], totalElements: 0, totalPages: 1 });
         })
       )
-      .subscribe((products) => {
-        this.products$ = of(products); // Mettre à jour la liste des produits affichée
+      .subscribe((response) => {
+        this.products = response.content;
+        this.totalPages = response.totalPages;
       });
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadProducts();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadProducts();
+    }
   }
 }
