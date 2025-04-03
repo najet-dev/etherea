@@ -48,7 +48,7 @@ export class TipListComponent {
   onPageChanged(event: PageEvent): void {
     this.currentPage = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.loadTips(this.currentPage); // Charger les volumes pour la page sélectionnée
+    this.loadTips(this.currentPage);
   }
   previousPage(): void {
     if (this.currentPage > 0) {

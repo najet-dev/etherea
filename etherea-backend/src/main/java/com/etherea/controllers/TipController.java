@@ -58,13 +58,13 @@ public class TipController {
         }
 
         try {
-            // Désérialisation du JSON en objet TipDTO
+            // Deserialize JSON into TipDTO object
             ObjectMapper objectMapper = new ObjectMapper();
             TipDTO tipDTO = objectMapper.readValue(tipJson, TipDTO.class);
 
             logger.info("Tip received: {}", tipDTO);
 
-            // Enregistrer le tip avec ou sans image
+            // Save tip with or without image
             tipService.saveTip(tipDTO, file);
             return ResponseEntity.ok(Map.of("message", "Tip saved successfully"));
 

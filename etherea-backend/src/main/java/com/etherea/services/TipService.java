@@ -25,7 +25,7 @@ public class TipService {
     private TipRepository tipRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(TipService.class);
-    private static final String UPLOAD_DIR = "assets"; // Dossier pour stocker les images
+    private static final String UPLOAD_DIR = "assets"; // Folder for storing images
 
     /**
      * Récupérer tous les conseils avec pagination et tri
@@ -91,7 +91,7 @@ public class TipService {
             existingTip.setImage(updatedTipDTO.getImage());
         }
 
-        // Gestion de l'upload d'image
+        // Image upload management
         if (file != null && !file.isEmpty()) {
             String uploadedImagePath = handleFileUpload(file);
             if (uploadedImagePath != null) {
