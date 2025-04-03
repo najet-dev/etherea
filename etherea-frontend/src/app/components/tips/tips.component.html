@@ -1,60 +1,58 @@
+<!-- Fil d'Ariane (affiché uniquement si showBreadcrumb est true) -->
+<div class="breadcrumb" *ngIf="showBreadcrumb">
+  <a [routerLink]="'/'" class="return-link"> Accueil </a>
+  <span class="current-page"> > Nos conseils</span>
+</div>
+
 <div class="container mt-5 py-5">
-  <div class="row">
-    <div class="col-12 text-center">
-      <h2>Nos Conseils</h2>
-      <p class="text-muted">
-        Découvrez nos astuces et conseils pour prendre soin de votre peau et de
-        vos cheveux naturellement.
-      </p>
+  <div class="row text-center" *ngIf="tips.length > 0; else noTips">
+    <div
+      class="col-md-4 col-sm-6 col-12 d-flex align-items-stretch mb-4"
+      *ngFor="let tip of tips"
+    >
+      <a [routerLink]="'/tips/' + tip.id" class="w-100">
+        <div class="advice-card shadow p-4 rounded d-flex flex-column">
+          <img
+            [src]="tip.image || '/assets/default.jpg'"
+            class="advice-img mb-3"
+            [alt]="tip.title"
+          />
+          <h4 class="advice-title">{{ tip.title }}</h4>
+          <p class="advice-description">{{ tip.description }}</p>
+          <div class="mt-auto">
+            <button class="btn-primary">Lire plus</button>
+          </div>
+        </div>
+      </a>
     </div>
   </div>
-  <div class="row text-center">
-    <div class="col-md-4">
-      <div class="advice-card shadow p-4 rounded">
-        <a routerLink="/tips/hydration">
-          <img
-            src="/assets/conseil1.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 1"
-          />
-        </a>
-        <h4>Hydratation quotidienne</h4>
-        <p>
-          Adoptez une routine hydratante adaptée à votre type de peau pour un
-          teint éclatant.
-        </p>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="advice-card shadow p-4 rounded">
-        <a routerLink="/tips/capillary-care">
-          <img
-            src="/assets/conseil2.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 2"
-          />
-        </a>
-        <h4>Soins capillaires naturels</h4>
-        <p>
-          Utilisez des huiles végétales pour nourrir vos cheveux en profondeur.
-        </p>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="advice-card shadow p-4 rounded">
-        <a routerLink="/tips/solar-protection">
-          <img
-            src="/assets/conseil3.jpg"
-            class="advice-img mb-3"
-            alt="Conseil 3"
-          />
-        </a>
-        <h4>Protection solaire</h4>
-        <p>
-          Protégez votre peau avec des soins SPF pour prévenir le vieillissement
-          cutané.
-        </p>
-      </div>
-    </div>
+
+  <!-- Message si aucun conseil n'est disponible -->
+  <ng-template #noTips>
+    <div class="text-center text-muted">Aucun conseil disponible.</div>
+  </ng-template>
+
+  <!-- Pagination (affichée uniquement si showPagination est true) -->
+  <div
+    class="d-flex justify-content-center align-items-center gap-3 mt-3"
+    *ngIf="showPagination && totalElements > 0"
+  >
+    <button
+      class="btn btn-light"
+      (click)="previousPage()"
+      [disabled]="currentPage === 0"
+    >
+      <mat-icon>navigate_before</mat-icon>
+    </button>
+
+    <span>Page {{ currentPage + 1 }} sur {{ totalPages }}</span>
+
+    <button
+      class="btn btn-light"
+      (click)="nextPage()"
+      [disabled]="currentPage >= totalPages - 1"
+    >
+      <mat-icon>navigate_next</mat-icon>
+    </button>
   </div>
 </div>

@@ -38,7 +38,6 @@ export class AddProductComponent {
     }
   }
 
-  // Méthode pour envoyer les données du produit au backend
   onSubmit(): void {
     if (!this.product.name || !this.product.type || !this.selectedFile) {
       console.error('Veuillez remplir tous les champs obligatoires.');

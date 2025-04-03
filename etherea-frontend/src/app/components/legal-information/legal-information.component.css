@@ -1,3 +1,26 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  margin-bottom: 80px;
+}
+
+.return-link {
+  text-decoration: none;
+  color: #555;
+  cursor: pointer;
+}
+
+.return-link:hover {
+  color: #555;
+  text-decoration: underline;
+}
+
+.current-page {
+  color: black;
+  margin-left: 5px;
+}
+
 h1 {
   font-size: 26px;
   margin-bottom: 20px;

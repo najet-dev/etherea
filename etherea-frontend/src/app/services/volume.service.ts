@@ -20,21 +20,33 @@ export class VolumeService {
     private storageService: StorageService
   ) {}
 
-  getVolumes(): Observable<Volume[]> {
-    return this.httpClient.get<Volume[]>(`${this.apiUrl}/volumes`).pipe(
-      tap((response) => console.log('API Response:', response)),
-      catchError((error) => {
-        console.error('Erreur lors de la récupération des volumes:', error);
-        return throwError(
-          () => new Error('Impossible de récupérer les volumes.')
-        );
-      })
-    );
+  getAllVolumes(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: Volume[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.httpClient
+      .get<{ content: Volume[]; totalElements: number; totalPages: number }>(
+        `${this.apiUrl}/volumes?page=${page}&size=${size}`
+      )
+      .pipe(
+        tap((response) => console.log('API Response:', response)),
+        catchError((error) => {
+          console.error('Erreur lors de la récupération des volumes:', error);
+          return throwError(
+            () => new Error('Impossible de récupérer les volumes.')
+          );
+        })
+      );
   }
+
   addVolume(productName: string, volume: Volume): Observable<Volume> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajouter le token JWT
+      Authorization: `Bearer ${token}`, // Ajout du token JWT
     });
 
     return this.httpClient
@@ -51,7 +63,7 @@ export class VolumeService {
   updatedVolume(volumeId: number, volume: Volume): Observable<Volume> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajouter le token JWT
+      Authorization: `Bearer ${token}`, // Ajout du token JWT
     });
 
     return this.httpClient
@@ -67,7 +79,7 @@ export class VolumeService {
     const token = this.storageService.getToken(); // Récupérer le token JWT
 
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajouter le token JWT
+      Authorization: `Bearer ${token}`, // Ajout du token JWT
     });
 
     return this.httpClient

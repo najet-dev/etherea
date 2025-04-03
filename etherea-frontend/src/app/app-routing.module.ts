@@ -24,10 +24,9 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { PurchasesComponent } from './components/purchases/purchases.component';
 import { OrderDetailsComponent } from './components/order-details/order-details.component';
-import { HydrationComponent } from './components/tips/hydration/hydration.component';
 import { TipsComponent } from './components/tips/tips.component';
-import { CapillaryCareComponent } from './components/tips/capillary-care/capillary-care.component';
-import { SolarProtectionComponent } from './components/tips/solar-protection/solar-protection.component';
+import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
+import { AddressesComponent } from './components/addresses/addresses.component';
 
 const routes: Routes = [
   {
@@ -62,9 +61,9 @@ const routes: Routes = [
   { path: 'purchases', component: PurchasesComponent },
   { path: 'command-details/:id', component: OrderDetailsComponent },
   { path: 'tips', component: TipsComponent },
-  { path: 'tips/hydration', component: HydrationComponent },
-  { path: 'tips/capillary-care', component: CapillaryCareComponent },
-  { path: 'tips/solar-protection', component: SolarProtectionComponent },
+  { path: 'tips/:id', component: TipDetailComponent },
+  { path: 'addresses', component: AddressesComponent },
+  { path: 'addresses/:addressId', component: AddressesComponent },
 
   {
     path: 'cream',

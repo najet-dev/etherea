@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,13 +35,17 @@ public class ProductService {
     private static final String UPLOAD_DIR = "assets";
     private final ModelMapper modelMapper = new ModelMapper();
 
-    public List<ProductDTO> getProducts(int limit) {
-        List<Product> products = productRepository.findByTypeIn(
+    public Page<ProductDTO> getProducts(int page, int size) {
+        // Récupérer une page de produits avec pagination et tri
+        Page<Product> productsPage = productRepository.findByTypeIn(
                 List.of(ProductType.FACE, ProductType.HAIR),
-                PageRequest.of(0, limit, Sort.by(Sort.Direction.ASC, "id"))
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"))
         );
-        return products.stream().map(ProductDTO::fromProduct).collect(Collectors.toList());
+
+        // Convertir Page<Product> en Page<ProductDTO>
+        return productsPage.map(ProductDTO::fromProduct);
     }
+
     public List<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
         return productRepository.findByType(type, pageable)
                 .getContent()
@@ -63,6 +68,13 @@ public class ProductService {
         }
 
         return productDTO;
+    }
+    public List<ProductDTO> getProductsByName(String name) {
+        List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
+        if (products.isEmpty()) {
+            throw new ProductNotFoundException("No products found with name containing: " + name);
+        }
+        return products.stream().map(ProductDTO::fromProduct).collect(Collectors.toList());
     }
     @Transactional
     public void saveProduct(ProductDTO productDTO, MultipartFile file) {

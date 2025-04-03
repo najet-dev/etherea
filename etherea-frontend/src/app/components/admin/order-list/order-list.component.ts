@@ -4,6 +4,7 @@ import { OrderService } from 'src/app/services/order.service';
 import { CommandStatus } from '../../models/commandStatus.enum';
 import { catchError, of, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-order-list',
@@ -12,8 +13,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class OrderListComponent {
   orders: CommandResponse[] = [];
-  statuses = Object.values(CommandStatus); // On récupère tous les statuts de l'énum
+  statuses = Object.values(CommandStatus); // Récupère tous les statuts
   private destroyRef = inject(DestroyRef);
+
+  currentPage: number = 0;
+  totalPages: number = 1;
+  pageSize: number = 10; // Nombre de commandes par page
 
   // Mappage des statuts anglais vers français
   statusMap: { [key: string]: string } = {
@@ -25,35 +30,35 @@ export class OrderListComponent {
     CANCELLED: 'ANNULÉ',
   };
 
-  constructor(private orderService: OrderService) {}
+  constructor(private appFacade: AppFacade) {}
 
   ngOnInit(): void {
     this.loadOrders();
   }
 
   loadOrders(): void {
-    this.orderService
-      .getAllOrders()
+    this.appFacade
+      .getAllOrders(this.currentPage, this.pageSize)
       .pipe(
-        tap((orders) => {
-          if (Array.isArray(orders)) {
-            this.orders = orders.map((order) => ({
+        tap((response) => {
+          if (response && Array.isArray(response.content)) {
+            this.orders = response.content.map((order) => ({
               ...order,
-              // Convertir les statuts en français lors de la récupération
               status: this.statusMap[order.status] || order.status,
             }));
+            this.totalPages = response.totalPages; // Mise à jour du nombre total de pages
           } else {
-            console.error('Données invalides reçues :', orders);
-            this.orders = []; // Vider le tableau en cas de données invalides
+            console.error('Données invalides reçues :', response);
+            this.orders = [];
           }
         }),
         catchError((error) => {
           console.error(
-            'Erreur lors de la récupération des utilisateurs:',
+            'Erreur lors de la récupération des commandes :',
             error
           );
           this.orders = [];
-          return of([]); // Retourner un tableau vide en cas d'erreur
+          return of([]);
         }),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -61,18 +66,17 @@ export class OrderListComponent {
   }
 
   onStatusChange(order: CommandResponse): void {
-    // Convertir le statut en français vers l'anglais avant d'envoyer au backend
     const backendStatus =
       Object.keys(this.statusMap).find(
         (key) => this.statusMap[key] === order.status
       ) || order.status;
 
-    this.orderService
+    this.appFacade
       .updateOrderStatus(order.id, backendStatus)
       .pipe(
         catchError((error) => {
           console.error('Erreur lors de la mise à jour du statut:', error);
-          return of(null); // Retourne un observable avec une valeur nulle en cas d'erreur
+          return of(null);
         })
       )
       .subscribe(() => {
@@ -80,7 +84,17 @@ export class OrderListComponent {
       });
   }
 
-  deleteOrder() {
-    // Implémentez ici la logique pour supprimer une commande si nécessaire
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadOrders();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadOrders();
+    }
   }
 }

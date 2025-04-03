@@ -24,7 +24,6 @@ export class AddVolumeComponent {
       this.volume.volume > 0 &&
       this.volume.price > 0
     ) {
-      // méthode addVolume avec productName et volume (objet)
       this.volumeService
         .addVolume(this.volume.productName, this.volume)
         .subscribe({

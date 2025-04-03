@@ -12,25 +12,27 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 })
 export class UserListComponent {
   users: SignupRequest[] = [];
+  totalPages: number = 0;
+  totalElements: number = 0;
+  currentPage: number = 0;
+  pageSize: number = 10;
   private destroyRef = inject(DestroyRef);
 
-  constructor(private userService: UserService, private appFacade: AppFacade) {}
+  constructor(private appFacade: AppFacade) {}
 
   ngOnInit(): void {
     this.loadUsers();
   }
 
-  loadUsers(): void {
-    this.userService
-      .getAllUsers()
+  loadUsers(page: number = 0): void {
+    this.appFacade
+      .getAllUsers(page, this.pageSize)
       .pipe(
-        tap((users) => {
-          if (Array.isArray(users)) {
-            this.users = users;
-          } else {
-            console.error('Données invalides reçues :', users);
-            this.users = [];
-          }
+        tap((response) => {
+          this.users = response.content;
+          this.totalPages = response.totalPages;
+          this.totalElements = response.totalElements;
+          this.currentPage = page;
         }),
         catchError((error) => {
           console.error(
@@ -45,18 +47,37 @@ export class UserListComponent {
       .subscribe();
   }
 
-  deleteUser(userId: number) {
-    this.userService
+  deleteUser(userId: number): void {
+    this.appFacade
       .deleteUser(userId)
       .pipe(
-        switchMap(() => this.appFacade.getUsers()), // Recharger la liste des produits après suppression
+        switchMap(() =>
+          this.appFacade.getAllUsers(this.currentPage, this.pageSize)
+        ),
         catchError((error) => {
-          console.error('Erreur lors de la suppression du produit:', error);
-          return of([]);
+          console.error(
+            'Erreur lors de la suppression de l’utilisateur:',
+            error
+          );
+          return of({ content: [], totalElements: 0, totalPages: 0 });
         })
       )
-      .subscribe((users) => {
-        this.users = users;
+      .subscribe((response) => {
+        this.users = response.content;
+        this.totalPages = response.totalPages;
+        this.totalElements = response.totalElements;
       });
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.loadUsers(this.currentPage - 1);
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.loadUsers(this.currentPage + 1);
+    }
   }
 }

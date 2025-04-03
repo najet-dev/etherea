@@ -1,9 +1,19 @@
 <div class="container mt-5">
   <div class="row mb-3 d-flex justify-content-between align-items-center">
-    <div class="col-auto">
+    <!-- Champ de recherche -->
+    <div class="col-12 mb-3">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Rechercher un produit..."
+        [(ngModel)]="searchQuery"
+        (input)="searchProducts()"
+      />
+    </div>
+    <div class="col-md-auto text-center">
       <h2>Gestion des produits naturels</h2>
     </div>
-    <div class="col-auto">
+    <div class="col-md-auto text-center">
       <button class="btn-primary" [routerLink]="['/admin', 'add-product']">
         Ajouter un produit
       </button>
@@ -13,17 +23,19 @@
   <div class="row">
     <div class="col-12">
       <div class="table-responsive">
-        <table class="table table-striped table-bordered text-center">
+        <table class="table table-striped table-bordered">
           <thead>
-            <tr>
+            <tr class="text-center">
               <th scope="col">ID</th>
               <th scope="col">Nom du produit</th>
               <th scope="col">Type</th>
               <th scope="col">Image</th>
-              <th scope="col description">Description</th>
-              <th scope="col">Bénéfices</th>
-              <th scope="col">Ingrédients</th>
-              <th scope="col">Conseils d'utilisation</th>
+              <th scope="col" class="extra-large-column">Description</th>
+              <th scope="col" class="extra-large-column">Bénéfices</th>
+              <th scope="col" class="extra-large-column">Ingrédients</th>
+              <th scope="col" class="extra-large-column">
+                Conseils d'utilisation
+              </th>
               <th scope="col">Prix</th>
               <th scope="col">Caractéristique</th>
               <th scope="col">Quantité en stock</th>
@@ -32,27 +44,37 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let product of products$ | async">
+            <tr *ngFor="let product of products">
               <td>{{ product.id }}</td>
-              <td>{{ product.name }}</td>
+              <td class="text-wrap large-column">{{ product.name }}</td>
               <td>{{ product.type }}</td>
               <td>
                 <img
                   [src]="product.image"
                   alt="{{ product.name }}"
-                  style="width: 50px; height: 50px"
+                  class="img-thumbnail"
                 />
               </td>
-              <td class="text-wrap">{{ product.description }}</td>
-              <td class="text-wrap">{{ product.benefits }}</td>
-              <td class="text-wrap">{{ product.ingredients }}</td>
-              <td class="text-wrap">{{ product.usageTips }}</td>
+              <td class="text-wrap extra-large-column">
+                {{ product.description }}
+              </td>
+              <td class="text-wrap extra-large-column">
+                {{ product.benefits }}
+              </td>
+              <td class="text-wrap extra-large-column">
+                {{ product.ingredients }}
+              </td>
+              <td class="text-wrap extra-large-column">
+                {{ product.usageTips }}
+              </td>
               <td>{{ product.basePrice }}</td>
-              <td>{{ product.characteristics }}</td>
+              <td class="text-wrap large-column">
+                {{ product.characteristics }}
+              </td>
               <td>{{ product.stockQuantity }}</td>
               <td>{{ product.stockStatus }}</td>
-              <td>
-                <div class="d-flex justify-content-center gap-2">
+              <td class="text-wrap extra-large-column">
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
                   <button
                     class="btn btn-warning btn-sm custom-btn"
                     [routerLink]="['/admin', 'update-product']"
@@ -70,6 +92,25 @@
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+        <button
+          class="btn btn-light"
+          (click)="previousPage()"
+          [disabled]="currentPage === 0"
+        >
+          <mat-icon>navigate_before</mat-icon>
+        </button>
+        <span>Page {{ currentPage + 1 }} sur {{ totalPages }}</span>
+        <button
+          class="btn btn-light"
+          (click)="nextPage()"
+          [disabled]="currentPage >= totalPages - 1"
+        >
+          <mat-icon>navigate_next</mat-icon>
+        </button>
       </div>
     </div>
   </div>
