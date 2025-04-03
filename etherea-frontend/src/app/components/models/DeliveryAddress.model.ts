@@ -1,4 +1,4 @@
-import { SignupRequest } from './SignupRequest.model';
+import { SignupRequest } from './signupRequest.model';
 
 export interface DeliveryAddress {
   id: number;

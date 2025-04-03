@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CommandResponse } from '../components/models/CommandResponse.model';
+import { CommandResponse } from '../components/models/commandResponse.model';
 
 @Injectable({
   providedIn: 'root',

@@ -12,7 +12,7 @@ public class SignupRequest {
     private String username;
     @JsonProperty("password")
     private String password;
-    @JsonProperty("role")
+    @JsonProperty("roles")
     private Set<String> roles;
     public String getFirstName() {
         return firstName;

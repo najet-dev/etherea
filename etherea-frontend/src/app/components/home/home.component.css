@@ -1,54 +1,121 @@
-.product-image {
-  width: 65%;
-  height: auto;
-  object-fit: cover;
-  cursor: pointer;
-  margin: 20px auto;
-  display: block;
-  transition: transform 0.3s;
+.container {
+  max-width: 1100px;
+  width: 90%;
+  margin: auto;
 }
-.heart-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 24px;
-  color: grey;
-  cursor: pointer;
-  transition: color 0.5s ease;
-}
-.heart-icon.favorite {
-  color: red !important;
-}
-.card-title,
-.card-text {
-  font-size: 15px;
-  height: 40px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-  word-wrap: break-word;
+
+h2 {
+  color: #333;
+  font-size: 2rem;
   text-align: center;
-  max-width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
-.card-title {
+
+p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.text-muted {
+  width: 90%;
+  gap: 10px;
+  text-align: justify;
+}
+.container.best-sellers h2 {
+  margin-bottom: 50px;
+}
+
+.container.best-sellers .text-muted {
+  margin-bottom: 40px;
+}
+
+.category-img {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  margin-top: 45px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.category-img:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.btn {
+  width: 100%;
+  max-width: 300px;
+  margin: 10px auto;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 400;
+  border-radius: 5px;
+  background-color: var(--main-color);
+  border-radius: 5px;
+  color: var(--bg-color);
+  border: none;
   cursor: pointer;
+  transition: 0.5s;
 }
-.card-description {
+
+.btn:hover {
+  background: var(--text-color);
+  border: 0.1rem solid var(--main-color);
+}
+.category-link {
+  text-decoration: none;
+}
+
+.category-link h3 {
+  color: black;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+
+.category-link :hover {
+  color: darkgreen !important;
+  text-decoration: none;
+}
+/* Section Nos Conseils */
+a {
   text-decoration: none;
   color: black;
 }
+.advice-card {
+  background: #f8f9fa;
+  transition: transform 0.3s ease-in-out;
+}
+
+.advice-card:hover {
+  transform: scale(1.05);
+}
+
+.advice-img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 @media (max-width: 768px) {
-  .product-image {
-    width: 50%;
+  .category-img {
+    width: 200px;
+    height: 200px;
+    margin-top: 30px;
   }
-  .card-body {
-    align-items: center;
+
+  h2 {
+    font-size: 1.8rem;
   }
-  .card-title,
-  .card-text {
-    white-space: normal;
+
+  p {
+    font-size: 1rem;
+  }
+
+  .col-md-6 img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .row.align-items-center {
+    text-align: center;
   }
 }

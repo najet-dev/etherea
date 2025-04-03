@@ -63,9 +63,11 @@ public class WebSecurityConfig {
                                 .requestMatchers("/command/**").permitAll()
                                 .requestMatchers("/cookies/**").permitAll()
                                 .requestMatchers("/newsletter/**").permitAll()
-                                .requestMatchers("/newsletter/**").permitAll()
                                 .requestMatchers("/contacts/**").permitAll()
                                 .requestMatchers("/resetToken/**").permitAll()
+                                .requestMatchers("/volumes/**").permitAll()
+                                .requestMatchers("/tips/**").permitAll()
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                                 .anyRequest().authenticated()
                 );

@@ -3,13 +3,13 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { DeliveryMethod } from '../components/models/deliveryMethod.model';
 import { PickupPointDetails } from '../components/models/pickupPointDetails.model';
 import { CartWithDelivery } from '../components/models/cartWithDelivery.model';
 import { AddDeliveryMethodRequest } from '../components/models/addDeliveryMethodRequest.model';
-import { DeliveryName } from '../components/models/DeliveryName.enum';
-import { DeliveryType } from '../components/models/deliveryType.model';
+import { DeliveryMethod } from '../components/models/deliveryMethod.model';
 import { UpdateDeliveryMethodRequest } from '../components/models/updateDeliveryMethodRequest.model';
+import { DeliveryName } from '../components/models/deliveryName.enum';
+import { DeliveryType } from '../components/models/deliveryType.model';
 
 @Injectable({
   providedIn: 'root',

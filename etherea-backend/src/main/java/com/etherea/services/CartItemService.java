@@ -32,7 +32,6 @@ public class CartItemService {
     private CartRepository cartRepository;
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
 
-
     /**
      * Retrieves items from a user's active shopping cart
      */
@@ -111,7 +110,7 @@ public class CartItemService {
                 throw new ProductNotFoundException("Insufficient stock for the product " + product.getName());
             }
 
-            CartItem newCartItem = cartItemDTO.toCartItem();
+            CartItem newCartItem = cartItemDTO.toCartItem(product);
             newCartItem.setProduct(product);
             newCartItem.setVolume(volume);
             newCartItem.setCart(cart);

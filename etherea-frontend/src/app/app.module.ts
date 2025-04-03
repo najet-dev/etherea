@@ -57,6 +57,8 @@ import { BrandComponent } from './components/brand/brand.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { PurchasesComponent } from './components/purchases/purchases.component';
+import { TipsComponent } from './components/tips/tips.component';
+import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
 
 @NgModule({
   declarations: [
@@ -96,6 +98,8 @@ import { PurchasesComponent } from './components/purchases/purchases.component';
     ResetPasswordComponent,
     ForgotPasswordComponent,
     PurchasesComponent,
+    TipsComponent,
+    TipDetailComponent,
   ],
   imports: [
     CommonModule,

@@ -1,12 +1,13 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { Product } from '../models/product.model';
 import { Observable, of } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { ProductTypeService } from 'src/app/services/product-type.service'; // Import du service
+import { ProductTypeService } from 'src/app/services/product-type.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Product } from '../models/product.model';
+import { ProductService } from 'src/app/services/product.service';
 
 @Component({
   selector: 'app-home',
@@ -21,6 +22,7 @@ export class HomeComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
+    private productService: ProductService,
     private router: Router,
     public productTypeService: ProductTypeService
   ) {}
@@ -37,10 +39,12 @@ export class HomeComponent implements OnInit {
   }
 
   loadProducts(): void {
-    this.products$ = this.appFacade.getProducts(12).pipe(
-      switchMap((products) => this.appFacade.productsFavorites(products)),
+    this.products$ = this.appFacade.getAllProducts().pipe(
+      switchMap((products) =>
+        this.appFacade.productsFavorites(products.content)
+      ),
       catchError((error) => {
-        console.error('Error fetching products:', error);
+        console.error('Erreur lors du chargement des produits :', error);
         return of([]);
       }),
       takeUntilDestroyed(this.destroyRef)

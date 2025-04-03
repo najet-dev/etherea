@@ -6,8 +6,6 @@ import { CartService } from './cart.service';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
 import { Product } from '../components/models/product.model';
-import { DeliveryAddress } from '../components/models/deliveryAddress.model';
-import { SignupRequest } from '../components/models/SignupRequest.model';
 import { UserService } from './user.service';
 import { DeliveryAddressService } from './delivery-address.service';
 import { DeliveryMethodService } from './delivery-method.service';
@@ -28,6 +26,12 @@ import { PasswordResetService } from './password-reset.service';
 import { ResetPasswordRequest } from '../components/models/resetPasswordRequest.model';
 import { ResetPasswordResponse } from '../components/models/resetPasswordResponse.model';
 import { Newsletter } from '../components/models/newsletter.model';
+import { VolumeService } from './volume.service';
+import { Tip } from '../components/models/tip.model';
+import { TipService } from './tip.service';
+import { DeliveryAddress } from '../components/models/deliveryAddress.model';
+import { Volume } from '../components/models/volume.model';
+import { SignupRequest } from '../components/models/signupRequest.model';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +46,9 @@ export class AppFacade {
     public deliveryMethodService: DeliveryMethodService,
     public paymentService: PaymentService,
     private cookieConsentService: CookieConsentService,
-    private passwordResetService: PasswordResetService
+    private passwordResetService: PasswordResetService,
+    private volumeService: VolumeService,
+    private tipService: TipService
   ) {}
 
   // cartItem
@@ -94,8 +100,15 @@ export class AppFacade {
   }
 
   // Products
-  getProducts(limit?: number): Observable<Product[]> {
-    return this.productService.getProducts(limit);
+  getAllProducts(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: Product[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.productService.getAllProducts(page, size);
   }
 
   getProductsByType(
@@ -143,6 +156,7 @@ export class AppFacade {
   }
 
   // User
+
   getCurrentUserDetails(): Observable<SignupRequest | null> {
     return this.userService.getCurrentUserDetails();
   }
@@ -185,6 +199,8 @@ export class AppFacade {
   getCartId(userId: number): Observable<number> {
     return this.cartService.getCartId(userId);
   }
+  //order
+
   //payment
   createPayment(paymentRequest: PaymentRequest): Observable<PaymentResponse> {
     return this.paymentService.createPayment(paymentRequest);
@@ -224,5 +240,31 @@ export class AppFacade {
     request: ResetPasswordRequest
   ): Observable<ResetPasswordResponse> {
     return this.passwordResetService.resetPassword(request);
+  }
+  //volume
+  getAllVolumes(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: Volume[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.volumeService.getAllVolumes(page, size);
+  }
+
+  deleteVolume(voulumeId: number): Observable<void> {
+    return this.volumeService.deleteVolume(voulumeId);
+  }
+  //tips
+  getAllTips(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: Tip[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.tipService.getAlltips(page, size);
   }
 }

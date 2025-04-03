@@ -1,5 +1,6 @@
 package com.etherea.services;
 
+import com.etherea.dtos.CommandItemDTO;
 import com.etherea.dtos.CommandRequestDTO;
 import com.etherea.dtos.CommandResponseDTO;
 import com.etherea.enums.CartStatus;
@@ -31,19 +32,35 @@ public class CommandService {
     private DeliveryMethodRepository deliveryMethodRepository;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private CommandItemRepository commandItemRepository;
 
-    // Récupère toutes les commandes associées à un utilisateur donné
-    public List<CommandResponseDTO> getCommandsByUserId(Long userId) {
-        return commandRepository.findByUserId(userId)  // Recherche les commandes par ID utilisateur
+    // Retrieves all commands
+    public List<CommandResponseDTO> getAllCommands() {
+        return commandRepository.findAll()
                 .stream()
-                .map(CommandResponseDTO::fromEntity)   // Convertit chaque entité en DTO
-                .collect(Collectors.toList());         // Collecte les résultats dans une liste
+                .map(CommandResponseDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
-    // Récupère une commande spécifique d'un utilisateur donné
+    // Retrieves all commands associated with a given user
+    public List<CommandResponseDTO> getCommandsByUserId(Long userId) {
+        return commandRepository.findByUserId(userId)  // Search orders by user ID
+                .stream()
+                .map(CommandResponseDTO::fromEntity)   // Convert each entity into a DTO
+                .collect(Collectors.toList());         // Collect results in a list
+    }
+
+    // Retrieves a specific command from a given user
     public Optional<CommandResponseDTO> getCommandByUserIdAndCommandId(Long userId, Long commandId) {
-        return commandRepository.findByIdAndUserId(commandId, userId)  // Recherche par ID de commande et ID utilisateur
-                .map(CommandResponseDTO::fromEntity);                  // Convertit l'entité en DTO si trouvée
+        return commandRepository.findByIdAndUserId(commandId, userId)  // Search by order ID and user ID
+                .map(CommandResponseDTO::fromEntity);                  // Convert entity to DTO if found
+    }
+    public List<CommandItemDTO> getCommandItems(Long commandId) {
+        List<CommandItem> commandItems = commandItemRepository.findByCommandId(commandId);
+        return commandItems.stream()
+                .map(CommandItemDTO::fromCommandItem)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -101,7 +118,7 @@ public class CommandService {
 
         command.setTotal(cart.calculateFinalTotal());
 
-        commandRepository.saveAndFlush(command);
+        commandRepository.save(command);
 
         cart.setStatus(CartStatus.ORDERED);
         cartRepository.save(cart);
@@ -115,6 +132,7 @@ public class CommandService {
             double unitPrice = cartItem.getSubTotal().doubleValue() / cartItem.getQuantity(); // Calculate unit price
 
             CommandItem commandItem = new CommandItem(
+
                     cartItem.getQuantity(),
                     unitPrice,
                     cartItem.getProduct(),
@@ -135,21 +153,26 @@ public class CommandService {
      * @param commandId The ID of the command to update.
      * @param newStatus The new status to set.
      */
-    @Transactional
     public void updateCommandStatus(Long commandId, CommandStatus newStatus) {
         Command command = commandRepository.findById(commandId)
                 .orElseThrow(() -> new CommandNotFoundException("Order not found with ID: " + commandId));
 
+        // Vérification logique des transitions de statut
+        if (command.getStatus() == CommandStatus.DELIVERED || command.getStatus() == CommandStatus.CANCELLED) {
+            throw new IllegalStateException("Impossible de modifier une commande déjà livrée ou annulée.");
+        }
+
         command.setStatus(newStatus);
         commandRepository.save(command);
 
-        // Send e-mail if order is paid
+        // Envoyer un e-mail si nécessaire
         if (newStatus == CommandStatus.PAID) {
-            String subject = "Confirmation of your order shipment";
+            String subject = "Confirmation de votre commande";
             String emailContent = generateOrderConfirmationEmail(command);
             emailService.sendOrderConfirmation(command.getUser().getUsername(), subject, emailContent);
         }
     }
+
     @Transactional
     private String generateOrderConfirmationEmail(Command command) {
         StringBuilder emailContent = new StringBuilder();
