@@ -22,7 +22,6 @@ export class CartService {
     return this.httpClient
       .get<Cart[]>(`${this.apiUrl}/cartItem/${userId}`)
       .pipe(
-        tap((cartItems) => this.cartItemsSubject.next(cartItems)),
         catchError((error) => {
           console.error(
             'Erreur lors de la récupération des articles du panier :',
