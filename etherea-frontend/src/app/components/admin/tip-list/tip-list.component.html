@@ -4,7 +4,7 @@
       <h2>Gestion des conseils</h2>
     </div>
     <div class="col-12 col-md-auto text-center text-md-end">
-      <button class="btn-primary" [routerLink]="['/admin', 'add-volume']">
+      <button class="btn-primary" [routerLink]="['/admin', 'add-tip']">
         Ajouter un conseil
       </button>
     </div>
@@ -13,7 +13,6 @@
   <div class="row">
     <div class="col-12">
       <div class="table-responsive">
-        <!-- Table -->
         <table class="table table-striped table-bordered text-center">
           <thead>
             <tr>
@@ -36,11 +35,14 @@
                 <div class="d-flex justify-content-center gap-2">
                   <button
                     class="btn btn-warning btn-sm custom-btn"
-                    [routerLink]="['/admin', 'update-volume']"
+                    [routerLink]="['/admin', 'update-tip']"
                   >
                     Modifier
                   </button>
-                  <button class="btn btn-danger btn-sm custom-btn">
+                  <button
+                    class="btn btn-danger btn-sm custom-btn"
+                    (click)="deleteTip(tip.id)"
+                  >
                     Supprimer
                   </button>
                 </div>

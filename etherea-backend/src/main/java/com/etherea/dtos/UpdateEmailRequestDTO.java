@@ -1,7 +1,5 @@
 package com.etherea.dtos;
 
-import com.etherea.models.User;
-
 public class UpdateEmailRequestDTO {
     private Long userId;
     private String currentEmail;

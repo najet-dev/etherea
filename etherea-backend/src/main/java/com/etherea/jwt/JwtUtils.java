@@ -27,30 +27,16 @@ public class JwtUtils {
     public void init() {
         this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
-
-    public String generateJwtToken(String username) {
+    public String generateJwtToken(String username, Set<String> roles) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(secretKey)
                 .compact();
     }
-    public String generateJwtToken(User user, long customExpirationMs) {
-        Set<String> roles = user.getRoles().stream()
-                .map(role -> role.getName().name())
-                .collect(Collectors.toSet());
 
-        long expirationTime = customExpirationMs > 0 ? customExpirationMs : jwtExpirationMs;
-
-        return Jwts.builder()
-                .setSubject(user.getUsername())
-                .claim("roles", roles)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(secretKey)
-                .compact();
-    }
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)

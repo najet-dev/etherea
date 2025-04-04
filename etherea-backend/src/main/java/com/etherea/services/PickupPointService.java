@@ -1,6 +1,7 @@
 package com.etherea.services;
 
 import com.etherea.dtos.AddDeliveryMethodRequestDTO;
+import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.models.DeliveryAddress;
 import com.etherea.repositories.DeliveryAddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,21 +34,25 @@ public class PickupPointService {
      */
     @Cacheable(value = "pickupPointsCache", key = "#userId", unless = "#result == null || #result.isEmpty()")
     public List<AddDeliveryMethodRequestDTO> findPickupPoints(Long userId) {
-        // Retrieve the user's address
+        // Récupérer l'adresse de l'utilisateur
         DeliveryAddress userAddress = deliveryAddressRepository.findTopByUserIdOrderByIdDesc(userId)
-                .orElseThrow(() -> new IllegalArgumentException("No address found for user ID: " + userId));
+                .orElseThrow(() -> new DeliveryAddressNotFoundException("No address found for user ID: " + userId));
 
-        // Get geographic coordinates (latitude and longitude)
+        System.out.println("User address: " + userAddress.getFullAddress());
+
+        // Géocodage
         double latitude;
         double longitude;
         try {
             String geocodeUrl = String.format("%s?q=%s&format=json&limit=1",
                     NOMINATIM_API_URL.replace("/reverse", "/search"), userAddress.getFullAddress().replace(" ", "+"));
+            System.out.println("Nominatim URL: " + geocodeUrl);
             JsonNode geocodeResponse = restTemplate.getForObject(geocodeUrl, JsonNode.class);
 
             if (geocodeResponse != null && !geocodeResponse.isEmpty()) {
                 latitude = geocodeResponse.get(0).path("lat").asDouble();
                 longitude = geocodeResponse.get(0).path("lon").asDouble();
+                System.out.println("Geocoded Latitude: " + latitude + ", Longitude: " + longitude);
             } else {
                 throw new RuntimeException("Failed to geocode the address.");
             }
@@ -55,19 +60,24 @@ public class PickupPointService {
             throw new RuntimeException("Error during user address geocoding", e);
         }
 
-        // Build the Overpass API query
+        // Requête Overpass API
         String query = String.format(Locale.ROOT,
                 "[out:json];node(around:5000,%.6f,%.6f)[\"amenity\"~\"parcel_pickup|post_office\"];out;",
                 latitude, longitude);
         String url = OVERPASS_API_URL + "?data=" + query;
 
-        // Fetch pickup points from the Overpass API
+        System.out.println("Overpass Query URL: " + url);
+
         List<AddDeliveryMethodRequestDTO> pickupPoints = new ArrayList<>();
         try {
             String response = restTemplate.getForObject(url, String.class);
+            System.out.println("Overpass API response: " + response);
             JsonNode nodes = new ObjectMapper().readTree(response).path("elements");
 
-            // Process each retrieved pickup point
+            if (nodes.isEmpty()) {
+                System.out.println("No pickup points found for user ID: " + userId);
+            }
+
             for (JsonNode node : nodes) {
                 AddDeliveryMethodRequestDTO dto = new AddDeliveryMethodRequestDTO();
                 dto.setUserId(userId);
@@ -75,7 +85,7 @@ public class PickupPointService {
                 dto.setPickupPointLatitude(node.path("lat").asDouble());
                 dto.setPickupPointLongitude(node.path("lon").asDouble());
 
-                // Fetch full address via reverse geocoding with Nominatim
+                // Géocodage inverse pour récupérer l’adresse complète
                 String fullAddress = getFullAddressFromCoordinates(dto.getPickupPointLatitude(), dto.getPickupPointLongitude());
                 dto.setPickupPointAddress(fullAddress != null ? fullAddress : "Address not available");
 

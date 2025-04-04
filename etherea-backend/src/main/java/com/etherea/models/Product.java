@@ -32,6 +32,10 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnore // Ignorer la sérialisation pour éviter les problèmes de récursion
     private List<CommandItem> commandItems = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Favorite> favorites = new ArrayList<>();
+
     public Product() {}
     public Product(String name, String description, ProductType type, BigDecimal basePrice, int stockQuantity, String benefits,
                    String usageTips, String ingredients, String characteristics, String image) {
@@ -76,6 +80,13 @@ public class Product {
     public void setVolumes(List<Volume> volumes) { this.volumes = volumes; }
     public List<CommandItem> getCommandItems() { return commandItems; }
     public void setCommandItems(List<CommandItem> commandItems) { this.commandItems = commandItems; }
+    public List<Favorite> getFavorites() {
+        return favorites;
+    }
+
+    public void setFavorites(List<Favorite> favorites) {
+        this.favorites = favorites;
+    }
     public void addVolume(Volume volume) {
         volumes.add(volume);
         volume.setProduct(this);

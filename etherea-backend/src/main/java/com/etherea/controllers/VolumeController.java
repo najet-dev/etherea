@@ -65,6 +65,7 @@ public class VolumeController {
     }
 
     // Méthode pour supprimer un volume
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteVolume(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();

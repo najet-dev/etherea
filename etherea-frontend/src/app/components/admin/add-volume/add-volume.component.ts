@@ -24,21 +24,19 @@ export class AddVolumeComponent {
       this.volume.volume > 0 &&
       this.volume.price > 0
     ) {
-      this.volumeService
-        .addVolume(this.volume.productName, this.volume)
-        .subscribe({
-          next: (response) => {
-            console.log('Volume ajouté avec succès:', response);
-            this.successMessage = 'Volume ajouté avec succès.';
-            this.resetForm();
-          },
-          error: (error) => {
-            console.error("Erreur lors de l'ajout du volume:", error);
-          },
-          complete: () => {
-            console.log('Ajout du volume terminé.');
-          },
-        });
+      this.volumeService.addVolume(this.volume).subscribe({
+        next: (response) => {
+          console.log('Volume ajouté avec succès:', response);
+          this.successMessage = 'Volume ajouté avec succès.';
+          this.resetForm();
+        },
+        error: (error) => {
+          console.error("Erreur lors de l'ajout du volume:", error);
+        },
+        complete: () => {
+          console.log('Ajout du volume terminé.');
+        },
+      });
     } else {
       console.log(
         'Erreur: Veuillez remplir toutes les informations nécessaires.'

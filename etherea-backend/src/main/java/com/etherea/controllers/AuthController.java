@@ -72,26 +72,25 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
-            // Load user details from the service
+            // Charger les détails de l'utilisateur depuis le service
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(loginRequest.getUsername());
 
-            // Authenticate the user
+            // Authentifier l'utilisateur
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-            // Update security context
+            // Mettre à jour le contexte de sécurité
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Generate JWT token
-            String jwtToken = jwtUtils.generateJwtToken(userDetails.getUsername());
-
-            // Retrieve user roles
+            // Récupérer les rôles de l'utilisateur
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
-            System.out.println("Roles retrieved: " + roles);
 
-            // Create response with user details and JWT token
+            // Générer le token JWT
+            String jwtToken = jwtUtils.generateJwtToken(userDetails.getUsername(), new HashSet<>(roles));
+
+            // Créer la réponse avec les détails de l'utilisateur et le token JWT
             JwtResponse jwtResponse = new JwtResponse(
                     jwtToken,
                     userDetails.getId(),
@@ -101,7 +100,7 @@ public class AuthController {
             return ResponseEntity.ok().body(jwtResponse);
 
         } catch (AuthenticationException e) {
-            // Handle authentication failure
+            // Gérer l'échec d'authentification
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }

@@ -1,4 +1,9 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule, LOCALE_ID } from '@angular/core';
+import {
+  CUSTOM_ELEMENTS_SCHEMA,
+  NgModule,
+  LOCALE_ID,
+  APP_INITIALIZER,
+} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
@@ -56,12 +61,10 @@ import { BrandComponent } from './components/brand/brand.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { PurchasesComponent } from './components/purchases/purchases.component';
-import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { TipsComponent } from './components/tips/tips.component';
-import { RouterModule } from '@angular/router';
 import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
-import { AddressesComponent } from './components/addresses/addresses.component';
-import { AddressEditDialogComponent } from './components/address-edit-dialog/address-edit-dialog.component';
+import { AuthService } from './services/auth.service';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [
@@ -100,11 +103,8 @@ import { AddressEditDialogComponent } from './components/address-edit-dialog/add
     ResetPasswordComponent,
     ForgotPasswordComponent,
     PurchasesComponent,
-    OrderDetailsComponent,
     TipsComponent,
     TipDetailComponent,
-    AddressesComponent,
-    AddressEditDialogComponent,
   ],
   imports: [
     CommonModule,

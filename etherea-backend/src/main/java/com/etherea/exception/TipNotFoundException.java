@@ -5,4 +5,3 @@ public class TipNotFoundException extends RuntimeException {
         super(message);
     }
 }
-

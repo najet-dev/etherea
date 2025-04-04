@@ -34,4 +34,15 @@ public class FavoriteDTO {
     public static FavoriteDTO fromFavorite(Favorite favorite) {
         return new FavoriteDTO(favorite.getId(), favorite.getUser().getId(), favorite.getProduct().getId());
     }
+    private FavoriteDTO convertToFavoriteDTO(Favorite favorite) {
+        if (favorite.getProduct() == null) {
+            throw new IllegalStateException("Favorite with ID " + favorite.getId() + " has no associated product.");
+        }
+
+        return new FavoriteDTO(
+                favorite.getId(),
+                favorite.getUser().getId(),
+                favorite.getProduct().getId()
+        );
+    }
 }

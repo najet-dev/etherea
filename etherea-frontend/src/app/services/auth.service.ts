@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { environment } from 'src/environments/environment';
+import { Router } from '@angular/router';
 import { SigninRequest } from '../components/models/signinRequest.model';
 import { Router } from '@angular/router';
 import { SignupRequest } from '../components/models/signupRequest.model';
@@ -38,45 +39,21 @@ export class AuthService {
         withCredentials: true,
       })
       .pipe(
-        catchError((error) => {
-          let errorMessage =
-            "Une erreur inconnue s'est produite lors de la connexion !";
-          if (error.status === 401) {
-            errorMessage = 'Identifiants invalides. Veuillez réessayer.';
-          } else if (error.status === 403) {
-            errorMessage = "Vous n'avez pas les autorisations nécessaires.";
-          }
-          console.error('Signin error:', error);
-          return throwError(() => new Error(errorMessage));
-        }),
-        switchMap((signin) => {
-          console.log('Signin response:', signin); // Log pour voir les rôles
-
+        catchError((error) =>
+          throwError(() => new Error(this.getErrorMessage(error)))
+        ),
+        tap((signin) => {
           if (!signin.accessToken || !this.isValidJwt(signin.accessToken)) {
-            console.error('Token JWT invalide.');
-            return throwError(() => new Error('Token JWT invalide.'));
+            throw new Error('Token JWT invalide.');
           }
-
           this.storageService.saveToken(signin.accessToken);
           this.AuthenticatedUser$.next(signin);
 
-          // Vérification du rôle admin
-          const isAdmin = signin.roles.includes('ROLE_ADMIN');
-          console.log(
-            isAdmin
-              ? 'User signed in with ADMIN role.'
-              : 'User signed in without ADMIN role.'
-          );
-
-          // Redirection vers le tableau de bord de l'admin si l'utilisateur a le rôle "ADMIN"
-          if (isAdmin) {
+          if (signin.roles.includes(Role.ROLE_ADMIN)) {
             this.router.navigate(['/admin/admin-dashboard']);
           } else {
-            console.log('Redirection vers /');
             this.router.navigate(['/']);
           }
-
-          return of(signin);
         })
       );
   }
@@ -84,57 +61,53 @@ export class AuthService {
   private isValidJwt(token: string): boolean {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return !!payload && typeof payload === 'object';
-    } catch (e) {
+      return !!payload;
+    } catch {
       return false;
     }
   }
 
   isAdmin(): boolean {
-    const user = this.AuthenticatedUser$.getValue();
-    console.log('User:', user);
-    if (user && user.roles) {
-      return user.roles.includes('ROLE_ADMIN');
-    }
-    return false;
+    return (
+      this.AuthenticatedUser$.getValue()?.roles.includes(Role.ROLE_ADMIN) ||
+      false
+    );
   }
 
   logout(): Observable<void> {
-    const token = this.storageService.getToken();
-    const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-
     return this.httpClient
-      .post<void>(`${this.apiUrl}/api/auth/logout`, {}, { headers })
+      .post<void>(
+        `${this.apiUrl}/api/auth/logout`,
+        {},
+        {
+          headers: new HttpHeaders().set(
+            'Authorization',
+            `Bearer ${this.storageService.getToken()}`
+          ),
+        }
+      )
       .pipe(
         tap(() => {
           this.storageService.removeToken();
           this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
         }),
-        catchError((error) => {
+        catchError(() => {
           this.storageService.clean();
-          this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
-          return throwError(() => error);
+          return of();
         })
       );
   }
 
   getCurrentUser(): Observable<SigninRequest | null> {
-    return this.AuthenticatedUser$.asObservable().pipe(
-      tap((user) => {
-        console.log('User from AuthenticatedUser$:', user); // Log pour vérifier l'utilisateur
-        if (!user) {
-          console.error('Aucun utilisateur authentifié');
-        }
-      }),
-      catchError((error) => {
-        console.error(
-          'Erreur lors de la récupération de l’utilisateur actuel :',
-          error
-        );
-        return of(null);
-      })
-    );
+    return this.AuthenticatedUser$.asObservable();
+  }
+
+  private getErrorMessage(error: any): string {
+    if (error.status === 401) return 'Identifiants invalides.';
+    if (error.status === 403)
+      return "Vous n'avez pas les autorisations nécessaires.";
+    return "Une erreur inconnue s'est produite.";
   }
 }

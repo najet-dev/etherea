@@ -1,10 +1,9 @@
 import { Component, DestroyRef, inject } from '@angular/core';
 import { CommandResponse } from '../../models/commandResponse.model';
-import { OrderService } from 'src/app/services/order.service';
-import { CommandStatus } from '../../models/commandStatus.enum';
 import { catchError, of, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { CommandStatus } from '../../models/commandStatus.model';
 
 @Component({
   selector: 'app-order-list',

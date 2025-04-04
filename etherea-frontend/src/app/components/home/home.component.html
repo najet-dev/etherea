@@ -11,7 +11,7 @@
   <div class="row align-items-center">
     <div class="col-md-5 text-center">
       <img
-        src="/assets/apropos.webp"
+        src="/assets/about.webp"
         alt="ETHEREA - Produits naturels"
         class="img-fluid w-27 rounded shadow mb-4 mb-md-0"
       />
@@ -39,7 +39,7 @@
     <div class="col-md-4">
       <a routerLink="/cream" class="category-link">
         <img
-          src="/assets/cream.png"
+          src="/assets/face.png"
           class="category-img rounded-circle shadow"
           alt="Face Care"
         />
@@ -83,7 +83,7 @@
     </div>
     <div class="col-md-6 text-center">
       <img
-        src="/assets/story (2).webp"
+        src="/assets/story.webp"
         alt="Notre Histoire"
         class="img-fluid rounded shadow"
       />
@@ -160,5 +160,9 @@
   </div>
 
   <!-- Affichage des conseils sans breadcrumb ni pagination -->
-  <app-tips [showPagination]="false" [showBreadcrumb]="false"></app-tips>
+  <app-tips
+    [limit]="3"
+    [showPagination]="false"
+    [showBreadcrumb]="false"
+  ></app-tips>
 </div>

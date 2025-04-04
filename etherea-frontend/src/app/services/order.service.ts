@@ -9,9 +9,9 @@ import {
   throwError,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CommandStatus } from '../components/models/commandStatus.enum';
-import { CommandItem } from '../components/models/commandItem.model';
 import { CommandResponse } from '../components/models/commandResponse.model';
+import { CommandItem } from '../components/models/commandItem.model';
+import { CommandStatus } from '../components/models/commandStatus.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,14 +40,12 @@ export class OrderService {
       );
   }
 
-  // Récupérer une seule commande d'un utilisateur
   getUserOrders(userId: number): Observable<CommandResponse[]> {
     return this.httpClient.get<CommandResponse[]>(
       `${this.apiUrl}/command/user/${userId}`
     );
   }
 
-  // Récupérer une commande d'un utilisateur spécifique
   getUserOrderById(
     userId: number,
     commandId: number

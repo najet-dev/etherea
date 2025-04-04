@@ -10,7 +10,7 @@
     <span></span>
   </div>
 
-  <!-- Menu qui s'affiche lorsque isMenuActive est true -->
+  <!-- Menu -->
   <ul class="menu" [class.active]="isMenuActive">
     <li>
       <a routerLink="/admin/admin-users" routerLinkActive="active"
@@ -32,6 +32,9 @@
     </li>
     <li>
       <a routerLink="/admin/admin-tips" routerLinkActive="active">Conseils</a>
+    </li>
+    <li class="go-to-site">
+      <button (click)="goToSite()">Retour au site</button>
     </li>
   </ul>
 </nav>

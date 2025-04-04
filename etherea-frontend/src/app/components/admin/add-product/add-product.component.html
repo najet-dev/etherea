@@ -12,7 +12,6 @@
 
       <form (ngSubmit)="onSubmit()" enctype="multipart/form-data">
         <div class="mb-3">
-          <label for="name" class="form-label">Nom du produit</label>
           <input
             type="text"
             id="name"
@@ -20,17 +19,18 @@
             [(ngModel)]="product.name"
             name="name"
             required
+            placeholder="Nom du produit"
           />
         </div>
 
         <div class="mb-3">
-          <label for="type" class="form-label">Type</label>
           <select
             id="type"
             class="form-control"
             [(ngModel)]="product.type"
             name="type"
             required
+            placeholder="Type"
           >
             <option [value]="ProductType.FACE">{{ ProductType.FACE }}</option>
             <option [value]="ProductType.HAIR">{{ ProductType.HAIR }}</option>
@@ -38,64 +38,61 @@
         </div>
 
         <div class="mb-3">
-          <label for="image" class="form-label">Image</label>
           <input
             type="file"
             class="form-control"
             (change)="onFileChange($event)"
             required
+            placeholder="Image"
           />
         </div>
 
         <div class="mb-3">
-          <label for="description" class="form-label">Description</label>
           <textarea
             id="description"
-            class="form-control"
+            class="form-control message"
             rows="3"
             [(ngModel)]="product.description"
             name="description"
             required
+            placeholder="Description"
           ></textarea>
         </div>
 
         <div class="mb-3">
-          <label for="benefits" class="form-label">Bénéfices</label>
           <textarea
             id="benefits"
-            class="form-control"
+            class="form-control message"
             rows="2"
             [(ngModel)]="product.benefits"
             name="benefits"
+            placeholder="Bénéfices"
           ></textarea>
         </div>
 
         <div class="mb-3">
-          <label for="ingredients" class="form-label">Ingrédients</label>
           <textarea
             id="ingredients"
-            class="form-control"
+            class="form-control message"
             rows="2"
             [(ngModel)]="product.ingredients"
             name="ingredients"
+            placeholder="Ingrédients"
           ></textarea>
         </div>
 
         <div class="mb-3">
-          <label for="usageTips" class="form-label"
-            >Conseils d'utilisation</label
-          >
           <textarea
             id="usageTips"
-            class="form-control"
+            class="form-control message"
             rows="2"
             [(ngModel)]="product.usageTips"
             name="usageTips"
+            placeholder="Conseils d'utilisation"
           ></textarea>
         </div>
 
         <div class="mb-3">
-          <label for="basePrice" class="form-label">Prix</label>
           <input
             type="number"
             id="basePrice"
@@ -104,26 +101,22 @@
             name="basePrice"
             required
             step="0.01"
+            placeholder="Prix"
           />
         </div>
 
         <div class="mb-3">
-          <label for="characteristics" class="form-label"
-            >Caractéristique</label
-          >
           <textarea
             id="characteristics"
-            class="form-control"
+            class="form-control message"
             rows="2"
             [(ngModel)]="product.characteristics"
             name="characteristics"
+            placeholder="Caractéristique"
           ></textarea>
         </div>
 
         <div class="mb-3">
-          <label for="stockQuantity" class="form-label"
-            >Quantité en stock</label
-          >
           <input
             type="number"
             id="stockQuantity"
@@ -132,17 +125,18 @@
             name="stockQuantity"
             required
             min="1"
+            placeholder="Quantité en stock"
           />
         </div>
 
         <div class="mb-3">
-          <label for="stockStatus" class="form-label">État du stock</label>
           <select
             id="stockStatus"
-            class="form-control"
+            class="form-control message"
             [(ngModel)]="product.stockStatus"
             name="stockStatus"
             required
+            placeholder="État du stock"
           >
             <option [value]="StockStatus.AVAILABLE">
               {{ StockStatus.AVAILABLE }}
@@ -154,7 +148,9 @@
         </div>
 
         <div class="text-center">
-          <button type="submit" class="btn btn-primary w-100">Ajouter</button>
+          <button type="submit" class="btn btn-primary w-100">
+            <Var>Valider</Var>
+          </button>
         </div>
       </form>
     </div>

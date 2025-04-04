@@ -97,3 +97,8 @@
     </div>
   </div>
 </div>
+
+<!-- Message lorsque le panier est vide -->
+<div *ngIf="isCartEmpty" class="container mt-5">
+  <p>Votre panier est vide. Ajoutez des produits pour continuer vos achats.</p>
+</div>

@@ -32,7 +32,6 @@ public class CartItemService {
     private CartRepository cartRepository;
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
 
-
     /**
      * Retrieves items from a user's active shopping cart
      */

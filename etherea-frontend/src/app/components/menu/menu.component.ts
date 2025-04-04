@@ -58,13 +58,14 @@ export class MenuComponent implements OnInit {
     this.favoriteService.favorites$.subscribe((favoriteIds: number[]) => {
       this.favoriteCount = favoriteIds.length;
     });
+
     this.cartService.carts$.subscribe((cartItems: Cart[]) => {
       this.cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     });
   }
 
   isCurrentRoute(route: string): boolean {
-    return this.router.url === route || this.router.url === '/'; // Ajout de la vérification pour la route '/'
+    return this.router.url === route || this.router.url === '/';
   }
 
   toggleBurgerMenu() {
@@ -99,5 +100,12 @@ export class MenuComponent implements OnInit {
         console.error('Error during logout:', err);
       },
     });
+  }
+  goToCart(): void {
+    if (!this.isLoggedIn) {
+      this.router.navigate(['/signin']);
+    } else {
+      this.router.navigate(['/cart']);
+    }
   }
 }

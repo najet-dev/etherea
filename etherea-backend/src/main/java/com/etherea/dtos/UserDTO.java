@@ -14,10 +14,8 @@ public class UserDTO {
     private String username;
     private String password;
     private Set<String> roles = new HashSet<>();
-
     public UserDTO() {
     }
-
     public UserDTO(Long id, String firstName, String lastName, String username, String password, Set<String> roles) {
         this.id = id;
         this.firstName = firstName;
@@ -66,7 +64,6 @@ public class UserDTO {
     public Set<String> getRoles() {
         return roles;
     }
-
     public void setRoles(Set<String> roles) {
         this.roles = roles;
     }

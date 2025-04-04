@@ -1,17 +1,15 @@
-/* Style de base pour le menu */
 .admin-menu {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #ffffff; /* Couleur de fond du menu */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre légère */
-  padding: 12px 24px; /* Espacement intérieur */
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 12px 24px;
 
-  /* Ajout du logo Etherea à gauche */
   .logo {
     font-size: 1rem;
     font-weight: bold;
-    color: #333333; /* Couleur du logo */
+    color: #333333;
   }
 }
 .logo {
@@ -30,11 +28,11 @@
 }
 
 .menu a {
-  color: #333333; /* Couleur du texte des liens */
+  color: #333333;
   text-decoration: none;
   padding: 10px;
   display: block;
-  transition: color 0.3s ease; /* Animation de transition pour le texte */
+  transition: color 0.3s ease;
 }
 
 .menu a:hover {
@@ -43,65 +41,80 @@
 
 /* Bouton hamburger */
 .menu-toggle {
-  display: none; /* Caché par défaut sur les grands écrans */
+  display: none;
   cursor: pointer;
 }
 
 .menu-toggle.active {
-  transform: rotate(45deg); /* Transformation en croix */
+  transform: rotate(45deg);
 }
 
 .menu-toggle span {
   display: block;
   width: 25px;
   height: 3px;
-  background-color: #333333; /* Couleur des barres du hamburger */
-  margin-bottom: 5px; /* Espacement entre les barres */
+  background-color: #333333;
+  margin-bottom: 5px;
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
+.menu .go-to-site button {
+  background-color: #1f8f40;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
-/* Media Queries pour la responsivité */
+.menu .go-to-site button:hover {
+  background-color: #156c2f;
+}
 
 @media (max-width: 768px) {
   .admin-menu {
-    padding: 12px; /* Réduction de l'espacement pour les petits écrans */
+    padding: 12px;
   }
 
   .menu {
     flex-direction: column;
     width: 100%;
-    display: none; /* Caché par défaut sur les petits écrans */
+    display: none;
   }
 
   .menu.active {
-    display: flex; /* Affichage du menu actif */
+    display: flex;
   }
 
   .menu li {
-    margin: 10px 0; /* Espacement entre les éléments du menu */
+    margin: 10px 0;
   }
 
   .menu a {
-    padding: 8px; /* Réduction du padding des liens */
+    padding: 8px;
   }
 
   .menu-toggle {
-    display: flex; /* Affichage du bouton hamburger */
+    display: flex;
   }
 }
 
 @media (min-width: 769px) {
   .menu-toggle {
-    display: none; /* Caché sur les grands écrans */
+    display: none;
+  }
+  .menu .go-to-site {
+    margin-top: 10px;
   }
 }
 
 @media (max-width: 480px) {
   .admin-menu {
-    padding: 8px; /* Ajustement de l'espacement pour les très petits écrans */
+    padding: 8px;
   }
 
   .menu a {
-    padding: 8px; /* Ajustement du padding des liens */
+    padding: 8px;
   }
 }
