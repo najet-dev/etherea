@@ -1,0 +1,169 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <a [routerLink]="['/admin', 'admin-products']" class="return-link">
+        Liste des produits
+      </a>
+      <h2 class="text-center">Mise à jour un produit</h2>
+      <div *ngIf="successMessage" class="alert alert-success floating-alert">
+        {{ successMessage }}
+      </div>
+      <form (ngSubmit)="onSubmit()" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label for="name" class="form-label">Id</label>
+          <input
+            type="number"
+            id="id"
+            class="form-control"
+            [(ngModel)]="updateProduct.id"
+            name="id"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="name" class="form-label">Nom du produit</label>
+          <input
+            type="text"
+            id="name"
+            class="form-control"
+            [(ngModel)]="updateProduct.name"
+            name="name"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="type" class="form-label">Type</label>
+          <select
+            id="type"
+            class="form-control"
+            [(ngModel)]="updateProduct.type"
+            name="type"
+            required
+          >
+            <option [value]="ProductType.FACE">{{ ProductType.FACE }}</option>
+            <option [value]="ProductType.HAIR">{{ ProductType.HAIR }}</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <div class="mb-3">
+            <label for="image" class="form-label">Image</label>
+            <input
+              type="file"
+              (change)="onFileChange($event)"
+              name="type"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea
+            id="description"
+            class="form-control"
+            rows="3"
+            [(ngModel)]="updateProduct.description"
+            name="description"
+            required
+          ></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="benefits" class="form-label">Bénéfices</label>
+          <textarea
+            id="benefits"
+            class="form-control"
+            rows="2"
+            [(ngModel)]="updateProduct.benefits"
+            name="benefits"
+          ></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="ingredients" class="form-label">Ingrédients</label>
+          <textarea
+            id="ingredients"
+            class="form-control"
+            rows="2"
+            [(ngModel)]="updateProduct.ingredients"
+            name="ingredients"
+          ></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="usageTips" class="form-label"
+            >Conseils d'utilisation</label
+          >
+          <textarea
+            id="usageTips"
+            class="form-control"
+            rows="2"
+            [(ngModel)]="updateProduct.usageTips"
+            name="usageTips"
+          ></textarea>
+        </div>
+        <div class="mb-3">
+          <label for="basePrice" class="form-label">Prix</label>
+          <input
+            type="text"
+            id="basePrice"
+            class="form-control"
+            [(ngModel)]="updateProduct.basePrice"
+            name="basePrice"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="characteristics" class="form-label"
+            >Caractéristique</label
+          >
+          <textarea
+            id="characteristics"
+            class="form-control"
+            rows="2"
+            [(ngModel)]="updateProduct.characteristics"
+            name="characteristics"
+          ></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="stockQuantity" class="form-label"
+            >Quantité en stock</label
+          >
+          <input
+            type="number"
+            id="stockQuantity"
+            class="form-control"
+            [(ngModel)]="updateProduct.stockQuantity"
+            name="stockQuantity"
+            required
+            min="1"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="stockStatus" class="form-label">Etat du stock</label>
+          <select
+            id="type"
+            class="form-control"
+            [(ngModel)]="updateProduct.stockStatus"
+            name="stockStatus"
+            required
+          >
+            <option [value]="StockStatus.AVAILABLE">
+              {{ StockStatus.AVAILABLE }}
+            </option>
+            <option [value]="StockStatus.OUT_OF_STOCK">
+              {{ StockStatus.OUT_OF_STOCK }}
+            </option>
+          </select>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn-primary w-100">Ajouter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

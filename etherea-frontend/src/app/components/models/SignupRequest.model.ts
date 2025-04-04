@@ -1,4 +1,4 @@
-import { Role } from './role.model';
+import { Role } from './role.enum';
 
 export interface SignupRequest {
   id: number;
@@ -6,5 +6,5 @@ export interface SignupRequest {
   lastName: string;
   username: string;
   password: string;
-  roles?: Role[];
+  roles: Role[];
 }

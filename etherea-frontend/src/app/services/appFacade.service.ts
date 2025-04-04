@@ -156,13 +156,26 @@ export class AppFacade {
   }
 
   // User
-
+  // User
+  getAllUsers(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: SignupRequest[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.userService.getAllUsers(page, size);
+  }
   getCurrentUserDetails(): Observable<SignupRequest | null> {
     return this.userService.getCurrentUserDetails();
   }
 
   getUserDetails(userId: number): Observable<SignupRequest | null> {
     return this.userService.getUserDetails(userId);
+  }
+  deleteUser(userId: number): Observable<void> {
+    return this.userService.deleteUser(userId);
   }
 
   updateEmail(updateEmailRequest: UpdateEmailRequest): Observable<string> {

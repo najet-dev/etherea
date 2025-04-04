@@ -1,0 +1,44 @@
+.custom-btn {
+  min-width: 120px;
+}
+
+.message-success {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050;
+  width: 50%;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.form-control {
+  border: none;
+  border-bottom: 1px solid rgb(186, 183, 183);
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 16px;
+  padding: 10px;
+  width: 50%;
+  margin: auto;
+}
+.large-column {
+  min-width: 200px;
+  max-width: 300px;
+  white-space: pre-line;
+}
+
+.extra-large-column {
+  min-width: 500px;
+  max-width: 700px;
+  white-space: pre-line;
+}
+
+@media (max-width: 768px) {
+  .extra-large-column {
+    min-width: 100%;
+  }
+  .custom-btn {
+    width: 100%;
+  }
+}

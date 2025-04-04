@@ -1,4 +1,9 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule, LOCALE_ID } from '@angular/core';
+import {
+  CUSTOM_ELEMENTS_SCHEMA,
+  NgModule,
+  LOCALE_ID,
+  APP_INITIALIZER,
+} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
@@ -59,6 +64,7 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { PurchasesComponent } from './components/purchases/purchases.component';
 import { TipsComponent } from './components/tips/tips.component';
 import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
+import { AuthService } from './services/auth.service';
 
 @NgModule({
   declarations: [

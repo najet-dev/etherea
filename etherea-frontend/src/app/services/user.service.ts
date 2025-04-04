@@ -11,7 +11,11 @@ import {
 import { environment } from 'src/environments/environment';
 import { AuthService } from './auth.service';
 import { SignupRequest } from '../components/models/signupRequest.model';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { StorageService } from './storage.service';
 import { Newsletter } from '../components/models/newsletter.model';
 import { UpdateEmailRequest } from '../components/models/updateEmailRequest.model';
@@ -61,6 +65,48 @@ export class UserService {
             error
           );
           return of(null);
+        })
+      );
+  }
+  getAllUsers(page: number = 0, size: number = 5) {
+    return this.httpClient
+      .get<{
+        content: SignupRequest[];
+        totalElements: number;
+        totalPages: number;
+      }>(`${this.apiUrl}/users?page=${page}&size=${size}`)
+      .pipe(
+        tap((response) => console.log('API Response:', response)),
+        catchError((error) => {
+          console.error(
+            'Erreur lors de la récupération des utilisateurs:',
+            error
+          );
+          return throwError(
+            () => new Error('Impossible de récupérer les utilisateurs.')
+          );
+        })
+      );
+  }
+
+  deleteUser(userId: number): Observable<void> {
+    const token = this.storageService.getToken(); // Récupérer le token JWT
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`, // Ajout du token JWT
+    });
+
+    return this.httpClient
+      .delete<void>(`${this.apiUrl}/users/${userId}`, { headers })
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Erreur lors de la suppression du produit:', error);
+          return throwError(
+            () =>
+              new Error(
+                'Impossible de supprimer le produit. Veuillez réessayer.'
+              )
+          );
         })
       );
   }

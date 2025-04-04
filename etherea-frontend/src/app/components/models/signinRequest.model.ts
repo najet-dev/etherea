@@ -1,4 +1,4 @@
-import { Role } from './role.model';
+import { Role } from './role.enum';
 
 export interface SigninRequest {
   id: number;

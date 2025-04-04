@@ -1,0 +1,38 @@
+<p>admin-menu works!</p>
+<nav class="admin-menu">
+  <a class="navbar-brand">
+    <img class="logo" src="/assets/logo.png" alt="logo" />
+  </a>
+
+  <!-- Le bouton hamburger, qui se transforme en croix -->
+  <div class="menu-toggle" (click)="toggleMenu()" [class.active]="isMenuActive">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+
+  <!-- Menu qui s'affiche lorsque isMenuActive est true -->
+  <ul class="menu" [class.active]="isMenuActive">
+    <li>
+      <a routerLink="/admin/admin-users" routerLinkActive="active"
+        >Utilisateurs</a
+      >
+    </li>
+    <li>
+      <a routerLink="/admin/admin-products" routerLinkActive="active"
+        >Produits</a
+      >
+    </li>
+    <li>
+      <a routerLink="/admin/admin-volumes" routerLinkActive="active">Volumes</a>
+    </li>
+    <li>
+      <a routerLink="/admin/admin-orders" routerLinkActive="active"
+        >Commandes</a
+      >
+    </li>
+    <li>
+      <a routerLink="/admin/admin-tips" routerLinkActive="active">Conseils</a>
+    </li>
+  </ul>
+</nav>
