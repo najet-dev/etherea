@@ -105,7 +105,7 @@ export class ProductService {
     const token = this.storageService.getToken(); // Récupérer le token JWT
 
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // token JWT ajouter
+      Authorization: `Bearer ${token}`,
     });
 
     return this.httpClient
@@ -117,6 +117,7 @@ export class ProductService {
         })
       );
   }
+
   updateProduct(
     updateProduct: Partial<Product>,
     image?: File
@@ -128,14 +129,12 @@ export class ProductService {
       formData.append('image', image, image.name);
     }
 
-    // Filtrer les champs vides pour ne pas envoyer des données inutiles
     const filteredProduct = Object.fromEntries(
       Object.entries(updateProduct).filter(
         ([_, value]) => value !== undefined && value !== null && value !== ''
       )
     );
 
-    // Ajout du produit en JSON
     formData.append('product', JSON.stringify(filteredProduct));
 
     const token = this.storageService.getToken(); // Récupérer le token JWT

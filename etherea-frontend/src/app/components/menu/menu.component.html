@@ -51,7 +51,7 @@
 
       <!-- Panier avec badge -->
       <div class="icon">
-        <mat-icon [routerLink]="'/cart'"> shopping_cart </mat-icon>
+        <mat-icon (click)="goToCart()">shopping_cart</mat-icon>
         <span *ngIf="cartCount > 0" class="cart-count">{{ cartCount }}</span>
       </div>
 

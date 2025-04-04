@@ -10,6 +10,8 @@ import com.etherea.models.*;
 import com.etherea.repositories.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -35,15 +37,27 @@ public class CommandService {
     @Autowired
     private CommandItemRepository commandItemRepository;
 
-    // Retrieves all commands
-    public List<CommandResponseDTO> getAllCommands() {
-        return commandRepository.findAll()
-                .stream()
-                .map(CommandResponseDTO::fromEntity)
-                .collect(Collectors.toList());
+    /**
+     * Retrieves a paginated list of all commands.
+     *
+     * @param page the page number to retrieve
+     * @param size the number of items per page
+     * @return a {@link Page} of {@link CommandResponseDTO} containing the paginated commands
+     */
+    public Page<CommandResponseDTO> getAllCommands(int page, int size) {
+        // Retrieve an order page
+        Page<Command> commandsPage = commandRepository.findAll(PageRequest.of(page, size));
+
+        // Convert Page<Command> to Page<CommandResponseDTO>.
+        return commandsPage.map(CommandResponseDTO::fromEntity);
     }
 
-    // Retrieves all commands associated with a given user
+    /**
+     * Retrieves all commands associated with a specific user.
+     *
+     * @param userId the ID of the user whose commands are to be retrieved
+     * @return a list of {@link CommandResponseDTO} representing the user's commands
+     */
     public List<CommandResponseDTO> getCommandsByUserId(Long userId) {
         return commandRepository.findByUserId(userId)  // Search orders by user ID
                 .stream()
@@ -51,11 +65,23 @@ public class CommandService {
                 .collect(Collectors.toList());         // Collect results in a list
     }
 
-    // Retrieves a specific command from a given user
-    public Optional<CommandResponseDTO> getCommandByUserIdAndCommandId(Long userId, Long commandId) {
+    /**
+     * Retrieves a specific command belonging to a specific user.
+     *
+     * @param userId the ID of the user
+     * @param commandId the ID of the command
+     * @return an {@link Optional} containing the {@link CommandResponseDTO} if found, otherwise empty
+     */    public Optional<CommandResponseDTO> getCommandByUserIdAndCommandId(Long userId, Long commandId) {
         return commandRepository.findByIdAndUserId(commandId, userId)  // Search by order ID and user ID
                 .map(CommandResponseDTO::fromEntity);                  // Convert entity to DTO if found
     }
+
+    /**
+     * Retrieves all items associated with a specific command.
+     *
+     * @param commandId the ID of the command
+     * @return a list of {@link CommandItemDTO} representing the items in the command
+     */
     public List<CommandItemDTO> getCommandItems(Long commandId) {
         List<CommandItem> commandItems = commandItemRepository.findByCommandId(commandId);
         return commandItems.stream()

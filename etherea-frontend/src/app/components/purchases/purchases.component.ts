@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { CommandResponse } from '../models/commandResponse.model';
 import { OrderService } from 'src/app/services/order.service';
 import { SignupRequest } from '../models/signupRequest.model';
 import { AppFacade } from 'src/app/services/appFacade.service';
+import { CommandResponse } from '../models/commandResponse.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-purchases',
@@ -15,9 +16,20 @@ export class PurchasesComponent implements OnInit {
   loading = true;
   errorMessage = '';
 
+  // Mappage des statuts anglais vers français
+  statusMap: { [key: string]: string } = {
+    PENDING: 'EN ATTENTE',
+    PAID: 'PAYÉ',
+    PROCESSING: 'EN TRAITEMENT',
+    SHIPPED: 'EXPÉDIÉ',
+    DELIVERED: 'LIVRÉ',
+    CANCELLED: 'ANNULÉ',
+  };
+
   constructor(
     private orderService: OrderService,
-    private appFacade: AppFacade
+    private appFacade: AppFacade,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -41,9 +53,13 @@ export class PurchasesComponent implements OnInit {
   }
 
   fetchUserCommands(userId: number): void {
-    this.orderService.getUserCommands(userId).subscribe({
+    this.orderService.getUserOrders(userId).subscribe({
       next: (data) => {
-        this.commands = data;
+        this.commands = data.map((command) => ({
+          ...command,
+          // Convertir les statuts anglais en français
+          status: this.statusMap[command.status] || command.status,
+        }));
         this.loading = false;
       },
       error: () => {
@@ -51,5 +67,9 @@ export class PurchasesComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+  // Méthode pour afficher les détails de la commande
+  viewCommandDetails(commandId: number): void {
+    this.router.navigate([`/command-details/${commandId}`]);
   }
 }

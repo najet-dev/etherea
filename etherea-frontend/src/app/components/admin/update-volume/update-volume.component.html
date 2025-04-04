@@ -1,0 +1,61 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-10 col-lg-6">
+      <a [routerLink]="['/admin', 'admin-volumes']" class="return-link">
+        &#8592; Liste des volumes
+      </a>
+      <h2 class="text-center">Mise à jour du Volume</h2>
+
+      <!-- Message de succès -->
+      <div *ngIf="successMessage" class="alert alert-success floating-alert">
+        {{ successMessage }}
+      </div>
+
+      <form (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="id" class="form-label">ID du volume</label>
+          <input
+            type="number"
+            id="id"
+            class="form-control"
+            [(ngModel)]="updateVolume.id"
+            name="id"
+            required
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="volume" class="form-label">Volume (ml)</label>
+          <input
+            type="number"
+            id="volume"
+            class="form-control"
+            [(ngModel)]="updateVolume.volume"
+            name="volume"
+            required
+            min="1"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="price" class="form-label">Prix (€)</label>
+          <input
+            type="number"
+            id="price"
+            class="form-control"
+            [(ngModel)]="updateVolume.price"
+            name="price"
+            required
+            step="0.01"
+          />
+        </div>
+
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary w-100">
+            Mettre à jour
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -18,6 +18,7 @@ export class AddUserComponent {
     roles: [Role.ROLE_USER],
   };
   successMessage = '';
+  availableRoles: string[] = Object.values(Role);
 
   constructor(private authService: AuthService) {}
 

@@ -6,6 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
 import java.time.LocalDateTime;
+import java.util.Date;
+
 @Entity
 public class Tip {
     @Id
@@ -15,10 +17,10 @@ public class Tip {
     private String description;
     private String content;
     private String image;
-    private LocalDateTime dateCreation = LocalDateTime.now();
+    private Date dateCreation;
     public Tip() {
     }
-    public Tip(String title, String description, String content, String image, LocalDateTime dateCreation) {
+    public Tip(String title, String description, String content, String image, Date dateCreation) {
         this.title= title;
         this.description = description;
         this.content = content;
@@ -57,10 +59,10 @@ public class Tip {
     public void setImage(String image) {
         this.image = image;
     }
-    public LocalDateTime getDateCreation() {
+    public Date getDateCreation() {
         return dateCreation;
     }
-    public void setDateCreation(LocalDateTime dateCreation) {
+    public void setDateCreation(Date dateCreation) {
         this.dateCreation = dateCreation;
     }
 }

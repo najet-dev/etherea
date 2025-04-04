@@ -32,6 +32,9 @@ import { TipService } from './tip.service';
 import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 import { Volume } from '../components/models/volume.model';
 import { SignupRequest } from '../components/models/signupRequest.model';
+import { CommandResponse } from '../components/models/commandResponse.model';
+import { CommandStatus } from '../components/models/commandStatus.model';
+import { OrderService } from './order.service';
 
 @Injectable({
   providedIn: 'root',
@@ -48,6 +51,7 @@ export class AppFacade {
     private cookieConsentService: CookieConsentService,
     private passwordResetService: PasswordResetService,
     private volumeService: VolumeService,
+    private orderService: OrderService,
     private tipService: TipService
   ) {}
 
@@ -156,7 +160,6 @@ export class AppFacade {
   }
 
   // User
-  // User
   getAllUsers(
     page: number = 0,
     size: number = 5
@@ -213,6 +216,22 @@ export class AppFacade {
     return this.cartService.getCartId(userId);
   }
   //order
+  getAllOrders(
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: CommandResponse[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.orderService.getAllOrders(page, size);
+  }
+  updateOrderStatus(
+    orderId: number,
+    newStatus: string
+  ): Observable<CommandStatus> {
+    return this.orderService.updateOrderStatus(orderId, newStatus);
+  }
 
   //payment
   createPayment(paymentRequest: PaymentRequest): Observable<PaymentResponse> {

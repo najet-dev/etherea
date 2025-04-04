@@ -2,7 +2,6 @@ package com.etherea.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
 public class UpdatePasswordRequestDTO {
     @NotBlank(message = "L'ancien mot de passe est requis")
     private String currentPassword;

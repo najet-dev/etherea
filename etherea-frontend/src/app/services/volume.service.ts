@@ -43,14 +43,14 @@ export class VolumeService {
       );
   }
 
-  addVolume(productName: string, volume: Volume): Observable<Volume> {
+  addVolume(volume: Volume): Observable<Volume> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`, // Ajout du token JWT
     });
 
     return this.httpClient
-      .post<Volume>(`${this.apiUrl}/volumes/products/${productName}`, volume, {
+      .post<Volume>(`${this.apiUrl}/volumes/products`, volume, {
         headers,
       })
       .pipe(

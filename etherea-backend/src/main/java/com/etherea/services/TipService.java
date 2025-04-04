@@ -19,16 +19,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.time.LocalDateTime;
+import java.util.Date;
+
 @Service
 public class TipService {
     @Autowired
     private TipRepository tipRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(TipService.class);
-    private static final String UPLOAD_DIR = "assets"; // Dossier pour stocker les images
+    private static final String UPLOAD_DIR = "assets"; // Directory to store uploaded images
 
     /**
-     * Récupérer tous les conseils avec pagination et tri
+     * Retrieves all tips with pagination.
+     *
+     * @param page the page number to retrieve
+     * @param size the number of tips per page
+     * @return a paginated list of {@link TipDTO}
      */
     public Page<TipDTO> getTips(int page, int size) {
         Page<Tip> tipsPage = tipRepository.findAll(
@@ -38,7 +44,11 @@ public class TipService {
     }
 
     /**
-     * Récupérer un conseil par ID
+     * Retrieves a tip by its ID.
+     *
+     * @param id the ID of the tip
+     * @return a {@link TipDTO} representing the tip
+     * @throws TipNotFoundException if no tip is found with the given ID
      */
     public TipDTO getTipById(Long id) {
         Tip tip = tipRepository.findById(id)
@@ -47,7 +57,11 @@ public class TipService {
     }
 
     /**
-     * Ajouter un nouveau conseil
+     * Saves a new tip, including optional image upload.
+     *
+     * @param tipDTO the data of the tip to be saved
+     * @param file the image file to upload (can be null)
+     * @throws IllegalArgumentException if validation fails
      */
     @Transactional
     public void saveTip(TipDTO tipDTO, MultipartFile file) {
@@ -61,12 +75,16 @@ public class TipService {
         }
 
         Tip tip = tipDTO.toTip();
-        tip.setDateCreation(LocalDateTime.now());
+        tip.setDateCreation(new Date());
         tipRepository.save(tip);
     }
 
     /**
-     * Mettre à jour un conseil existant
+     * Updates an existing tip by its ID.
+     *
+     * @param updatedTipDTO the updated tip data
+     * @param file the new image file (optional)
+     * @throws TipNotFoundException if the tip does not exist
      */
     @Transactional
     public void updateTip(TipDTO updatedTipDTO, MultipartFile file) {
@@ -91,7 +109,7 @@ public class TipService {
             existingTip.setImage(updatedTipDTO.getImage());
         }
 
-        // Gestion de l'upload d'image
+        // Handle image upload
         if (file != null && !file.isEmpty()) {
             String uploadedImagePath = handleFileUpload(file);
             if (uploadedImagePath != null) {
@@ -103,7 +121,10 @@ public class TipService {
     }
 
     /**
-     * Supprimer un conseil par ID
+     * Deletes a tip by its ID.
+     *
+     * @param id the ID of the tip to delete
+     * @throws TipNotFoundException if the tip does not exist
      */
     public void deleteTip(Long id) {
         if (!tipRepository.existsById(id)) {
@@ -113,7 +134,10 @@ public class TipService {
     }
 
     /**
-     * Validation des données
+     * Validates the required fields of a tip.
+     *
+     * @param tipDTO the tip data to validate
+     * @throws IllegalArgumentException if any required field is missing or invalid
      */
     private void validateTip(TipDTO tipDTO) {
         if (tipDTO == null) throw new IllegalArgumentException("TipDTO cannot be null");
@@ -123,7 +147,11 @@ public class TipService {
     }
 
     /**
-     * Gestion de l'upload d'image
+     * Handles image upload by saving the file to the upload directory.
+     *
+     * @param file the image file to upload
+     * @return the file path of the uploaded image, or null if the file is empty
+     * @throws RuntimeException if an error occurs during file saving
      */
     private String handleFileUpload(MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -140,7 +168,7 @@ public class TipService {
                 Files.copy(fileInputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            return filePath.toString(); // Retourne le chemin du fichier
+            return filePath.toString(); // Return the path of the uploaded file
         } catch (IOException e) {
             logger.error("Error saving file: {}", e.getMessage(), e);
             throw new RuntimeException("File upload failed", e);
@@ -148,7 +176,9 @@ public class TipService {
     }
 
     /**
-     * Création du dossier d'upload s'il n'existe pas
+     * Creates the upload directory if it does not already exist.
+     *
+     * @throws RuntimeException if the directory cannot be created
      */
     private void createUploadDirectory() {
         File uploadDir = new File(UPLOAD_DIR);

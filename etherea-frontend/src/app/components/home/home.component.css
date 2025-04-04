@@ -94,6 +94,23 @@ a {
   object-fit: cover;
   border-radius: 50%;
 }
+@media (min-width: 769px) and (max-width: 889px) {
+  .category-img {
+    width: 200px;
+    height: 200px;
+    margin-top: 20px;
+  }
+
+  .category-link h3 {
+    font-size: 1.2rem;
+  }
+
+  .row.text-center > .col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+    margin-bottom: 20px;
+  }
+}
 
 @media (max-width: 768px) {
   .category-img {

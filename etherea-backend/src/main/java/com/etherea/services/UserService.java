@@ -15,6 +15,8 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,14 +42,12 @@ public class UserService {
      *
      * @return A list of UserDTO objects representing all users.
      */
-    public List<UserDTO> getAllUsers() {
-        // Retrieve all users
-        List<User> users = userRepository.findAll();
+    public Page<UserDTO> getAllUsers(int page, int size) {
+        // Retrieve page of users
+        Page<User> usersPage = userRepository.findAll(PageRequest.of(page, size));
 
-        // Convert User entities to UserDTO objects
-        return users.stream()
-                .map(UserDTO::fromUser)
-                .collect(Collectors.toList());
+        // Convert Page<User> to Page<UserDTO>
+        return usersPage.map(UserDTO::fromUser);
     }
 
     /**

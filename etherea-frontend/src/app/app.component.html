@@ -1,4 +1,4 @@
-<app-menu></app-menu>
+<app-menu *ngIf="!router.url.startsWith('/admin')"></app-menu>
 <router-outlet></router-outlet>
 <div class="app-container">
   <app-footer></app-footer>

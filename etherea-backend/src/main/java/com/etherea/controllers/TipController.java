@@ -78,24 +78,48 @@ public class TipController {
         }
     }
 
+
     /**
      * Mettre à jour un conseil
      */
-    @PutMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<String> updateTip(
-            @RequestPart("tip") TipDTO tipDTO,
-            @RequestPart(value = "image", required = false) MultipartFile image
+    @PutMapping(value = "/update", consumes = "multipart/form-data")
+    public ResponseEntity<Map<String, String>> updateTip(
+            @RequestParam("tip") String tipJson,
+            @RequestParam(value = "image", required = false) MultipartFile image
     ) {
-        tipService.updateTip(tipDTO, image);
-        return ResponseEntity.ok("Tip updated successfully!");
+        try {
+            // Désérialisation du JSON en UpdateTipDTO
+            ObjectMapper objectMapper = new ObjectMapper();
+            TipDTO updateTipDTO = objectMapper.readValue(tipJson, TipDTO.class);
+
+            // Appel au service pour mettre à jour le Tip
+            tipService.updateTip(updateTipDTO, image);
+
+            // Retourner une réponse JSON
+            return ResponseEntity.ok(Map.of("message", "Tip updated successfully!"));
+        } catch (JsonProcessingException e) {
+            logger.error("Erreur lors de la désérialisation du JSON", e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid JSON for 'tip'"));
+        } catch (Exception e) {
+            logger.error("Erreur inattendue lors de la mise à jour", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error updating tip"));
+        }
     }
 
     /**
      * Supprimer un conseil
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTip(@PathVariable Long id) {
-        tipService.deleteTip(id);
-        return ResponseEntity.ok("Tip deleted successfully!");
+    public ResponseEntity<Map<String, String>> deleteTip(@PathVariable Long id) {
+        try {
+            tipService.deleteTip(id);
+            return ResponseEntity.ok(Map.of("message", "Tip deleted successfully!"));
+        } catch (Exception e) {
+            // En cas d'erreur, renvoyer un message d'erreur au client
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error deleting the tip"));
+        }
     }
+
 }

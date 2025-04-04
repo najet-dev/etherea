@@ -19,13 +19,10 @@ export class CartService {
 
   //cartItem
   getCartItems(userId: number): Observable<Cart[]> {
-    console.log('Appel de getCartItems avec userId:', userId);
     return this.httpClient
       .get<Cart[]>(`${this.apiUrl}/cartItem/${userId}`)
       .pipe(
-        tap((response) =>
-          console.log('Réponse reçue de getCartItems:', response)
-        ),
+        tap((cartItems) => this.cartItemsSubject.next(cartItems)),
         catchError((error) => {
           console.error(
             'Erreur lors de la récupération des articles du panier :',
@@ -49,12 +46,9 @@ export class CartService {
           : null,
     };
 
-    console.log('Appel de addToCart avec body:', body);
-
     return this.httpClient
       .post<Cart>(`${this.apiUrl}/cartItem/addToCart`, body)
       .pipe(
-        tap((response) => console.log('Article ajouté au panier:', response)),
         tap(() => this.refreshCart(cart.userId)),
         catchError((error) => {
           console.error('Erreur lors de l’ajout au panier :', error);
@@ -70,10 +64,6 @@ export class CartService {
     volumeId?: number
   ): Observable<Cart> {
     if (newQuantity <= 0) {
-      console.warn(
-        'Tentative de mise à jour avec une quantité invalide:',
-        newQuantity
-      );
       return throwError(
         () => new Error('La quantité doit être supérieure à 0.')
       );
@@ -91,15 +81,7 @@ export class CartService {
         ? `${this.apiUrl}/cartItem/updateProductHair`
         : `${this.apiUrl}/cartItem/updateProductFace`;
 
-    console.log(
-      'Appel de updateCartItem avec endpoint:',
-      endpoint,
-      'et body:',
-      body
-    );
-
     return this.httpClient.put<Cart>(endpoint, body).pipe(
-      tap((response) => console.log('Article mis à jour:', response)),
       tap(() => this.refreshCart(userId)),
       catchError((error) => {
         console.error('Erreur lors de la mise à jour du panier :', error);

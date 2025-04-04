@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { tap } from 'rxjs/operators';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Role } from '../models/role.enum';
 
 @Component({
   selector: 'app-signin',
@@ -86,8 +87,13 @@ export class SigninComponent implements OnInit {
       .signin(this.loginForm.value)
       .pipe(
         tap({
-          next: () => {
-            this.router.navigate(['/']);
+          next: (signinData) => {
+            const isAdmin = signinData.roles.includes(Role.ROLE_ADMIN);
+            if (isAdmin) {
+              this.router.navigate(['/admin/admin-dashboard']);
+            } else {
+              this.router.navigate(['/']);
+            }
             this.loginForm.reset();
           },
           error: (err) => {

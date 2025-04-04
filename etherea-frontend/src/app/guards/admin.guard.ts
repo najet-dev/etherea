@@ -1,26 +1,23 @@
 import { inject } from '@angular/core';
-import { CanActivateChildFn, Router } from '@angular/router';
+import { Router, CanActivateFn } from '@angular/router';
+import { map, catchError, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { Role } from '../components/models/role.enum';
-import { map, catchError, of } from 'rxjs';
-export const AdminGuard: CanActivateChildFn = () => {
+
+export const AdminGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
   return authService.getCurrentUser().pipe(
     map((user) => {
-      console.log('AdminGuard - user reçu:', user);
-
-      if (user && user.roles.includes(Role.ROLE_ADMIN)) {
+      if (user?.roles.includes(Role.ROLE_ADMIN)) {
         return true;
       } else {
-        console.log('Accès refusé, redirection vers /signin');
         router.navigate(['/signin']);
         return false;
       }
     }),
     catchError(() => {
-      console.log('Erreur dans AdminGuard, redirection vers /signin');
       router.navigate(['/signin']);
       return of(false);
     })

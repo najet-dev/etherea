@@ -25,6 +25,7 @@ import { ResetPasswordComponent } from './components/reset-password/reset-passwo
 import { PurchasesComponent } from './components/purchases/purchases.component';
 import { TipsComponent } from './components/tips/tips.component';
 import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
+import { AdminGuard } from './guards/admin.guard';
 
 const routes: Routes = [
   {

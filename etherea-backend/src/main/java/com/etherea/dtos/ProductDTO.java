@@ -4,7 +4,6 @@ import com.etherea.enums.ProductType;
 import com.etherea.enums.StockStatus;
 import com.etherea.models.Product;
 import com.etherea.models.Volume;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

@@ -77,7 +77,6 @@ import { AuthService } from './services/auth.service';
     ContactComponent,
     ProductDetailsComponent,
     CartComponent,
-    AdminComponent,
     AccesComponent,
     ProfileComponent,
     SignupComponent,

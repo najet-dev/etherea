@@ -12,20 +12,17 @@ export class StorageService {
   constructor(private router: Router) {
     this.isLoggedInSubject = new BehaviorSubject<boolean>(this.isLoggedIn());
   }
-
   saveToken(token: string): void {
     if (!token || token.trim().length === 0) {
       console.error('Token invalide, enregistrement annulé.');
       return;
     }
     this.setItem(TOKEN_KEY, token);
-    console.log('Token enregistré dans localStorage:', token);
     this.setLoggedIn(true);
   }
 
   getToken(): string | null {
     const token = localStorage.getItem(TOKEN_KEY);
-    console.log('Token récupéré depuis localStorage:', token); // Log ajouté
     return token;
   }
 
