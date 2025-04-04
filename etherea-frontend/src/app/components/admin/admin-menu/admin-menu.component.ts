@@ -14,6 +14,6 @@ export class AdminMenuComponent {
     this.isMenuActive = !this.isMenuActive;
   }
   goToSite() {
-    this.router.navigate(['/']); // ou n'importe quelle route publique
+    this.router.navigate(['/']);
   }
 }
