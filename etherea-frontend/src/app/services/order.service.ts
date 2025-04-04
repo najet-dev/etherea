@@ -9,9 +9,9 @@ import {
   throwError,
 } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { CommandResponse } from '../components/models/commandResponse.model';
 import { CommandItem } from '../components/models/commandItem.model';
 import { CommandStatus } from '../components/models/commandStatus.model';
+import { CommandResponse } from '../components/models/commandResponse.model';
 
 @Injectable({
   providedIn: 'root',
