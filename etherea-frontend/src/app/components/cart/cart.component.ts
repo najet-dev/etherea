@@ -56,7 +56,6 @@ export class CartComponent implements OnInit {
     // Vérifier si userId est défini
     console.log('UserId dans loadCartItems:', this.userId);
 
-    // Vérifier si userId est défini
     if (!this.userId) {
       console.error(
         "L'ID utilisateur n'est pas défini. Impossible de charger les éléments du panier."
@@ -66,36 +65,47 @@ export class CartComponent implements OnInit {
 
     this.appFacade.getCartItems(this.userId).subscribe({
       next: (cartItems) => {
-        this.cartItems = cartItems;
-        this.isCartEmpty = this.cartItems.length === 0;
-
-        const productObservables = this.cartItems.map((item) =>
-          this.appFacade.getProductById(item.productId).pipe(
-            tap((product: Product | null) => {
-              if (product) {
-                item.product = product;
-                this.initializeSelectedVolume(item);
-              } else {
-                console.error("Produit non trouvé pour l'id :", item.productId);
-              }
-            }),
-            catchError((error) => {
-              console.log('Erreur lors de la récupération du produit :', error);
-              return of(null);
-            })
-          )
-        );
-
-        forkJoin(productObservables).subscribe(() => {
-          this.calculateCartTotal();
-        });
+        // Vérifier que les éléments du panier sont reçus
+        if (cartItems && cartItems.length > 0) {
+          this.cartItems = cartItems;
+          this.isCartEmpty = this.cartItems.length === 0;
+          this.loadProductDetails();
+        } else {
+          this.cartItems = [];
+          this.isCartEmpty = true;
+        }
       },
       error: (error) => {
         console.log(
           'Erreur lors de la récupération des éléments du panier :',
           error
         );
+        this.cartItems = [];
+        this.isCartEmpty = true;
       },
+    });
+  }
+
+  loadProductDetails() {
+    const productObservables = this.cartItems.map((item) =>
+      this.appFacade.getProductById(item.productId).pipe(
+        tap((product: Product | null) => {
+          if (product) {
+            item.product = product;
+            this.initializeSelectedVolume(item);
+          } else {
+            console.error("Produit non trouvé pour l'id :", item.productId);
+          }
+        }),
+        catchError((error) => {
+          console.log('Erreur lors de la récupération du produit :', error);
+          return of(null);
+        })
+      )
+    );
+
+    forkJoin(productObservables).subscribe(() => {
+      this.calculateCartTotal();
     });
   }
 

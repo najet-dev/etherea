@@ -56,9 +56,12 @@ export class MenuComponent implements OnInit {
       });
     this.favoriteService.favorites$.subscribe((favoriteIds: number[]) => {
       this.favoriteCount = favoriteIds.length;
+      console.log('Favorite Count:', this.favoriteCount); // Vérifiez ici
     });
+
     this.cartService.carts$.subscribe((cartItems: Cart[]) => {
       this.cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+      console.log('Cart Count:', this.cartCount); // Vérifiez ici
     });
   }
 
