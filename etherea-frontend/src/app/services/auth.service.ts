@@ -7,6 +7,7 @@ import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
 import { SigninRequest } from '../components/models/signinRequest.model';
 import { SignupRequest } from '../components/models/signupRequest.model';
+import { Role } from '../components/models/role.enum';
 
 @Injectable({
   providedIn: 'root',
