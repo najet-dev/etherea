@@ -6,7 +6,7 @@ export interface DeliveryAddress {
   zipCode: number;
   city: string;
   country: string;
-  phoneNumber: number;
+  phoneNumber: string;
   user: SignupRequest;
   isDefault: boolean;
 }

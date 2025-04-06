@@ -21,7 +21,7 @@ export class FavoriteComponent implements OnInit {
   favorites: Favorite[] = [];
   selectedVolumes: { [productId: number]: ProductVolume } = {};
   userId!: number;
-  showSuccessMessage = false; // Pour contrôler l'affichage du message de succès
+  showSuccessMessage = false;
   private destroyRef = inject(DestroyRef);
 
   constructor(

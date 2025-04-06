@@ -3,12 +3,17 @@ package com.etherea.services;
 import com.etherea.dtos.UpdateEmailRequestDTO;
 import com.etherea.dtos.UpdatePasswordRequestDTO;
 import com.etherea.dtos.UserDTO;
+import com.etherea.dtos.VolumeDTO;
+import com.etherea.enums.ERole;
 import com.etherea.exception.InvalidEmailException;
+import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UnauthorizedAccessException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.jwt.JwtUtils;
 import com.etherea.models.PasswordHistory;
+import com.etherea.models.Role;
 import com.etherea.models.User;
+import com.etherea.models.Volume;
 import com.etherea.repositories.PasswordHistoryRepository;
 import com.etherea.repositories.UserRepository;
 import jakarta.transaction.Transactional;
@@ -65,7 +70,12 @@ public class UserService {
                     return new UserNotFoundException("No user found with ID: " + id);
                 });
     }
-
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("User with ID " + id + " not found");
+        }
+        userRepository.deleteById(id);
+    }
     public boolean updateEmail(UpdateEmailRequestDTO updateEmailRequestDTO, String token) {
         // Extract user email from token
         String emailFromToken = jwtUtils.getUserNameFromJwtToken(token);
@@ -130,7 +140,7 @@ public class UserService {
             throw new IllegalArgumentException("Le mot de passe doit contenir au moins une lettre.");
         }
 
-        // Vérifier que le nouveau mot de passe n'a jamais été utilisé dans le passé
+        // Check that the new password has never been used before
         List<PasswordHistory> oldPasswords = passwordHistoryRepository.findByUserId(user.getId());
         for (PasswordHistory oldPassword : oldPasswords) {
             if (passwordEncoder.matches(updatePasswordRequestDTO.getNewPassword(), oldPassword.getHashedPassword())) {
@@ -138,10 +148,10 @@ public class UserService {
             }
         }
 
-        // Sauvegarder l'ancien mot de passe
+        // Save old password
         passwordHistoryRepository.save(new PasswordHistory(user, user.getPassword()));
 
-        // Mettre à jour le mot de passe
+        // Update password
         user.setPassword(passwordEncoder.encode(updatePasswordRequestDTO.getNewPassword()));
         userRepository.save(user);
 

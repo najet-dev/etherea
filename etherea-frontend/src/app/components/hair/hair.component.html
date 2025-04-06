@@ -66,3 +66,21 @@
     </div>
   </div>
 </div>
+<!-- Pagination -->
+<div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+  <button
+    class="btn btn-light"
+    (click)="previousPage()"
+    [disabled]="currentPage === 0"
+  >
+    <mat-icon>navigate_before</mat-icon>
+  </button>
+  <span>Page {{ currentPage + 1 }} sur {{ totalPages }}</span>
+  <button
+    class="btn btn-light"
+    (click)="nextPage()"
+    [disabled]="currentPage >= totalPages - 1"
+  >
+    <mat-icon>navigate_next</mat-icon>
+  </button>
+</div>

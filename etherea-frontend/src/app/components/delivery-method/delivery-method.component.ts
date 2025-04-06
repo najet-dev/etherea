@@ -21,6 +21,10 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/addDeliveryMethodRequest.model';
+import {
+  DeliveryName,
+  DeliveryNameTranslations,
+} from '../models/deliveryName.enum';
 import { UpdateDeliveryMethodRequest } from '../models/updateDeliveryMethodRequest.model';
 import { DeliveryType } from '../models/deliveryType.model';
 import {
@@ -68,6 +72,7 @@ export class DeliveryMethodComponent implements OnInit {
   deliveryTypeId!: number;
   selectedDeliveryType!: DeliveryType;
   selectedDeliveryMethod!: DeliveryMethod;
+  DeliveryNameTranslations = DeliveryNameTranslations;
   DeliveryNameTranslations = DeliveryNameTranslations;
 
   constructor(

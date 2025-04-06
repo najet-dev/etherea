@@ -1,0 +1,81 @@
+<div class="container new-products mt-5">
+  <div class="row">
+    <div class="col-12 text-center">
+      <h2>Nos Nouveaux Produits</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div
+      *ngFor="let product of newProducts"
+      class="col-lg-3 col-md-4 col-sm-6 col-12 d-flex align-items-stretch"
+    >
+      <div class="card mb-4 d-flex flex-column">
+        <div class="position-relative">
+          <a
+            class="productDetails"
+            [routerLink]="['/productDetails', product.id]"
+          >
+            <img
+              [src]="product.image"
+              class="product-image card-img-top"
+              alt="{{ product.name }}"
+            />
+          </a>
+          <span *ngIf="product.newProduct" class="badge-new">Nouveauté</span>
+        </div>
+
+        <div class="card-body d-flex flex-column">
+          <span
+            class="heart-icon"
+            [class.favorite]="product.isFavorite"
+            (click)="handleFavoriteClick(product)"
+          >
+            &#x2764;
+          </span>
+          <h5 [routerLink]="['/productDetails', product.id]" class="card-title">
+            {{ product.name }}
+          </h5>
+
+          <!-- Show volume and price if HAIR product-->
+          <div *ngIf="productTypeService.isHairProduct(product)">
+            <p class="card-text">
+              {{ product.volumes[0].volume }} ml -
+              {{ product.volumes[0].price }} €
+            </p>
+          </div>
+
+          <!-- Show prices for other types -->
+          <div *ngIf="!productTypeService.isHairProduct(product)">
+            <p class="card-text">Prix : {{ product.basePrice }} €</p>
+          </div>
+
+          <a
+            [routerLink]="['/productDetails', product.id]"
+            class="btn-primary btnProductDetail"
+          >
+            Voir les détails
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pagination -->
+<div class="d-flex justify-content-center align-items-center gap-3 mt-3">
+  <button
+    class="btn btn-light"
+    (click)="previousPage()"
+    [disabled]="currentPage === 0"
+  >
+    <mat-icon>navigate_before</mat-icon>
+  </button>
+  <span>Page {{ currentPage + 1 }} sur {{ totalPages }}</span>
+  <button
+    class="btn btn-light"
+    (click)="nextPage()"
+    [disabled]="currentPage >= totalPages - 1"
+  >
+    <mat-icon>navigate_next</mat-icon>
+  </button>
+</div>

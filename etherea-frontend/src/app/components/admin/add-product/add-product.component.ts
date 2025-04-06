@@ -22,6 +22,7 @@ export class AddProductComponent {
     stockQuantity: 1,
     stockStatus: StockStatus.AVAILABLE,
     image: '',
+    newProduct: false,
   };
   ProductType = ProductType;
   selectedFile: File | null = null;
@@ -74,6 +75,7 @@ export class AddProductComponent {
       stockQuantity: 1,
       stockStatus: StockStatus.AVAILABLE,
       image: '',
+      newProduct: false,
     };
     this.selectedFile = null;
     setTimeout(() => {

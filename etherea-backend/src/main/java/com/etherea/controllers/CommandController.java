@@ -1,6 +1,8 @@
 package com.etherea.controllers;
 
+import com.etherea.dtos.CommandItemDTO;
 import com.etherea.dtos.CommandResponseDTO;
+import com.etherea.dtos.UserDTO;
 import com.etherea.enums.CommandStatus;
 import com.etherea.services.CommandService;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,18 @@ public class CommandController {
     public CommandController(CommandService commandService) {
         this.commandService = commandService;
     }
+    @GetMapping
+    public ResponseEntity<Page<CommandResponseDTO>> getAllCommands(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<CommandResponseDTO> commandsPage = commandService.getAllCommands(page, size);
+
+        if (commandsPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.ok(commandsPage);
+    }
 
     @GetMapping
     public ResponseEntity<Page<CommandResponseDTO>> getAllCommands(
@@ -34,10 +48,10 @@ public class CommandController {
     }
 
     /**
-     * Récupère toutes les commandes d'un utilisateur.
+     * Retrieves all commands from a user.
      *
-     * @param userId ID de l'utilisateur.
-     * @return Liste des commandes.
+     * @param userId User ID.
+     * @return List of commands.
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<CommandResponseDTO>> getUserCommands(@PathVariable Long userId) {
@@ -46,11 +60,11 @@ public class CommandController {
     }
 
     /**
-     * Récupère une commande spécifique d'un utilisateur.
+     * Retrieves a specific command from a user.
      *
-     * @param userId    ID de l'utilisateur.
-     * @param commandId ID de la commande.
-     * @return La commande si trouvée, sinon 404.
+     * @param userId ID of the user.
+     * @param commandId Command ID.
+     * @return Command if found, otherwise 404.
      */
     @GetMapping("/user/{userId}/command/{commandId}")
     public ResponseEntity<CommandResponseDTO> getUserCommandById(
@@ -61,13 +75,18 @@ public class CommandController {
         return commandDTO.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(404).body(null));
     }
+    @GetMapping("/{commandId}/items")
+    public ResponseEntity<List<CommandItemDTO>> getCommandItems(@PathVariable Long commandId) {
+        List<CommandItemDTO> commandItems = commandService.getCommandItems(commandId);
+        return ResponseEntity.ok(commandItems);
+    }
 
     /**
-     * Met à jour le statut d'une commande.
+     * Updates order status.
      *
-     * @param commandId ID de la commande.
-     * @param newStatus Nouveau statut.
-     * @return Réponse JSON indiquant le succès ou l'échec.
+     * @param commandId Order ID.
+     * @param newStatus New status.
+     * @return JSON response indicating success or failure.
      */
     @PutMapping("/{commandId}/status")
     public ResponseEntity<Map<String, String>> updateCommandStatus(
@@ -84,12 +103,11 @@ public class CommandController {
             return ResponseEntity.status(500).body(response);
         }
     }
-
     /**
-     * Annule une commande.
+     * Cancels an order.
      *
-     * @param commandId ID de la commande.
-     * @return Réponse JSON indiquant le succès ou l'échec.
+     * @param commandId Command ID.
+     * @return JSON response indicating success or failure.
      */
     @PutMapping("/{commandId}/cancel")
     public ResponseEntity<Map<String, String>> cancelCommand(@PathVariable Long commandId) {
@@ -97,10 +115,10 @@ public class CommandController {
         boolean canceled = commandService.cancelCommand(commandId);
 
         if (canceled) {
-            response.put("message", "Commande annulée avec succès !");
+            response.put("message", "Order successfully cancelled !");
             return ResponseEntity.ok(response);
         } else {
-            response.put("message", "Impossible d'annuler la commande.");
+            response.put("message", "Unable to cancel order.");
             return ResponseEntity.badRequest().body(response);
         }
     }

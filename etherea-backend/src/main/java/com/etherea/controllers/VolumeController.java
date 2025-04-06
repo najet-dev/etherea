@@ -48,7 +48,6 @@ public class VolumeController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     // Méthode pour mettre à jour un volume
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{volumeId}")
@@ -66,7 +65,6 @@ public class VolumeController {
     }
 
     // Méthode pour supprimer un volume
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteVolume(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();

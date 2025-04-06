@@ -21,12 +21,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatListModule } from '@angular/material/list';
 import { CreamComponent } from './components/cream/cream.component';
-import { NewComponent } from './components/new/new.component';
 import { HairComponent } from './components/hair/hair.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AdminComponent } from './components/admin/admin.component';
 import { AccesComponent } from './components/acces/access.component';
 import { ProfileComponent } from './components/profile/profile.component';
 import { SignupComponent } from './components/signup/signup.component';
@@ -62,9 +60,13 @@ import { BrandComponent } from './components/brand/brand.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { PurchasesComponent } from './components/purchases/purchases.component';
+import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { TipsComponent } from './components/tips/tips.component';
+import { RouterModule } from '@angular/router';
 import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
-import { AuthService } from './services/auth.service';
+import { AddressesComponent } from './components/addresses/addresses.component';
+import { AddressEditDialogComponent } from './components/address-edit-dialog/address-edit-dialog.component';
+import { NewProductsComponent } from './components/new-products/new-products.component';
 
 @NgModule({
   declarations: [
@@ -72,7 +74,6 @@ import { AuthService } from './services/auth.service';
     HomeComponent,
     MenuComponent,
     CreamComponent,
-    NewComponent,
     HairComponent,
     ContactComponent,
     ProductDetailsComponent,
@@ -103,12 +104,17 @@ import { AuthService } from './services/auth.service';
     ResetPasswordComponent,
     ForgotPasswordComponent,
     PurchasesComponent,
+    OrderDetailsComponent,
     TipsComponent,
     TipDetailComponent,
+    AddressesComponent,
+    AddressEditDialogComponent,
+    NewProductsComponent,
   ],
   imports: [
     CommonModule,
     BrowserModule,
+    RouterModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatIconModule,
@@ -119,10 +125,9 @@ import { AuthService } from './services/auth.service';
     ReactiveFormsModule,
     MatDialogModule,
     MatPaginatorModule,
-    FormsModule,
-    ReactiveFormsModule,
     NgxStripeModule.forRoot(environment.stripePublicKey),
   ],
+  exports: [RouterModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

@@ -11,6 +11,7 @@ public class CommandItem {
     private double unitPrice;
     private double totalPrice;
     private String productName;
+    private String image;
     @ManyToOne
     @JoinColumn(name = "productId", referencedColumnName = "id")
     private Product product;
@@ -19,12 +20,13 @@ public class CommandItem {
     private Command command;
     public CommandItem() {
     }
-    public CommandItem(int quantity, double unitPrice, Product product, Command command, String productName) {
+    public CommandItem(int quantity, double unitPrice, Product product, Command command, String productName, String image) {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.product = product;
         this.command = command;
         this.productName = productName;
+        this.image = image;
     }
     public Long getId() {
         return id;
@@ -55,6 +57,12 @@ public class CommandItem {
     }
     public void setProductName(String productName) {
         this.productName = productName;
+    }
+    public String getImage() {
+        return image;
+    }
+    public void setImage(String image) {
+        this.image = image;
     }
     public Product getProduct() {
         return product;

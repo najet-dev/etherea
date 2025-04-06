@@ -43,24 +43,43 @@ export class ProductService {
         })
       );
   }
-
   getProductsByType(
     type: string,
-    page: number,
-    size: number
-  ): Observable<Product[]> {
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: Product[];
+    totalElements: number;
+    totalPages: number;
+    number: number;
+  }> {
     const url = `${this.apiUrl}/products/type`;
-    let params = new HttpParams();
-    params = params.append('type', type);
-    params = params.append('page', page.toString());
-    params = params.append('size', size.toString());
+    const params = new HttpParams()
+      .set('type', type)
+      .set('page', page.toString())
+      .set('size', size.toString());
 
-    return this.httpClient.get<Product[]>(url, { params }).pipe(
-      catchError((error) => {
-        console.error('Error fetching products:', error);
-        return throwError(() => error);
-      })
-    );
+    return this.httpClient
+      .get<{
+        content: Product[];
+        totalElements: number;
+        totalPages: number;
+        number: number;
+      }>(url, { params })
+      .pipe(
+        tap((response) => {
+          console.log(`Produits de type "${type}" page ${page}:`, response);
+        }),
+        catchError((error) => {
+          console.error(
+            `Erreur lors de la récupération des produits du type "${type}" :`,
+            error
+          );
+          return throwError(
+            () => new Error('Impossible de récupérer les produits par type.')
+          );
+        })
+      );
   }
 
   getProductById(id: number): Observable<Product> {
@@ -73,6 +92,26 @@ export class ProductService {
         return of();
       })
     );
+  }
+  getNewProducts(
+    page: number = 0,
+    size: number = 10
+  ): Observable<{
+    content: Product[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.httpClient
+      .get<{ content: Product[]; totalElements: number; totalPages: number }>(
+        `${this.apiUrl}/products/newProduct?page=${page}&size=${size}`
+      )
+      .pipe(
+        tap((response) => console.log('New products fetched:', response)),
+        catchError((error) => {
+          console.error('Error fetching new products:', error);
+          return throwError(() => new Error('Failed to fetch new products.'));
+        })
+      );
   }
 
   // Méthode pour rechercher des produits par nom
@@ -105,7 +144,7 @@ export class ProductService {
     const token = this.storageService.getToken(); // Récupérer le token JWT
 
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`, // token JWT ajouter
     });
 
     return this.httpClient
@@ -117,7 +156,6 @@ export class ProductService {
         })
       );
   }
-
   updateProduct(
     updateProduct: Partial<Product>,
     image?: File
@@ -129,12 +167,14 @@ export class ProductService {
       formData.append('image', image, image.name);
     }
 
+    // Filtrer les champs vides pour ne pas envoyer des données inutiles
     const filteredProduct = Object.fromEntries(
       Object.entries(updateProduct).filter(
         ([_, value]) => value !== undefined && value !== null && value !== ''
       )
     );
 
+    // Ajout du produit en JSON
     formData.append('product', JSON.stringify(filteredProduct));
 
     const token = this.storageService.getToken(); // Récupérer le token JWT
@@ -159,7 +199,7 @@ export class ProductService {
     const token = this.storageService.getToken(); // Récupérer le token JWT
 
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
+      Authorization: `Bearer ${token}`, // Ajouter le token JWT
     });
 
     return this.httpClient

@@ -1,14 +1,20 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+  DestroyRef,
+} from '@angular/core';
 import { Product } from '../models/product.model';
 import { Observable, of } from 'rxjs';
-import { catchError, switchMap, tap } from 'rxjs/operators';
+import { catchError, switchMap, tap, map } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
-import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { FaceProduct } from '../models/faceProduct.model';
+import { SearchService } from 'src/app/services/search.service';
 
 @Component({
   selector: 'app-day-cream',
@@ -16,15 +22,20 @@ import { FaceProduct } from '../models/faceProduct.model';
   styleUrls: ['./cream.component.css'],
 })
 export class CreamComponent implements OnInit {
-  products$: Observable<Product[]> = new Observable<Product[]>();
+  products$: Observable<Product[]> = of([]);
   userId: number | null = null;
+  currentPage: number = 0;
+  totalPages: number = 1;
+  pageSize: number = 10;
+
   private destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
     private router: Router,
-    public productTypeService: ProductTypeService
+    public productTypeService: ProductTypeService,
+    private searchService: SearchService
   ) {}
 
   ngOnInit(): void {
@@ -42,28 +53,28 @@ export class CreamComponent implements OnInit {
 
   loadProducts(): void {
     const productType = 'FACE';
-    const page = 0; // Numéro de la page
-    const size = 10; // Taille de la page
 
     this.products$ = this.appFacade
-      .getProductsByType(productType, page, size)
+      .getProductsByType(productType, this.currentPage, this.pageSize)
       .pipe(
+        tap((response) => {
+          this.totalPages = response.totalPages;
+        }),
+        map((response) => response.content),
         switchMap((products: Product[]) => {
-          // Filtrer pour ne garder que les FaceProducts
           const faceProducts = products.filter((product) =>
             this.productTypeService.isFaceProduct(product)
           );
 
-          // Si l'utilisateur est connecté, appliquez le service de favoris
           if (this.userId !== null) {
             return this.appFacade.productsFavorites(faceProducts);
           }
-          return of(faceProducts); // Retourne uniquement les FaceProducts
+
+          return of(faceProducts);
         }),
         catchError((error) => {
           console.error('Error fetching products:', error);
-          console.error('Failed to load products. Please try again later.');
-          return of([] as FaceProduct[]); // Cast to FaceProduct[]
+          return of([]);
         }),
         takeUntilDestroyed(this.destroyRef)
       );
@@ -79,5 +90,19 @@ export class CreamComponent implements OnInit {
 
   toggleFavorite(product: Product): void {
     this.appFacade.toggleFavorite(product);
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.loadProducts();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.loadProducts();
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { SignupRequest } from '../../models/signupRequest.model';
-import { AuthService } from 'src/app/services/auth.service';
 import { Role } from '../../models/role.enum';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-add-user',
@@ -18,7 +18,6 @@ export class AddUserComponent {
     roles: [Role.ROLE_USER],
   };
   successMessage = '';
-  availableRoles: string[] = Object.values(Role);
 
   constructor(private authService: AuthService) {}
 

@@ -2,17 +2,16 @@ package com.etherea.dtos;
 
 import com.etherea.models.Tip;
 
-import java.util.Date;
-
+import java.time.LocalDateTime;
 public class TipDTO {
     private Long id;
     private String title;
     private String description;
     private String content;
     private String image;
-    private Date dateCreation;
+    private LocalDateTime dateCreation;
     public TipDTO() {}
-    public TipDTO(Long id, String title, String description, String content, String image, Date dateCreation) {
+    public TipDTO(Long id, String title, String description, String content, String image, LocalDateTime dateCreation) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -52,10 +51,10 @@ public class TipDTO {
     public void setImage(String image) {
         this.image = image;
     }
-    public Date getDateCreation() {
+    public LocalDateTime getDateCreation() {
         return dateCreation;
     }
-    public void setDateCreation(Date dateCreation) {
+    public void setDateCreation(LocalDateTime dateCreation) {
         this.dateCreation = dateCreation;
     }
     public static TipDTO fromTip(Tip tip) {

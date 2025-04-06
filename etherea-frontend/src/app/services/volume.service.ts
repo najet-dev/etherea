@@ -6,8 +6,8 @@ import {
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { StorageService } from './storage.service';
 import { Volume } from '../components/models/volume.model';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -43,14 +43,14 @@ export class VolumeService {
       );
   }
 
-  addVolume(volume: Volume): Observable<Volume> {
+  addVolume(productName: string, volume: Volume): Observable<Volume> {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`, // Ajout du token JWT
     });
 
     return this.httpClient
-      .post<Volume>(`${this.apiUrl}/volumes/products`, volume, {
+      .post<Volume>(`${this.apiUrl}/volumes/products/${productName}`, volume, {
         headers,
       })
       .pipe(

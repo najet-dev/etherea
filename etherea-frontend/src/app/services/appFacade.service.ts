@@ -6,6 +6,7 @@ import { CartService } from './cart.service';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
 import { Product } from '../components/models/product.model';
+import { SignupRequest } from '../components/models/signupRequest.model';
 import { UserService } from './user.service';
 import { DeliveryAddressService } from './delivery-address.service';
 import { DeliveryMethodService } from './delivery-method.service';
@@ -27,14 +28,14 @@ import { ResetPasswordRequest } from '../components/models/resetPasswordRequest.
 import { ResetPasswordResponse } from '../components/models/resetPasswordResponse.model';
 import { Newsletter } from '../components/models/newsletter.model';
 import { VolumeService } from './volume.service';
+import { Volume } from '../components/models/volume.model';
+import { CommandResponse } from '../components/models/commandResponse.model';
+import { OrderService } from './order.service';
+import { CommandStatus } from '../components/models/commandStatus.enum';
 import { Tip } from '../components/models/tip.model';
 import { TipService } from './tip.service';
 import { DeliveryAddress } from '../components/models/deliveryAddress.model';
-import { Volume } from '../components/models/volume.model';
-import { SignupRequest } from '../components/models/signupRequest.model';
-import { CommandResponse } from '../components/models/commandResponse.model';
-import { CommandStatus } from '../components/models/commandStatus.model';
-import { OrderService } from './order.service';
+import { CommandItem } from '../components/models/commandItem.model';
 
 @Injectable({
   providedIn: 'root',
@@ -47,11 +48,11 @@ export class AppFacade {
     public deliveryAddressService: DeliveryAddressService,
     private userService: UserService,
     public deliveryMethodService: DeliveryMethodService,
+    private orderService: OrderService,
     public paymentService: PaymentService,
     private cookieConsentService: CookieConsentService,
     private passwordResetService: PasswordResetService,
     private volumeService: VolumeService,
-    private orderService: OrderService,
     private tipService: TipService
   ) {}
 
@@ -105,8 +106,8 @@ export class AppFacade {
 
   // Products
   getAllProducts(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{
     content: Product[];
     totalElements: number;
@@ -119,12 +120,26 @@ export class AppFacade {
     type: string,
     page: number,
     size: number
-  ): Observable<Product[]> {
+  ): Observable<{
+    content: Product[];
+    totalElements: number;
+    totalPages: number;
+  }> {
     return this.productService.getProductsByType(type, page, size);
   }
 
   getProductById(id: number): Observable<Product> {
     return this.productService.getProductById(id);
+  }
+  getNewProducts(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: Product[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.productService.getNewProducts(page, size);
   }
 
   // DeliveryAddress
@@ -161,8 +176,8 @@ export class AppFacade {
 
   // User
   getAllUsers(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{
     content: SignupRequest[];
     totalElements: number;
@@ -217,8 +232,8 @@ export class AppFacade {
   }
   //order
   getAllOrders(
-    page: number = 0,
-    size: number = 10
+    page: number,
+    size: number
   ): Observable<{
     content: CommandResponse[];
     totalElements: number;
@@ -226,13 +241,27 @@ export class AppFacade {
   }> {
     return this.orderService.getAllOrders(page, size);
   }
+
+  getUserOrders(userId: number): Observable<CommandResponse[]> {
+    return this.orderService.getUserOrders(userId);
+  }
+
+  getOrderId(orderId: number): Observable<CommandItem[]> {
+    return this.orderService.getOrderId(orderId);
+  }
+  getUserOrderById(
+    userId: number,
+    commandId: number
+  ): Observable<CommandResponse> {
+    return this.orderService.getUserOrderById(userId, commandId);
+  }
+
   updateOrderStatus(
     orderId: number,
     newStatus: string
   ): Observable<CommandStatus> {
     return this.orderService.updateOrderStatus(orderId, newStatus);
   }
-
   //payment
   createPayment(paymentRequest: PaymentRequest): Observable<PaymentResponse> {
     return this.paymentService.createPayment(paymentRequest);
@@ -275,8 +304,8 @@ export class AppFacade {
   }
   //volume
   getAllVolumes(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{
     content: Volume[];
     totalElements: number;
@@ -290,8 +319,8 @@ export class AppFacade {
   }
   //tips
   getAllTips(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{
     content: Tip[];
     totalElements: number;

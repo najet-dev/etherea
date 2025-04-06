@@ -36,7 +36,21 @@ public class JwtUtils {
                 .signWith(secretKey)
                 .compact();
     }
+    public String generateJwtToken(User user, long customExpirationMs) {
+        Set<String> roles = user.getRoles().stream()
+                .map(role -> role.getName().name())
+                .collect(Collectors.toSet());
 
+        long expirationTime = customExpirationMs > 0 ? customExpirationMs : jwtExpirationMs;
+
+        return Jwts.builder()
+                .setSubject(user.getUsername())
+                .claim("roles", roles)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(secretKey)
+                .compact();
+    }
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -63,6 +77,9 @@ public class JwtUtils {
         } catch (IllegalArgumentException e) {
             System.err.println("Token vide ou invalide: " + e.getMessage());
         }
+        return false;
+    }
+}
         return false;
     }
 }

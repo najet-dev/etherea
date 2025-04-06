@@ -21,4 +21,10 @@ export class SidebarComponent {
       this.router.url.includes('/updatePassword')
     );
   }
+  isOrderActive(): boolean {
+    return (
+      this.router.url.includes('/purchases') ||
+      this.router.url.includes('/command-details')
+    );
+  }
 }

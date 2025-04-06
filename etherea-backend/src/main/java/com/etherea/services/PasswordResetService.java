@@ -24,7 +24,6 @@ public class PasswordResetService {
     private EmailService emailService;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
     public void sendPasswordResetLink(ForgotPasswordRequestDTO request) {
         User user = userRepository.findByUsername(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("No users found with this email"));

@@ -29,7 +29,7 @@ public class Command {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id", nullable = false)
+    @JoinColumn(name = "cart_id", unique = true, nullable = false)
     private Cart cart;
     @OneToMany(mappedBy = "command", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommandItem> commandItems = new ArrayList<>();

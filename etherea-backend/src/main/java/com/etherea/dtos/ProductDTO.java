@@ -23,11 +23,12 @@ public class ProductDTO {
     private String ingredients;
     private String characteristics;
     private String image;
+    private boolean newProduct;
     private List<VolumeDTO> volumes = new ArrayList<>();
     public ProductDTO() {}
     public ProductDTO(Long id, String name, String description, ProductType type, BigDecimal basePrice, int stockQuantity,
                       StockStatus stockStatus, String benefits, String usageTips, String ingredients,
-                      String characteristics, String image, List<VolumeDTO> volumes) {
+                      String characteristics, String image, boolean newProduct, List<VolumeDTO> volumes) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -40,6 +41,7 @@ public class ProductDTO {
         this.ingredients = ingredients;
         this.characteristics = characteristics;
         this.image = image;
+        this.newProduct = newProduct;
         this.volumes = volumes;
     }
     public Long getId() { return id; }
@@ -66,6 +68,12 @@ public class ProductDTO {
     public void setCharacteristics(String characteristics) { this.characteristics = characteristics; }
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
+    public boolean isNewProduct() {
+        return newProduct;
+    }
+    public void setNewProduct(boolean newProduct) {
+        this.newProduct = newProduct;
+    }
     public List<VolumeDTO> getVolumes() { return volumes; }
     public void setVolumes(List<VolumeDTO> volumes) { this.volumes = volumes; }
     public static ProductDTO fromProduct(Product product) {
@@ -82,6 +90,7 @@ public class ProductDTO {
                 product.getIngredients(),
                 product.getCharacteristics(),
                 product.getImage(),
+                product.isNewProduct(),
                 product.getVolumes() != null
                         ? product.getVolumes().stream().map(VolumeDTO::fromVolume).collect(Collectors.toList())
                         : null        );
@@ -100,6 +109,7 @@ public class ProductDTO {
         product.setIngredients(this.ingredients);
         product.setCharacteristics(this.characteristics);
         product.setImage(this.image);
+        product.setNewProduct(this.newProduct);
         if (this.volumes != null) {
             this.volumes.forEach(volumeDTO -> {
                 Volume volume = volumeDTO.toVolume(product);

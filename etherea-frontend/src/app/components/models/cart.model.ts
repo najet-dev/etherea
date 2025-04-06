@@ -1,6 +1,6 @@
-import { Product } from './product.model';
 import { FaceProduct } from './faceProduct.model';
 import { HairProduct } from './hairProduct.model';
+import { Product } from './product.model';
 import { ProductVolume } from './productVolume.model';
 
 export interface Cart {

@@ -85,15 +85,11 @@ export class MenuComponent implements OnInit {
   }
 
   logout() {
-    console.log('Logging out');
-
-    // Appel à la méthode logout() du service AuthService
     this.authService.logout().subscribe({
       next: () => {
         this.isLoggedIn = false; // Réinitialiser l'état de connexion
         this.favoriteCount = 0; // Réinitialiser le compteur de favoris
         this.cartCount = 0;
-        console.log('User logged out successfully');
       },
       error: (err) => {
         console.error('Error during logout:', err);
