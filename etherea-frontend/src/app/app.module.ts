@@ -65,6 +65,7 @@ import { TipDetailComponent } from './components/tip-detail/tip-detail.component
 import { AddressesComponent } from './components/addresses/addresses.component';
 import { AddressEditDialogComponent } from './components/address-edit-dialog/address-edit-dialog.component';
 import { NewProductsComponent } from './components/new-products/new-products.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
   declarations: [

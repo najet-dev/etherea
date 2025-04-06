@@ -31,6 +31,11 @@ import { Tip } from '../components/models/tip.model';
 import { TipService } from './tip.service';
 import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 import { CommandItem } from '../components/models/commandItem.model';
+import { OrderService } from './order.service';
+import { SignupRequest } from '../components/models/signupRequest.model';
+import { CommandResponse } from '../components/models/commandResponse.model';
+import { CommandStatus } from '../components/models/commandStatus.model';
+import { Volume } from '../components/models/volume.model';
 
 @Injectable({
   providedIn: 'root',
