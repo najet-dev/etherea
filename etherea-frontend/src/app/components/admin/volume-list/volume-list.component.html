@@ -13,12 +13,11 @@
   <div class="row">
     <div class="col-12">
       <div class="table-responsive">
-        <!-- Table -->
         <table class="table table-striped table-bordered text-center">
           <thead>
             <tr>
               <th scope="col">Id</th>
-              <th scope="col">Nom du produit</th>
+              <th scope="col">ID du produit</th>
               <th scope="col">Volume</th>
               <th scope="col">Prix</th>
               <th scope="col">Actions</th>
@@ -27,7 +26,7 @@
           <tbody>
             <tr *ngFor="let volume of volumes">
               <td>{{ volume.id }}</td>
-              <td>{{ volume.productName }}</td>
+              <td>{{ volume.productId }}</td>
               <td>{{ volume.volume }}</td>
               <td>{{ volume.price }}</td>
               <td>

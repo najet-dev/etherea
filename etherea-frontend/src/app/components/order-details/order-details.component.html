@@ -1,34 +1,89 @@
-<div
-  *ngIf="loading"
-  class="d-flex justify-content-center align-items-center min-vh-100"
->
-  <div class="spinner-border" role="status">
-    <span class="visually-hidden">Chargement...</span>
-  </div>
-</div>
+<div class="container-fluid py-5 px-3 px-md-5">
+  <div class="row">
+    <!-- Button to open mobile menu -->
+    <button
+      class="btn btnFavorite d-md-none my-3"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileSidebar"
+    >
+      Menu
+    </button>
 
-<div *ngIf="errorMessage" class="alert alert-danger text-center">
-  {{ errorMessage }}
-</div>
+    <!-- Responsive sidebar (offcanvas on mobile) -->
+    <div class="offcanvas offcanvas-start d-md-none" id="mobileSidebar">
+      <div class="offcanvas-header">
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+      <div class="offcanvas-body">
+        <app-sidebar></app-sidebar>
+      </div>
+    </div>
 
-<div *ngIf="commandItems.length > 0" class="container py-5">
-  <h2 class="text-center mb-4">Détails de ma commande</h2>
+    <!-- Classic desktop sidebar-->
+    <div class="col-md-4 col-lg-3 d-none d-md-block">
+      <app-sidebar></app-sidebar>
+    </div>
 
-  <div *ngFor="let item of commandItems" class="card mb-4 shadow-sm">
-    <div class="card-body">
-      <h5 class="card-title">{{ item.productName }}</h5>
-      <p class="card-text">
-        <strong>Prix :</strong>
-        {{ item.unitPrice | currency : "EUR" : "symbol" : "1.2-2" }}
-      </p>
-      <p class="card-text">
-        <strong>Total :</strong>
-        {{ item.totalPrice | currency : "EUR" : "symbol" : "1.2-2" }}
-      </p>
+    <!-- Main content -->
+    <div class="col-md-8 col-lg-9">
+      <div class="breadcrumb mb-3">
+        <a [routerLink]="'/purchases'" class="return-link">Retour</a>
+      </div>
+
+      <div *ngIf="commandItems.length > 0" class="container py-5">
+        <h2 class="text-center mb-4">Détails de ma commande</h2>
+
+        <div
+          *ngFor="let item of commandItems; let last = last"
+          class="order-item"
+        >
+          <a
+            class="productDetails text-decoration-none text-dark d-block"
+            *ngIf="item.id"
+            [routerLink]="['/productDetails', item.id]"
+          >
+            <div class="row g-4 align-items-center">
+              <div class="col-12 col-sm-4 col-md-3 text-center">
+                <img
+                  [src]="item.image"
+                  class="img-fluid order-image"
+                  [alt]="item.productName"
+                />
+              </div>
+              <div class="col-12 col-sm-8 col-md-9">
+                <h5 class="product-name">{{ item.productName }}</h5>
+
+                <div class="info-row">
+                  <span class="info-label">Prix unitaire</span>
+                  <span class="info-value">
+                    {{ item.unitPrice | currency : "EUR" : "symbol" : "1.2-2" }}
+                  </span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Quantité</span>
+                  <span class="info-value">{{ item.quantity }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Total</span>
+                  <span class="info-value">
+                    {{
+                      item.totalPrice | currency : "EUR" : "symbol" : "1.2-2"
+                    }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </a>
+
+          <!-- Separator between each product except the last -->
+          <div *ngIf="!last" class="separator"></div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-
-<div *ngIf="commandItems.length === 0" class="text-center py-5">
-  <p class="fs-4">Aucun produit trouvé pour cette commande.</p>
 </div>

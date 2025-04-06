@@ -6,15 +6,17 @@ public class CommandItemDTO {
     private Long id;
     private String productName;
     private int quantity;
+    private String image;
     private double unitPrice;
     private double totalPrice;
 
     public CommandItemDTO() {}
 
-    public CommandItemDTO(Long id, String productName, int quantity, double unitPrice, double totalPrice) {
+    public CommandItemDTO(Long id, String productName, int quantity, String image, double unitPrice, double totalPrice) {
         this.id = id;
         this.productName = productName;
         this.quantity = quantity;
+        this.image = image;
         this.unitPrice = unitPrice;
         this.totalPrice = totalPrice;
     }
@@ -31,11 +33,15 @@ public class CommandItemDTO {
     public String getProductName() {
         return productName;
     }
-
     public void setProductName(String productName) {
         this.productName = productName;
     }
-
+    public String getImage() {
+        return image;
+    }
+    public void setImage(String image) {
+        this.image = image;
+    }
     public int getQuantity() {
         return quantity;
     }
@@ -60,12 +66,13 @@ public class CommandItemDTO {
         this.totalPrice = totalPrice;
     }
 
-    // Méthode de conversion depuis CommandItem
+    // Conversion method from CommandItem
     public static CommandItemDTO fromCommandItem(CommandItem commandItem) {
         return new CommandItemDTO(
                 commandItem.getId(),
                 commandItem.getProductName(),
                 commandItem.getQuantity(),
+                commandItem.getProduct() != null ? commandItem.getProduct().getImage() : null,
                 commandItem.getUnitPrice(),
                 commandItem.getTotalPrice()
         );

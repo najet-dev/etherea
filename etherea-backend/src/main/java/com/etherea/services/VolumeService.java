@@ -19,23 +19,21 @@ import java.math.BigDecimal;
 public class VolumeService {
     @Autowired
     private VolumeRepository volumeRepository;
+
     @Autowired
     private ProductRepository productRepository;
+
     public Page<VolumeDTO> getAllVolumes(int page, int size) {
         Page<Volume> volumePage = volumeRepository.findAll(PageRequest.of(page, size));
-        return volumePage.map(volume -> new VolumeDTO(
-                volume.getId(),
-                volume.getProduct().getName(),
-                volume.getVolume(),
-                volume.getPrice())
-        );
+        return volumePage.map(VolumeDTO::fromVolume); // Utilisation du helper fromVolume
     }
     @Transactional
-    public VolumeDTO addVolume(String productName, VolumeDTO volumeDTO) {
-        Product product = productRepository.findByName(productName)
+    public VolumeDTO addVolume(VolumeDTO volumeDTO) {
+        Long productId = volumeDTO.getProductId();
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> {
-                    System.out.println("Produit non trouvé avec le nom: " + productName);
-                    return new ProductNotFoundException("Produit non trouvé avec le nom: " + productName);
+                    System.out.println("Produit non trouvé avec l'ID: " + productId);
+                    return new ProductNotFoundException("Produit non trouvé avec l'ID: " + productId);
                 });
 
         if (product.getType() != ProductType.HAIR) {
@@ -45,23 +43,24 @@ public class VolumeService {
 
         Volume volume = volumeDTO.toVolume(product);
         volume = volumeRepository.save(volume);
-        return new VolumeDTO(volume.getId(), product.getName(), volume.getVolume(), volume.getPrice());
+        return VolumeDTO.fromVolume(volume);
     }
+
     @Transactional
     public VolumeDTO updateVolume(Long volumeId, VolumeDTO volumeDTO) {
         Volume existingVolume = volumeRepository.findById(volumeId)
                 .orElseThrow(() -> new VolumeNotFoundException("Volume non trouvé avec ID: " + volumeId));
 
-        // Update fields
         if (volumeDTO.getVolume() > 0) {
             existingVolume.setVolume(volumeDTO.getVolume());
         }
+
         if (volumeDTO.getPrice() != null && volumeDTO.getPrice().compareTo(BigDecimal.ZERO) > 0) {
             existingVolume.setPrice(volumeDTO.getPrice());
         }
 
         existingVolume = volumeRepository.save(existingVolume);
-        return new VolumeDTO(existingVolume.getId(), existingVolume.getProduct().getName(), existingVolume.getVolume(), existingVolume.getPrice());
+        return VolumeDTO.fromVolume(existingVolume);
     }
 
     public boolean deleteVolume(Long id) {

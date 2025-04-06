@@ -21,7 +21,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatListModule } from '@angular/material/list';
 import { CreamComponent } from './components/cream/cream.component';
-import { NewComponent } from './components/new/new.component';
 import { HairComponent } from './components/hair/hair.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
@@ -63,8 +62,9 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { PurchasesComponent } from './components/purchases/purchases.component';
 import { TipsComponent } from './components/tips/tips.component';
 import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
-import { AuthService } from './services/auth.service';
-import { RouterModule } from '@angular/router';
+import { AddressesComponent } from './components/addresses/addresses.component';
+import { AddressEditDialogComponent } from './components/address-edit-dialog/address-edit-dialog.component';
+import { NewProductsComponent } from './components/new-products/new-products.component';
 
 @NgModule({
   declarations: [
@@ -72,7 +72,6 @@ import { RouterModule } from '@angular/router';
     HomeComponent,
     MenuComponent,
     CreamComponent,
-    NewComponent,
     HairComponent,
     ContactComponent,
     ProductDetailsComponent,
@@ -105,6 +104,9 @@ import { RouterModule } from '@angular/router';
     PurchasesComponent,
     TipsComponent,
     TipDetailComponent,
+    AddressesComponent,
+    AddressEditDialogComponent,
+    NewProductsComponent,
   ],
   imports: [
     CommonModule,

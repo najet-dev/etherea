@@ -1,40 +1,32 @@
-import { Component, OnInit } from '@angular/core';
-import { CommandItem } from '../models/commandItem.model';
-import { OrderService } from 'src/app/services/order.service';
+import { Component, inject, effect, DestroyRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { AppFacade } from 'src/app/services/appFacade.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommandItem } from '../models/commandItem.model';
 
 @Component({
   selector: 'app-order-details',
   templateUrl: './order-details.component.html',
   styleUrls: ['./order-details.component.css'],
+  standalone: false,
 })
-export class OrderDetailsComponent implements OnInit {
+export class OrderDetailsComponent {
   commandItems: CommandItem[] = [];
-  loading = true;
-  errorMessage = '';
 
-  constructor(
-    private orderService: OrderService,
-    private route: ActivatedRoute
-  ) {}
+  private appFacade = inject(AppFacade);
+  private route = inject(ActivatedRoute);
 
-  ngOnInit(): void {
-    const commandId = +this.route.snapshot.paramMap.get('id')!; // Récupérer l'ID de la commande depuis l'URL
-    this.fetchOrderDetails(commandId);
-  }
+  constructor() {
+    const destroyRef = inject(DestroyRef);
 
-  fetchOrderDetails(commandId: number): void {
-    this.orderService.getCommandById(commandId).subscribe({
-      next: (data) => {
-        console.log('Fetched products from API:', data);
-        this.commandItems = data; // Assignez le tableau de produits
-        this.loading = false; // Le chargement est terminé
-      },
-      error: (error) => {
-        this.errorMessage =
-          'Erreur lors de la récupération des détails de la commande';
-        this.loading = false;
-      },
-    });
+    const orderId = +this.route.snapshot.paramMap.get('id')!;
+    this.appFacade
+      .getOrderId(orderId)
+      .pipe(takeUntilDestroyed(destroyRef))
+      .subscribe({
+        next: (data) => {
+          this.commandItems = data;
+        },
+      });
   }
 }

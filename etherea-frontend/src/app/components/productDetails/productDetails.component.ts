@@ -53,6 +53,7 @@ export class ProductDetailsComponent implements OnInit {
       basePrice: 0,
       image: '',
       isFavorite: false,
+      newProduct: false,
     },
     hairProduct: null,
     faceProduct: null,
@@ -97,7 +98,7 @@ export class ProductDetailsComponent implements OnInit {
             console.log('This is a Hair Product');
             this.product = product as HairProduct;
 
-            // Gestion des volumes
+            // Volume management
             if (this.product.volumes?.length) {
               this.selectedVolume = this.product.volumes[0];
               console.log('Selected Volume:', this.selectedVolume);
@@ -314,6 +315,7 @@ export class ProductDetailsComponent implements OnInit {
         basePrice: 0,
         image: '',
         isFavorite: false,
+        newProduct: false,
       },
       hairProduct: null,
       faceProduct: null,
@@ -327,7 +329,7 @@ export class ProductDetailsComponent implements OnInit {
   toggleDetailPopup() {
     this.showDetailPopup = !this.showDetailPopup;
   }
-  //fleche
+  //arrow
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
   }

@@ -19,10 +19,10 @@ import { UpdateVolumeComponent } from './update-volume/update-volume.component';
 import { AddVolumeComponent } from './add-volume/add-volume.component';
 import { OrderListComponent } from './order-list/order-list.component';
 import { TipListComponent } from './tip-list/tip-list.component';
-import { AddTipComponent } from './add-tip/add-tip.component';
+import { AdminDashbordComponent } from './admin-dashbord/admin-dashbord.component';
+import { AdminMenuComponent } from './admin-menu/admin-menu.component';
 import { UpdateTipComponent } from './update-tip/update-tip.component';
-import { MatInputModule } from '@angular/material/input';
-import { RouterModule } from '@angular/router';
+import { AddTipComponent } from './add-tip/add-tip.component'; // Ajout du module
 
 @NgModule({
   declarations: [
@@ -39,8 +39,10 @@ import { RouterModule } from '@angular/router';
     AddVolumeComponent,
     OrderListComponent,
     TipListComponent,
-    AddTipComponent,
+    AdminDashbordComponent,
+    AdminMenuComponent,
     UpdateTipComponent,
+    AddTipComponent,
   ],
   imports: [
     CommonModule,

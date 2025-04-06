@@ -27,6 +27,7 @@ public class Product {
     private String ingredients;
     private String characteristics;
     private String image;
+    private boolean newProduct = false;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Volume> volumes = new ArrayList<>();
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
@@ -38,7 +39,7 @@ public class Product {
 
     public Product() {}
     public Product(String name, String description, ProductType type, BigDecimal basePrice, int stockQuantity, String benefits,
-                   String usageTips, String ingredients, String characteristics, String image) {
+                   String usageTips, String ingredients, String characteristics, String image, boolean newProduct) {
         this.name = name;
         this.description = description;
         this.type = type;
@@ -49,6 +50,7 @@ public class Product {
         this.ingredients = ingredients;
         this.characteristics = characteristics;
         this.image = image;
+        this.newProduct = newProduct;
     }
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -76,6 +78,13 @@ public class Product {
     public void setCharacteristics(String characteristics) { this.characteristics = characteristics; }
     public String getImage() { return image; }
     public void setImage(String image) { this.image = image; }
+    public boolean isNewProduct() {
+        return newProduct;
+    }
+    public void setNewProduct(boolean newProduct) {
+        this.newProduct = newProduct;
+    }
+
     public List<Volume> getVolumes() { return volumes; }
     public void setVolumes(List<Volume> volumes) { this.volumes = volumes; }
     public List<CommandItem> getCommandItems() { return commandItems; }

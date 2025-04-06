@@ -1,6 +1,5 @@
 package com.etherea.services;
 
-import com.etherea.dtos.UpdateProductDTO;
 import com.etherea.dtos.VolumeDTO;
 import com.etherea.enums.ProductType;
 import com.etherea.exception.ProductNotFoundException;
@@ -45,13 +44,19 @@ public class ProductService {
         // Convertir Page<Product> en Page<ProductDTO>
         return productsPage.map(ProductDTO::fromProduct);
     }
+    public Page<ProductDTO> getNewProducts(int page, int size) {
+        // Retrieve page of users
+        Page<Product> newProductsPage = productRepository.findByNewProductTrue(PageRequest.of(page, size));
 
-    public List<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
-        return productRepository.findByType(type, pageable)
-                .getContent()
-                .stream()
-                .map(ProductDTO::fromProduct)
-                .collect(Collectors.toList());
+        // Convert Page<User> to Page<UserDTO>
+        return newProductsPage.map(ProductDTO::fromProduct);
+    }
+    public Page<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
+        // Retrieve a product page by type with pagination and sorting
+        Page<Product> productsPage = productRepository.findByType(type, pageable);
+
+        // Convert Page<Product> to Page<ProductDTO>.
+        return productsPage.map(ProductDTO::fromProduct);
     }
     public ProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)

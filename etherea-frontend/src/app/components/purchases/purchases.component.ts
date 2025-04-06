@@ -26,11 +26,7 @@ export class PurchasesComponent implements OnInit {
     CANCELLED: 'ANNULÉ',
   };
 
-  constructor(
-    private orderService: OrderService,
-    private appFacade: AppFacade,
-    private router: Router
-  ) {}
+  constructor(private appFacade: AppFacade, private router: Router) {}
 
   ngOnInit(): void {
     this.appFacade.getCurrentUserDetails().subscribe({
@@ -53,7 +49,7 @@ export class PurchasesComponent implements OnInit {
   }
 
   fetchUserCommands(userId: number): void {
-    this.orderService.getUserOrders(userId).subscribe({
+    this.appFacade.getUserOrders(userId).subscribe({
       next: (data) => {
         this.commands = data.map((command) => ({
           ...command,

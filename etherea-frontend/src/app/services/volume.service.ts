@@ -50,7 +50,7 @@ export class VolumeService {
     });
 
     return this.httpClient
-      .post<Volume>(`${this.apiUrl}/volumes/products`, volume, {
+      .post<Volume>(`${this.apiUrl}/volumes/add`, volume, {
         headers,
       })
       .pipe(

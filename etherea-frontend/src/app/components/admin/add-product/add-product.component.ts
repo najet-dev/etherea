@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Product, ProductType } from '../../models';
 import { ProductService } from 'src/app/services/product.service';
 import { StockStatus } from '../../models/stock-status.enum';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-add-product',
@@ -22,13 +23,14 @@ export class AddProductComponent {
     stockQuantity: 1,
     stockStatus: StockStatus.AVAILABLE,
     image: '',
+    newProduct: false,
   };
   ProductType = ProductType;
   selectedFile: File | null = null;
   StockStatus = StockStatus;
   successMessage = ''; // Variable pour le message de succès
 
-  constructor(private productService: ProductService) {}
+  constructor(private appFacade: AppFacade) {}
 
   // Méthode pour traiter le changement d'image
   onFileChange(event: any): void {
@@ -44,7 +46,7 @@ export class AddProductComponent {
       return;
     }
 
-    this.productService.addProduct(this.product, this.selectedFile).subscribe({
+    this.appFacade.addProduct(this.product, this.selectedFile).subscribe({
       next: (response) => {
         console.log('Produit ajouté avec succès:', response);
         this.successMessage = 'Produit ajouté avec succès.';
@@ -74,6 +76,7 @@ export class AddProductComponent {
       stockQuantity: 1,
       stockStatus: StockStatus.AVAILABLE,
       image: '',
+      newProduct: false,
     };
     this.selectedFile = null;
     setTimeout(() => {

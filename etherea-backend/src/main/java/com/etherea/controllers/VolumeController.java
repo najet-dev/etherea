@@ -21,7 +21,6 @@ public class VolumeController {
     @Autowired
     private VolumeService volumeService;
 
-    // Méthode pour récupérer tous les volumes
     @GetMapping
     public ResponseEntity<Page<VolumeDTO>> getAllVolumes(
             @RequestParam(defaultValue = "0") int page,
@@ -34,11 +33,12 @@ public class VolumeController {
 
         return ResponseEntity.ok(volumes);
     }
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/products/{productName}")
-    public ResponseEntity<VolumeDTO> addVolume(@PathVariable String productName, @RequestBody VolumeDTO volumeDTO) {
+
+    // Nouveau POST sans utiliser productName
+    @PostMapping("/add")
+    public ResponseEntity<VolumeDTO> addVolume(@RequestBody VolumeDTO volumeDTO) {
         try {
-            VolumeDTO createdVolume = volumeService.addVolume(productName, volumeDTO);
+            VolumeDTO createdVolume = volumeService.addVolume(volumeDTO);
             return new ResponseEntity<>(createdVolume, HttpStatus.CREATED);
         } catch (ProductNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -48,8 +48,7 @@ public class VolumeController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    // Méthode pour mettre à jour un volume
-    @PreAuthorize("hasRole('ADMIN')")
+
     @PutMapping("/{volumeId}")
     public ResponseEntity<VolumeDTO> updateVolume(@PathVariable Long volumeId, @RequestBody VolumeDTO volumeDTO) {
         try {
@@ -64,8 +63,6 @@ public class VolumeController {
         }
     }
 
-    // Méthode pour supprimer un volume
-    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteVolume(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
