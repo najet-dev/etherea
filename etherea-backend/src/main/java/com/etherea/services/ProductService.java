@@ -1,12 +1,9 @@
 package com.etherea.services;
 
-import com.etherea.dtos.UpdateProductDTO;
-import com.etherea.dtos.UserDTO;
 import com.etherea.dtos.VolumeDTO;
 import com.etherea.enums.ProductType;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.models.Product;
-import com.etherea.models.User;
 import com.etherea.repositories.ProductRepository;
 import com.etherea.dtos.ProductDTO;
 import jakarta.transaction.Transactional;
@@ -38,13 +35,13 @@ public class ProductService {
     private final ModelMapper modelMapper = new ModelMapper();
 
     public Page<ProductDTO> getProducts(int page, int size) {
-        // Retrieve a product page with pagination and sorting
+        // Récupérer une page de produits avec pagination et tri
         Page<Product> productsPage = productRepository.findByTypeIn(
                 List.of(ProductType.FACE, ProductType.HAIR),
-                PageRequest.of(page, size)
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"))
         );
 
-        // Convert Page<Product> to Page<ProductDTO>
+        // Convertir Page<Product> en Page<ProductDTO>
         return productsPage.map(ProductDTO::fromProduct);
     }
     public Page<ProductDTO> getNewProducts(int page, int size) {
@@ -61,14 +58,13 @@ public class ProductService {
         // Convert Page<Product> to Page<ProductDTO>.
         return productsPage.map(ProductDTO::fromProduct);
     }
-
     public ProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("No product found with ID: " + id));
 
         ProductDTO productDTO = ProductDTO.fromProduct(product);
 
-        // If the product is HAIR, retrieve the associated volumes
+        // Si le produit est de type HAIR, récupérer les volumes associés
         if (product.getType() == ProductType.HAIR) {
             List<VolumeDTO> volumeDTOs = product.getVolumes().stream()
                     .map(VolumeDTO::fromVolume)
@@ -95,7 +91,6 @@ public class ProductService {
             }
         }
         Product product = convertToProduct(productDTO);
-        product.setNewProduct(productDTO.isNewProduct());
         productRepository.save(product);
     }
     @Transactional
@@ -134,8 +129,6 @@ public class ProductService {
         if (StringUtils.hasText(updatedProductDTO.getImage())) {
             existingProduct.setImage(updatedProductDTO.getImage());
         }
-        existingProduct.setNewProduct(updatedProductDTO.isNewProduct());
-
         if (updatedProductDTO.getType() != null) {
             existingProduct.setType(updatedProductDTO.getType());
         }
