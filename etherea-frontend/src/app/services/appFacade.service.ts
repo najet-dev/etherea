@@ -141,7 +141,22 @@ export class AppFacade {
   }> {
     return this.productService.getNewProducts(page, size);
   }
+  searchProductsByName(name: string): Observable<Product[]> {
+    return this.productService.searchProductsByName(name);
+  }
+  addProduct(product: Product, image: File): Observable<Product> {
+    return this.productService.addProduct(product, image);
+  }
+  updateProduct(
+    updateProduct: Partial<Product>,
+    image?: File
+  ): Observable<Product> {
+    return this.productService.updateProduct(updateProduct, image);
+  }
 
+  deleteProduct(id: number): Observable<void> {
+    return this.productService.deleteProduct(id);
+  }
   // DeliveryAddress
   getUserDeliveryAddresses(userId: number): Observable<DeliveryAddress[]> {
     return this.deliveryAddressService.getUserDeliveryAddresses(userId);

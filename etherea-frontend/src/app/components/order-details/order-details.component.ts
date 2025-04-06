@@ -1,8 +1,8 @@
 import { Component, inject, effect, DestroyRef } from '@angular/core';
-import { CommandItem } from '../models/commandItem.model';
 import { ActivatedRoute } from '@angular/router';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CommandItem } from '../models/commandItem.model';
 
 @Component({
   selector: 'app-order-details',

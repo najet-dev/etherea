@@ -17,7 +17,9 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { TipListComponent } from './tip-list/tip-list.component';
 import { AdminDashbordComponent } from './admin-dashbord/admin-dashbord.component';
-import { AdminMenuComponent } from './admin-menu/admin-menu.component'; // Ajout du module
+import { AdminMenuComponent } from './admin-menu/admin-menu.component';
+import { UpdateTipComponent } from './update-tip/update-tip.component';
+import { AddTipComponent } from './add-tip/add-tip.component'; // Ajout du module
 
 @NgModule({
   declarations: [
@@ -34,6 +36,8 @@ import { AdminMenuComponent } from './admin-menu/admin-menu.component'; // Ajout
     TipListComponent,
     AdminDashbordComponent,
     AdminMenuComponent,
+    UpdateTipComponent,
+    AddTipComponent,
   ],
   imports: [
     CommonModule,

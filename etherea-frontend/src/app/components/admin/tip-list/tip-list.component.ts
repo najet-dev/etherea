@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PageEvent } from '@angular/material/paginator';
 import { tap, catchError, of, switchMap } from 'rxjs';
 import { AppFacade } from 'src/app/services/appFacade.service';
-import { Volume } from '../../models/volume.model';
 import { Tip } from '../../models/tip.model';
+import { TipService } from 'src/app/services/tip.service';
 
 @Component({
   selector: 'app-tip-list',
@@ -19,7 +19,7 @@ export class TipListComponent {
   pageSize: number = 10;
   private destroyRef = inject(DestroyRef);
 
-  constructor(private appFacade: AppFacade) {}
+  constructor(private appFacade: AppFacade, private tipService: TipService) {}
 
   ngOnInit(): void {
     this.loadTips();
@@ -43,6 +43,23 @@ export class TipListComponent {
         takeUntilDestroyed(this.destroyRef)
       )
       .subscribe();
+  }
+  deleteTip(tipId: number): void {
+    this.tipService
+      .deleteTip(tipId)
+      .pipe(
+        switchMap(() =>
+          this.tipService.getAlltips(this.currentPage, this.pageSize)
+        ),
+        catchError((error) => {
+          console.error('Erreur lors de la suppression du produit:', error);
+          return of({ content: [], totalElements: 0, totalPages: 1 });
+        })
+      )
+      .subscribe((response) => {
+        this.tips = response.content;
+        this.totalPages = response.totalPages;
+      });
   }
 
   onPageChanged(event: PageEvent): void {

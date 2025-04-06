@@ -5,18 +5,22 @@ import { UserListComponent } from './user-list/user-list.component';
 import { ProductListComponent } from './product-list/product-list.component';
 import { AddProductComponent } from './add-product/add-product.component';
 import { UpdateProductComponent } from './update-product/update-product.component';
+import { AddUserComponent } from './add-user/add-user.component';
+import { AdminDashbordComponent } from './admin-dashbord/admin-dashbord.component';
 import { VolumeListComponent } from './volume-list/volume-list.component';
 import { AddVolumeComponent } from './add-volume/add-volume.component';
 import { UpdateVolumeComponent } from './update-volume/update-volume.component';
-import { AddUserComponent } from './add-user/add-user.component';
 import { OrderListComponent } from './order-list/order-list.component';
 import { TipListComponent } from './tip-list/tip-list.component';
-import { AdminDashbordComponent } from './admin-dashbord/admin-dashbord.component';
+import { AddTipComponent } from './add-tip/add-tip.component';
+import { UpdateTipComponent } from './update-tip/update-tip.component';
+import { AdminGuard } from 'src/app/guards/admin.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: AdminComponent,
+    canActivate: [AdminGuard],
     children: [
       {
         path: '',
@@ -44,6 +48,8 @@ const routes: Routes = [
       { path: 'update-volume', component: UpdateVolumeComponent },
       { path: 'admin-orders', component: OrderListComponent },
       { path: 'admin-tips', component: TipListComponent },
+      { path: 'add-tip', component: AddTipComponent },
+      { path: 'update-tip', component: UpdateTipComponent },
     ],
   },
 ];
