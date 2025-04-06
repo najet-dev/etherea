@@ -16,7 +16,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatListModule } from '@angular/material/list';
 import { CreamComponent } from './components/cream/cream.component';
-import { NewComponent } from './components/new/new.component';
 import { HairComponent } from './components/hair/hair.component';
 import { ProductDetailsComponent } from './components/productDetails/productDetails.component';
 import { CartComponent } from './components/cart/cart.component';
@@ -62,6 +61,7 @@ import { RouterModule } from '@angular/router';
 import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
 import { AddressesComponent } from './components/addresses/addresses.component';
 import { AddressEditDialogComponent } from './components/address-edit-dialog/address-edit-dialog.component';
+import { NewProductsComponent } from './components/new-products/new-products.component';
 
 @NgModule({
   declarations: [
@@ -69,7 +69,6 @@ import { AddressEditDialogComponent } from './components/address-edit-dialog/add
     HomeComponent,
     MenuComponent,
     CreamComponent,
-    NewComponent,
     HairComponent,
     ContactComponent,
     ProductDetailsComponent,
@@ -105,6 +104,7 @@ import { AddressEditDialogComponent } from './components/address-edit-dialog/add
     TipDetailComponent,
     AddressesComponent,
     AddressEditDialogComponent,
+    NewProductsComponent,
   ],
   imports: [
     CommonModule,

@@ -39,10 +39,10 @@ public class CommandService {
 
     // Retrieves all commands
     public Page<CommandResponseDTO> getAllCommands(int page, int size) {
-        // Récupérer une page de commandes
+        // Retrieve an order page
         Page<Command> commandsPage = commandRepository.findAll(PageRequest.of(page, size));
 
-        // Convertir Page<Command> en Page<CommandResponseDTO>
+        // Convert Page<Command> to Page<CommandResponseDTO>
         return commandsPage.map(CommandResponseDTO::fromEntity);
     }
 
@@ -140,13 +140,13 @@ public class CommandService {
                     unitPrice,
                     cartItem.getProduct(),
                     command, // Associate with the command
-                    cartItem.getProduct().getName()
-            );
+                    cartItem.getProduct().getName(),
+                    cartItem.getProduct().getImage()
+                    );
 
             commandItem.setTotalPrice(commandItem.getQuantity() * unitPrice);
             commandItems.add(commandItem);
         }
-
         return commandItems;
     }
 
@@ -160,15 +160,15 @@ public class CommandService {
         Command command = commandRepository.findById(commandId)
                 .orElseThrow(() -> new CommandNotFoundException("Order not found with ID: " + commandId));
 
-        // Vérification logique des transitions de statut
+        // Checking status transitions
         if (command.getStatus() == CommandStatus.DELIVERED || command.getStatus() == CommandStatus.CANCELLED) {
-            throw new IllegalStateException("Impossible de modifier une commande déjà livrée ou annulée.");
+            throw new CommandNotFoundException("Impossible de modifier une commande déjà livrée ou annulée.");
         }
 
         command.setStatus(newStatus);
         commandRepository.save(command);
 
-        // Envoyer un e-mail si nécessaire
+        // Send an e-mail if necessary
         if (newStatus == CommandStatus.PAID) {
             String subject = "Confirmation de votre commande";
             String emailContent = generateOrderConfirmationEmail(command);

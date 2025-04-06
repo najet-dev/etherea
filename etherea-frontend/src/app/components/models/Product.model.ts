@@ -15,4 +15,5 @@ export interface Product {
   stockStatus: StockStatus;
   image: string;
   isFavorite?: boolean;
+  newProduct: boolean;
 }

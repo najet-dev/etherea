@@ -43,15 +43,34 @@ public class ProductController {
 
         return ResponseEntity.ok(productsPage);
     }
+    @GetMapping("/newProduct")
+    public ResponseEntity<Page<ProductDTO>> getNewProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Page<ProductDTO> productsPage = productService.getNewProducts(page, size);
 
+        if (productsPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.ok(productsPage);
+    }
     @GetMapping("/type")
-    public ResponseEntity<List<ProductDTO>> getProductsByTypeAndPagination(
+    public ResponseEntity<Page<ProductDTO>> getProductsByType(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam ProductType type) {
+
         Pageable pageable = PageRequest.of(page, size);
-        return ResponseEntity.ok(productService.getProductsByType(pageable, type));
+        Page<ProductDTO> productsPage = productService.getProductsByType(pageable, type);
+
+        if (productsPage.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        return ResponseEntity.ok(productsPage);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         try {

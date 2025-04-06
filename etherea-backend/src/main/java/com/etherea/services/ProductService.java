@@ -1,10 +1,12 @@
 package com.etherea.services;
 
 import com.etherea.dtos.UpdateProductDTO;
+import com.etherea.dtos.UserDTO;
 import com.etherea.dtos.VolumeDTO;
 import com.etherea.enums.ProductType;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.models.Product;
+import com.etherea.models.User;
 import com.etherea.repositories.ProductRepository;
 import com.etherea.dtos.ProductDTO;
 import jakarta.transaction.Transactional;
@@ -36,30 +38,37 @@ public class ProductService {
     private final ModelMapper modelMapper = new ModelMapper();
 
     public Page<ProductDTO> getProducts(int page, int size) {
-        // Récupérer une page de produits avec pagination et tri
+        // Retrieve a product page with pagination and sorting
         Page<Product> productsPage = productRepository.findByTypeIn(
                 List.of(ProductType.FACE, ProductType.HAIR),
-                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"))
+                PageRequest.of(page, size)
         );
 
-        // Convertir Page<Product> en Page<ProductDTO>
+        // Convert Page<Product> to Page<ProductDTO>
+        return productsPage.map(ProductDTO::fromProduct);
+    }
+    public Page<ProductDTO> getNewProducts(int page, int size) {
+        // Retrieve page of users
+        Page<Product> newProductsPage = productRepository.findByNewProductTrue(PageRequest.of(page, size));
+
+        // Convert Page<User> to Page<UserDTO>
+        return newProductsPage.map(ProductDTO::fromProduct);
+    }
+    public Page<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
+        // Retrieve a product page by type with pagination and sorting
+        Page<Product> productsPage = productRepository.findByType(type, pageable);
+
+        // Convert Page<Product> to Page<ProductDTO>.
         return productsPage.map(ProductDTO::fromProduct);
     }
 
-    public List<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
-        return productRepository.findByType(type, pageable)
-                .getContent()
-                .stream()
-                .map(ProductDTO::fromProduct)
-                .collect(Collectors.toList());
-    }
     public ProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("No product found with ID: " + id));
 
         ProductDTO productDTO = ProductDTO.fromProduct(product);
 
-        // Si le produit est de type HAIR, récupérer les volumes associés
+        // If the product is HAIR, retrieve the associated volumes
         if (product.getType() == ProductType.HAIR) {
             List<VolumeDTO> volumeDTOs = product.getVolumes().stream()
                     .map(VolumeDTO::fromVolume)
@@ -86,6 +95,7 @@ public class ProductService {
             }
         }
         Product product = convertToProduct(productDTO);
+        product.setNewProduct(productDTO.isNewProduct());
         productRepository.save(product);
     }
     @Transactional
@@ -124,6 +134,8 @@ public class ProductService {
         if (StringUtils.hasText(updatedProductDTO.getImage())) {
             existingProduct.setImage(updatedProductDTO.getImage());
         }
+        existingProduct.setNewProduct(updatedProductDTO.isNewProduct());
+
         if (updatedProductDTO.getType() != null) {
             existingProduct.setType(updatedProductDTO.getType());
         }

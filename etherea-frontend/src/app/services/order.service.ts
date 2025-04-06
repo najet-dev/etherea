@@ -1,17 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {
-  BehaviorSubject,
-  catchError,
-  Observable,
-  of,
-  tap,
-  throwError,
-} from 'rxjs';
+import { catchError, Observable, of, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { CommandStatus } from '../components/models/commandStatus.enum';
-import { CommandItem } from '../components/models/commandItem.model';
 import { CommandResponse } from '../components/models/commandResponse.model';
+import { CommandItem } from '../components/models/commandItem.model';
 
 @Injectable({
   providedIn: 'root',
@@ -56,9 +49,10 @@ export class OrderService {
       `${this.apiUrl}/command/user/${userId}/command/${commandId}`
     );
   }
-  getCommandById(id: number): Observable<CommandItem[]> {
+
+  getOrderId(id: number): Observable<CommandItem[]> {
     return this.httpClient
-      .get<CommandItem[]>(`${this.apiUrl}/command/${id}/items`) // Notez le changement de type
+      .get<CommandItem[]>(`${this.apiUrl}/command/${id}/items`)
       .pipe(
         tap((products) => {
           console.log('Fetched product from API:', products);
@@ -92,7 +86,7 @@ export class OrderService {
   ): Observable<CommandStatus> {
     const backendStatus = this.mapToBackendStatus(newStatus);
 
-    // Vérification si le statut est valide (optionnel)
+    // Vérification si le statut est valide
     if (!backendStatus) {
       // Utilisation de throwError avec une fonction génératrice d'erreur
       return throwError(() => new Error('Statut invalide.'));
@@ -107,7 +101,7 @@ export class OrderService {
       .pipe(
         catchError((error) => {
           console.error('Erreur lors de la mise à jour du statut:', error);
-          return of(error); // On retourne l'erreur si elle survient
+          return of(error);
         })
       );
   }

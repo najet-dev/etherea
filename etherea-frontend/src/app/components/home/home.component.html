@@ -6,7 +6,7 @@
   />
 </div>
 
-<!-- Section À Propos -->
+<!-- About us section -->
 <div class="container mt-5 py-5">
   <div class="row align-items-center">
     <div class="col-md-5 text-center">
@@ -28,7 +28,7 @@
   </div>
 </div>
 
-<!-- section avec les catégories -->
+<!-- section with categories -->
 <div class="container mt-5">
   <div class="row">
     <div class="col-12 text-center">
@@ -68,7 +68,7 @@
     </div>
   </div>
 </div>
-<!-- Section Notre Histoire -->
+<!-- Our History section -->
 <div class="container mt-5 py-5">
   <div class="row align-items-center">
     <div class="col-md-6">
@@ -83,14 +83,14 @@
     </div>
     <div class="col-md-6 text-center">
       <img
-        src="/assets/story (2).webp"
+        src="/assets/story.webp"
         alt="Notre Histoire"
         class="img-fluid rounded shadow"
       />
     </div>
   </div>
 </div>
-<!-- Section Best Sellers -->
+<!-- Best Sellers section -->
 <div class="container best-sellers mt-5">
   <div class="row">
     <div class="col-12 text-center">
@@ -151,7 +151,7 @@
   </div>
 </div>
 
-<!-- Section Nos Conseils -->
+<!-- Our Tips section -->
 <div class="container mt-5 py-5">
   <div class="row">
     <div class="col-12 text-center">
@@ -159,6 +159,10 @@
     </div>
   </div>
 
-  <!-- Affichage des conseils sans breadcrumb ni pagination -->
-  <app-tips [showPagination]="false" [showBreadcrumb]="false"></app-tips>
+  <!-- Display 3 tips without breadcrumb or pagination -->
+  <app-tips
+    [limit]="3"
+    [showPagination]="false"
+    [showBreadcrumb]="false"
+  ></app-tips>
 </div>

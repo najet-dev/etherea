@@ -27,6 +27,7 @@ import { OrderDetailsComponent } from './components/order-details/order-details.
 import { TipsComponent } from './components/tips/tips.component';
 import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
 import { AddressesComponent } from './components/addresses/addresses.component';
+import { NewProductsComponent } from './components/new-products/new-products.component';
 
 const routes: Routes = [
   {
@@ -64,6 +65,7 @@ const routes: Routes = [
   { path: 'tips/:id', component: TipDetailComponent },
   { path: 'addresses', component: AddressesComponent },
   { path: 'addresses/:addressId', component: AddressesComponent },
+  { path: 'new-product', component: NewProductsComponent },
 
   {
     path: 'cream',
@@ -74,11 +76,6 @@ const routes: Routes = [
     path: 'hair',
     loadChildren: () =>
       import('./components/hair/hair.module').then((m) => m.HairModule),
-  },
-  {
-    path: 'new',
-    loadChildren: () =>
-      import('./components/new/new.module').then((m) => m.NewModule),
   },
   {
     path: 'admin',

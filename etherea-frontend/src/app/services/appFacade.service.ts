@@ -35,6 +35,7 @@ import { CommandStatus } from '../components/models/commandStatus.enum';
 import { Tip } from '../components/models/tip.model';
 import { TipService } from './tip.service';
 import { DeliveryAddress } from '../components/models/deliveryAddress.model';
+import { CommandItem } from '../components/models/commandItem.model';
 
 @Injectable({
   providedIn: 'root',
@@ -105,8 +106,8 @@ export class AppFacade {
 
   // Products
   getAllProducts(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{
     content: Product[];
     totalElements: number;
@@ -119,12 +120,26 @@ export class AppFacade {
     type: string,
     page: number,
     size: number
-  ): Observable<Product[]> {
+  ): Observable<{
+    content: Product[];
+    totalElements: number;
+    totalPages: number;
+  }> {
     return this.productService.getProductsByType(type, page, size);
   }
 
   getProductById(id: number): Observable<Product> {
     return this.productService.getProductById(id);
+  }
+  getNewProducts(
+    page: number = 0,
+    size: number = 5
+  ): Observable<{
+    content: Product[];
+    totalElements: number;
+    totalPages: number;
+  }> {
+    return this.productService.getNewProducts(page, size);
   }
 
   // DeliveryAddress
@@ -161,8 +176,8 @@ export class AppFacade {
 
   // User
   getAllUsers(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{
     content: SignupRequest[];
     totalElements: number;
@@ -217,8 +232,8 @@ export class AppFacade {
   }
   //order
   getAllOrders(
-    page: number = 0,
-    size: number = 10
+    page: number,
+    size: number
   ): Observable<{
     content: CommandResponse[];
     totalElements: number;
@@ -226,6 +241,21 @@ export class AppFacade {
   }> {
     return this.orderService.getAllOrders(page, size);
   }
+
+  getUserOrders(userId: number): Observable<CommandResponse[]> {
+    return this.orderService.getUserOrders(userId);
+  }
+
+  getOrderId(orderId: number): Observable<CommandItem[]> {
+    return this.orderService.getOrderId(orderId);
+  }
+  getUserOrderById(
+    userId: number,
+    commandId: number
+  ): Observable<CommandResponse> {
+    return this.orderService.getUserOrderById(userId, commandId);
+  }
+
   updateOrderStatus(
     orderId: number,
     newStatus: string
@@ -274,8 +304,8 @@ export class AppFacade {
   }
   //volume
   getAllVolumes(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{
     content: Volume[];
     totalElements: number;
@@ -289,8 +319,8 @@ export class AppFacade {
   }
   //tips
   getAllTips(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{
     content: Tip[];
     totalElements: number;

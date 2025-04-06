@@ -1,7 +1,8 @@
 export interface CommandItem {
   id: number;
   productName: string;
-  quanttity: number;
+  quantity: number;
   unitPrice: number;
   totalPrice: number;
+  image: String;
 }

@@ -35,3 +35,26 @@
 .arrow-icon:hover {
   color: var(--main-color);
 }
+
+@media screen and (min-width: 768px) and (max-width: 1204px) {
+  .btnMenu {
+    white-space: nowrap;
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
+    padding: 8px 5px;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(231, 241, 231);
+  }
+}
+@media (max-width: 767px) {
+  .btnMenu {
+    width: 100%;
+    background-color: rgb(231, 241, 231);
+  }
+}

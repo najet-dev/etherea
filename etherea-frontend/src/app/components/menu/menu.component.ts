@@ -6,7 +6,6 @@ import { CartService } from 'src/app/services/cart.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { Cart } from '../models/cart.model';
-import { Product } from '../models';
 
 @Component({
   selector: 'app-menu',
@@ -64,7 +63,7 @@ export class MenuComponent implements OnInit {
   }
 
   isCurrentRoute(route: string): boolean {
-    return this.router.url === route || this.router.url === '/'; // Ajout de la vérification pour la route '/'
+    return this.router.url === route || this.router.url === '/';
   }
 
   toggleBurgerMenu() {
@@ -85,15 +84,11 @@ export class MenuComponent implements OnInit {
   }
 
   logout() {
-    console.log('Logging out');
-
-    // Appel à la méthode logout() du service AuthService
     this.authService.logout().subscribe({
       next: () => {
         this.isLoggedIn = false; // Réinitialiser l'état de connexion
         this.favoriteCount = 0; // Réinitialiser le compteur de favoris
         this.cartCount = 0;
-        console.log('User logged out successfully');
       },
       error: (err) => {
         console.error('Error during logout:', err);
