@@ -9,6 +9,7 @@ import { AddDeliveryMethodRequest } from '../components/models/addDeliveryMethod
 import { UpdateDeliveryMethodRequest } from '../components/models/updateDeliveryMethodRequest.model';
 import { DeliveryName } from '../components/models/deliveryName.enum';
 import { DeliveryType } from '../components/models/deliveryType.model';
+import { DeliveryMethod } from '../components/models/deliveryMethod.model';
 
 @Injectable({
   providedIn: 'root',

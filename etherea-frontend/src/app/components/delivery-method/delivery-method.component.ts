@@ -27,10 +27,6 @@ import {
 } from '../models/deliveryName.enum';
 import { UpdateDeliveryMethodRequest } from '../models/updateDeliveryMethodRequest.model';
 import { DeliveryType } from '../models/deliveryType.model';
-import {
-  DeliveryName,
-  DeliveryNameTranslations,
-} from '../models/deliveryName.enum';
 
 @Component({
   selector: 'app-delivery-method',
@@ -72,7 +68,6 @@ export class DeliveryMethodComponent implements OnInit {
   deliveryTypeId!: number;
   selectedDeliveryType!: DeliveryType;
   selectedDeliveryMethod!: DeliveryMethod;
-  DeliveryNameTranslations = DeliveryNameTranslations;
   DeliveryNameTranslations = DeliveryNameTranslations;
 
   constructor(

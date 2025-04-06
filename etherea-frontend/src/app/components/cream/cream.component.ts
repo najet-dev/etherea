@@ -21,7 +21,7 @@ import { SearchService } from 'src/app/services/search.service';
   templateUrl: './cream.component.html',
   styleUrls: ['./cream.component.css'],
 })
-export class CreamComponent implements OnInit {
+export class CreamComponent {
   products$: Observable<Product[]> = of([]);
   userId: number | null = null;
   currentPage: number = 0;
