@@ -6,6 +6,7 @@ import { CartService } from './cart.service';
 import { Cart } from '../components/models/cart.model';
 import { Favorite } from '../components/models/favorite.model';
 import { Product } from '../components/models/product.model';
+import { SignupRequest } from '../components/models/signupRequest.model';
 import { UserService } from './user.service';
 import { DeliveryAddressService } from './delivery-address.service';
 import { DeliveryMethodService } from './delivery-method.service';
@@ -27,15 +28,14 @@ import { ResetPasswordRequest } from '../components/models/resetPasswordRequest.
 import { ResetPasswordResponse } from '../components/models/resetPasswordResponse.model';
 import { Newsletter } from '../components/models/newsletter.model';
 import { VolumeService } from './volume.service';
+import { Volume } from '../components/models/volume.model';
+import { CommandResponse } from '../components/models/commandResponse.model';
+import { OrderService } from './order.service';
+import { CommandStatus } from '../components/models/commandStatus.enum';
 import { Tip } from '../components/models/tip.model';
 import { TipService } from './tip.service';
 import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 import { CommandItem } from '../components/models/commandItem.model';
-import { OrderService } from './order.service';
-import { SignupRequest } from '../components/models/signupRequest.model';
-import { CommandResponse } from '../components/models/commandResponse.model';
-import { CommandStatus } from '../components/models/commandStatus.model';
-import { Volume } from '../components/models/volume.model';
 
 @Injectable({
   providedIn: 'root',
@@ -277,7 +277,6 @@ export class AppFacade {
   ): Observable<CommandStatus> {
     return this.orderService.updateOrderStatus(orderId, newStatus);
   }
-
   //payment
   createPayment(paymentRequest: PaymentRequest): Observable<PaymentResponse> {
     return this.paymentService.createPayment(paymentRequest);

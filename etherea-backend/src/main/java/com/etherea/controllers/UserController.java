@@ -39,18 +39,6 @@ public class UserController {
     }
     @Autowired
     private UserService userService;
-    @GetMapping
-    public ResponseEntity<Page<UserDTO>> getAllUsers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<UserDTO> usersPage = userService.getAllUsers(page, size);
-
-        if (usersPage.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-
-        return ResponseEntity.ok(usersPage);
-    }
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {

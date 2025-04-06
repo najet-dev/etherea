@@ -23,6 +23,7 @@ import { BrandComponent } from './components/brand/brand.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 import { PurchasesComponent } from './components/purchases/purchases.component';
+import { OrderDetailsComponent } from './components/order-details/order-details.component';
 import { TipsComponent } from './components/tips/tips.component';
 import { TipDetailComponent } from './components/tip-detail/tip-detail.component';
 import { AddressesComponent } from './components/addresses/addresses.component';
@@ -59,6 +60,7 @@ const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'purchases', component: PurchasesComponent },
+  { path: 'command-details/:id', component: OrderDetailsComponent },
   { path: 'tips', component: TipsComponent },
   { path: 'tips/:id', component: TipDetailComponent },
   { path: 'addresses', component: AddressesComponent },

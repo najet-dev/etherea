@@ -5,7 +5,6 @@ import { AuthService } from 'src/app/services/auth.service';
 import { tap } from 'rxjs/operators';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Role } from '../models/role.enum';
 
 @Component({
   selector: 'app-signin',
@@ -87,11 +86,12 @@ export class SigninComponent implements OnInit {
       .signin(this.loginForm.value)
       .pipe(
         tap({
-          next: (signinData) => {
-            const isAdmin = signinData.roles.includes(Role.ROLE_ADMIN);
-            if (isAdmin) {
+          next: (user) => {
+            // Si l'utilisateur est un admin, rediriger vers l'admin dashboard
+            if (this.authService.isAdmin()) {
               this.router.navigate(['/admin/admin-dashboard']);
             } else {
+              // Sinon, rediriger vers la page d'accueil
               this.router.navigate(['/']);
             }
             this.loginForm.reset();

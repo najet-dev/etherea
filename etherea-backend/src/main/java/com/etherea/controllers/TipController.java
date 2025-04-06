@@ -123,16 +123,3 @@ public class TipController {
     }
 
 }
-
-    public ResponseEntity<Map<String, String>> deleteTip(@PathVariable Long id) {
-        try {
-            tipService.deleteTip(id);
-            return ResponseEntity.ok(Map.of("message", "Tip deleted successfully!"));
-        } catch (Exception e) {
-            // En cas d'erreur, renvoyer un message d'erreur au client
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error deleting the tip"));
-        }
-    }
-
-}
