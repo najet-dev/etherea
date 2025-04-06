@@ -4,7 +4,6 @@ import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { environment } from 'src/environments/environment';
-import { Router } from '@angular/router';
 import { SigninRequest } from '../components/models/signinRequest.model';
 import { Router } from '@angular/router';
 import { SignupRequest } from '../components/models/signupRequest.model';

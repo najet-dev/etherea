@@ -17,7 +17,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { TipListComponent } from './tip-list/tip-list.component';
 import { AdminDashbordComponent } from './admin-dashbord/admin-dashbord.component';
-import { AdminMenuComponent } from './admin-menu/admin-menu.component'; // Ajout du module
+import { AdminMenuComponent } from './admin-menu/admin-menu.component';
 
 @NgModule({
   declarations: [
