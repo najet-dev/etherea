@@ -24,8 +24,11 @@ export class TipsComponent implements OnInit {
   constructor(private tipService: TipService) {}
 
   ngOnInit(): void {
-    this.loadTips();
-    this.loadLimitedTips();
+    if (this.limit) {
+      this.loadLimitedTips();
+    } else {
+      this.loadTips();
+    }
   }
 
   loadTips(page: number = 0): void {
@@ -50,7 +53,7 @@ export class TipsComponent implements OnInit {
 
   loadLimitedTips(): void {
     this.tipService
-      .getAlltips(0, 1000) // On récupère "tout"
+      .getAlltips(0, 1000)
       .pipe(
         tap((response) => {
           this.tips = response.content.slice(0, this.limit);
