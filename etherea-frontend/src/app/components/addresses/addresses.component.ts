@@ -13,8 +13,8 @@ import { AddressEditDialogComponent } from '../address-edit-dialog/address-edit-
   templateUrl: './addresses.component.html',
   styleUrls: ['./addresses.component.css'],
 })
-export class AddressesComponent implements OnInit {
-  deliveryAddresses: DeliveryAddress[] = []; // Modification : tableau d'adresses
+export class AddressesComponent {
+  deliveryAddresses: DeliveryAddress[] = [];
   userId: number = 0;
   isLoading: boolean = true;
   errorMessage: string = '';
