@@ -50,8 +50,6 @@ export class AuthService {
           return throwError(() => new Error(errorMessage));
         }),
         switchMap((signin) => {
-          console.log('Signin response:', signin); // Log pour voir les rôles
-
           if (!signin.accessToken || !this.isValidJwt(signin.accessToken)) {
             console.error('Token JWT invalide.');
             return throwError(() => new Error('Token JWT invalide.'));

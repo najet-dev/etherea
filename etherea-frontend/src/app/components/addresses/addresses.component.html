@@ -44,11 +44,11 @@
 
                   <!-- Bouton "Définir comme principale" -->
                   <button
-                    *ngIf="!address.isDefault"
+                    *ngIf="!address.default"
                     class="btn btn-outline-primary btn-sm"
                     (click)="setAsDefault(address.id)"
                   >
-                    Définir comme principale
+                    Définir par défaut
                   </button>
                 </p>
               </ng-container>

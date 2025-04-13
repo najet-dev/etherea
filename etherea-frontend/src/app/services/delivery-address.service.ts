@@ -117,8 +117,14 @@ export class DeliveryAddressService {
       )
       .pipe(
         switchMap(() =>
-          this.getDeliveryAddress(userId, addressId).pipe(
-            tap((address) => this.defaultAddressSubject.next(address))
+          this.getUserDeliveryAddresses(userId).pipe(
+            tap((addresses) => this.deliveryAddressSubject.next(addresses)),
+            tap((addresses) => {
+              const defaultAddr = addresses.find((a) => a.default);
+              if (defaultAddr) {
+                this.defaultAddressSubject.next(defaultAddr);
+              }
+            })
           )
         ),
         catchError((error) => {

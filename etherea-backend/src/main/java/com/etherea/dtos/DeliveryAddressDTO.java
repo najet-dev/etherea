@@ -88,9 +88,8 @@ public class DeliveryAddressDTO {
     public DeliveryAddress toDeliveryAddress() {
         DeliveryAddress deliveryAddress = new DeliveryAddress();
 
-        // Ne pas réutiliser l'id s'il est null (création d'adresse)
         if (this.id != null) {
-            deliveryAddress.setId(this.id); // <-- OK pour les updates, ignoré pour les créations
+            deliveryAddress.setId(this.id);
         }
 
         deliveryAddress.setAddress(this.address);

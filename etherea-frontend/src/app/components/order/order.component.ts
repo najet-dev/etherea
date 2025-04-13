@@ -7,7 +7,6 @@ import { DeliveryAddress } from '../models/deliveryAddress.model';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { Cart } from '../models/cart.model';
 import { CartItemService } from 'src/app/services/cart-item.service';
-import { DeliveryAddressService } from 'src/app/services/delivery-address.service';
 
 @Component({
   selector: 'app-order',
@@ -46,12 +45,10 @@ export class OrderComponent implements OnInit {
     private appFacade: AppFacade,
     private router: Router,
     private route: ActivatedRoute,
-    public cartItemService: CartItemService,
-    private deliveryAddressService: DeliveryAddressService
+    public cartItemService: CartItemService
   ) {}
 
   ngOnInit() {
-    this.deliveryAddressService.resetAddresses();
     this.initializeForm();
 
     this.appFacade
@@ -60,7 +57,6 @@ export class OrderComponent implements OnInit {
         tap((user) => {
           if (user) {
             this.userId = user.id;
-            console.log('ID utilisateur défini:', this.userId);
             this.loadUserDetails(user.id);
           }
         }),
@@ -87,7 +83,6 @@ export class OrderComponent implements OnInit {
       .pipe(
         tap((user) => {
           if (user) {
-            console.log('Détails utilisateur chargés:', user);
             this.deliveryAddressForm.patchValue({
               firstName: user.firstName,
               lastName: user.lastName,
@@ -103,28 +98,18 @@ export class OrderComponent implements OnInit {
   }
 
   loadExistingAddresses(userId: number) {
-    console.log(
-      "Chargement des adresses existantes pour l'utilisateur:",
-      userId
-    );
-
     this.appFacade
       .getUserDeliveryAddresses(userId)
       .pipe(
         tap((addresses: DeliveryAddress[]) => {
-          console.log('Adresses existantes récupérées:', addresses);
           this.existingAddresses = addresses;
 
-          this.deliveryAddressService.defaultAddress$
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe((defaultAddress) => {
-              if (defaultAddress) {
-                console.log('Adresse par défaut trouvée:', defaultAddress);
-                this.populateAddressForm(defaultAddress);
-              } else if (addresses.length > 0) {
-                this.populateAddressForm(addresses[0]); // fallback
-              }
-            });
+          if (addresses.length > 0) {
+            this.populateAddressForm(addresses[0]);
+          } else {
+            this.errorMessage =
+              'Aucune adresse valide trouvée. Veuillez en ajouter une nouvelle.';
+          }
         }),
         catchError((error) => this.handleError('Adresses existantes', error))
       )
@@ -132,7 +117,6 @@ export class OrderComponent implements OnInit {
   }
 
   populateAddressForm(address: DeliveryAddress) {
-    console.log('Adresse à remplir dans le formulaire:', address);
     this.addressId = address.id;
     this.deliveryAddressForm.patchValue({
       firstName: address.user.firstName,
@@ -149,13 +133,10 @@ export class OrderComponent implements OnInit {
     this.cartItemService.loadCartItems(userId).subscribe({
       next: () => {
         this.cartItemService.cartTotal.subscribe((total) => {
-          console.log('Total du panier:', total);
           this.cartTotal = total;
         });
         this.cartItems = this.cartItemService.cartItems;
         this.isCartEmpty = !this.cartItems.length;
-        console.log('Éléments du panier:', this.cartItems);
-        console.log('Panier vide:', this.isCartEmpty);
       },
       error: () => this.handleError('Chargement du panier'),
     });
@@ -164,19 +145,9 @@ export class OrderComponent implements OnInit {
   onSubmit() {
     this.submitted = true;
 
-    // Vérifie si le formulaire est valide
     if (this.deliveryAddressForm.invalid) {
       this.errorMessage =
         'Veuillez remplir correctement tous les champs requis.';
-      console.warn('Formulaire invalide:', this.deliveryAddressForm);
-      return;
-    }
-
-    // Vérifie si l'utilisateur est authentifié
-    if (!this.userId) {
-      this.errorMessage =
-        'Utilisateur non authentifié. Veuillez vous reconnecter.';
-      console.warn('Utilisateur non authentifié, arrêt de la soumission.');
       return;
     }
 
@@ -185,37 +156,21 @@ export class OrderComponent implements OnInit {
       userId: this.userId,
     };
 
-    this.checkIfAddressExists(deliveryAddress)
-      .pipe(
-        tap((existingAddressId) => {
-          console.log(
-            'Résultat vérification adresse existante :',
-            existingAddressId
-          );
-
-          if (existingAddressId) {
-            this.router.navigate(['/deliveryMethod', existingAddressId]);
-          } else if (this.addressId) {
-            console.log('Mise à jour adresse existante');
+    this.checkIfAddressExists(deliveryAddress).subscribe(
+      (existingAddressId) => {
+        if (existingAddressId) {
+          // Si l’adresse existe, on navigue directement vers la page livraison
+          this.router.navigate(['/deliveryMethod', existingAddressId]);
+        } else {
+          // Sinon, on vérifie si c’est une mise à jour ou un ajout d’adresse
+          if (this.addressId) {
             this.updateAddress(deliveryAddress);
           } else {
-            console.log('Ajout nouvelle adresse');
             this.addAddress(deliveryAddress);
           }
-        }),
-        catchError((error) => {
-          if (error?.status === 401) {
-            this.errorMessage =
-              'Votre session a expiré. Veuillez vous reconnecter.';
-          } else {
-            this.errorMessage =
-              "Une erreur est survenue lors de l'envoi du formulaire.";
-            console.error('Erreur lors de la soumission :', error);
-          }
-          return of(null);
-        })
-      )
-      .subscribe();
+        }
+      }
+    );
   }
 
   addAddress(deliveryAddress: DeliveryAddress) {
@@ -224,8 +179,8 @@ export class OrderComponent implements OnInit {
       .pipe(
         tap((response) => {
           if (response?.id) {
+            // Redirection vers DeliveryMethodComponent avec l'ID de l'adresse
             this.router.navigate(['/deliveryMethod', response.id]);
-            console.log("Réponse après ajout d'adresse:", response);
           } else {
             this.errorMessage = "Erreur: L'ID de l'adresse est indéfini.";
           }
@@ -244,8 +199,8 @@ export class OrderComponent implements OnInit {
       .pipe(
         tap((response) => {
           if (response?.id) {
+            // Redirection vers DeliveryMethodComponent avec l'ID de l'adresse
             this.router.navigate(['/deliveryMethod', response.id]);
-            console.log("Réponse après ajout d'adresse:", response);
           } else {
             this.errorMessage = "Erreur: L'ID de l'adresse est indéfini.";
           }
@@ -268,14 +223,15 @@ export class OrderComponent implements OnInit {
             existing.country === address.country &&
             existing.phoneNumber == address.phoneNumber
         );
+        console.log('Adresse existante trouvée ?', existingAddress);
         return existingAddress ? existingAddress.id : null;
       }),
+
       catchError(() => of(null))
     );
   }
 
   handleError(context: string, error?: unknown) {
-    console.log(`Erreur survenue dans ${context}:`, error);
     if (error instanceof Error) {
       console.error(`Erreur lors de ${context}:`, error.message);
     } else {

@@ -14,7 +14,7 @@ import { AddressEditDialogComponent } from '../address-edit-dialog/address-edit-
   styleUrls: ['./addresses.component.css'],
 })
 export class AddressesComponent {
-  deliveryAddresses: DeliveryAddress[] = []; // Modification : tableau d'adresses
+  deliveryAddresses: DeliveryAddress[] = [];
   userId: number = 0;
   isLoading: boolean = true;
   errorMessage: string = '';
@@ -40,14 +40,13 @@ export class AddressesComponent {
         filter((user) => !!user?.id),
         switchMap((user) => {
           this.userId = user!.id;
-          // Récupération de toutes les adresses utilisateur
           return this.deliveryAddressService
             .getUserDeliveryAddresses(this.userId)
             .pipe(
               catchError(() => {
                 this.errorMessage =
                   'Erreur lors de la récupération des adresses.';
-                return of([]); // On retourne un tableau vide en cas d'erreur
+                return of([]);
               })
             );
         }),
@@ -55,26 +54,17 @@ export class AddressesComponent {
       )
       .subscribe({
         next: (addresses) => {
-          if (addresses.length > 0) {
-            // Charger l'adresse par défaut depuis le backend ou autre logique
-            const mainAddress = addresses.find(
-              (address) => address.isDefault === true
-            );
-            const otherAddresses = addresses.filter(
-              (address) => address.isDefault !== true
-            );
+          console.log('Addresses depuis API :', addresses);
 
-            // Mettre l'adresse principale en premier
-            this.deliveryAddresses = mainAddress
-              ? [mainAddress, ...otherAddresses]
-              : otherAddresses;
+          const mainAddress = addresses.find((a) => a.default);
+          const others = addresses.filter((a) => !a.default);
 
-            // Réinitialisation de l'adresse par défaut dans le BehaviorSubject
-            if (mainAddress) {
-              this.deliveryAddressService.setDefaultAddressState(mainAddress);
-            }
-          } else {
-            this.deliveryAddresses = [];
+          this.deliveryAddresses = mainAddress
+            ? [mainAddress, ...others]
+            : others;
+
+          if (mainAddress) {
+            this.deliveryAddressService.setDefaultAddressState(mainAddress);
           }
 
           this.isLoading = false;
@@ -106,34 +96,29 @@ export class AddressesComponent {
     if (!this.userId) return;
 
     this.deliveryAddressService
-      .setDefaultAddress(this.userId, addressId) // Envoi au backend pour marquer l'adresse comme principale
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap(() =>
-          this.deliveryAddressService.getUserDeliveryAddresses(this.userId)
-        ) // Rechargement des adresses après modification
-      )
+      .setDefaultAddress(this.userId, addressId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (addresses) => {
-          // Séparation de l'adresse principale des autres
-          const mainAddress = addresses.find(
-            (address) => address.isDefault === true
-          );
-          const otherAddresses = addresses.filter(
-            (address) => address.isDefault !== true
-          );
+        next: () => {
+          // Mise à jour immédiate locale sans attendre la réponse API
+          this.deliveryAddresses = this.deliveryAddresses.map((address) => ({
+            ...address,
+            default: address.id === addressId,
+          }));
 
-          // Si une adresse principale existe, on la met en premier dans la liste
+          //principale en haut
+          const mainAddress = this.deliveryAddresses.find(
+            (addr) => addr.default
+          );
+          const others = this.deliveryAddresses.filter((addr) => !addr.default);
           this.deliveryAddresses = mainAddress
-            ? [mainAddress, ...otherAddresses]
-            : otherAddresses;
+            ? [mainAddress, ...others]
+            : others;
 
-          // Réinitialiser l'adresse principale dans le service de gestion d'adresse
+          // Mise à jour du state global
           if (mainAddress) {
             this.deliveryAddressService.setDefaultAddressState(mainAddress);
           }
-
-          console.log('Adresses après modification', this.deliveryAddresses);
         },
         error: (error) =>
           this.handleError("Définition de l'adresse principale", error),

@@ -80,24 +80,18 @@ public class DeliveryAddressService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'ID: " + userId));
 
-        // Convert DTO -> Entity
         DeliveryAddress deliveryAddress = deliveryAddressDTO.toDeliveryAddress();
-
-        // ✅ Supprime toute trace d’ID pour éviter un override accidentel
-        deliveryAddress.setId(null); // <-- cette ligne est CRUCIALE
-
-        // Associer l'utilisateur
+        deliveryAddress.setId(null);
         deliveryAddress.setUser(user);
 
-        // Vérifie s'il existe déjà des adresses
-        boolean hasAddresses = !deliveryAddressRepository.findByUserId(userId).isEmpty();
+        List<DeliveryAddress> existingAddresses = deliveryAddressRepository.findByUserId(userId);
 
-        if (!hasAddresses) {
-            deliveryAddress.setDefault(true);
-        } else if (deliveryAddressDTO.isDefault()) {
-            deliveryAddressRepository.clearDefaultAddress(userId);
+        if (existingAddresses.isEmpty()) {
+            // La première adresse est automatiquement par défaut
             deliveryAddress.setDefault(true);
         } else {
+            // Toute nouvelle adresse ajoutée n'est PAS par défaut
+            // Peu importe la valeur du champ isDefault dans le DTO
             deliveryAddress.setDefault(false);
         }
 
