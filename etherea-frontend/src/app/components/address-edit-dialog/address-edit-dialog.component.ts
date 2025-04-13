@@ -30,7 +30,6 @@ export class AddressEditDialogComponent {
       city: ['', Validators.required],
       country: ['', Validators.required],
       phoneNumber: ['', Validators.required],
-      isPrimary: [false], // Option pour mettre l'adresse en principale
     });
   }
 

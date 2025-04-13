@@ -61,10 +61,10 @@ public class DeliveryMethodDTO {
                 Optional.ofNullable(deliveryMethod.getPickupPointDetails()).map(PickupPointDetailsDTO::fromEntity).orElse(null)
         );
     }
-    public DeliveryMethod toEntity() {
+    public DeliveryMethod toEntity(User user) {
         return new DeliveryMethod(
                 deliveryType.toEntity(),
-                null,
+                user,
                 deliveryAddress != null ? deliveryAddress.toDeliveryAddress() : null,
                 pickupPointDetails != null ? pickupPointDetails.toEntity() : null
         );

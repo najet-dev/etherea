@@ -80,19 +80,30 @@ public class DeliveryAddressService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'ID: " + userId));
 
+        // Convert DTO -> Entity
         DeliveryAddress deliveryAddress = deliveryAddressDTO.toDeliveryAddress();
+
+        // ✅ Supprime toute trace d’ID pour éviter un override accidentel
+        deliveryAddress.setId(null); // <-- cette ligne est CRUCIALE
+
+        // Associer l'utilisateur
         deliveryAddress.setUser(user);
 
-        // Désactiver l'ancienne adresse par défaut s'il y en a une
-        deliveryAddressRepository.clearDefaultAddress(userId);
+        // Vérifie s'il existe déjà des adresses
+        boolean hasAddresses = !deliveryAddressRepository.findByUserId(userId).isEmpty();
 
-        // Définir la nouvelle adresse comme l'adresse par défaut
-        deliveryAddress.setDefault(true);
+        if (!hasAddresses) {
+            deliveryAddress.setDefault(true);
+        } else if (deliveryAddressDTO.isDefault()) {
+            deliveryAddressRepository.clearDefaultAddress(userId);
+            deliveryAddress.setDefault(true);
+        } else {
+            deliveryAddress.setDefault(false);
+        }
+
         DeliveryAddress savedAddress = deliveryAddressRepository.save(deliveryAddress);
-
         return DeliveryAddressDTO.fromDeliveryAddress(savedAddress);
     }
-
 
     /**
      * Met à jour l'adresse de livraison pour un utilisateur donné.
@@ -106,7 +117,8 @@ public class DeliveryAddressService {
     @Transactional
     public DeliveryAddressDTO updateDeliveryAddress(Long userId, DeliveryAddressDTO deliveryAddressDTO) {
         // Récupération de l'utilisateur via UserService
-        UserDTO userDTO = userService.getUserById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'ID: " + userId));
 
         // Recherche de l'adresse à mettre à jour
         DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(deliveryAddressDTO.getId())

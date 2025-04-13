@@ -3,6 +3,7 @@ package com.etherea.controllers;
 import com.etherea.dtos.DeliveryAddressDTO;
 import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.exception.UserNotFoundException;
+import com.etherea.services.DefaultAddressService;
 import com.etherea.services.DeliveryAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,9 @@ import java.util.Map;
 public class DeliveryAddressController {
     @Autowired
     private DeliveryAddressService deliveryAddressService;
+    @Autowired
+    private DefaultAddressService defaultAddressService;
+
 
     /**
      * Retrieves all delivery addresses for a given user.
@@ -83,6 +87,17 @@ public class DeliveryAddressController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+    @PutMapping("/{userId}/{addressId}/set-default")
+    public ResponseEntity<Void> setDefaultAddress(@PathVariable Long userId, @PathVariable Long addressId) {
+        try {
+            defaultAddressService.setDefaultAddress(userId, addressId);
+            return ResponseEntity.ok().build();
+        } catch (UserNotFoundException | DeliveryAddressNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

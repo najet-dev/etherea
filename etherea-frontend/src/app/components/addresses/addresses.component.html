@@ -40,7 +40,16 @@
                 <p>{{ address.country }}</p>
                 <p class="d-flex align-items-center custom-phone">
                   <span>{{ address.phoneNumber }}</span>
-                  <button class="btn btn-link ms-auto">Modifier</button>
+                  <button class="btn btn-link ms-auto me-2">Modifier</button>
+
+                  <!-- Bouton "Définir comme principale" -->
+                  <button
+                    *ngIf="!address.isDefault"
+                    class="btn btn-outline-primary btn-sm"
+                    (click)="setAsDefault(address.id)"
+                  >
+                    Définir comme principale
+                  </button>
                 </p>
               </ng-container>
             </div>

@@ -112,9 +112,7 @@ export class AuthService {
           this.router.navigate(['/signin']);
         }),
         catchError((error) => {
-          this.storageService.clean();
-          this.AuthenticatedUser$.next(null);
-          this.router.navigate(['/signin']);
+          console.error('Erreur lors du logout :', error);
           return throwError(() => error);
         })
       );

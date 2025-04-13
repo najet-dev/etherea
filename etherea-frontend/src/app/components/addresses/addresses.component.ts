@@ -13,7 +13,7 @@ import { AddressEditDialogComponent } from '../address-edit-dialog/address-edit-
   templateUrl: './addresses.component.html',
   styleUrls: ['./addresses.component.css'],
 })
-export class AddressesComponent implements OnInit {
+export class AddressesComponent {
   deliveryAddresses: DeliveryAddress[] = []; // Modification : tableau d'adresses
   userId: number = 0;
   isLoading: boolean = true;
@@ -47,7 +47,7 @@ export class AddressesComponent implements OnInit {
               catchError(() => {
                 this.errorMessage =
                   'Erreur lors de la récupération des adresses.';
-                return of([]);
+                return of([]); // On retourne un tableau vide en cas d'erreur
               })
             );
         }),
@@ -56,18 +56,23 @@ export class AddressesComponent implements OnInit {
       .subscribe({
         next: (addresses) => {
           if (addresses.length > 0) {
-            // Séparer l'adresse principale des autres
+            // Charger l'adresse par défaut depuis le backend ou autre logique
             const mainAddress = addresses.find(
               (address) => address.isDefault === true
             );
-            const otherAddresses = addresses
-              .filter((address) => address.isDefault !== true)
-              .sort((a, b) => b.id - a.id); // Trier du plus récent au plus ancien
+            const otherAddresses = addresses.filter(
+              (address) => address.isDefault !== true
+            );
 
             // Mettre l'adresse principale en premier
             this.deliveryAddresses = mainAddress
               ? [mainAddress, ...otherAddresses]
               : otherAddresses;
+
+            // Réinitialisation de l'adresse par défaut dans le BehaviorSubject
+            if (mainAddress) {
+              this.deliveryAddressService.setDefaultAddressState(mainAddress);
+            }
           } else {
             this.deliveryAddresses = [];
           }
@@ -95,5 +100,43 @@ export class AddressesComponent implements OnInit {
         this.loadUserAndAddress(); // Rafraîchit la liste des adresses après ajout
       }
     });
+  }
+
+  setAsDefault(addressId: number): void {
+    if (!this.userId) return;
+
+    this.deliveryAddressService
+      .setDefaultAddress(this.userId, addressId) // Envoi au backend pour marquer l'adresse comme principale
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        switchMap(() =>
+          this.deliveryAddressService.getUserDeliveryAddresses(this.userId)
+        ) // Rechargement des adresses après modification
+      )
+      .subscribe({
+        next: (addresses) => {
+          // Séparation de l'adresse principale des autres
+          const mainAddress = addresses.find(
+            (address) => address.isDefault === true
+          );
+          const otherAddresses = addresses.filter(
+            (address) => address.isDefault !== true
+          );
+
+          // Si une adresse principale existe, on la met en premier dans la liste
+          this.deliveryAddresses = mainAddress
+            ? [mainAddress, ...otherAddresses]
+            : otherAddresses;
+
+          // Réinitialiser l'adresse principale dans le service de gestion d'adresse
+          if (mainAddress) {
+            this.deliveryAddressService.setDefaultAddressState(mainAddress);
+          }
+
+          console.log('Adresses après modification', this.deliveryAddresses);
+        },
+        error: (error) =>
+          this.handleError("Définition de l'adresse principale", error),
+      });
   }
 }

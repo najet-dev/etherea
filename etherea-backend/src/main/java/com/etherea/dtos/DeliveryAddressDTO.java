@@ -87,17 +87,24 @@ public class DeliveryAddressDTO {
     // Convert a DeliveryAddressDTO object to DeliveryAddress
     public DeliveryAddress toDeliveryAddress() {
         DeliveryAddress deliveryAddress = new DeliveryAddress();
-        deliveryAddress.setId(this.id);
+
+        // Ne pas réutiliser l'id s'il est null (création d'adresse)
+        if (this.id != null) {
+            deliveryAddress.setId(this.id); // <-- OK pour les updates, ignoré pour les créations
+        }
+
         deliveryAddress.setAddress(this.address);
         deliveryAddress.setCity(this.city);
         deliveryAddress.setZipCode(this.zipCode);
         deliveryAddress.setCountry(this.country);
         deliveryAddress.setPhoneNumber(this.phoneNumber);
         deliveryAddress.setDefault(this.isDefault);
-        // If user is not null, associate it with the delivery address
+
         if (this.user != null) {
             deliveryAddress.setUser(this.user.toUser());
         }
+
         return deliveryAddress;
     }
+
 }
