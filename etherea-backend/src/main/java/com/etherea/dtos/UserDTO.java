@@ -12,16 +12,14 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String username;
-    private String password;
     private Set<String> roles = new HashSet<>();
     public UserDTO() {
     }
-    public UserDTO(Long id, String firstName, String lastName, String username, String password, Set<String> roles) {
+    public UserDTO(Long id, String firstName, String lastName, String username, Set<String> roles) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
-        this.password = password;
         this.roles = roles;
     }
 
@@ -55,12 +53,6 @@ public class UserDTO {
     public void setUsername(String username) {
         this.username = username;
     }
-    public String getPassword() {
-        return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
-    }
     public Set<String> getRoles() {
         return roles;
     }
@@ -73,7 +65,7 @@ public class UserDTO {
         Set<String> roles = user.getRoles().stream()
                 .map(role -> role.getName().name())
                 .collect(Collectors.toSet());
-        return new UserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), user.getPassword(), roles);
+        return new UserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getUsername(), roles);
     }
 
     // Convert UserDTO to User
@@ -83,7 +75,6 @@ public class UserDTO {
         user.setFirstName(this.firstName);
         user.setLastName(this.lastName);
         user.setUsername(this.username);
-        user.setPassword(this.getPassword());
         user.setRoles(this.roles.stream().map(roleName -> {
             Role role = new Role();
             role.setName(ERole.valueOf(roleName));

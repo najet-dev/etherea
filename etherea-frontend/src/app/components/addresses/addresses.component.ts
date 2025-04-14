@@ -13,8 +13,8 @@ import { AddressEditDialogComponent } from '../address-edit-dialog/address-edit-
   templateUrl: './addresses.component.html',
   styleUrls: ['./addresses.component.css'],
 })
-export class AddressesComponent implements OnInit {
-  deliveryAddresses: DeliveryAddress[] = []; // Modification : tableau d'adresses
+export class AddressesComponent {
+  deliveryAddresses: DeliveryAddress[] = [];
   userId: number = 0;
   isLoading: boolean = true;
   errorMessage: string = '';
@@ -40,7 +40,6 @@ export class AddressesComponent implements OnInit {
         filter((user) => !!user?.id),
         switchMap((user) => {
           this.userId = user!.id;
-          // Récupération de toutes les adresses utilisateur
           return this.deliveryAddressService
             .getUserDeliveryAddresses(this.userId)
             .pipe(
@@ -55,21 +54,15 @@ export class AddressesComponent implements OnInit {
       )
       .subscribe({
         next: (addresses) => {
-          if (addresses.length > 0) {
-            // Séparer l'adresse principale des autres
-            const mainAddress = addresses.find(
-              (address) => address.isDefault === true
-            );
-            const otherAddresses = addresses
-              .filter((address) => address.isDefault !== true)
-              .sort((a, b) => b.id - a.id); // Trier du plus récent au plus ancien
+          const mainAddress = addresses.find((a) => a.default);
+          const others = addresses.filter((a) => !a.default);
 
-            // Mettre l'adresse principale en premier
-            this.deliveryAddresses = mainAddress
-              ? [mainAddress, ...otherAddresses]
-              : otherAddresses;
-          } else {
-            this.deliveryAddresses = [];
+          this.deliveryAddresses = mainAddress
+            ? [mainAddress, ...others]
+            : others;
+
+          if (mainAddress) {
+            this.deliveryAddressService.setDefaultAddressState(mainAddress);
           }
 
           this.isLoading = false;
@@ -96,4 +89,56 @@ export class AddressesComponent implements OnInit {
       }
     });
   }
+
+  setAsDefault(addressId: number): void {
+    if (!this.userId) return;
+
+    this.deliveryAddressService
+      .setDefaultAddress(this.userId, addressId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          // Mise à jour immédiate locale sans attendre la réponse API
+          this.deliveryAddresses = this.deliveryAddresses.map((address) => ({
+            ...address,
+            default: address.id === addressId,
+          }));
+
+          //principale en haut
+          const mainAddress = this.deliveryAddresses.find(
+            (addr) => addr.default
+          );
+          const others = this.deliveryAddresses.filter((addr) => !addr.default);
+          this.deliveryAddresses = mainAddress
+            ? [mainAddress, ...others]
+            : others;
+
+          // Mise à jour du state global
+          if (mainAddress) {
+            this.deliveryAddressService.setDefaultAddressState(mainAddress);
+          }
+        },
+        error: (error) =>
+          this.handleError("Définition de l'adresse principale", error),
+      });
+  }
+  editAddress(address: DeliveryAddress): void {
+    console.log('Adresse à modifier :', address);
+
+    const dialogRef = this.dialog.open(AddressEditDialogComponent, {
+      width: '500px',
+      data: {
+        isEdit: true,
+        address: { ...address }, // On clone pour ne pas modifier directement
+      },
+    });
+    console.log('Popup ouverte avec les données :', dialogRef);
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadUserAndAddress(); // On recharge les adresses après modification
+      }
+    });
+  }
+  deleteAddress(addressId: number): void {}
 }

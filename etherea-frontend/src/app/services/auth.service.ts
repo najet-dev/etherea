@@ -50,8 +50,6 @@ export class AuthService {
           return throwError(() => new Error(errorMessage));
         }),
         switchMap((signin) => {
-          console.log('Signin response:', signin); // Log pour voir les rôles
-
           if (!signin.accessToken || !this.isValidJwt(signin.accessToken)) {
             console.error('Token JWT invalide.');
             return throwError(() => new Error('Token JWT invalide.'));
@@ -112,9 +110,7 @@ export class AuthService {
           this.router.navigate(['/signin']);
         }),
         catchError((error) => {
-          this.storageService.clean();
-          this.AuthenticatedUser$.next(null);
-          this.router.navigate(['/signin']);
+          console.error('Erreur lors du logout :', error);
           return throwError(() => error);
         })
       );

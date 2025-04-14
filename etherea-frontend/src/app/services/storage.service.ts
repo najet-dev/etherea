@@ -45,8 +45,9 @@ export class StorageService {
   }
 
   logout(): void {
-    this.removeToken();
-    console.log('Utilisateur déconnecté');
+    console.log('Déconnexion utilisateur');
+    this.removeToken(); // supprime du localStorage
+    this.setLoggedIn(false);
     this.router.navigate(['/signin']);
   }
 
