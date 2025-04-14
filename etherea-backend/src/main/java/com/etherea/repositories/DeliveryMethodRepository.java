@@ -12,6 +12,4 @@ import java.util.Optional;
 @Repository
 public interface DeliveryMethodRepository extends JpaRepository<DeliveryMethod, Long> {
     List<DeliveryMethod> findByUserId(Long userId);
-
-
 }

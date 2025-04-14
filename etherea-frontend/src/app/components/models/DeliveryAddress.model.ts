@@ -8,5 +8,5 @@ export interface DeliveryAddress {
   country: string;
   phoneNumber: string;
   user: SignupRequest;
-  isDefault: boolean;
+  default: boolean;
 }

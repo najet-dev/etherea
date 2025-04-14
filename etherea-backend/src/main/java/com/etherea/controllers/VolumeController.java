@@ -20,7 +20,6 @@ import java.util.Map;
 public class VolumeController {
     @Autowired
     private VolumeService volumeService;
-
     @GetMapping
     public ResponseEntity<Page<VolumeDTO>> getAllVolumes(
             @RequestParam(defaultValue = "0") int page,
@@ -33,8 +32,6 @@ public class VolumeController {
 
         return ResponseEntity.ok(volumes);
     }
-
-    // Nouveau POST sans utiliser productName
     @PostMapping("/add")
     public ResponseEntity<VolumeDTO> addVolume(@RequestBody VolumeDTO volumeDTO) {
         try {
@@ -48,7 +45,6 @@ public class VolumeController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     @PutMapping("/{volumeId}")
     public ResponseEntity<VolumeDTO> updateVolume(@PathVariable Long volumeId, @RequestBody VolumeDTO volumeDTO) {
         try {
@@ -62,7 +58,6 @@ public class VolumeController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteVolume(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();

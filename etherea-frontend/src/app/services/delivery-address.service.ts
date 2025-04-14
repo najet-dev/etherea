@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  Observable,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { DeliveryAddress } from '../components/models/deliveryAddress.model';
@@ -9,8 +16,14 @@ import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 })
 export class DeliveryAddressService {
   apiUrl = environment.apiUrl;
+
   private deliveryAddressSubject = new BehaviorSubject<DeliveryAddress[]>([]);
   deliveryAddress$ = this.deliveryAddressSubject.asObservable();
+
+  private defaultAddressSubject = new BehaviorSubject<DeliveryAddress | null>(
+    null
+  );
+  defaultAddress$ = this.defaultAddressSubject.asObservable();
 
   constructor(private httpClient: HttpClient) {}
 
@@ -97,5 +110,42 @@ export class DeliveryAddressService {
           return throwError(() => error);
         })
       );
+  }
+  setDefaultAddress(userId: number, addressId: number) {
+    return this.httpClient
+      .put(
+        `${this.apiUrl}/deliveryAddresses/${userId}/${addressId}/set-default`,
+        {}
+      )
+      .pipe(
+        switchMap(() =>
+          this.getUserDeliveryAddresses(userId).pipe(
+            tap((addresses) => this.deliveryAddressSubject.next(addresses)),
+            tap((addresses) => {
+              const defaultAddr = addresses.find((a) => a.default);
+              if (defaultAddr) {
+                this.defaultAddressSubject.next(defaultAddr);
+              }
+            })
+          )
+        ),
+        catchError((error) => {
+          console.error(
+            "Erreur lors de la définition de l'adresse par défaut :",
+            error
+          );
+          return throwError(
+            () => new Error("Impossible de définir l'adresse par défaut.")
+          );
+        })
+      );
+  }
+
+  setDefaultAddressState(address: DeliveryAddress) {
+    this.defaultAddressSubject.next(address);
+  }
+  resetAddresses(): void {
+    this.deliveryAddressSubject.next([]);
+    this.defaultAddressSubject.next(null);
   }
 }

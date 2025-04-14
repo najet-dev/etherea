@@ -17,5 +17,6 @@ public interface DeliveryAddressRepository extends JpaRepository<DeliveryAddress
     @Modifying
     @Query("UPDATE DeliveryAddress da SET da.isDefault = false WHERE da.user.id = :userId AND da.isDefault = true")
     void clearDefaultAddress(@Param("userId") Long userId);
-
+    @Query("SELECT a FROM DeliveryAddress a JOIN FETCH a.user WHERE a.id = :id")
+    Optional<DeliveryAddress> findByIdWithUser(@Param("id") Long id);
 }

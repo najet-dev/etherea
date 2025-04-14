@@ -78,7 +78,6 @@ public class TipController {
         }
     }
 
-
     /**
      * Mettre à jour un conseil
      */

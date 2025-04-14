@@ -108,6 +108,7 @@ public class DeliveryMethodService {
         deliveryMethod.setDeliveryType(deliveryType);
 
         if (DeliveryName.PICKUP_POINT.equals(deliveryType.getDeliveryName())) {
+            // Logique pour les points de retrait (pickup)
             if (request.getPickupPointName() == null || request.getPickupPointAddress() == null) {
                 throw new DeliveryAddressNotFoundException("The name and address of the collection point are required.");
             }
@@ -121,8 +122,14 @@ public class DeliveryMethodService {
             pickupPoint = pickupPointDetailsRepository.save(pickupPoint);
             deliveryMethod.setPickupPointDetails(pickupPoint);
         } else if (request.getAddressId() != null) {
-            DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.getAddressId())
+            // Vérification de l'appartenance de l'adresse à l'utilisateur
+            DeliveryAddress deliveryAddress = deliveryAddressRepository.findByIdWithUser(request.getAddressId())
                     .orElseThrow(() -> new DeliveryAddressNotFoundException("Delivery address not found with ID: " + request.getAddressId()));
+
+            if (!deliveryAddress.getUser().getId().equals(user.getId())) {
+                throw new DeliveryAddressNotFoundException("This address does not belong to the current user.");
+            }
+
             deliveryMethod.setDeliveryAddress(deliveryAddress);
         } else {
             throw new DeliveryAddressNotFoundException("A delivery address or collection point must be specified.");
@@ -139,6 +146,7 @@ public class DeliveryMethodService {
 
         return DeliveryMethodDTO.fromEntity(savedDeliveryMethod);
     }
+
     @Transactional
     public DeliveryMethodDTO updateDeliveryMethod(Long deliveryMethodId, UpdateDeliveryMethodRequestDTO request) {
         logger.info("Update delivery mode with ID: {}", deliveryMethodId);
@@ -161,8 +169,14 @@ public class DeliveryMethodService {
             existingDeliveryMethod.setPickupPointDetails(pickupPoint);
             existingDeliveryMethod.setDeliveryAddress(null);
         } else if (request.getAddressId() != null) {
-            DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.getAddressId())
+            // Vérification de l'appartenance de l'adresse
+            DeliveryAddress deliveryAddress = deliveryAddressRepository.findByIdWithUser(request.getAddressId())
                     .orElseThrow(() -> new DeliveryAddressNotFoundException("Delivery address not found with ID: " + request.getAddressId()));
+
+            if (!deliveryAddress.getUser().getId().equals(existingDeliveryMethod.getUser().getId())) {
+                throw new DeliveryAddressNotFoundException("This address does not belong to the current user.");
+            }
+
             existingDeliveryMethod.setDeliveryAddress(deliveryAddress);
             existingDeliveryMethod.setPickupPointDetails(null);
         }
@@ -178,4 +192,5 @@ public class DeliveryMethodService {
 
         return DeliveryMethodDTO.fromEntity(updatedDeliveryMethod);
     }
+
 }

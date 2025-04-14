@@ -16,7 +16,7 @@ public class Command {
     private String referenceCode;
     @Enumerated(EnumType.STRING)
     private CommandStatus status;
-    @OneToOne( fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_address_id")
     private DeliveryAddress deliveryAddress;
     @ManyToOne( fetch = FetchType.LAZY, cascade = CascadeType.MERGE)

@@ -21,12 +21,12 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/addDeliveryMethodRequest.model';
-import { UpdateDeliveryMethodRequest } from '../models/updateDeliveryMethodRequest.model';
-import { DeliveryType } from '../models/deliveryType.model';
 import {
   DeliveryName,
   DeliveryNameTranslations,
 } from '../models/deliveryName.enum';
+import { UpdateDeliveryMethodRequest } from '../models/updateDeliveryMethodRequest.model';
+import { DeliveryType } from '../models/deliveryType.model';
 
 @Component({
   selector: 'app-delivery-method',
@@ -327,7 +327,6 @@ export class DeliveryMethodComponent implements OnInit {
     }
 
     if (!this.selectedDeliveryType || !this.selectedDeliveryType.id) {
-      console.error('Erreur : deliveryTypeId est null');
       this.errorMessage = 'Veuillez sélectionner un mode de livraison valide.';
       return;
     }
@@ -363,10 +362,6 @@ export class DeliveryMethodComponent implements OnInit {
 
     // Check if a delivery method already exists for the user
     if (this.deliveryMethodId) {
-      console.log(
-        'Méthode de livraison existante détectée, mise à jour en cours...'
-      );
-
       const updateRequest: UpdateDeliveryMethodRequest = {
         ...request,
         deliveryMethodId: this.deliveryMethodId, // Add existing ID
@@ -388,18 +383,10 @@ export class DeliveryMethodComponent implements OnInit {
           },
         });
     } else {
-      console.log('Aucune méthode existante, ajout d’une nouvelle méthode...');
-
       this.deliveryMethodService.addDeliveryMethod(request).subscribe({
         next: (response) => {
-          console.log('Méthode de livraison ajoutée avec succès :', response);
-
           if (response?.id) {
             this.deliveryMethodId = response.id;
-            console.log(
-              'ID de la méthode de livraison sélectionnée:',
-              this.deliveryMethodId
-            );
           } else {
             console.error("Erreur : l'ID de la méthode ajoutée est manquant !");
           }
@@ -418,11 +405,6 @@ export class DeliveryMethodComponent implements OnInit {
     this.isEditingDelivery = true;
     this.deliveryMethodId = deliveryMethodId;
     this.selectedDeliveryOption = null;
-
-    console.log(
-      'ID de la méthode de livraison sélectionnée:',
-      this.deliveryMethodId
-    ); // Debug
   }
 
   updateDeliveryOption(): void {
