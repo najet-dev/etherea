@@ -7,6 +7,7 @@ import { DeliveryAddress } from '../models/deliveryAddress.model';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { Cart } from '../models/cart.model';
 import { CartItemService } from 'src/app/services/cart-item.service';
+import { DeliveryAddressService } from 'src/app/services/delivery-address.service';
 
 @Component({
   selector: 'app-order',
@@ -45,9 +46,9 @@ export class OrderComponent implements OnInit {
     private appFacade: AppFacade,
     private router: Router,
     private route: ActivatedRoute,
-    public cartItemService: CartItemService
+    public cartItemService: CartItemService,
+    private deliveryAddressService: DeliveryAddressService
   ) {}
-
   ngOnInit() {
     this.initializeForm();
 
@@ -61,6 +62,18 @@ export class OrderComponent implements OnInit {
           }
         }),
         catchError((error) => this.handleError('Détails utilisateur', error))
+      )
+      .subscribe();
+
+    //Abonnement à l'adresse principale
+    this.deliveryAddressService.defaultAddress$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        tap((defaultAddress) => {
+          if (defaultAddress) {
+            this.populateAddressForm(defaultAddress);
+          }
+        })
       )
       .subscribe();
   }
@@ -105,7 +118,14 @@ export class OrderComponent implements OnInit {
           this.existingAddresses = addresses;
 
           if (addresses.length > 0) {
-            this.populateAddressForm(addresses[0]);
+            //On cherche l'adresse par défaut
+            const defaultAddress = addresses.find((a) => a.default);
+            if (defaultAddress) {
+              this.populateAddressForm(defaultAddress);
+            } else {
+              // Sinon on prend la première comme fallback (optionnel)
+              this.populateAddressForm(addresses[0]);
+            }
           } else {
             this.errorMessage =
               'Aucune adresse valide trouvée. Veuillez en ajouter une nouvelle.';

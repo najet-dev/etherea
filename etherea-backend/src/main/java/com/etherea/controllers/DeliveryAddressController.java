@@ -100,4 +100,29 @@ public class DeliveryAddressController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
+    /**
+     * Deletes a delivery address for a user.
+     *
+     * @param userId    The ID of the user.
+     * @param addressId The ID of the address to be deleted.
+     * @return ResponseEntity with the status of the operation.
+     */
+    @DeleteMapping("/{userId}/{addressId}")
+    public ResponseEntity<Map<String, String>> deleteDeliveryAddress(@PathVariable Long userId, @PathVariable Long addressId) {
+        try {
+            deliveryAddressService.deleteDeliveryAddress(userId, addressId);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Adresse supprimée avec succès.");
+            return ResponseEntity.ok(response);
+        } catch (UserNotFoundException | DeliveryAddressNotFoundException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Erreur lors de la suppression de l'adresse.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
 }

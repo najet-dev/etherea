@@ -16,8 +16,10 @@ import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 })
 export class DeliveryAddressService {
   apiUrl = environment.apiUrl;
+
   private deliveryAddressSubject = new BehaviorSubject<DeliveryAddress[]>([]);
   deliveryAddress$ = this.deliveryAddressSubject.asObservable();
+
   private defaultAddressSubject = new BehaviorSubject<DeliveryAddress | null>(
     null
   );

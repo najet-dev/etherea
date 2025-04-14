@@ -21,12 +21,12 @@ import { DeliveryMethodService } from 'src/app/services/delivery-method.service'
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { CartItemService } from 'src/app/services/cart-item.service';
 import { AddDeliveryMethodRequest } from '../models/addDeliveryMethodRequest.model';
-import { UpdateDeliveryMethodRequest } from '../models/updateDeliveryMethodRequest.model';
-import { DeliveryType } from '../models/deliveryType.model';
 import {
   DeliveryName,
   DeliveryNameTranslations,
 } from '../models/deliveryName.enum';
+import { UpdateDeliveryMethodRequest } from '../models/updateDeliveryMethodRequest.model';
+import { DeliveryType } from '../models/deliveryType.model';
 
 @Component({
   selector: 'app-delivery-method',
@@ -250,11 +250,14 @@ export class DeliveryMethodComponent implements OnInit {
   }
   selectPickupPoint(point: PickupPointDetails): void {
     this.selectedPickupPoint = point;
+    console.log('Point relais sélectionné:', this.selectedPickupPoint);
   }
 
   confirmPickupPoint(): void {
     if (this.selectedPickupPoint) {
       this.confirmedPickupPoint = this.selectedPickupPoint;
+
+      console.log('Point relais confirmé:', this.confirmedPickupPoint);
 
       // Save delivery method only after confirmation
       this.confirmDeliveryOption();
@@ -276,6 +279,8 @@ export class DeliveryMethodComponent implements OnInit {
       this.deliveryType.find(
         (delivery) => delivery.deliveryName === selectedType
       ) || ({} as DeliveryType);
+
+    console.log('Delivery Type sélectionné :', this.selectedDeliveryType);
 
     if (this.selectedDeliveryType) {
       this.deliveryCost = this.selectedDeliveryType.cost;
@@ -353,6 +358,8 @@ export class DeliveryMethodComponent implements OnInit {
       orderAmount: this.total ?? 0,
     };
 
+    console.log('Request sent to API:', request);
+
     // Check if a delivery method already exists for the user
     if (this.deliveryMethodId) {
       const updateRequest: UpdateDeliveryMethodRequest = {
@@ -364,6 +371,7 @@ export class DeliveryMethodComponent implements OnInit {
         .updateDeliveryMethod(this.deliveryMethodId, updateRequest)
         .subscribe({
           next: () => {
+            console.log('Méthode de livraison mise à jour avec succès');
             this.isEditingDelivery = false;
             this.loadDeliveryMethods(); // Refresh methods after update
           },
@@ -375,8 +383,6 @@ export class DeliveryMethodComponent implements OnInit {
           },
         });
     } else {
-      console.log('Aucune méthode existante, ajout d’une nouvelle méthode...');
-
       this.deliveryMethodService.addDeliveryMethod(request).subscribe({
         next: (response) => {
           if (response?.id) {
@@ -403,6 +409,7 @@ export class DeliveryMethodComponent implements OnInit {
 
   updateDeliveryOption(): void {
     if (!this.deliveryMethodId) {
+      console.error('Erreur : deliveryMethodId est indéfini !');
       this.errorMessage = 'Une erreur est survenue. Veuillez réessayer.';
       return;
     }
@@ -413,6 +420,7 @@ export class DeliveryMethodComponent implements OnInit {
     }
 
     if (!this.selectedDeliveryType) {
+      console.error('Erreur : Aucun type de livraison sélectionné !');
       this.errorMessage = 'Veuillez sélectionner un mode de livraison valide.';
       return;
     }
@@ -448,6 +456,7 @@ export class DeliveryMethodComponent implements OnInit {
       .updateDeliveryMethod(this.deliveryMethodId, request)
       .subscribe({
         next: () => {
+          console.log('Méthode de livraison mise à jour avec succès');
           this.isEditingDelivery = false;
           this.loadDeliveryMethods();
         },

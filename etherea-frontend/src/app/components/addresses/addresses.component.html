@@ -38,19 +38,33 @@
                 <p>{{ address.address }}</p>
                 <p>{{ address.zipCode }} {{ address.city }}</p>
                 <p>{{ address.country }}</p>
-                <p class="d-flex align-items-center custom-phone">
-                  <span>{{ address.phoneNumber }}</span>
-                  <button class="btn btn-link ms-auto me-2">Modifier</button>
+                <p>{{ address.phoneNumber }}</p>
 
-                  <!-- Bouton "Définir comme principale" -->
+                <!-- Groupe des boutons d'action -->
+                <div class="d-flex justify-content-end align-items-center mt-3">
                   <button
                     *ngIf="!address.default"
-                    class="btn btn-outline-primary btn-sm"
+                    class="btn btn-link me-2"
+                    (click)="deleteAddress(address.id)"
+                  >
+                    Supprimer
+                  </button>
+
+                  <button
+                    class="btn btn-link me-2"
+                    (click)="editAddress(address)"
+                  >
+                    Modifier
+                  </button>
+
+                  <button
+                    *ngIf="!address.default"
+                    class="btn btn-link me-2"
                     (click)="setAsDefault(address.id)"
                   >
                     Définir par défaut
                   </button>
-                </p>
+                </div>
               </ng-container>
             </div>
           </div>

@@ -54,8 +54,6 @@ export class AddressesComponent {
       )
       .subscribe({
         next: (addresses) => {
-          console.log('Addresses depuis API :', addresses);
-
           const mainAddress = addresses.find((a) => a.default);
           const others = addresses.filter((a) => !a.default);
 
@@ -124,4 +122,23 @@ export class AddressesComponent {
           this.handleError("Définition de l'adresse principale", error),
       });
   }
+  editAddress(address: DeliveryAddress): void {
+    console.log('Adresse à modifier :', address);
+
+    const dialogRef = this.dialog.open(AddressEditDialogComponent, {
+      width: '500px',
+      data: {
+        isEdit: true,
+        address: { ...address }, // On clone pour ne pas modifier directement
+      },
+    });
+    console.log('Popup ouverte avec les données :', dialogRef);
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadUserAndAddress(); // On recharge les adresses après modification
+      }
+    });
+  }
+  deleteAddress(addressId: number): void {}
 }
