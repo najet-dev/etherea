@@ -45,11 +45,11 @@ export class TipListComponent {
       .subscribe();
   }
   deleteTip(tipId: number): void {
-    this.tipService
+    this.appFacade
       .deleteTip(tipId)
       .pipe(
         switchMap(() =>
-          this.tipService.getAlltips(this.currentPage, this.pageSize)
+          this.appFacade.getAllTips(this.currentPage, this.pageSize)
         ),
         catchError((error) => {
           console.error('Erreur lors de la suppression du produit:', error);
@@ -67,6 +67,7 @@ export class TipListComponent {
     this.pageSize = event.pageSize;
     this.loadTips(this.currentPage);
   }
+
   previousPage(): void {
     if (this.currentPage > 0) {
       this.currentPage--;

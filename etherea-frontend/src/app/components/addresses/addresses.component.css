@@ -1,17 +1,63 @@
-@media screen and (min-width: 768px) and (max-width: 1204px) {
-  .btnMenu {
-    white-space: nowrap;
-    width: 100%;
-    max-width: 100%;
-    text-align: center;
-    padding: 8px 5px;
-    font-size: 13px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.floating-alert {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050;
+  width: 50%;
+  text-align: center;
+  padding: 15px;
+  font-size: 18px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+.address-line {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px; /* OK */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+}
+
+.address-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.btn {
+  color: darkgreen;
+  font-weight: 600;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+.btn:hover {
+  color: black;
+  background-color: #f0fff0;
+}
+
+@media screen and (min-width: 768px) and (max-width: 1199.98px) {
+  .custom-row-md {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgb(231, 241, 231);
+    flex-direction: row;
+  }
+
+  .sidebar-md {
+    width: 30%;
+    max-width: 30%;
+  }
+
+  .content-md {
+    width: 70%;
+    max-width: 70%;
   }
 }
 @media (max-width: 767px) {

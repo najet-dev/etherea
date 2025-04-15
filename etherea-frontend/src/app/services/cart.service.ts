@@ -51,8 +51,8 @@ export class CartService {
       .pipe(
         tap(() => this.refreshCart(cart.userId)),
         catchError((error) => {
-          console.error('Erreur lors de l’ajout au panier :', error);
-          return throwError(() => new Error('Échec de l’ajout au panier.'));
+          console.error("Erreur lors de l'ajout au panier :", error);
+          return throwError(() => new Error("Échec de l'ajout au panier."));
         })
       );
   }
@@ -98,9 +98,9 @@ export class CartService {
       .pipe(
         tap(() => this.cartUpdated.emit()),
         catchError((error) => {
-          console.error('Erreur lors de la suppression de l’article :', error);
+          console.error("Erreur lors de la suppression de l'article :", error);
           return throwError(
-            () => new Error('Échec de la suppression de l’article.')
+            () => new Error("Échec de la suppression de l'article.")
           );
         })
       );

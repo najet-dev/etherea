@@ -157,5 +157,4 @@ public class DeliveryAddressService {
 
         deliveryAddressRepository.delete(deliveryAddress);
     }
-
 }

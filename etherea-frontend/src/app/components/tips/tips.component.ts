@@ -2,6 +2,7 @@ import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
 import { TipService } from 'src/app/services/tip.service';
 import { catchError, of, tap } from 'rxjs';
 import { Tip } from '../models/tip.model';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-tips',
@@ -21,7 +22,7 @@ export class TipsComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  constructor(private tipService: TipService) {}
+  constructor(private appFacade: AppFacade) {}
 
   ngOnInit(): void {
     if (this.limit) {
@@ -32,8 +33,8 @@ export class TipsComponent implements OnInit {
   }
 
   loadTips(page: number = 0): void {
-    this.tipService
-      .getAlltips(page, this.pageSize)
+    this.appFacade
+      .getAllTips(page, this.pageSize)
       .pipe(
         tap((response) => {
           console.log('Réponse API:', response);
@@ -52,8 +53,8 @@ export class TipsComponent implements OnInit {
   }
 
   loadLimitedTips(): void {
-    this.tipService
-      .getAlltips(0, 1000)
+    this.appFacade
+      .getAllTips(0, 1000)
       .pipe(
         tap((response) => {
           this.tips = response.content.slice(0, this.limit);

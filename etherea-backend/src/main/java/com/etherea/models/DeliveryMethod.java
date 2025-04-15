@@ -13,19 +13,11 @@ public class DeliveryMethod {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "delivery_address_id")
-    private DeliveryAddress deliveryAddress;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pickup_point_id")
-    private PickupPointDetails pickupPointDetails;
     public DeliveryMethod() {
     }
-    public DeliveryMethod(DeliveryType deliveryType, User user, DeliveryAddress deliveryAddress, PickupPointDetails pickupPointDetails) {
+    public DeliveryMethod(DeliveryType deliveryType, User user) {
         this.deliveryType = deliveryType;
         this.user = user;
-        this.deliveryAddress = deliveryAddress;
-        this.pickupPointDetails = pickupPointDetails;
     }
     public Long getId() {
         return id;
@@ -44,17 +36,5 @@ public class DeliveryMethod {
     }
     public void setUser(User user) {
         this.user = user;
-    }
-    public DeliveryAddress getDeliveryAddress() {
-        return deliveryAddress;
-    }
-    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
-    }
-    public PickupPointDetails getPickupPointDetails() {
-        return pickupPointDetails;
-    }
-    public void setPickupPointDetails(PickupPointDetails pickupPointDetails) {
-        this.pickupPointDetails = pickupPointDetails;
     }
 }
