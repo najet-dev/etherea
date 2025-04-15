@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { TipService } from 'src/app/services/tip.service';
 import { Tip } from '../../models/tip.model';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-add-tip',
@@ -19,7 +19,7 @@ export class AddTipComponent {
   successMessage = '';
   selectedFile: File | null = null;
 
-  constructor(private tipService: TipService) {}
+  constructor(private appFacade: AppFacade) {}
 
   onFileChange(event: any): void {
     const file = event.target.files[0];
@@ -39,7 +39,7 @@ export class AddTipComponent {
       return;
     }
 
-    this.tipService.addTip(this.tip, this.selectedFile).subscribe({
+    this.appFacade.addTip(this.tip, this.selectedFile).subscribe({
       next: (response) => {
         console.log('Conseil ajouté avec succès:', response);
         this.successMessage = 'Conseil ajouté avec succès.';

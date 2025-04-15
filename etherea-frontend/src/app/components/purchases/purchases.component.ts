@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { OrderService } from 'src/app/services/order.service';
 import { SignupRequest } from '../models/signupRequest.model';
 import { AppFacade } from 'src/app/services/appFacade.service';
 import { CommandResponse } from '../models/commandResponse.model';

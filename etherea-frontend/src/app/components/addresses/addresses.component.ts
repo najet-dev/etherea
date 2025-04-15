@@ -1,12 +1,11 @@
 import { Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { DeliveryAddress } from '../models/deliveryAddress.model';
-import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 import { catchError, of, switchMap, filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DeliveryAddressService } from 'src/app/services/delivery-address.service';
 import { MatDialog } from '@angular/material/dialog';
 import { AddressEditDialogComponent } from '../address-edit-dialog/address-edit-dialog.component';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-addresses',
@@ -19,13 +18,13 @@ export class AddressesComponent {
   isLoading: boolean = true;
   errorMessage: string = '';
   isModalOpen: boolean = false;
+  successMessage = ''; // Variable pour le message de succès
 
   private destroyRef = inject(DestroyRef);
 
   constructor(
     private authService: AuthService,
-    private route: ActivatedRoute,
-    private deliveryAddressService: DeliveryAddressService,
+    private appfacade: AppFacade,
     private dialog: MatDialog
   ) {}
 
@@ -40,15 +39,13 @@ export class AddressesComponent {
         filter((user) => !!user?.id),
         switchMap((user) => {
           this.userId = user!.id;
-          return this.deliveryAddressService
-            .getUserDeliveryAddresses(this.userId)
-            .pipe(
-              catchError(() => {
-                this.errorMessage =
-                  'Erreur lors de la récupération des adresses.';
-                return of([]);
-              })
-            );
+          return this.appfacade.getUserDeliveryAddresses(this.userId).pipe(
+            catchError(() => {
+              this.errorMessage =
+                'Erreur lors de la récupération des adresses.';
+              return of([]);
+            })
+          );
         }),
         takeUntilDestroyed(this.destroyRef)
       )
@@ -62,7 +59,7 @@ export class AddressesComponent {
             : others;
 
           if (mainAddress) {
-            this.deliveryAddressService.setDefaultAddressState(mainAddress);
+            this.appfacade.setDefaultAddressState(mainAddress);
           }
 
           this.isLoading = false;
@@ -77,7 +74,7 @@ export class AddressesComponent {
       'Une erreur est survenue. Veuillez réessayer plus tard.';
   }
 
-  openAddAddressDialog(): void {
+  addNewAddress(): void {
     const dialogRef = this.dialog.open(AddressEditDialogComponent, {
       width: '500px',
       data: { isEdit: false },
@@ -93,7 +90,7 @@ export class AddressesComponent {
   setAsDefault(addressId: number): void {
     if (!this.userId) return;
 
-    this.deliveryAddressService
+    this.appfacade
       .setDefaultAddress(this.userId, addressId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
@@ -104,7 +101,7 @@ export class AddressesComponent {
             default: address.id === addressId,
           }));
 
-          //principale en haut
+          //adrresse principale en haut
           const mainAddress = this.deliveryAddresses.find(
             (addr) => addr.default
           );
@@ -115,7 +112,7 @@ export class AddressesComponent {
 
           // Mise à jour du state global
           if (mainAddress) {
-            this.deliveryAddressService.setDefaultAddressState(mainAddress);
+            this.appfacade.setDefaultAddressState(mainAddress);
           }
         },
         error: (error) =>
@@ -140,5 +137,23 @@ export class AddressesComponent {
       }
     });
   }
-  deleteAddress(addressId: number): void {}
+  deleteAddress(userId: number, addressId: number): void {
+    this.appfacade.deleteAddress(userId, addressId).subscribe({
+      next: () => {
+        this.successMessage = 'Adresse supprimée avec succès.';
+
+        // Masquer le message après 3 secondes
+        setTimeout(() => {
+          this.successMessage = '';
+        }, 3000);
+
+        this.loadUserAndAddress(); // Recharger les adresses après suppression
+      },
+      error: (error) => {
+        console.error("Erreur lors de la suppression de l'adresse :", error);
+        this.errorMessage =
+          "Impossible de supprimer l'adresse. Veuillez réessayer.";
+      },
+    });
+  }
 }
