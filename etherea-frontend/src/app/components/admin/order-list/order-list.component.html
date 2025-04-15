@@ -17,7 +17,11 @@
               <th scope="col">Prénom</th>
               <th scope="col">Référence code</th>
               <th scope="col">Statut</th>
-              <th scope="col">Id de l'adresse</th>
+              <th scope="col">Adresse</th>
+              <th scope="col">Code postal</th>
+              <th scope="col">Ville</th>
+              <th scope="col">Pays</th>
+              <th scope="col">Téléphone</th>
               <th scope="col">Id du mode de livraison</th>
               <th scope="col">Id du mode de paiement</th>
               <th scope="col">Total</th>
@@ -32,7 +36,11 @@
               <td>{{ order.lastName }}</td>
               <td>{{ order.referenceCode }}</td>
               <td>{{ order.status }}</td>
-              <td>{{ order.deliveryAddress }}</td>
+              <td>{{ order.address }}</td>
+              <td>{{ order.zipCode }}</td>
+              <td>{{ order.city }}</td>
+              <td>{{ order.country }}</td>
+              <td>{{ order.phoneNumber }}</td>
               <td>{{ order.deliveryMethod }}</td>
               <td>{{ order.paymentMethod }}</td>
               <td>{{ order.total }}</td>

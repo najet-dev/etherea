@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Service
 public class NewsletterService {
-
     @Value("${app.url}")
     private String baseUrl;
     private final NewsletterRepository newsletterRepository;

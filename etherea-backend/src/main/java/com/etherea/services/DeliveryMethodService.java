@@ -12,33 +12,22 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-
 @Service
 public class DeliveryMethodService {
     private final UserRepository userRepository;
     private final DeliveryTypeRepository deliveryTypeRepository;
     private final CartRepository cartRepository;
-    private final DeliveryAddressRepository deliveryAddressRepository;
     private final DeliveryAddressService deliveryAddressService;
     private final DeliveryMethodRepository deliveryMethodRepository;
-    private final PickupPointDetailsRepository pickupPointDetailsRepository;
-
     private static final Logger logger = LoggerFactory.getLogger(DeliveryMethodService.class);
-
     public DeliveryMethodService(UserRepository userRepository, DeliveryTypeRepository deliveryTypeRepository,
-                                 CartRepository cartRepository, DeliveryAddressRepository deliveryAddressRepository,
-                                 DeliveryAddressService deliveryAddressService, DeliveryMethodRepository deliveryMethodRepository,
-                                 PickupPointDetailsRepository pickupPointDetailsRepository) {
+                                 CartRepository cartRepository, DeliveryAddressService deliveryAddressService, DeliveryMethodRepository deliveryMethodRepository) {
         this.userRepository = userRepository;
         this.deliveryTypeRepository = deliveryTypeRepository;
         this.cartRepository = cartRepository;
-        this.deliveryAddressRepository = deliveryAddressRepository;
         this.deliveryAddressService = deliveryAddressService;
         this.deliveryMethodRepository = deliveryMethodRepository;
-        this.pickupPointDetailsRepository = pickupPointDetailsRepository;
     }
-
     public List<DeliveryTypeDTO> getDeliveryOptions(Long userId) {
         DeliveryAddressDTO defaultAddress = getDefaultAddress(userId);
         BigDecimal cartTotal = getCartTotal(userId);
@@ -99,41 +88,7 @@ public class DeliveryMethodService {
         DeliveryType deliveryType = deliveryTypeRepository.findById(request.getDeliveryTypeId())
                 .orElseThrow(() -> new DeliveryTypeNotFoundException("Delivery type not found with ID: " + request.getDeliveryTypeId()));
 
-        BigDecimal finalDeliveryCost = request.getOrderAmount().compareTo(new BigDecimal("50.0")) >= 0
-                ? BigDecimal.ZERO
-                : deliveryType.getCost();
-
-        DeliveryMethod deliveryMethod = new DeliveryMethod();
-        deliveryMethod.setUser(user);
-        deliveryMethod.setDeliveryType(deliveryType);
-
-        if (DeliveryName.PICKUP_POINT.equals(deliveryType.getDeliveryName())) {
-            // Logique pour les points de retrait (pickup)
-            if (request.getPickupPointName() == null || request.getPickupPointAddress() == null) {
-                throw new DeliveryAddressNotFoundException("The name and address of the collection point are required.");
-            }
-            PickupPointDetails pickupPoint = new PickupPointDetails(
-                    request.getPickupPointName(),
-                    request.getPickupPointAddress(),
-                    request.getPickupPointLatitude(),
-                    request.getPickupPointLongitude()
-            );
-
-            pickupPoint = pickupPointDetailsRepository.save(pickupPoint);
-            deliveryMethod.setPickupPointDetails(pickupPoint);
-        } else if (request.getAddressId() != null) {
-            // Vérification de l'appartenance de l'adresse à l'utilisateur
-            DeliveryAddress deliveryAddress = deliveryAddressRepository.findByIdWithUser(request.getAddressId())
-                    .orElseThrow(() -> new DeliveryAddressNotFoundException("Delivery address not found with ID: " + request.getAddressId()));
-
-            if (!deliveryAddress.getUser().getId().equals(user.getId())) {
-                throw new DeliveryAddressNotFoundException("This address does not belong to the current user.");
-            }
-
-            deliveryMethod.setDeliveryAddress(deliveryAddress);
-        } else {
-            throw new DeliveryAddressNotFoundException("A delivery address or collection point must be specified.");
-        }
+        DeliveryMethod deliveryMethod = new DeliveryMethod(deliveryType, user);
 
         DeliveryMethod savedDeliveryMethod = deliveryMethodRepository.save(deliveryMethod);
 
@@ -146,42 +101,19 @@ public class DeliveryMethodService {
 
         return DeliveryMethodDTO.fromEntity(savedDeliveryMethod);
     }
-
     @Transactional
     public DeliveryMethodDTO updateDeliveryMethod(Long deliveryMethodId, UpdateDeliveryMethodRequestDTO request) {
         logger.info("Update delivery mode with ID: {}", deliveryMethodId);
 
-        DeliveryMethod existingDeliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
+        DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
                 .orElseThrow(() -> new DeliveryMethodNotFoundException("Delivery mode with ID " + deliveryMethodId + " not found."));
 
         DeliveryType deliveryType = deliveryTypeRepository.findById(request.getDeliveryTypeId())
                 .orElseThrow(() -> new DeliveryTypeNotFoundException("Delivery type with ID " + request.getDeliveryTypeId() + " not found."));
 
-        existingDeliveryMethod.setDeliveryType(deliveryType);
+        deliveryMethod.setDeliveryType(deliveryType);
 
-        if (DeliveryName.PICKUP_POINT.equals(deliveryType.getDeliveryName())) {
-            PickupPointDetails pickupPoint = new PickupPointDetails(
-                    request.getPickupPointName(),
-                    request.getPickupPointAddress(),
-                    request.getPickupPointLatitude(),
-                    request.getPickupPointLongitude()
-            );
-            existingDeliveryMethod.setPickupPointDetails(pickupPoint);
-            existingDeliveryMethod.setDeliveryAddress(null);
-        } else if (request.getAddressId() != null) {
-            // Vérification de l'appartenance de l'adresse
-            DeliveryAddress deliveryAddress = deliveryAddressRepository.findByIdWithUser(request.getAddressId())
-                    .orElseThrow(() -> new DeliveryAddressNotFoundException("Delivery address not found with ID: " + request.getAddressId()));
-
-            if (!deliveryAddress.getUser().getId().equals(existingDeliveryMethod.getUser().getId())) {
-                throw new DeliveryAddressNotFoundException("This address does not belong to the current user.");
-            }
-
-            existingDeliveryMethod.setDeliveryAddress(deliveryAddress);
-            existingDeliveryMethod.setPickupPointDetails(null);
-        }
-
-        DeliveryMethod updatedDeliveryMethod = deliveryMethodRepository.save(existingDeliveryMethod);
+        DeliveryMethod updatedDeliveryMethod = deliveryMethodRepository.save(deliveryMethod);
 
         Cart cart = cartRepository.findActiveCartByUser(request.getUserId())
                 .orElseThrow(() -> new CartNotFoundException("No active cart found."));
@@ -192,5 +124,4 @@ public class DeliveryMethodService {
 
         return DeliveryMethodDTO.fromEntity(updatedDeliveryMethod);
     }
-
 }

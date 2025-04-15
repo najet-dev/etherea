@@ -144,8 +144,20 @@ export class DeliveryAddressService {
   setDefaultAddressState(address: DeliveryAddress) {
     this.defaultAddressSubject.next(address);
   }
-  resetAddresses(): void {
-    this.deliveryAddressSubject.next([]);
-    this.defaultAddressSubject.next(null);
+
+  deleteAddress(userId: number, addressId: number): Observable<void> {
+    return this.httpClient
+      .delete<void>(`${this.apiUrl}/deliveryAddresses/${userId}/${addressId}`)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error("Erreur lors de la suppression de l'adresse:", error);
+          return throwError(
+            () =>
+              new Error(
+                "Impossible de supprimer l'adresse. Veuillez réessayer."
+              )
+          );
+        })
+      );
   }
 }

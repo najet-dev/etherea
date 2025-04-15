@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { TipService } from 'src/app/services/tip.service';
 import { Tip } from '../../models/tip.model';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-update-tip',
@@ -20,7 +20,7 @@ export class UpdateTipComponent {
   errorMessage = '';
   selectedFile: File | null = null;
 
-  constructor(private tipService: TipService) {}
+  constructor(private appFacade: AppFacade) {}
 
   onFileChange(event: any): void {
     const file = event.target.files[0];
@@ -29,7 +29,7 @@ export class UpdateTipComponent {
     }
   }
   onSubmit(): void {
-    this.tipService.updateTip(this.updateTip).subscribe({
+    this.appFacade.updateTip(this.updateTip).subscribe({
       next: (response) => {
         console.log('Produit modifié avec succès:', response);
         this.successMessage = 'Produit mis à jour avec succès.';

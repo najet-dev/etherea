@@ -5,7 +5,11 @@ export interface CommandResponse {
   status: string;
   firstName: string;
   lastName: string;
-  deliveryAddress: string;
+  address: string;
+  zipCode: number;
+  city: string;
+  country: string;
+  phoneNumber: string;
   paymentMethod: string;
   deliveryMethod: string;
   total: number;
