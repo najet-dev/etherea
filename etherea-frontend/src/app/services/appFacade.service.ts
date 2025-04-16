@@ -36,6 +36,8 @@ import { Tip } from '../components/models/tip.model';
 import { TipService } from './tip.service';
 import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 import { CommandItem } from '../components/models/commandItem.model';
+import { NewsletterService } from './newsletter.service';
+import { NewsletterSend } from '../components/models/newsletterSend.model';
 
 @Injectable({
   providedIn: 'root',
@@ -53,7 +55,8 @@ export class AppFacade {
     private cookieConsentService: CookieConsentService,
     private passwordResetService: PasswordResetService,
     private volumeService: VolumeService,
-    private tipService: TipService
+    private tipService: TipService,
+    private newsletterService: NewsletterService
   ) {}
 
   // cartItem
@@ -237,12 +240,18 @@ export class AppFacade {
     return this.userService.updatePassword(updatePasswordRequest);
   }
 
+  // Newsletter
   subscribeToNewsletter(
     newsletter: Newsletter
   ): Observable<{ message: string }> {
-    return this.userService.subscribeToNewsletter(newsletter);
+    return this.newsletterService.subscribeToNewsletter(newsletter);
   }
 
+  sendNewsletter(
+    newsletterSend: NewsletterSend
+  ): Observable<{ message: string }> {
+    return this.newsletterService.sendNewsletter(newsletterSend);
+  }
   //Method
   getDeliveryTypes(userId: number): Observable<DeliveryType[]> {
     return this.deliveryMethodService.getDeliveryTypes(userId);

@@ -9,7 +9,6 @@ import {
   debounceTime,
   distinctUntilChanged,
 } from 'rxjs';
-import { ProductService } from 'src/app/services/product.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { AppFacade } from 'src/app/services/appFacade.service';
@@ -65,15 +64,15 @@ export class ProductListComponent {
 
   searchProducts(): void {
     if (this.searchQuery.trim().length > 1) {
-      this.appFacade.searchProductsByName(this.searchQuery).subscribe(
-        (results) => {
+      this.appFacade.searchProductsByName(this.searchQuery).subscribe({
+        next: (results) => {
           this.products = results;
         },
-        (error) => {
+        error: (error) => {
           console.error('Erreur lors de la recherche:', error);
           this.products = [];
-        }
-      );
+        },
+      });
     } else {
       this.loadProducts(); // Recharger tous les produits si la recherche est vide
     }

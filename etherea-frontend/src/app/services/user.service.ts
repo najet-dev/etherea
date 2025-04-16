@@ -17,7 +17,6 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { StorageService } from './storage.service';
-import { Newsletter } from '../components/models/newsletter.model';
 import { UpdateEmailRequest } from '../components/models/updateEmailRequest.model';
 import { UpdatePasswordRequest } from '../components/models/updatePasswordRequest.model';
 
@@ -68,7 +67,8 @@ export class UserService {
         })
       );
   }
-  getAllUsers(page: number = 0, size: number = 5) {
+
+  getAllUsers(page: number, size: number) {
     return this.httpClient
       .get<{
         content: SignupRequest[];
@@ -90,25 +90,15 @@ export class UserService {
   }
 
   deleteUser(userId: number): Observable<void> {
-    const token = this.storageService.getToken(); // Récupérer le token JWT
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
-    });
-
-    return this.httpClient
-      .delete<void>(`${this.apiUrl}/users/${userId}`, { headers })
-      .pipe(
-        catchError((error: HttpErrorResponse) => {
-          console.error('Erreur lors de la suppression du produit:', error);
-          return throwError(
-            () =>
-              new Error(
-                'Impossible de supprimer le produit. Veuillez réessayer.'
-              )
-          );
-        })
-      );
+    return this.httpClient.delete<void>(`${this.apiUrl}/users/${userId}`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Erreur lors de la suppression du produit:', error);
+        return throwError(
+          () =>
+            new Error('Impossible de supprimer le produit. Veuillez réessayer.')
+        );
+      })
+    );
   }
   updateEmail(updateEmailRequest: UpdateEmailRequest): Observable<string> {
     const url = `${this.apiUrl}/users/update-email`;
@@ -183,27 +173,6 @@ export class UserService {
           }
           console.error('Erreur mise à jour mot de passe :', error);
           return throwError(() => new Error(errorMessage));
-        })
-      );
-  }
-  subscribeToNewsletter(
-    newsletter: Newsletter
-  ): Observable<{ message: string }> {
-    return this.httpClient
-      .post<{ message: string }>(
-        `${this.apiUrl}/newsletter/subscribe`,
-        newsletter
-      )
-      .pipe(
-        tap((response) => console.log('Réponse du serveur:', response.message)),
-        catchError((error) => {
-          console.error(
-            "Erreur lors de l'inscription à la newsletter :",
-            error
-          );
-          return throwError(
-            () => new Error(error.error?.message || 'Erreur inconnue.')
-          );
         })
       );
   }

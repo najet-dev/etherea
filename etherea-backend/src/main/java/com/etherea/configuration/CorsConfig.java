@@ -13,23 +13,14 @@ public class CorsConfig {
 
     @Bean
     public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-
-        // Autoriser les origines spécifiques (Angular)
-        config.addAllowedOrigin("http://localhost:4200");
-        config.addAllowedOriginPattern("http://localhost:*");
         config.setAllowedOriginPatterns(List.of("http://localhost:4200", "http://localhost:*"));
-
-
-        // Autoriser tous les en-têtes et toutes les méthodes HTTP
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-
-        // Autoriser les cookies et les informations d'identification
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
+        config.setExposedHeaders(List.of("Authorization"));
 
-        // Enregistrer la configuration pour toutes les routes
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
         return new CorsFilter(source);

@@ -1,5 +1,6 @@
 package com.etherea.services;
 
+import com.etherea.dtos.NewsletterSendDTO;
 import com.etherea.models.Newsletter;
 import com.etherea.dtos.NewsletterDTO;
 import com.etherea.repositories.NewsletterRepository;
@@ -40,19 +41,20 @@ public class NewsletterService {
     }
 
     /**
-     * Retrieves all subscribers and sends the newsletter.
+     * Envoie la newsletter à tous les abonnés.
      *
-     * @param subject Newsletter subject.
-     * @param content HTML content of the newsletter.
+     * @param newsletterSendDTO Objet contenant le sujet et le contenu HTML de la newsletter.
      */
-    public void sendNewsletterToAllSubscribers(String subject, String content) {
+    public void sendNewsletterToAllSubscribers(NewsletterSendDTO newsletterSendDTO) {
+        String subject = newsletterSendDTO.getSubject();
+        String content = newsletterSendDTO.getContent();
+
         List<Newsletter> newsletters = newsletterRepository.findAll();
         List<String> emailAddresses = newsletters.stream()
                 .map(Newsletter::getEmail)
                 .toList();
 
         for (String email : emailAddresses) {
-            // Add the unique unsubscribe link for each user
             String unsubscribeLink = baseUrl + "/newsletter/unsubscribe?email=" + email;
             String emailContent = content + "<br><br><a href=\"" + unsubscribeLink + "\">Se désinscrire</a>";
 

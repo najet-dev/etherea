@@ -8,7 +8,6 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, of, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Product } from '../components/models/product.model';
-import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,14 +15,11 @@ import { StorageService } from './storage.service';
 export class ProductService {
   apiUrl = environment.apiUrl;
 
-  constructor(
-    private httpClient: HttpClient,
-    private storageService: StorageService
-  ) {}
+  constructor(private httpClient: HttpClient) {}
 
   getAllProducts(
-    page: number = 0,
-    size: number = 10
+    page: number,
+    size: number
   ): Observable<{
     content: Product[];
     totalElements: number;
@@ -120,7 +116,6 @@ export class ProductService {
       return of([]); // Ne pas envoyer de requête si la recherche est vide
     }
 
-    console.log('Envoi de la requête de recherche avec:', name);
     const params = new HttpParams().set('name', name.trim());
 
     return this.httpClient
@@ -141,14 +136,8 @@ export class ProductService {
     //ajoute le JSON sous forme de texte
     formData.append('product', JSON.stringify(product));
 
-    const token = this.storageService.getToken(); // Récupérer le token JWT
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-
     return this.httpClient
-      .post<Product>(`${this.apiUrl}/products/add`, formData, { headers })
+      .post<Product>(`${this.apiUrl}/products/add`, formData)
       .pipe(
         catchError((error) => {
           console.error('Error adding product:', error);
@@ -176,16 +165,8 @@ export class ProductService {
 
     formData.append('product', JSON.stringify(filteredProduct));
 
-    const token = this.storageService.getToken(); // Récupérer le token JWT
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
-    });
-
     return this.httpClient
-      .put<Product>(`${this.apiUrl}/products/update`, formData, {
-        headers,
-      })
+      .put<Product>(`${this.apiUrl}/products/update`, formData)
       .pipe(
         catchError((error) => {
           console.error('Erreur lors de la mise à jour du produit:', error);
@@ -195,14 +176,8 @@ export class ProductService {
   }
 
   deleteProduct(productId: number): Observable<void> {
-    const token = this.storageService.getToken(); // Récupérer le token JWT
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
-    });
-
     return this.httpClient
-      .delete<void>(`${this.apiUrl}/products/${productId}`, { headers })
+      .delete<void>(`${this.apiUrl}/products/${productId}`)
       .pipe(
         catchError((error: HttpErrorResponse) => {
           console.error('Erreur lors de la suppression du produit:', error);

@@ -22,8 +22,8 @@ export class TipService {
 
   // Récupérer tous les conseils (avec pagination)
   getAlltips(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{ content: Tip[]; totalElements: number; totalPages: number }> {
     return this.httpClient
       .get<{ content: Tip[]; totalElements: number; totalPages: number }>(
@@ -52,20 +52,12 @@ export class TipService {
     // Ajoute le JSON sous forme de texte
     formData.append('tip', JSON.stringify(tip));
 
-    const token = this.storageService.getToken(); // Récupération du token JWT
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
-    });
-
-    return this.httpClient
-      .post<Tip>(`${this.apiUrl}/tips/add`, formData, { headers })
-      .pipe(
-        catchError((error) => {
-          console.error("Erreur lors de l'ajout du conseil :", error);
-          return throwError(() => error);
-        })
-      );
+    return this.httpClient.post<Tip>(`${this.apiUrl}/tips/add`, formData).pipe(
+      catchError((error) => {
+        console.error("Erreur lors de l'ajout du conseil :", error);
+        return throwError(() => error);
+      })
+    );
   }
 
   // Mettre à jour un conseil (avec ou sans image)
@@ -85,16 +77,8 @@ export class TipService {
 
     formData.append('tip', JSON.stringify(filteredProduct));
 
-    const token = this.storageService.getToken();
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`,
-    });
-
     return this.httpClient
-      .put<Tip>(`${this.apiUrl}/tips/update`, formData, {
-        headers,
-      })
+      .put<Tip>(`${this.apiUrl}/tips/update`, formData)
       .pipe(
         catchError((error) => {
           console.error('Erreur lors de la mise à jour du produit:', error);
@@ -104,24 +88,14 @@ export class TipService {
   }
 
   deleteTip(tipId: number): Observable<void> {
-    const token = this.storageService.getToken(); // Récupérer le token JWT
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
-    });
-
-    return this.httpClient
-      .delete<void>(`${this.apiUrl}/tips/${tipId}`, { headers })
-      .pipe(
-        catchError((error: HttpErrorResponse) => {
-          console.error('Erreur lors de la suppression du produit:', error);
-          return throwError(
-            () =>
-              new Error(
-                'Impossible de supprimer le produit. Veuillez réessayer.'
-              )
-          );
-        })
-      );
+    return this.httpClient.delete<void>(`${this.apiUrl}/tips/${tipId}`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Erreur lors de la suppression du produit:', error);
+        return throwError(
+          () =>
+            new Error('Impossible de supprimer le produit. Veuillez réessayer.')
+        );
+      })
+    );
   }
 }
