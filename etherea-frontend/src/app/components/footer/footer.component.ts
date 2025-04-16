@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { UserService } from 'src/app/services/user.service';
 import { Newsletter } from '../models/newsletter.model';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-footer',
@@ -11,7 +12,7 @@ export class FooterComponent {
   email: string = ''; // Variable pour stocker l'email de l'utilisateur
   message: string | null = null; // Message de confirmation ou d'erreur
 
-  constructor(private userService: UserService) {}
+  constructor(private appFacade: AppFacade) {}
   toggleSection(targetId: string) {
     const target = document.getElementById(targetId);
     const icon = document.querySelector(`#${targetId}-icon`);
@@ -33,7 +34,7 @@ export class FooterComponent {
 
     const newsletter: Newsletter = { id: 0, email: this.email };
 
-    this.userService.subscribeToNewsletter(newsletter).subscribe({
+    this.appFacade.subscribeToNewsletter(newsletter).subscribe({
       next: (response) => {
         this.message = response.message;
         this.email = '';

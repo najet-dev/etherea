@@ -40,11 +40,6 @@ export class UpdateProductComponent {
   }
 
   onSubmit(): void {
-    if (!this.updateProduct.name || !this.updateProduct.type) {
-      console.error('Veuillez remplir les champs obligatoires.');
-      return;
-    }
-
     this.appFacade.updateProduct(this.updateProduct).subscribe({
       next: (response) => {
         console.log('Produit modifié avec succès:', response);

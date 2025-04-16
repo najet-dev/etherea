@@ -1,9 +1,11 @@
 package com.etherea.controllers;
 
+import com.etherea.dtos.NewsletterSendDTO;
 import com.etherea.services.EmailService;
 import com.etherea.services.NewsletterService;
 import com.etherea.dtos.NewsletterDTO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -14,8 +16,7 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class NewsletterController {
     private final NewsletterService newsletterService;
-    private final EmailService emailService;
-
+    public final EmailService emailService;
     public NewsletterController(NewsletterService newsletterService, EmailService emailService) {
         this.newsletterService = newsletterService;
         this.emailService = emailService;
@@ -44,27 +45,26 @@ public class NewsletterController {
     /**
      * Endpoint pour envoyer la newsletter à tous les abonnés.
      *
-     * @param request Objet contenant le sujet et le contenu de la newsletter.
+     * @param newsletterSendDTO Objet contenant le sujet et le contenu de la newsletter.
      * @return Réponse indiquant le succès ou l'échec de l'envoi.
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/send")
-    public ResponseEntity<Map<String, String>> sendNewsletter(@RequestBody Map<String, String> request) {
-        String subject = request.get("subject");
-        String content = request.get("content");
-
+    public ResponseEntity<Map<String, String>> sendNewsletter(@RequestBody NewsletterSendDTO newsletterSendDTO) {
         Map<String, String> response = new HashMap<>();
 
-        if (subject == null || subject.isEmpty() || content == null || content.isEmpty()) {
-            response.put("message", "Le sujet et le contenu ne peuvent pas être vides.");
+        if (newsletterSendDTO.getSubject() == null || newsletterSendDTO.getSubject().isEmpty() ||
+                newsletterSendDTO.getContent() == null || newsletterSendDTO.getContent().isEmpty()) {
+            response.put("message", "Subject and content cannot be empty");
             return ResponseEntity.badRequest().body(response);
         }
 
         try {
-            newsletterService.sendNewsletterToAllSubscribers(subject, content);
-            response.put("message", "Newsletter envoyée avec succès !");
+            newsletterService.sendNewsletterToAllSubscribers(newsletterSendDTO);
+            response.put("message", "Newsletter successfully sent !");
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            response.put("message", "Erreur lors de l'envoi de la newsletter : " + e.getMessage());
+            response.put("message", "Error sending newsletter : " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }

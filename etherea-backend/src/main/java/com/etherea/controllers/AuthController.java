@@ -87,6 +87,10 @@ public class AuthController {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
+            roles = roles.stream()
+                    .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                    .collect(Collectors.toList());
+
             // Générer le token JWT
             String jwtToken = jwtUtils.generateJwtToken(userDetails.getUsername(), new HashSet<>(roles));
 
@@ -100,7 +104,6 @@ public class AuthController {
             return ResponseEntity.ok().body(jwtResponse);
 
         } catch (AuthenticationException e) {
-            // Gérer l'échec d'authentification
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }

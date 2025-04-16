@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -88,6 +89,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, String>> saveProduct(
             @RequestParam("image") MultipartFile file,
@@ -118,6 +120,7 @@ public class ProductController {
                     .body(Map.of("error", "Unexpected error: " + e.getMessage()));
         }
     }
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/update", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, String>> updateProduct(
             @RequestParam(value = "image", required = false) MultipartFile file,
@@ -145,6 +148,7 @@ public class ProductController {
                     .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
         }
     }
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteProduct(@PathVariable Long id) {
         try {

@@ -17,18 +17,38 @@
     </a>
 
     <!-- Search Form -->
-    <form class="form-inline my-2 my-lg-0 custom-search-form">
-      <div class="input-group">
+    <!-- Search Form -->
+    <form class="custom-search-form" (submit)="$event.preventDefault()">
+      <div class="custom-input-wrapper">
         <input
-          class="form-control rounded-search-input"
+          class="custom-search-input"
           type="search"
+          [(ngModel)]="searchQuery"
+          name="search"
+          (input)="onSearchChange()"
           placeholder="Rechercher un produit"
           aria-label="Search"
         />
-        <div class="input-group-append">
-          <span class="input-group-text">
-            <i class="fa fa-search"></i>
-          </span>
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+
+        <!-- Résultats dynamiques -->
+        <div class="search-dropdown" *ngIf="filteredProducts.length > 0">
+          <div
+            *ngFor="let product of filteredProducts"
+            (click)="goToProduct(product)"
+            class="search-result-item"
+          >
+            <img
+              [src]="product.image"
+              class="product-thumbnail"
+              alt="{{ product.name }}"
+            />
+            <div class="product-info">
+              <div class="product-name">{{ product.name }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </form>

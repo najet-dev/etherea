@@ -5,7 +5,7 @@ import { AdminMenuComponent } from './admin-menu/admin-menu.component';
 import { AdminDashbordComponent } from './admin-dashbord/admin-dashbord.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { AddUserComponent } from './add-user/add-user.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,6 +23,7 @@ import { UpdateTipComponent } from './update-tip/update-tip.component';
 import { AddTipComponent } from './add-tip/add-tip.component';
 import { MatInputModule } from '@angular/material/input';
 import { RouterModule } from '@angular/router';
+import { NewsletterAdminComponent } from './newsletter-admin/newsletter-admin.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { RouterModule } from '@angular/router';
     AdminMenuComponent,
     UpdateTipComponent,
     AddTipComponent,
+    NewsletterAdminComponent,
   ],
   imports: [
     CommonModule,
@@ -53,6 +55,7 @@ import { RouterModule } from '@angular/router';
     MatIconModule,
     MatInputModule,
     RouterModule,
+    ReactiveFormsModule,
   ],
 })
 export class AdminModule {}

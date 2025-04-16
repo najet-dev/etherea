@@ -33,6 +33,7 @@ public class VolumeController {
         return ResponseEntity.ok(volumes);
     }
     @PostMapping("/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VolumeDTO> addVolume(@RequestBody VolumeDTO volumeDTO) {
         try {
             VolumeDTO createdVolume = volumeService.addVolume(volumeDTO);
@@ -46,6 +47,7 @@ public class VolumeController {
         }
     }
     @PutMapping("/{volumeId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VolumeDTO> updateVolume(@PathVariable Long volumeId, @RequestBody VolumeDTO volumeDTO) {
         try {
             VolumeDTO updatedVolume = volumeService.updateVolume(volumeId, volumeDTO);
@@ -59,6 +61,7 @@ public class VolumeController {
         }
     }
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> deleteVolume(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
 

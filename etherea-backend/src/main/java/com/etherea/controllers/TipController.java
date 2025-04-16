@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -48,6 +49,7 @@ public class TipController {
     /**
      * Ajouter un nouveau conseil (avec upload d'image)
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, String>> createTip(
             @RequestParam(value = "image", required = false) MultipartFile file,
@@ -81,6 +83,7 @@ public class TipController {
     /**
      * Mettre à jour un conseil
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/update", consumes = "multipart/form-data")
     public ResponseEntity<Map<String, String>> updateTip(
             @RequestParam("tip") String tipJson,
@@ -109,6 +112,7 @@ public class TipController {
     /**
      * Supprimer un conseil
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteTip(@PathVariable Long id) {
         try {
@@ -120,5 +124,4 @@ public class TipController {
                     .body(Map.of("error", "Error deleting the tip"));
         }
     }
-
 }

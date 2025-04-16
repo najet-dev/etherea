@@ -1,0 +1,54 @@
+<div class="newsletter-container">
+  <h2>Envoyer une Newsletter</h2>
+  <div *ngIf="successMessage" class="alert alert-success floating-alert">
+    {{ successMessage }}
+  </div>
+
+  <form [formGroup]="newsletterForm" (ngSubmit)="sendNewsletter()">
+    <div class="form-group">
+      <label for="subject">Sujet</label>
+      <input
+        type="text"
+        id="subject"
+        formControlName="subject"
+        placeholder="Entrez le sujet de la newsletter"
+      />
+      <div
+        class="error"
+        *ngIf="
+          newsletterForm.get('subject')?.invalid &&
+          newsletterForm.get('subject')?.touched
+        "
+      >
+        Le sujet est requis (min 3 caractères).
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="content">Contenu HTML</label>
+      <textarea
+        id="content"
+        rows="8"
+        formControlName="content"
+        placeholder="Contenu de la newsletter (HTML autorisé)"
+      ></textarea>
+      <div
+        class="error"
+        *ngIf="
+          newsletterForm.get('content')?.invalid &&
+          newsletterForm.get('content')?.touched
+        "
+      >
+        Le contenu est requis (min 10 caractères).
+      </div>
+    </div>
+
+    <div class="button-wrapper">
+      <button type="submit" [disabled]="isSubmitting || newsletterForm.invalid">
+        {{ isSubmitting ? "Envoi en cours..." : "Envoyer" }}
+      </button>
+    </div>
+  </form>
+
+  <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+</div>

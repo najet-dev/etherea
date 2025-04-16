@@ -1,11 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  Subject,
+  switchMap,
+} from 'rxjs';
 import { AuthService } from 'src/app/services/auth.service';
 import { CartService } from 'src/app/services/cart.service';
 import { FavoriteService } from 'src/app/services/favorite.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { Cart } from '../models/cart.model';
+import { Product } from '../models';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-menu',
@@ -19,13 +27,17 @@ export class MenuComponent implements OnInit {
   userId: number | null = null;
   favoriteCount: number = 0;
   cartCount: number = 0;
+  searchQuery: string = '';
+  filteredProducts: Product[] = [];
+  private searchTerms = new Subject<string>();
 
   constructor(
     private router: Router,
     private storageService: StorageService,
     private authService: AuthService,
     private favoriteService: FavoriteService,
-    private cartService: CartService
+    private cartService: CartService,
+    private appFacade: AppFacade
   ) {
     // Écouter les événements de navigation pour fermer le menu
     this.router.events
@@ -61,6 +73,21 @@ export class MenuComponent implements OnInit {
     this.cartService.carts$.subscribe((cartItems: Cart[]) => {
       this.cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
     });
+    this.searchTerms
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap((term: string) => this.appFacade.searchProductsByName(term))
+      )
+      .subscribe({
+        next: (results) => {
+          this.filteredProducts = results;
+        },
+        error: (err) => {
+          console.error('Erreur recherche:', err);
+          this.filteredProducts = [];
+        },
+      });
   }
 
   isCurrentRoute(route: string): boolean {
@@ -87,7 +114,6 @@ export class MenuComponent implements OnInit {
   logout() {
     console.log('Logging out');
 
-    // Appel à la méthode logout() du service AuthService
     this.authService.logout().subscribe({
       next: () => {
         this.isLoggedIn = false; // Réinitialiser l'état de connexion
@@ -106,5 +132,19 @@ export class MenuComponent implements OnInit {
     } else {
       this.router.navigate(['/cart']);
     }
+  }
+
+  onSearchChange(): void {
+    if (this.searchQuery.trim().length > 1) {
+      this.searchTerms.next(this.searchQuery.trim());
+    } else {
+      this.filteredProducts = [];
+    }
+  }
+
+  goToProduct(product: Product): void {
+    this.router.navigate(['/productDetails', product.id]);
+    this.searchQuery = '';
+    this.filteredProducts = [];
   }
 }
