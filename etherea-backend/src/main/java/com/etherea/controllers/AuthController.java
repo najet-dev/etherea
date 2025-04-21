@@ -121,7 +121,9 @@ public class AuthController {
         System.out.println("Roles received in request: " + signUpRequest.getRoles());
 
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(new MessageResponse("Error: Email is already in use!"));
         }
 
         User user = new User(

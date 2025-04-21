@@ -1,86 +1,72 @@
+/* ----- BASE ----- */
 .admin-menu {
   display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #ffffff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 12px 24px;
-
-  .logo {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #333333;
-  }
+  padding: 16px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1000;
 }
+
 .logo {
-  width: 80%;
+  width: 100px;
   cursor: pointer;
 }
-.menu {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-}
 
-.menu li {
-  margin: 0 15px;
-}
-
-.menu a {
-  color: #333333;
-  text-decoration: none;
-  padding: 10px;
-  display: block;
-  transition: color 0.3s ease;
-}
-
-.menu a:hover {
-  color: darkgreen;
-}
-
-/* Bouton hamburger */
+/* ----- BURGER BUTTON ----- */
 .menu-toggle {
   display: none;
+  flex-direction: column;
+  justify-content: center;
   cursor: pointer;
-}
-
-.menu-toggle.active {
-  transform: rotate(45deg);
+  z-index: 1100;
 }
 
 .menu-toggle span {
-  display: block;
-  width: 25px;
+  width: 26px;
   height: 3px;
-  background-color: #333333;
-  margin-bottom: 5px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-.menu .go-to-site button {
-  background-color: #1f8f40;
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  background-color: #333;
+  margin: 4px 0;
+  transition: all 0.4s ease;
 }
 
-.menu .go-to-site button:hover {
-  background-color: #156c2f;
+.menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+.menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
 }
 
-@media (max-width: 768px) {
-  .admin-menu {
-    padding: 12px;
+/* ----- MENU ----- */
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ----- MOBILE & TABLETTE (0 à 1090px) ----- */
+@media (max-width: 1090px) {
+  .menu-toggle {
+    display: flex;
   }
 
   .menu {
-    flex-direction: column;
-    width: 100%;
     display: none;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    z-index: 999;
   }
 
   .menu.active {
@@ -89,152 +75,76 @@
 
   .menu li {
     margin: 10px 0;
+    text-align: center;
   }
 
   .menu a {
-    padding: 8px;
+    text-decoration: none;
+    color: #333;
+    padding: 10px 20px;
+    font-weight: 500;
+    transition: color 0.3s ease;
   }
 
-  .menu-toggle {
-    display: flex;
-  }
-}
-
-@media (min-width: 769px) {
-  .menu-toggle {
-    display: none;
-  }
-  .menu .go-to-site {
+  .menu .go-to-site button {
+    background-color: #1f8f40;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
     margin-top: 10px;
   }
-}
 
-@media (max-width: 480px) {
-  .admin-menu {
-    padding: 8px;
-  }
-
-  .menu a {
-    padding: 8px;
+  .menu .go-to-site button:hover {
+    background-color: #156c2f;
   }
 }
-.admin-menu {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #ffffff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 12px 24px;
 
-  .logo {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #333333;
-  }
-}
-.logo {
-  width: 80%;
-  cursor: pointer;
-}
-.menu {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-}
-
-.menu li {
-  margin: 0 15px;
-}
-
-.menu a {
-  color: #333333;
-  text-decoration: none;
-  padding: 10px;
-  display: block;
-  transition: color 0.3s ease;
-}
-
-.menu a:hover {
-  color: darkgreen;
-}
-
-/* Bouton hamburger */
-.menu-toggle {
-  display: none;
-  cursor: pointer;
-}
-
-.menu-toggle.active {
-  transform: rotate(45deg);
-}
-
-.menu-toggle span {
-  display: block;
-  width: 25px;
-  height: 3px;
-  background-color: #333333;
-  margin-bottom: 5px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-.menu .go-to-site button {
-  background-color: #1f8f40;
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.menu .go-to-site button:hover {
-  background-color: #156c2f;
-}
-
-@media (max-width: 768px) {
-  .admin-menu {
-    padding: 12px;
-  }
-
+/* ----- DESKTOP (à partir de 1091px) ----- */
+@media (min-width: 1091px) {
   .menu {
-    flex-direction: column;
-    width: 100%;
-    display: none;
-  }
-
-  .menu.active {
-    display: flex;
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    position: static;
+    background: transparent;
+    box-shadow: none;
+    width: auto;
   }
 
   .menu li {
-    margin: 10px 0;
+    margin: 0 12px;
   }
 
   .menu a {
-    padding: 8px;
+    text-decoration: none;
+    color: #333;
+    padding: 10px 16px;
+    font-weight: 500;
+    transition: color 0.3s ease;
   }
 
-  .menu-toggle {
-    display: flex;
+  .menu a:hover {
+    color: darkgreen;
   }
-}
 
-@media (min-width: 769px) {
+  .menu .go-to-site button {
+    background-color: #1f8f40;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 0;
+  }
+
   .menu-toggle {
     display: none;
-  }
-  .menu .go-to-site {
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-menu {
-    padding: 8px;
-  }
-
-  .menu a {
-    padding: 8px;
   }
 }

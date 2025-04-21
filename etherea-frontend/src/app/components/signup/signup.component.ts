@@ -14,26 +14,27 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class SignupComponent implements OnInit {
   errorMessage: string = '';
   signupForm!: FormGroup;
-  submitted = false; // Indicateur pour savoir si le formulaire a été soumis
+  submitted = false;
   private destroyRef = inject(DestroyRef);
 
+  // Custom error messages for each form field
   public errorMessages = {
-    firstName: [{ type: 'required', message: 'Prénom requis' }],
-    lastName: [{ type: 'required', message: 'Nom requis' }],
+    firstName: [{ type: 'required', message: 'Le prénom est obligatoire.' }],
+    lastName: [{ type: 'required', message: 'Le nom est obligatoire.' }],
     username: [
-      { type: 'required', message: 'Email requis' },
-      { type: 'email', message: 'Email doit être valide' },
+      {
+        type: 'email',
+        message: 'Veuillez saisir une adresse e-mail valide.',
+      },
+      {
+        type: 'emailExists',
+        message: 'Cet email est déjà utilisé.',
+      },
     ],
     password: [
       {
         type: 'minlength',
-        message: 'Le mot de passe doit contenir au minimum 8 caractères',
-      },
-      { type: 'required', message: 'Le mot de passe est requis' },
-      {
-        type: 'pattern',
-        message:
-          'Le mot de passe doit contenir une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial au minimum',
+        message: 'Le mot de passe doit contenir au moins 8 caractères.',
       },
     ],
   };
@@ -44,6 +45,7 @@ export class SignupComponent implements OnInit {
     private formBuilder: FormBuilder
   ) {}
 
+  // Getters for easier access to form fields in the template
   get lastName() {
     return this.signupForm.get('lastName');
   }
@@ -61,16 +63,17 @@ export class SignupComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Redirect if user is already authenticated
     this.authService.AuthenticatedUser$.pipe(
       tap((user) => {
         if (user) {
-          // Si un utilisateur est authentifié
           this.router.navigate(['/']);
         }
       }),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
 
+    // Form initialization with validation rules
     this.signupForm = this.formBuilder.group({
       lastName: ['', [Validators.required]],
       firstName: ['', [Validators.required]],
@@ -89,12 +92,10 @@ export class SignupComponent implements OnInit {
   }
 
   onSubmit() {
-    // Indique que le formulaire a été soumis
     this.submitted = true;
 
     if (this.signupForm.invalid) {
-      // Vérifie si le formulaire est invalide
-      return; // Arrête le traitement si le formulaire est invalide
+      return;
     }
 
     this.authService
@@ -106,8 +107,12 @@ export class SignupComponent implements OnInit {
             this.signupForm.reset();
           },
           error: (err) => {
+            // Error handling based on HTTP status
             if (err.status === 401) {
               this.errorMessage = "L'email ou le mot de passe est invalide.";
+            } else if (err.status === 409) {
+              this.signupForm.get('username')?.setErrors({ emailExists: true });
+              this.errorMessage = '';
             } else {
               this.errorMessage =
                 'Une erreur est survenue. Veuillez réessayer plus tard.';

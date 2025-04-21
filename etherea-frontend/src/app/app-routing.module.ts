@@ -60,7 +60,7 @@ const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'purchases', component: PurchasesComponent },
-  { path: 'command-details/:id', component: OrderDetailsComponent },
+  { path: 'order-details/:id', component: OrderDetailsComponent },
   { path: 'tips', component: TipsComponent },
   { path: 'tips/:id', component: TipDetailComponent },
   { path: 'addresses', component: AddressesComponent },
