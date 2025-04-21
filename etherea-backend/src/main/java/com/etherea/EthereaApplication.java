@@ -8,4 +8,5 @@ public class EthereaApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EthereaApplication.class, args);
 	}
+
 }

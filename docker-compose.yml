@@ -1,0 +1,56 @@
+version: "3.8"
+
+services:
+  # Service pour le backend Spring Boot
+  backend:
+    build:
+      context: ./etherea-backend # Le backend se trouve dans le sous-dossier etherea-backend
+    ports:
+      - "9091:9090" # Mappe le port 9090 de l'hôte vers le conteneur
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - DB_URL=jdbc:mysql://db:3306/etherea?createDatabaseIfNotExist=true
+      - DB_USER=root
+      - DB_PASSWORD=example
+      - JWT_SECRET=Kz8*GsdFZ92@LklzP0w1mOeQnsT9AbnA5dPg6EzQlf0RuWnmMX4SnGgTk3eDqRz9
+      - JWT_EXPIRATION=86400000
+      - LOCATIONIQ_API_KEY=pk.f7749adbb572df4d741f1032664f787f
+      - STRIPE_SECRET_KEY=sk_test_51QgPv9JaAJCyXY1xuw2KH8uRXGCIz2pDc3PuHJFWH4jsOz1AZ7qEyVWbI3ODjmEOUpgpVk9ONHpIXooKG5URLGRU00NJBod6T6
+      - STRIPE_WEBHOOK_SECRET=whsec_N05kwtWganRIvVNiWP8vupqav6BMdFTO
+      - MAIL_HOST=sandbox.smtp.mailtrap.io
+      - MAIL_PORT=2525
+      - MAIL_USERNAME=c2315c49c5df36
+      - MAIL_PASSWORD=38256f65da24ac
+    depends_on:
+      - db # S'assure que le service db (MySQL) démarre avant le backend
+    networks:
+      - app_network
+
+  # Service pour le frontend Angular (avec NGINX)
+  frontend:
+    build:
+      context: ./etherea-frontend # Le frontend se trouve dans le sous-dossier etherea-frontend
+    ports:
+      - "80:80" # Mappe le port 80 de l'hôte vers le conteneur (NGINX sur port 80)
+    depends_on:
+      - backend # Le frontend dépend du backend
+    networks:
+      - app_network
+
+  # Service pour la base de données MySQL
+  db:
+    image: mysql:8.0 # Utilisation de l'image officielle MySQL 8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: example # Mot de passe root pour MySQL
+      MYSQL_DATABASE: etherea # Nom de la base de données
+    ports:
+      - "3306:3306" # Mappe le port 3306 de l'hôte vers le conteneur MySQL
+    volumes:
+      - db_data:/var/lib/mysql # Volume persistant pour la base de données
+
+volumes:
+  db_data: # Volume persistant pour la base de données MySQL
+
+networks:
+  app_network:
+    driver: bridge

@@ -139,17 +139,36 @@
 	</dependencies>
 	<build>
 		<plugins>
+			<!-- Plugin de compilation -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
 					<compilerArgs>
 						<arg>-parameters</arg>
 					</compilerArgs>
 				</configuration>
 			</plugin>
+
+			<!-- Plugin Spring Boot pour créer un JAR exécutable -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.1.7</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+
+
 
 </project>
