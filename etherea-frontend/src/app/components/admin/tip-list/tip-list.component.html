@@ -29,7 +29,9 @@
               <td>{{ tip.id }}</td>
               <td>{{ tip.title }}</td>
               <td>{{ tip.description }}</td>
-              <td>{{ tip.image }}</td>
+              <td>
+                <img [src]="tip.image" alt="" class="img-thumbnail" />
+              </td>
               <td>{{ tip.dateCreation }}</td>
               <td>
                 <div class="d-flex justify-content-center gap-2">

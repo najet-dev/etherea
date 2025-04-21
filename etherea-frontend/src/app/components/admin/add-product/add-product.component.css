@@ -26,14 +26,17 @@
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
-.form-control {
-  border: none;
-  border-bottom: 1px solid rgb(186, 183, 183);
-  border-radius: 0;
-  box-shadow: none;
-  font-size: 16px;
-  padding: 10px;
-  width: 100%;
+select.form-control {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: white;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='16'%20height='16'%20fill='gray'%20class='bi%20bi-caret-down-fill'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M7.247%2011.14%203.451%205.658c-.566-.778-.02-1.658.866-1.658h7.366c.886%200%201.432.88.866%201.658L8.753%2011.14a1%201%200%200%201-1.506%200z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 30px; /* pour que le texte ne passe pas sous la flèche */
+  cursor: pointer;
 }
 
 .form-control:focus {

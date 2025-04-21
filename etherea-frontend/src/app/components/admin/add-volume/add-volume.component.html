@@ -13,7 +13,9 @@
 
       <form (ngSubmit)="onSubmit()">
         <div class="mb-3">
-          <label for="id" class="form-label">ID du produit</label>
+          <label for="id" class="form-label text-muted small"
+            >ID du produit</label
+          >
           <input
             type="text"
             id="id"
@@ -25,7 +27,9 @@
         </div>
 
         <div class="mb-3">
-          <label for="volume" class="form-label">Volume (ml)</label>
+          <label for="volume" class="form-label text-muted small"
+            >Volume (ml)</label
+          >
           <input
             type="number"
             id="volume"
@@ -38,7 +42,9 @@
         </div>
 
         <div class="mb-3">
-          <label for="price" class="form-label">Prix (€)</label>
+          <label for="price" class="form-label text-muted small"
+            >Prix (€)</label
+          >
           <input
             type="number"
             id="price"
@@ -51,7 +57,7 @@
         </div>
 
         <div class="text-center">
-          <button type="submit" class="btn btn-primary w-100">Valider</button>
+          <button type="submit" class="btn-primary w-100">Valider</button>
         </div>
       </form>
     </div>

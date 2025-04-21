@@ -15,7 +15,7 @@ export class PurchasesComponent implements OnInit {
   loading = true;
   errorMessage = '';
 
-  // Mappage des statuts anglais vers français
+  // Map to translate order status from English to French
   statusMap: { [key: string]: string } = {
     PENDING: 'EN ATTENTE',
     PAID: 'PAYÉ',
@@ -28,11 +28,12 @@ export class PurchasesComponent implements OnInit {
   constructor(private appFacade: AppFacade, private router: Router) {}
 
   ngOnInit(): void {
+    // Fetch the currently logged-in user details
     this.appFacade.getCurrentUserDetails().subscribe({
       next: (data) => {
         this.user = data;
         if (this.user && this.user.id) {
-          // Vérifie que l'utilisateur a bien un ID
+          // If user has a valid ID, fetch their orders
           this.fetchUserCommands(this.user.id);
         } else {
           this.loading = false;
@@ -48,11 +49,12 @@ export class PurchasesComponent implements OnInit {
   }
 
   fetchUserCommands(userId: number): void {
+    // Fetch the list of orders for a specific user
     this.appFacade.getUserOrders(userId).subscribe({
       next: (data) => {
         this.commands = data.map((command) => ({
           ...command,
-          // Convertir les statuts anglais en français
+          // Translate the order status to French using the status map
           status: this.statusMap[command.status] || command.status,
         }));
         this.loading = false;
@@ -63,8 +65,9 @@ export class PurchasesComponent implements OnInit {
       },
     });
   }
-  // Méthode pour afficher les détails de la commande
+
+  // Navigate to the order details page
   viewCommandDetails(commandId: number): void {
-    this.router.navigate([`/command-details/${commandId}`]);
+    this.router.navigate([`/order-details/${commandId}`]);
   }
 }

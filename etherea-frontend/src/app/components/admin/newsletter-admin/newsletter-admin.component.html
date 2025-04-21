@@ -1,16 +1,17 @@
 <div class="newsletter-container">
-  <h2>Envoyer une Newsletter</h2>
+  <h3>Envoyer une Newsletter</h3>
+
   <div *ngIf="successMessage" class="alert alert-success floating-alert">
     {{ successMessage }}
   </div>
 
   <form [formGroup]="newsletterForm" (ngSubmit)="sendNewsletter()">
     <div class="form-group">
-      <label for="subject">Sujet</label>
       <input
         type="text"
         id="subject"
         formControlName="subject"
+        class="form-control"
         placeholder="Entrez le sujet de la newsletter"
       />
       <div
@@ -25,11 +26,11 @@
     </div>
 
     <div class="form-group">
-      <label for="content">Contenu HTML</label>
       <textarea
         id="content"
         rows="8"
         formControlName="content"
+        class="form-control"
         placeholder="Contenu de la newsletter (HTML autorisé)"
       ></textarea>
       <div

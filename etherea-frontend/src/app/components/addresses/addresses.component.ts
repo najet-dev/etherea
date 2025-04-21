@@ -95,7 +95,6 @@ export class AddressesComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
-          // Mise à jour immédiate locale sans attendre la réponse API
           this.deliveryAddresses = this.deliveryAddresses.map((address) => ({
             ...address,
             default: address.id === addressId,
@@ -142,7 +141,6 @@ export class AddressesComponent {
       next: () => {
         this.successMessage = 'Adresse supprimée avec succès.';
 
-        // Masquer le message après 3 secondes
         setTimeout(() => {
           this.successMessage = '';
         }, 3000);
