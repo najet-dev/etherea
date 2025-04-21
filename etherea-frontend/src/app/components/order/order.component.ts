@@ -45,7 +45,6 @@ export class OrderComponent implements OnInit {
     private formBuilder: FormBuilder,
     private appFacade: AppFacade,
     private router: Router,
-    private route: ActivatedRoute,
     public cartItemService: CartItemService,
     private deliveryAddressService: DeliveryAddressService
   ) {}
@@ -123,7 +122,7 @@ export class OrderComponent implements OnInit {
             if (defaultAddress) {
               this.populateAddressForm(defaultAddress);
             } else {
-              // Sinon on prend la première comme fallback (optionnel)
+              //on prend la première comme fallback
               this.populateAddressForm(addresses[0]);
             }
           } else {
@@ -182,7 +181,7 @@ export class OrderComponent implements OnInit {
           // Si l’adresse existe, on navigue directement vers la page livraison
           this.router.navigate(['/deliveryMethod', existingAddressId]);
         } else {
-          // Sinon, on vérifie si c’est une mise à jour ou un ajout d’adresse
+          //on vérifie si c’est une mise à jour ou un ajout d’adresse
           if (this.addressId) {
             this.updateAddress(deliveryAddress);
           } else {

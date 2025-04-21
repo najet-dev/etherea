@@ -18,7 +18,7 @@ export class AddUserComponent {
     roles: [Role.ROLE_USER],
   };
   successMessage = '';
-
+  Role = Role;
   constructor(private authService: AuthService) {}
 
   onSubmit(): void {

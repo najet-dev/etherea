@@ -22,14 +22,10 @@ export class AuthService {
   ) {}
 
   signup(signupData: SignupRequest): Observable<SignupRequest> {
-    return this.httpClient
-      .post<SignupRequest>(`${this.apiUrl}/api/auth/signup`, signupData)
-      .pipe(
-        catchError((error) => {
-          console.error('An error occurred during signup:', error);
-          return throwError(() => new Error("Erreur lors de l'inscription."));
-        })
-      );
+    return this.httpClient.post<SignupRequest>(
+      `${this.apiUrl}/api/auth/signup`,
+      signupData
+    );
   }
 
   signin(signinData: SigninRequest): Observable<SigninRequest> {
@@ -42,13 +38,17 @@ export class AuthService {
           let errorMessage =
             "Une erreur inconnue s'est produite lors de la connexion !";
           if (error.status === 401) {
-            errorMessage = 'Identifiants invalides. Veuillez réessayer.';
+            errorMessage = "L'email ou le mot de passe est invalide.";
           } else if (error.status === 403) {
             errorMessage = "Vous n'avez pas les autorisations nécessaires.";
           }
           console.error('Signin error:', error);
-          return throwError(() => new Error(errorMessage));
+          return throwError(() => ({
+            status: error.status,
+            message: errorMessage,
+          }));
         }),
+
         switchMap((signin) => {
           if (!signin.accessToken || !this.isValidJwt(signin.accessToken)) {
             console.error('Token JWT invalide.');
