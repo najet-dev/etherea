@@ -13,9 +13,7 @@ out/
 # Fichiers de configuration locaux
 *.env
 .env
-application-local.properties
-application-dev.properties
-application-test.properties
+src/main/resources/applicationss.properties
 
 # ============ INTELLIJ IDEA ============
 
