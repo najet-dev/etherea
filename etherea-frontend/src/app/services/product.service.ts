@@ -8,6 +8,7 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, of, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Product } from '../components/models/product.model';
+import { StorageService } from './storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,11 +16,14 @@ import { Product } from '../components/models/product.model';
 export class ProductService {
   apiUrl = environment.apiUrl;
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(
+    private httpClient: HttpClient,
+    private storageService: StorageService
+  ) {}
 
   getAllProducts(
-    page: number,
-    size: number
+    page: number = 0,
+    size: number = 10
   ): Observable<{
     content: Product[];
     totalElements: number;
