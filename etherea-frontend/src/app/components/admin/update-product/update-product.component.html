@@ -104,24 +104,30 @@
             name="usageTips"
           ></textarea>
         </div>
-        <div class="mb-3">
-          <label for="basePrice" class="form-label">Prix</label>
+        <div class="mb-3 position-relative">
+          <label for="basePrice" class="form-label text-muted small"
+            >Prix (€)</label
+          >
           <input
-            type="text"
+            type="number"
             id="basePrice"
             class="form-control"
             [(ngModel)]="updateProduct.basePrice"
             name="basePrice"
             required
+            step="0.01"
           />
         </div>
+
         <div class="mb-3">
-          <label for="newProduct" class="form-label">Nouveau produit</label>
+          <label for="newProduct" class="form-label text-muted small"
+            >Nouveau produit</label
+          >
           <input
             type="number"
             id="newProduct"
             class="form-control"
-            [(ngModel)]="updateProduct.basePrice"
+            [(ngModel)]="updateProduct.newProduct"
             name="newProduct"
             required
             step="0.01"
@@ -141,7 +147,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="stockQuantity" class="form-label"
+          <label for="stockQuantity" class="form-label text-muted small"
             >Quantité en stock</label
           >
           <input
