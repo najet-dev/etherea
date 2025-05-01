@@ -1,25 +1,20 @@
-# build avec Maven
-FROM maven:3.8.5-openjdk-17 AS builder
-
-# Définir le répertoire de travail
-WORKDIR /app
-
-# Copier tout le code source dans l'image
-COPY . .
-
-# Construire l'application (le .jar sera généré dans /app/target)
-RUN mvn clean package -DskipTests
-
-# image légère pour exécuter le .jar
+# compilation + exécution dans Java 21
 FROM openjdk:21-jdk-slim
 
+RUN apt-get update && \
+    apt-get install -y maven && \
+    apt-get clean
+
 WORKDIR /app
 
-# Copier uniquement le JAR compilé depuis l'image builder
-COPY --from=builder /app/target/etherea-0.0.1-SNAPSHOT.jar app.jar
+# Copier tous les fichiers nécessaires au build
+COPY . .
 
-# Exposer le port
+# Construire l'application (ignorer les tests)
+RUN mvn clean package -DskipTests
+
+# Exposer le port utilisé par l'application
 EXPOSE 9090
 
-# Lancer l'application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Lancer le .jar généré
+ENTRYPOINT ["java", "-jar", "target/etherea-0.0.1-SNAPSHOT.jar"]
