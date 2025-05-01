@@ -13,8 +13,6 @@ out/
 # Fichiers de configuration locaux
 *.env
 .env
-# ============ INTELLIJ IDEA ============
-
 # Projet IntelliJ
 .idea/
 *.iws
