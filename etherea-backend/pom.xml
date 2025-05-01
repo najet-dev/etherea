@@ -6,9 +6,8 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.1.7</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
-
 
 	<groupId>com.etherea</groupId>
 	<artifactId>etherea</artifactId>
@@ -140,6 +139,21 @@
 					</compilerArgs>
 				</configuration>
 			</plugin>
+
+			<!-- Ajout du plugin maven-jar-plugin pour définir Main-Class dans le manifest -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Main-Class>com.etherea.EthereaApplication</Main-Class> 
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
