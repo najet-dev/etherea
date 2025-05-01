@@ -139,7 +139,6 @@
 					</compilerArgs>
 				</configuration>
 			</plugin>
-
 			<!-- Ajout du plugin maven-jar-plugin pour définir Main-Class dans le manifest -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -148,7 +147,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Main-Class>com.etherea.EthereaApplication</Main-Class> 
+							<Main-Class>com.etherea.EthereaApplication</Main-Class>
 						</manifestEntries>
 					</archive>
 				</configuration>
