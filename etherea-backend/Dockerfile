@@ -1,14 +1,25 @@
-# Utilise une image Java légère
-FROM openjdk:17-jdk-slim
+# build avec Maven
+FROM maven:3.8.5-openjdk-17 AS builder
 
-# Répertoire de travail dans le conteneur
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier le JAR généré
-COPY target/etherea-0.0.1-SNAPSHOT.jar etherea-0.0.1-SNAPSHOT.jar
+# Copier tout le code source dans l'image
+COPY . .
 
-# Exposer le port utilisé par l’application
+# Construire l'application (le .jar sera généré dans /app/target)
+RUN mvn clean package -DskipTests
+
+# image légère pour exécuter le .jar
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+# Copier uniquement le JAR compilé depuis l'image builder
+COPY --from=builder /app/target/etherea-0.0.1-SNAPSHOT.jar app.jar
+
+# Exposer le port
 EXPOSE 9090
 
-# Lancer l’application
-ENTRYPOINT ["java", "-jar", "etherea-0.0.1-SNAPSHOT.jar"]
+# Lancer l'application
+ENTRYPOINT ["java", "-jar", "app.jar"]
