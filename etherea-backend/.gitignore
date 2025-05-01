@@ -13,8 +13,6 @@ out/
 # Fichiers de configuration locaux
 *.env
 .env
-src/main/resources/applicationss.properties
-
 # ============ INTELLIJ IDEA ============
 
 # Projet IntelliJ
