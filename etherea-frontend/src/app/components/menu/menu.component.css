@@ -10,7 +10,7 @@
 }
 
 .navbar-brand img {
-  width: 70px;
+  width: 80px;
 }
 
 /* ============ MENU PRINCIPAL ============ */
@@ -36,13 +36,13 @@
 .custom-search-form {
   width: 60%;
   position: relative;
+  margin: 0 50px;
 }
 
 .custom-search-form input {
   width: 100%;
   padding: 10px 40px 10px 12px;
   border: 1px solid #ccc;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .custom-search-form input:focus {
@@ -123,30 +123,6 @@
   cursor: pointer;
 }
 
-/* ============ BARRE DE RECHERCHE MOBILE ============ */
-.search-bar {
-  display: none;
-  padding: 10px 0;
-}
-
-.search-bar input {
-  width: 100%;
-  padding: 10px 40px 10px 12px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-}
-
-.search-bar button {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: var(--main-color);
-  border: none;
-  color: white;
-  padding: 8px 12px;
-}
-
 /* ============ RÉSULTATS DYNAMIQUES ============ */
 .search-dropdown {
   position: absolute;
@@ -173,7 +149,7 @@
 .search-result-item:hover {
   background-color: #f9f9f9;
 }
-
+/*Affche le produit dans le input de recherche*/
 .product-thumbnail {
   width: 50px;
   height: 50px;
@@ -186,16 +162,6 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-}
-
-.product-name {
-  font-weight: 500;
-  font-size: 15px;
-}
-
-.product-price {
-  font-size: 14px;
-  color: #888;
 }
 
 @media (max-width: 767px) {
@@ -216,7 +182,7 @@
   }
 
   .navbar-brand img {
-    width: 60px;
+    width: 80px;
   }
 
   .icons-container {
@@ -244,28 +210,47 @@
   }
 }
 
-@media screen and (min-width: 200px) and (max-width: 369px) {
+@media screen and (max-width: 368px) {
   .navbar .container {
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
     padding: 0 10px;
   }
 
+  .burger-menu {
+    order: 1;
+    flex: 0 0 auto;
+  }
+
+  .navbar-brand {
+    order: 2;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+  }
+
   .navbar-brand img {
-    width: 50px;
+    width: 80px;
+    margin-left: -51px;
   }
 
   .icons-container {
-    margin-top: 20px;
-    gap: 20px;
+    order: 3;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 10px;
+    padding: 0 20px;
+    box-sizing: border-box;
   }
 
   .icon {
-    margin: 0 6px;
-  }
-
-  .favorite-count,
-  .cart-count {
-    font-size: 9px;
-    min-width: 12px;
-    height: 12px;
+    margin: 0;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
