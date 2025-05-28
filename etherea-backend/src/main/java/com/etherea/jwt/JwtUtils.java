@@ -1,8 +1,5 @@
 package com.etherea.jwt;
 
-import com.etherea.controllers.CartItemController;
-import com.etherea.models.User;
-import com.etherea.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
@@ -11,11 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 
-
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

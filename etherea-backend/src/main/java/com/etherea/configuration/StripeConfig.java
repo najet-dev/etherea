@@ -6,14 +6,27 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class StripeConfig {
+
+    /**
+     * Constructs the StripeConfig and sets the Stripe secret API key.
+     *
+     * @param apiKey the secret API key for Stripe, loaded from application properties
+     */
     public StripeConfig(@Value("${stripe.secret.key}") String apiKey) {
         Stripe.apiKey = apiKey;
     }
-    // Charger la clé secrète du webhook
+
+    /**
+     * The Stripe webhook secret used to validate incoming webhook events.
+     */
     @Value("${stripe.webhook.secret}")
     private String webhookSecret;
 
-    // Méthode pour récupérer la clé secrète du webhook
+    /**
+     * Retrieves the configured Stripe webhook secret.
+     *
+     * @return the webhook secret string
+     */
     public String getWebhookSecret() {
         return webhookSecret;
     }

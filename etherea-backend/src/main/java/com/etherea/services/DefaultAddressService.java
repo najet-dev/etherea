@@ -3,7 +3,6 @@ package com.etherea.services;
 import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.models.DeliveryAddress;
 import com.etherea.repositories.DeliveryAddressRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +12,10 @@ import java.util.List;
  */
 @Service
 public class DefaultAddressService {
-
-    @Autowired
-    private DeliveryAddressRepository deliveryAddressRepository;
+    private final DeliveryAddressRepository deliveryAddressRepository;
+    public DefaultAddressService(DeliveryAddressRepository deliveryAddressRepository ) {
+        this.deliveryAddressRepository = deliveryAddressRepository;
+    }
 
     /**
      * Sets a specific delivery address as the default for a given user.

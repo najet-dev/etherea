@@ -24,11 +24,9 @@ public class ResetToken {
     public Long getId() {
         return id;
     }
-
     public String getToken() {
         return token;
     }
-
     public User getUser() {
         return user;
     }

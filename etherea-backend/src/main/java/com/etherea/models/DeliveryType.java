@@ -27,9 +27,7 @@ public class DeliveryType {
         this.deliveryDays = deliveryDays;
         this.cost = cost;
     }
-
     public Long getId() { return id; }
-
     public void setId(Long id) {
         this.id = id;
     }

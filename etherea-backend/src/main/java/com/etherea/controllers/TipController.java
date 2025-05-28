@@ -1,6 +1,8 @@
 package com.etherea.controllers;
 
 import com.etherea.dtos.TipDTO;
+import com.etherea.services.PaymentService;
+import com.etherea.services.ProductService;
 import com.etherea.services.TipService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,12 +23,18 @@ import java.util.Map;
 @RequestMapping("/tips")
 @CrossOrigin(origins = "*")
 public class TipController {
-    @Autowired
-    private TipService tipService;
+    private final TipService tipService;
     private static final Logger logger = LoggerFactory.getLogger(TipController.class);
+    public TipController(TipService tipService) {
+        this.tipService = tipService;
+    }
 
     /**
-     * Récupérer tous les conseils avec pagination
+     * Retrieves a paginated list of tips.
+     *
+     * @param page the page number to retrieve (default is 0)
+     * @param size the number of items per page (default is 10)
+     * @return a paginated list of TipDTO objects
      */
     @GetMapping
     public ResponseEntity<Page<TipDTO>> getAllTips(
@@ -36,18 +44,23 @@ public class TipController {
         Page<TipDTO> tips = tipService.getTips(page, size);
         return ResponseEntity.ok(tips);
     }
-
     /**
-     * Récupérer un conseil par ID
+     * Retrieves a specific tip by its ID.
+     *
+     * @param id the ID of the tip
+     * @return the corresponding TipDTO object
      */
     @GetMapping("/{id}")
     public ResponseEntity<TipDTO> getTipById(@PathVariable Long id) {
         TipDTO tipDTO = tipService.getTipById(id);
         return ResponseEntity.ok(tipDTO);
     }
-
     /**
-     * Ajouter un nouveau conseil (avec upload d'image)
+     * Creates a new tip with or without an image.
+     *
+     * @param file     the image associated with the tip (optional)
+     * @param tipJson  the JSON representation of the TipDTO
+     * @return a success message or an error message
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
@@ -81,7 +94,11 @@ public class TipController {
     }
 
     /**
-     * Mettre à jour un conseil
+     * Updates an existing tip with or without a new image.
+     *
+     * @param tipJson the JSON representation of the TipDTO to update
+     * @param image   the new image associated with the tip (optional)
+     * @return a success message or an error message
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(value = "/update", consumes = "multipart/form-data")
@@ -110,7 +127,10 @@ public class TipController {
     }
 
     /**
-     * Supprimer un conseil
+     * Deletes a tip by its ID.
+     *
+     * @param id the ID of the tip to delete
+     * @return a success message or an error message
      */
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")

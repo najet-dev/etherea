@@ -31,7 +31,7 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Volume> volumes = new ArrayList<>();
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JsonIgnore // Ignorer la sérialisation pour éviter les problèmes de récursion
+    @JsonIgnore // Ignore serialization to avoid recursion problems
     private List<CommandItem> commandItems = new ArrayList<>();
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

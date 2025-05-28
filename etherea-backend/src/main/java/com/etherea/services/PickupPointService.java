@@ -4,7 +4,6 @@ import com.etherea.dtos.AddDeliveryMethodRequestDTO;
 import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.models.DeliveryAddress;
 import com.etherea.repositories.DeliveryAddressRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,10 +20,12 @@ import java.util.Locale;
 public class PickupPointService {
     private static final String OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
     private static final String NOMINATIM_API_URL = "https://nominatim.openstreetmap.org/reverse";
-    @Autowired
-    private DeliveryAddressRepository deliveryAddressRepository;
-    @Autowired
-    private RestTemplate restTemplate;
+    private final DeliveryAddressRepository deliveryAddressRepository;
+    private final RestTemplate restTemplate;
+    public PickupPointService(DeliveryAddressRepository deliveryAddressRepository, RestTemplate restTemplate) {
+        this.deliveryAddressRepository = deliveryAddressRepository;
+        this.restTemplate = restTemplate;
+    }
 
     /**
      * Retrieves pickup points for a given user based on their current address.

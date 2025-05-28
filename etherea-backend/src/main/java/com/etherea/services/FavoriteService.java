@@ -10,7 +10,6 @@ import com.etherea.models.User;
 import com.etherea.repositories.FavoriteRepository;
 import com.etherea.repositories.ProductRepository;
 import com.etherea.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,12 +17,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class FavoriteService {
-    @Autowired
-    private FavoriteRepository favoriteRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private UserRepository userRepository;
+    private final FavoriteRepository favoriteRepository;
+    private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    public FavoriteService(FavoriteRepository favoriteRepository, ProductRepository productRepository, UserRepository userRepository) {
+        this.favoriteRepository = favoriteRepository;
+        this.productRepository = productRepository;
+        this.userRepository = userRepository;
+    }
 
     /**
      * Retrieves the list of favorites for a user.

@@ -2,7 +2,6 @@ package com.etherea.payload.request;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class SignupRequest {

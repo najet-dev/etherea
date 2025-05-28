@@ -7,7 +7,6 @@ import com.etherea.models.ResetToken;
 import com.etherea.models.User;
 import com.etherea.repositories.ResetTokenRepository;
 import com.etherea.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +15,23 @@ import java.util.Optional;
 
 @Service
 public class PasswordResetService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ResetTokenRepository resetTokenRepository;
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final ResetTokenRepository resetTokenRepository;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
+    public PasswordResetService(UserRepository userRepository, ResetTokenRepository resetTokenRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.resetTokenRepository = resetTokenRepository;
+        this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
+    }
+    /**
+     * Sends a password reset link to the user’s email address.
+     * If a valid reset token already exists, it is refreshed.
+     *
+     * @param request the request DTO containing the user email
+     * @throws UserNotFoundException if the email does not match any registered user
+     */
     public void sendPasswordResetLink(ForgotPasswordRequestDTO request) {
         User user = userRepository.findByUsername(request.getEmail())
                 .orElseThrow(() -> new UserNotFoundException("No users found with this email"));
@@ -65,6 +73,13 @@ public class PasswordResetService {
                 emailContent
         );
     }
+    /**
+     * Resets the user's password based on the provided token and new password.
+     * Validates token status, password match, and password strength before updating.
+     *
+     * @param request the reset request containing token, new password, and confirmation
+     * @throws IllegalArgumentException if the token is invalid, expired, used, or if the password is weak or mismatched
+     */
     public void resetPassword(ResetPasswordRequestDTO request) {
         ResetToken resetToken = resetTokenRepository.findByToken(request.getToken())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid or expired token"));
@@ -90,6 +105,13 @@ public class PasswordResetService {
         resetToken.markAsUsed();
         resetTokenRepository.save(resetToken);
     }
+    /**
+     * Validates the password against security requirements.
+     * Must contain at least 8 characters, one uppercase letter, one lowercase letter, one digit, and one special character.
+     *
+     * @param password the password to validate
+     * @return {@code true} if the password is valid, {@code false} otherwise
+     */
     private boolean isValidPassword(String password) {
         String passwordRegex = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$";
         return password.matches(passwordRegex);

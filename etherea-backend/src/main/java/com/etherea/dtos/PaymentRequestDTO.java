@@ -1,7 +1,6 @@
 package com.etherea.dtos;
 
 import com.etherea.enums.PaymentOption;
-import com.etherea.enums.PaymentStatus;
 import jakarta.validation.constraints.NotNull;
 
 public class PaymentRequestDTO {

@@ -8,16 +8,12 @@ import com.etherea.enums.CommandStatus;
 import com.etherea.enums.PaymentStatus;
 import com.etherea.exception.CartNotFoundException;
 import com.etherea.models.*;
-import com.etherea.repositories.CartRepository;
-import com.etherea.repositories.CommandRepository;
-import com.etherea.repositories.DeliveryMethodRepository;
-import com.etherea.repositories.PaymentRepository;
+import com.etherea.repositories.*;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,20 +23,22 @@ import java.util.Optional;
 @Service
 public class PaymentService {
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
-    @Autowired
-    private CartRepository cartRepository;
-    @Autowired
-    private PaymentRepository paymentRepository;
-    @Autowired
-    private DeliveryMethodRepository deliveryMethodRepository;
-    @Autowired
-    private CommandRepository commandRepository;
-    @Autowired
-    private CommandService commandService;
-    @Autowired
-    private StripeService stripeService;
-    @Autowired
-    private CartService cartService;
+    private final CartRepository cartRepository;
+    private final PaymentRepository paymentRepository;
+    private final DeliveryMethodRepository deliveryMethodRepository;
+    private final CommandRepository commandRepository;
+    private final CommandService commandService;
+    private final StripeService stripeService;
+    private final CartService cartService;
+    public PaymentService(CartRepository cartRepository, PaymentRepository paymentRepository, DeliveryMethodRepository deliveryMethodRepository, CommandRepository commandRepository, CommandService commandService, StripeService stripeService, CartService cartService) {
+        this.cartRepository = cartRepository;
+        this.paymentRepository = paymentRepository;
+        this.deliveryMethodRepository = deliveryMethodRepository;
+        this.commandRepository = commandRepository;
+        this.commandService = commandService;
+        this.stripeService = stripeService;
+        this.cartService = cartService;
+    }
 
     /**
      * Creates a payment intent using Stripe for a specified cart.

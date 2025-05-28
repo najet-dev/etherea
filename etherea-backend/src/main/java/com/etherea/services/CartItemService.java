@@ -11,7 +11,6 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -20,17 +19,19 @@ import java.util.stream.Collectors;
 
 @Service
 public class CartItemService {
-    @Autowired
-    private CartItemRepository cartItemRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private ProductRepository productRepository;
-    @Autowired
-    private VolumeRepository volumeRepository;
-    @Autowired
-    private CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final VolumeRepository volumeRepository;
+    private final CartRepository cartRepository;
     private static final Logger logger = LoggerFactory.getLogger(CartItemService.class);
+    public CartItemService(CartItemRepository cartItemRepository, UserRepository userRepository, ProductRepository productRepository, VolumeRepository volumeRepository, CartRepository cartRepository) {
+        this.cartItemRepository = cartItemRepository;
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
+        this.volumeRepository = volumeRepository;
+        this.cartRepository = cartRepository;
+    }
 
     /**
      * Retrieves items from a user's active shopping cart

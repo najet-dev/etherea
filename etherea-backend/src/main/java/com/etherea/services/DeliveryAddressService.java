@@ -1,7 +1,6 @@
 package com.etherea.services;
 
 import com.etherea.dtos.DeliveryAddressDTO;
-import com.etherea.dtos.UserDTO;
 import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.models.DeliveryAddress;
@@ -9,7 +8,6 @@ import com.etherea.models.User;
 import com.etherea.repositories.DeliveryAddressRepository;
 import com.etherea.repositories.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,14 +15,16 @@ import java.util.stream.Collectors;
 
 @Service
 public class DeliveryAddressService {
-    @Autowired
-    private DeliveryAddressRepository deliveryAddressRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private DefaultAddressService defaultAddressService;
+    private final DeliveryAddressRepository deliveryAddressRepository;
+    private final UserRepository userRepository;
+    public final UserService userService;
+    public DefaultAddressService defaultAddressService;
+    public DeliveryAddressService( DeliveryAddressRepository deliveryAddressRepository, UserRepository userRepository, UserService userService,  DefaultAddressService defaultAddressService ) {
+        this.deliveryAddressRepository = deliveryAddressRepository;
+        this.userRepository = userRepository;
+        this.userService = userService;
+        this.defaultAddressService = defaultAddressService;
+    }
 
     /**
      * Retrieves all delivery addresses for a given user.

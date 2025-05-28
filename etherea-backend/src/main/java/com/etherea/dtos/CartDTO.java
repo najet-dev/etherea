@@ -18,7 +18,6 @@ public class CartDTO {
     private CartStatus status;
     private DeliveryMethodDTO deliveryMethod;
     public CartDTO() {}
-
     public CartDTO(Long id, UserDTO user, List<CartItemDTO> items, BigDecimal totalAmount, BigDecimal deliveryCost,
                    BigDecimal finalTotal, boolean freeShipping, CartStatus status, DeliveryMethodDTO deliveryMethod) {
         this.id = id;

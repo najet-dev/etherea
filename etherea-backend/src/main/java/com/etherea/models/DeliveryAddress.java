@@ -2,9 +2,6 @@ package com.etherea.models;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 public class DeliveryAddress {
     @Id
@@ -80,5 +77,4 @@ public class DeliveryAddress {
     public String getFullAddress() {
         return address + ", " + city + ", " + zipCode + ", " + country;
     }
-
 }

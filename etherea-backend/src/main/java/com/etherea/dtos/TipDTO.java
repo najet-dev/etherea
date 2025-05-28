@@ -20,11 +20,9 @@ public class TipDTO {
         this.image = image;
         this.dateCreation = dateCreation;
     }
-
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }

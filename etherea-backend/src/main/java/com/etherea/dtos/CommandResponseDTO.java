@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class CommandResponseDTO {
-
     private Long id;
     private LocalDateTime commandDate;
     private String referenceCode;

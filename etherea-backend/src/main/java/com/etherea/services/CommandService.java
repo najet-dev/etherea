@@ -9,7 +9,6 @@ import com.etherea.exception.*;
 import com.etherea.models.*;
 import com.etherea.repositories.*;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,20 +21,22 @@ import java.util.stream.Collectors;
 
 @Service
 public class CommandService {
-    @Autowired
-    private CartRepository cartRepository;
-    @Autowired
-    private CommandRepository commandRepository;
-    @Autowired
-    private DeliveryAddressRepository deliveryAddressRepository;
-    @Autowired
-    private PaymentRepository paymentRepository;
-    @Autowired
-    private DeliveryMethodRepository deliveryMethodRepository;
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private CommandItemRepository commandItemRepository;
+    private final CartRepository cartRepository;
+    private final CommandRepository commandRepository;
+    private final DeliveryAddressRepository deliveryAddressRepository;
+    private final PaymentRepository paymentRepository;
+    private final DeliveryMethodRepository deliveryMethodRepository;
+    private final EmailService emailService;
+    private final CommandItemRepository commandItemRepository;
+    public CommandService(CartRepository cartRepository, CommandRepository commandRepository, DeliveryAddressRepository deliveryAddressRepository, PaymentRepository paymentRepository, DeliveryMethodRepository deliveryMethodRepository, EmailService emailService, CommandItemRepository commandItemRepository) {
+        this.cartRepository = cartRepository;
+        this.commandRepository = commandRepository;
+        this.deliveryAddressRepository = deliveryAddressRepository;
+        this.paymentRepository = paymentRepository;
+        this.deliveryMethodRepository = deliveryMethodRepository;
+        this.emailService = emailService;
+        this.commandItemRepository = commandItemRepository;
+    }
 
     /**
      * Retrieves a paginated list of all commands.

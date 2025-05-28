@@ -4,7 +4,6 @@ import com.etherea.models.Product;
 import com.etherea.models.Volume;
 
 import java.math.BigDecimal;
-
 public class VolumeDTO {
     private Long id;
     private Long productId;

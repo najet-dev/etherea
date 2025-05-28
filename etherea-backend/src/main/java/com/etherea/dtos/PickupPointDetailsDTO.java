@@ -2,7 +2,6 @@ package com.etherea.dtos;
 
 import com.etherea.models.PickupPointDetails;
 import jakarta.validation.constraints.NotBlank;
-
 public class PickupPointDetailsDTO {
     private Long id;
     @NotBlank(message = "Le nom du point de retrait est obligatoire.")

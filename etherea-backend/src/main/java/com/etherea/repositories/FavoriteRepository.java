@@ -1,6 +1,5 @@
 package com.etherea.repositories;
 
-import com.etherea.models.CartItem;
 import com.etherea.models.Favorite;
 import com.etherea.models.Product;
 import com.etherea.models.User;
@@ -15,6 +14,4 @@ public interface FavoriteRepository  extends JpaRepository<Favorite, Long> {
     boolean existsByUserAndProduct(User user, Product product);
     Optional<Favorite> findByUserAndProduct(User user, Product product);
     List<Favorite> findByUser(User user);
-
-
 }

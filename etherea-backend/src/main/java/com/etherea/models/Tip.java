@@ -5,7 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -27,11 +26,9 @@ public class Tip {
         this.image = image;
         this.dateCreation = dateCreation;
     }
-
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }

@@ -1,7 +1,6 @@
 package com.etherea.models;
 
 import jakarta.persistence.*;
-
 @Entity
 public class Favorite {
     @Id

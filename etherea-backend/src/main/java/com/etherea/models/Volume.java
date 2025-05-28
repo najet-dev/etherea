@@ -1,11 +1,8 @@
 package com.etherea.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
-import java.util.List;
-
 @Entity
 public class Volume {
     @Id

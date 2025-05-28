@@ -10,8 +10,6 @@ import com.etherea.payload.response.JwtResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
-import jakarta.ws.rs.core.HttpHeaders;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -44,21 +42,18 @@ import com.etherea.services.UserDetailsImpl;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    @Autowired
-    AuthenticationManager authenticationManager;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    RoleRepository roleRepository;
-    @Autowired
-    PasswordEncoder encoder;
-    @Autowired
-    JwtUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder encoder;
+    private final JwtUtils jwtUtils;
     private final UserDetailsService userDetailsService;
 
-    @Autowired
-    public AuthController(AuthenticationManager authenticationManager, JwtUtils jwtUtils, UserDetailsService userDetailsService) {
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder, JwtUtils jwtUtils, UserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.encoder = encoder;
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
     }
@@ -72,17 +67,17 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
-            // Charger les détails de l'utilisateur depuis le service
+            // Load user details from service
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(loginRequest.getUsername());
 
-            // Authentifier l'utilisateur
+            // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-            // Mettre à jour le contexte de sécurité
+            // Update security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Récupérer les rôles de l'utilisateur
+            // Retrieve user roles
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
@@ -91,10 +86,10 @@ public class AuthController {
                     .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
                     .collect(Collectors.toList());
 
-            // Générer le token JWT
+            // Generate JWT token
             String jwtToken = jwtUtils.generateJwtToken(userDetails.getUsername(), new HashSet<>(roles));
 
-            // Créer la réponse avec les détails de l'utilisateur et le token JWT
+            // Create response with user details and JWT token
             JwtResponse jwtResponse = new JwtResponse(
                     jwtToken,
                     userDetails.getId(),

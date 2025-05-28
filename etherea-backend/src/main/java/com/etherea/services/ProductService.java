@@ -10,7 +10,6 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,12 +27,21 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private static final String UPLOAD_DIR = "assets";
     private final ModelMapper modelMapper = new ModelMapper();
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
+    /**
+     * Retrieves a paginated list of FACE and HAIR products.
+     *
+     * @param page the page number to retrieve
+     * @param size the number of products per page
+     * @return a page of {@link ProductDTO} objects
+     */
     public Page<ProductDTO> getProducts(int page, int size) {
         // Récupérer une page de produits avec pagination et tri
         Page<Product> productsPage = productRepository.findByTypeIn(
@@ -41,16 +49,31 @@ public class ProductService {
                 PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"))
         );
 
-        // Convertir Page<Product> en Page<ProductDTO>
+        // Convert Page<Product> to Page<ProductDTO>
         return productsPage.map(ProductDTO::fromProduct);
     }
-    public Page<ProductDTO> getNewProducts(int page, int size) {
+
+    /**
+     * Retrieves a paginated list of new products.
+     *
+     * @param page the page number
+     * @param size the page size
+     * @return a page of new {@link ProductDTO} objects
+     */public Page<ProductDTO> getNewProducts(int page, int size) {
         // Retrieve page of users
         Page<Product> newProductsPage = productRepository.findByNewProductTrue(PageRequest.of(page, size));
 
         // Convert Page<User> to Page<UserDTO>
         return newProductsPage.map(ProductDTO::fromProduct);
     }
+
+    /**
+     * Retrieves products of a specific type with pagination support.
+     *
+     * @param pageable pagination and sorting information
+     * @param type     the product type to filter
+     * @return a page of {@link ProductDTO} filtered by type
+     */
     public Page<ProductDTO> getProductsByType(Pageable pageable, ProductType type) {
         // Retrieve a product page by type with pagination and sorting
         Page<Product> productsPage = productRepository.findByType(type, pageable);
@@ -58,6 +81,14 @@ public class ProductService {
         // Convert Page<Product> to Page<ProductDTO>.
         return productsPage.map(ProductDTO::fromProduct);
     }
+
+    /**
+     * Retrieves a product by its ID, including volume details if it's a HAIR product.
+     *
+     * @param id the product ID
+     * @return the matching {@link ProductDTO}
+     * @throws ProductNotFoundException if no product is found with the given ID
+     */
     public ProductDTO getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("No product found with ID: " + id));
@@ -74,6 +105,14 @@ public class ProductService {
 
         return productDTO;
     }
+
+    /**
+     * Searches for products by name (case-insensitive).
+     *
+     * @param name the name or partial name to search for
+     * @return list of matching {@link ProductDTO} objects
+     * @throws ProductNotFoundException if no products match the search term
+     */
     public List<ProductDTO> getProductsByName(String name) {
         List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
         if (products.isEmpty()) {
@@ -81,6 +120,13 @@ public class ProductService {
         }
         return products.stream().map(ProductDTO::fromProduct).collect(Collectors.toList());
     }
+
+    /**
+     * Saves a new product to the database, optionally handling an image upload.
+     *
+     * @param productDTO the product data
+     * @param file       the image file to upload (nullable)
+     */
     @Transactional
     public void saveProduct(ProductDTO productDTO, MultipartFile file) {
         validateProduct(productDTO);
@@ -93,6 +139,15 @@ public class ProductService {
         Product product = convertToProduct(productDTO);
         productRepository.save(product);
     }
+
+    /**
+     * Updates an existing product, optionally replacing the image.
+     *
+     * @param updatedProductDTO the updated product data
+     * @param file              the new image file (nullable)
+     * @throws ProductNotFoundException if no product exists with the given ID
+     * @throws IllegalArgumentException if required fields are missing
+     */
     @Transactional
     public void updateProduct(ProductDTO updatedProductDTO, MultipartFile file) {
         Long productId = updatedProductDTO.getId();
@@ -151,12 +206,25 @@ public class ProductService {
 
         productRepository.save(existingProduct);
     }
-    public void deleteProduct(Long id) {
+
+    /**
+     * Deletes a product by ID.
+     *
+     * @param id the ID of the product to delete
+     * @throws ProductNotFoundException if the product does not exist
+     */public void deleteProduct(Long id) {
         if (!productRepository.existsById(id)) {
             throw new ProductNotFoundException("Product with ID " + id + " not found");
         }
         productRepository.deleteById(id);
     }
+
+    /**
+     * Validates the product based on its type and required fields.
+     *
+     * @param productDTO the product data to validate
+     * @throws IllegalArgumentException if validation fails
+     */
     private void validateProduct(ProductDTO productDTO) {
         if (productDTO == null) throw new IllegalArgumentException("ProductDTO cannot be null");
         if (productDTO.getType() == ProductType.FACE && productDTO.getBasePrice() == null) {
@@ -166,6 +234,14 @@ public class ProductService {
             productDTO.setBasePrice(null);
         }
     }
+
+    /**
+     * Handles the upload and saving of an image file to the server.
+     *
+     * @param file the image file to upload
+     * @return the path of the uploaded image file
+     * @throws RuntimeException if upload fails
+     */
     private String handleFileUpload(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return null;
@@ -186,12 +262,25 @@ public class ProductService {
             throw new RuntimeException("File upload failed", e);
         }
     }
+
+    /**
+     * Ensures the upload directory exists or creates it if necessary.
+     *
+     * @throws RuntimeException if directory creation fails
+     */
     private void createUploadDirectory() {
         File uploadDir = new File(UPLOAD_DIR);
         if (!uploadDir.exists() && !uploadDir.mkdirs()) {
             throw new RuntimeException("Failed to create upload directory");
         }
     }
+
+    /**
+     * Converts a {@link ProductDTO} to a {@link Product} entity using {@link ModelMapper}.
+     *
+     * @param productDTO the product DTO to convert
+     * @return the corresponding Product entity
+     */
     private Product convertToProduct(ProductDTO productDTO) {
         return modelMapper.map(productDTO, Product.class);
     }
