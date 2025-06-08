@@ -14,6 +14,14 @@ import java.math.RoundingMode;
 @Service
 public class StripeService {
     private static final Logger logger = LoggerFactory.getLogger(StripeService.class);
+
+    /**
+     * Creates a Stripe PaymentIntent for the specified total amount.
+     *
+     * @param totalAmount the total payment amount in euros
+     * @return the created {@link PaymentIntent}
+     * @throws StripeException if an error occurs during the creation process
+     */
     public PaymentIntent createPaymentIntent(BigDecimal totalAmount) throws StripeException {
         PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
                 .setAmount(totalAmount.multiply(BigDecimal.valueOf(100))
@@ -29,10 +37,26 @@ public class StripeService {
 
         return paymentIntent;
     }
+
+    /**
+     * Retrieves an existing PaymentIntent by its ID.
+     *
+     * @param paymentIntentId the ID of the PaymentIntent to retrieve
+     * @return the {@link PaymentIntent} object
+     * @throws StripeException if retrieval fails or the ID is invalid
+     */
     public PaymentIntent retrievePaymentIntent(String paymentIntentId) throws StripeException {
         return PaymentIntent.retrieve(paymentIntentId);
     }
-    public PaymentIntent attachPaymentMethod(String paymentIntentId, String paymentMethodId) throws StripeException {
+
+    /**
+     * Attaches a payment method to a PaymentIntent if it requires one.
+     *
+     * @param paymentIntentId  the ID of the PaymentIntent
+     * @param paymentMethodId  the ID of the payment method to attach
+     * @return the updated {@link PaymentIntent}
+     * @throws StripeException if updating the intent fails
+     */public PaymentIntent attachPaymentMethod(String paymentIntentId, String paymentMethodId) throws StripeException {
         PaymentIntent paymentIntent = retrievePaymentIntent(paymentIntentId);
         if ("requires_payment_method".equals(paymentIntent.getStatus())) {
             paymentIntent = paymentIntent.update(PaymentIntentUpdateParams.builder()
@@ -42,7 +66,14 @@ public class StripeService {
         }
         return paymentIntent;
     }
-    public PaymentIntent confirmPaymentIntent(String paymentIntentId) throws StripeException {
+
+    /**
+     * Confirms a PaymentIntent to finalize the payment process.
+     *
+     * @param paymentIntentId the ID of the PaymentIntent to confirm
+     * @return the confirmed {@link PaymentIntent}
+     * @throws StripeException if confirmation fails
+     */public PaymentIntent confirmPaymentIntent(String paymentIntentId) throws StripeException {
         PaymentIntent paymentIntent = retrievePaymentIntent(paymentIntentId);
         return paymentIntent.confirm();
     }

@@ -3,7 +3,6 @@ package com.etherea.models;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-
 @Entity
 public class PasswordHistory {
     @Id
@@ -20,19 +19,15 @@ public class PasswordHistory {
         this.hashedPassword = hashedPassword;
         this.createdAt = LocalDateTime.now();
     }
-
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
-
     public User getUser() {
         return user;
     }
-
     public void setUser(User user) {
         this.user = user;
     }

@@ -1,10 +1,10 @@
 package com.etherea.enums;
 
 public enum CommandStatus {
-    PENDING,         // Commande créée, en attente de paiement
-    PAID,            // Paiement confirmé
-    PROCESSING,      // Commande en cours de préparation
-    SHIPPED,         // Commande expédiée
-    DELIVERED,       // Commande livrée
-    CANCELLED        // Commande annulée
+    PENDING,         // Order created, awaiting payment
+    PAID,             // Payment confirmed
+    PROCESSING,      // Order in progress
+    SHIPPED,         // Order shipped
+    DELIVERED,       // Order delivered
+    CANCELLED        // Order cancelled
 }

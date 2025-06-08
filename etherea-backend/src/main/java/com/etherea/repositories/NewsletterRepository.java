@@ -1,7 +1,6 @@
 package com.etherea.repositories;
 
 import com.etherea.models.Newsletter;
-import com.etherea.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -3,10 +3,7 @@ package com.etherea.services;
 import com.etherea.dtos.UpdateEmailRequestDTO;
 import com.etherea.dtos.UpdatePasswordRequestDTO;
 import com.etherea.dtos.UserDTO;
-import com.etherea.dtos.VolumeDTO;
-import com.etherea.enums.ERole;
 import com.etherea.exception.InvalidEmailException;
-import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UnauthorizedAccessException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.jwt.JwtUtils;
@@ -19,28 +16,26 @@ import com.etherea.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    @Autowired
-    private JwtUtils jwtUtils;
-    @Autowired
-    PasswordEncoder passwordEncoder;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    PasswordHistoryRepository passwordHistoryRepository;
+    private final JwtUtils jwtUtils;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordHistoryRepository passwordHistoryRepository;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    public UserService(JwtUtils jwtUtils, PasswordEncoder passwordEncoder, UserRepository userRepository, PasswordHistoryRepository passwordHistoryRepository) {
+        this.jwtUtils = jwtUtils;
+        this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
+        this.passwordHistoryRepository = passwordHistoryRepository;
+    }
 
     /**
      * Retrieves all users from the database.
@@ -70,12 +65,30 @@ public class UserService {
                     return new UserNotFoundException("No user found with ID: " + id);
                 });
     }
+
+    /**
+     * Deletes a user from the database by their ID.
+     *
+     * @param id the ID of the user to be deleted
+     * @throws UserNotFoundException if no user exists with the given ID
+     */
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
             throw new UserNotFoundException("User with ID " + id + " not found");
         }
         userRepository.deleteById(id);
     }
+
+    /**
+     * Updates the email address of a user after verifying their identity via JWT token and validating the email change.
+     *
+     * @param updateEmailRequestDTO the DTO containing the user's ID, current email, and new email
+     * @param token the JWT token of the authenticated user
+     * @return true if the email was successfully updated
+     * @throws UserNotFoundException if the user does not exist
+     * @throws UnauthorizedAccessException if the token does not match the user requesting the change
+     * @throws InvalidEmailException if the current email is incorrect or the new email is invalid
+     */
     public boolean updateEmail(UpdateEmailRequestDTO updateEmailRequestDTO, String token) {
         // Extract user email from token
         String emailFromToken = jwtUtils.getUserNameFromJwtToken(token);
@@ -105,6 +118,18 @@ public class UserService {
         userRepository.save(user);
         return true;
     }
+
+    /**
+     * Updates the password of a user after validating the old password, new password constraints,
+     * and ensuring the new password has not been used before.
+     *
+     * @param updatePasswordRequestDTO the DTO containing the user's ID, current password, new password, and confirmation
+     * @param token the JWT token of the authenticated user
+     * @return true if the password was successfully updated
+     * @throws UserNotFoundException if the user does not exist
+     * @throws UnauthorizedAccessException if the token does not match the user or the old password is incorrect
+     * @throws IllegalArgumentException if the new password is invalid or has been used before
+     */
     @Transactional
     public boolean updatePassword(UpdatePasswordRequestDTO updatePasswordRequestDTO, String token) {
         String emailFromToken = jwtUtils.getUserNameFromJwtToken(token);
@@ -157,5 +182,4 @@ public class UserService {
 
         return true;
     }
-
 }

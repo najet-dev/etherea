@@ -9,7 +9,6 @@ import com.etherea.exception.*;
 import com.etherea.models.*;
 import com.etherea.repositories.*;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -22,20 +21,22 @@ import java.util.stream.Collectors;
 
 @Service
 public class CommandService {
-    @Autowired
-    private CartRepository cartRepository;
-    @Autowired
-    private CommandRepository commandRepository;
-    @Autowired
-    private DeliveryAddressRepository deliveryAddressRepository;
-    @Autowired
-    private PaymentRepository paymentRepository;
-    @Autowired
-    private DeliveryMethodRepository deliveryMethodRepository;
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private CommandItemRepository commandItemRepository;
+    private final CartRepository cartRepository;
+    private final CommandRepository commandRepository;
+    private final DeliveryAddressRepository deliveryAddressRepository;
+    private final PaymentRepository paymentRepository;
+    private final DeliveryMethodRepository deliveryMethodRepository;
+    private final EmailService emailService;
+    private final CommandItemRepository commandItemRepository;
+    public CommandService(CartRepository cartRepository, CommandRepository commandRepository, DeliveryAddressRepository deliveryAddressRepository, PaymentRepository paymentRepository, DeliveryMethodRepository deliveryMethodRepository, EmailService emailService, CommandItemRepository commandItemRepository) {
+        this.cartRepository = cartRepository;
+        this.commandRepository = commandRepository;
+        this.deliveryAddressRepository = deliveryAddressRepository;
+        this.paymentRepository = paymentRepository;
+        this.deliveryMethodRepository = deliveryMethodRepository;
+        this.emailService = emailService;
+        this.commandItemRepository = commandItemRepository;
+    }
 
     // Retrieves all commands
     /**
@@ -107,7 +108,6 @@ public class CommandService {
             throw new CommandNotFoundException("CommandRequestDTO cannot be null.");
         }
 
-        // Check if an order already exists for this shopping cart
         if (commandRepository.existsByCartId(commandRequestDTO.getCartId())) {
             throw new CommandNotFoundException("An order already exists for this shopping cart");
         }
@@ -140,14 +140,19 @@ public class CommandService {
                 commandRequestDTO.getReferenceCode() :
                 "CMD-" + System.currentTimeMillis());
         command.setStatus(commandRequestDTO.getStatus());
-        command.setDeliveryAddress(deliveryAddress);
         command.setPaymentMethod(paymentMethod);
         command.setDeliveryMethod(deliveryMethod);
+
+        // Snapshot of delivery address
+        command.setAddress(deliveryAddress.getAddress());
+        command.setZipCode(deliveryAddress.getZipCode());
+        command.setCity(deliveryAddress.getCity());
+        command.setCountry(deliveryAddress.getCountry());
+        command.setPhoneNumber(deliveryAddress.getPhoneNumber());
 
         // Create order items
         List<CommandItem> commandItems = createCommandItems(cart, command);
         command.setCommandItems(commandItems);
-
         command.setTotal(cart.calculateFinalTotal());
 
         commandRepository.save(command);
@@ -191,7 +196,7 @@ public class CommandService {
 
         // Checking status transitions
         if (command.getStatus() == CommandStatus.DELIVERED || command.getStatus() == CommandStatus.CANCELLED) {
-            throw new CommandNotFoundException("Impossible de modifier une commande déjà livrée ou annulée.");
+            throw new CommandNotFoundException("Unable to modify an order that has already been delivered or cancelled.");
         }
 
         command.setStatus(newStatus);
@@ -204,22 +209,29 @@ public class CommandService {
             emailService.sendOrderConfirmation(command.getUser().getUsername(), subject, emailContent);
         }
     }
-
     @Transactional
     private String generateOrderConfirmationEmail(Command command) {
         StringBuilder emailContent = new StringBuilder();
 
         emailContent.append("<h1>Votre commande a été expédiée !</h1>");
         emailContent.append("<p>Merci pour votre achat. Voici les détails de votre commande :</p>");
-        emailContent.append("<p><strong>Numéro de commande :</strong> ").append(command.getReferenceCode()).append("</p>");
+        emailContent.append("<p><strong>Numéro de commande :</strong> ")
+                .append(command.getReferenceCode())
+                .append("</p>");
 
-        DeliveryAddress address = command.getDeliveryAddress();
         emailContent.append("<p><strong>Adresse de livraison :</strong> ")
-                .append(address.getAddress()).append(", ")
-                .append(address.getCity()).append(", ")
-                .append(address.getZipCode()).append(", ")
-                .append(address.getCountry()).append("</p>");
-        emailContent.append("<p><strong>Total :</strong> ").append(command.getTotal()).append(" €</p>");
+                .append(command.getAddress()).append(", ")
+                .append(command.getCity()).append(", ")
+                .append(command.getZipCode()).append(", ")
+                .append(command.getCountry())
+                .append("</p>");
+        emailContent.append("<p><strong>Téléphone :</strong> ")
+                .append(command.getPhoneNumber())
+                .append("</p>");
+
+        emailContent.append("<p><strong>Total :</strong> ")
+                .append(command.getTotal())
+                .append(" €</p>");
 
         emailContent.append("<h2>Résumé de la commande :</h2>");
         emailContent.append("<ul>");
@@ -227,14 +239,17 @@ public class CommandService {
         for (CommandItem item : command.getCommandItems()) {
             emailContent.append("<li>")
                     .append(item.getProductName())
-                    .append(" - Quantité : ").append(item.getQuantity());
+                    .append(" - Quantité : ")
+                    .append(item.getQuantity())
+                    .append("</li>");
         }
-        emailContent.append("</ul>");
 
+        emailContent.append("</ul>");
         emailContent.append("<p>Nous espérons vous revoir bientôt !</p>");
 
         return emailContent.toString();
     }
+
     @Transactional
     public boolean cancelCommand(Long commandId) {
         Command command = commandRepository.findById(commandId)

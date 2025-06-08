@@ -23,12 +23,12 @@ public class CookieChoiceDTO {
         this.accepted = accepted;
     }
 
-    // Conversion Entité to DTO
+    // Entity to DTO conversion
     public static CookieChoiceDTO fromEntity(CookieChoice cookieChoice) {
         Objects.requireNonNull(cookieChoice, "Le choix de cookie ne peut pas être null.");
         return new CookieChoiceDTO(cookieChoice.getCookieName(), cookieChoice.isAccepted());
     }
-    // Conversion DTO to Entité
+    // DTO to Entity conversion
     public CookieChoice toEntity() {
         return new CookieChoice(this.cookieName, this.accepted);
     }

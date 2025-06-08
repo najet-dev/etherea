@@ -1,0 +1,183 @@
+/* Conteneur principal */
+.newsletter-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 2rem 1rem 1rem 1rem;
+}
+
+/* Titre */
+.newsletter-container h2 {
+  text-align: center;
+  margin-top: 5rem;
+  margin-bottom: 1rem;
+}
+
+/* Groupes de formulaire */
+.newsletter-container .form-group {
+  margin-bottom: 1rem;
+}
+
+/* Étiquettes */
+.newsletter-container .form-group label {
+  display: block;
+  font-weight: bold;
+}
+
+/* Champs de texte et textarea */
+.newsletter-container .form-group input,
+.newsletter-container .form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Erreurs de validation */
+.newsletter-container .form-group .error {
+  color: #d9534f;
+  font-size: 0.9rem;
+}
+
+/* Section du bouton */
+.newsletter-container .button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* Style du bouton */
+.newsletter-container button {
+  width: 100%;
+  max-width: 300px;
+  padding: 0.75rem;
+  background-color: var(--main-color);
+  color: var(--bg-color);
+  border: none;
+  font-weight: 400;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.5s;
+}
+
+/* Bouton désactivé */
+.newsletter-container button:disabled {
+  background-color: rgb(245, 241, 241);
+  cursor: not-allowed;
+}
+
+/* Alerte flottante */
+.newsletter-container .floating-alert {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1050;
+  width: 50%;
+  text-align: center;
+  padding: 15px;
+  font-size: 18px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Erreurs génériques */
+.newsletter-container .error {
+  margin-top: 1rem;
+  color: red;
+}
+
+/* Styles des champs de formulaire */
+.form-control {
+  border: none;
+  border-bottom: 1px solid rgb(186, 183, 183);
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 16px;
+  padding: 10px;
+  width: 100%;
+}
+
+/* Focus sur le champ */
+.form-control:focus {
+  border-color: var(--main-color);
+}
+
+/* MEDIA QUERIES pour les écrans plus petits */
+
+/* Écrans de petite taille (tablettes et téléphones) */
+@media (max-width: 767px) {
+  .newsletter-container {
+    padding: 1rem;
+    max-width: 100%; /* Conteneur de largeur complète */
+  }
+
+  .newsletter-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .newsletter-container .form-group input,
+  .newsletter-container .form-group textarea {
+    font-size: 14px;
+    padding: 0.75rem;
+  }
+
+  .newsletter-container button {
+    padding: 1rem;
+    font-size: 16px;
+  }
+
+  .newsletter-container .floating-alert {
+    width: 80%; /* Alerte plus large pour les petits écrans */
+  }
+}
+
+/* Écrans de taille moyenne (tablettes en orientation paysage et petits ordinateurs de bureau) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .newsletter-container {
+    max-width: 80%; /* Légèrement plus large pour les tablettes et petits écrans */
+  }
+
+  .newsletter-container h2 {
+    font-size: 1.8rem;
+  }
+
+  .newsletter-container .form-group input,
+  .newsletter-container .form-group textarea {
+    font-size: 15px;
+    padding: 0.75rem;
+  }
+
+  .newsletter-container button {
+    padding: 1rem;
+    font-size: 16px;
+  }
+
+  .newsletter-container .floating-alert {
+    width: 70%; /* Alerte plus large mais toujours adaptée */
+  }
+}
+
+/* Écrans de bureau */
+@media (min-width: 1025px) {
+  .newsletter-container {
+    max-width: 600px; /* Largeur initiale pour les grands écrans */
+  }
+
+  .newsletter-container h2 {
+    font-size: 2rem;
+  }
+
+  .newsletter-container .form-group input,
+  .newsletter-container .form-group textarea {
+    font-size: 16px;
+    padding: 1rem;
+  }
+
+  .newsletter-container button {
+    font-size: 18px;
+  }
+
+  .newsletter-container .floating-alert {
+    width: 50%; /* Taille de l'alerte sur grands écrans */
+  }
+}

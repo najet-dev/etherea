@@ -7,11 +7,9 @@ import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UnauthorizedAccessException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.jwt.JwtUtils;
-import com.etherea.models.User;
 import com.etherea.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +20,21 @@ import java.util.Map;
 @RequestMapping("/users")
 @CrossOrigin
 public class UserController {
-    @Autowired
-    private JwtUtils jwtUtils;
+    private final JwtUtils jwtUtils;
+    private final UserService userService;
+    public UserController(JwtUtils jwtUtils, UserService userService) {
+        this.jwtUtils = jwtUtils;
+        this.userService = userService;
+    }
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    /**
+     * Retrieves a paginated list of all users.
+     *
+     * @param page the page number to retrieve (default is 0)
+     * @param size the number of users per page (default is 10)
+     * @return a paginated list of UserDTO objects, or HTTP 204 if empty
+     */
     @GetMapping
     public ResponseEntity<Page<UserDTO>> getAllUsers(
             @RequestParam(defaultValue = "0") int page,
@@ -37,8 +47,13 @@ public class UserController {
 
         return ResponseEntity.ok(usersPage);
     }
-    @Autowired
-    private UserService userService;
+
+    /**
+     * Retrieves a specific user by their ID.
+     *
+     * @param id the ID of the user
+     * @return the corresponding UserDTO if found, or HTTP 404 with a message if not found
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         try {
@@ -48,6 +63,13 @@ public class UserController {
                     .body("User not found with ID: " + id);
         }
     }
+
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param id the ID of the user to delete
+     * @return a success message or an error message if the user is not found
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
         try {
@@ -59,6 +81,14 @@ public class UserController {
                     .body(Map.of("error", "Product not found with ID: " + id));
         }
     }
+
+    /**
+     * Updates a user's email address.
+     *
+     * @param updateEmailRequestDTO the DTO containing the new email and current credentials
+     * @param token the JWT authentication token from the request header
+     * @return a success message if the update is successful, or an error message otherwise
+     */
     @PutMapping("/update-email")
     public ResponseEntity<Map<String, String>> updateEmail(
             @RequestBody UpdateEmailRequestDTO updateEmailRequestDTO,
@@ -91,6 +121,14 @@ public class UserController {
                     .body(Collections.singletonMap("error", ex.getMessage()));
         }
     }
+
+    /**
+     * Updates a user's password.
+     *
+     * @param updatePasswordRequestDTO the DTO containing the new password and current credentials
+     * @param token the JWT authentication token from the request header
+     * @return a success message if the update is successful, or an error message otherwise
+     */
     @PutMapping("/update-password")
     public ResponseEntity<Map<String, String>> updatePassword(
             @RequestBody UpdatePasswordRequestDTO updatePasswordRequestDTO,

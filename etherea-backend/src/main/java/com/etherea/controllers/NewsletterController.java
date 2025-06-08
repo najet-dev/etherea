@@ -1,9 +1,11 @@
 package com.etherea.controllers;
 
+import com.etherea.dtos.NewsletterSendDTO;
 import com.etherea.services.EmailService;
 import com.etherea.services.NewsletterService;
 import com.etherea.dtos.NewsletterDTO;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -14,18 +16,18 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class NewsletterController {
     private final NewsletterService newsletterService;
-    private final EmailService emailService;
-
+    public final EmailService emailService;
     public NewsletterController(NewsletterService newsletterService, EmailService emailService) {
         this.newsletterService = newsletterService;
         this.emailService = emailService;
     }
 
     /**
-     * Endpoint pour s'abonner à la newsletter.
+     * Subscribes a user to the newsletter.
      *
-     * @param newsletterDTO DTO contenant l'email.
-     * @return Réponse avec message de succès ou d'échec.
+     * @param newsletterDTO the email address to subscribe
+     * @return HTTP 200 with a success message if subscribed successfully,
+     *         or HTTP 409 if the email is already subscribed
      */
     @PostMapping("/subscribe")
     public ResponseEntity<Map<String, String>> subscribe(@RequestBody NewsletterDTO newsletterDTO) {
@@ -42,38 +44,41 @@ public class NewsletterController {
     }
 
     /**
-     * Endpoint pour envoyer la newsletter à tous les abonnés.
+     * Sends a newsletter email to all subscribers.
+     * Only accessible to users with the ADMIN role.
      *
-     * @param request Objet contenant le sujet et le contenu de la newsletter.
-     * @return Réponse indiquant le succès ou l'échec de l'envoi.
+     * @param newsletterSendDTO the subject and content of the newsletter to send
+     * @return HTTP 200 with a success message if sent successfully,
+     *         HTTP 400 if subject or content is missing,
+     *         HTTP 500 if an error occurs during sending
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/send")
-    public ResponseEntity<Map<String, String>> sendNewsletter(@RequestBody Map<String, String> request) {
-        String subject = request.get("subject");
-        String content = request.get("content");
-
+    public ResponseEntity<Map<String, String>> sendNewsletter(@RequestBody NewsletterSendDTO newsletterSendDTO) {
         Map<String, String> response = new HashMap<>();
 
-        if (subject == null || subject.isEmpty() || content == null || content.isEmpty()) {
-            response.put("message", "Le sujet et le contenu ne peuvent pas être vides.");
+        if (newsletterSendDTO.getSubject() == null || newsletterSendDTO.getSubject().isEmpty() ||
+                newsletterSendDTO.getContent() == null || newsletterSendDTO.getContent().isEmpty()) {
+            response.put("message", "Subject and content cannot be empty");
             return ResponseEntity.badRequest().body(response);
         }
 
         try {
-            newsletterService.sendNewsletterToAllSubscribers(subject, content);
-            response.put("message", "Newsletter envoyée avec succès !");
+            newsletterService.sendNewsletterToAllSubscribers(newsletterSendDTO);
+            response.put("message", "Newsletter successfully sent !");
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            response.put("message", "Erreur lors de l'envoi de la newsletter : " + e.getMessage());
+            response.put("message", "Error sending newsletter : " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }
 
     /**
-     * Endpoint pour se désinscrire de la newsletter via un email.
+     * Unsubscribes a user from the newsletter.
      *
-     * @param email L'email de l'utilisateur à désinscrire.
-     * @return Réponse indiquant le succès ou l'échec de la désinscription.
+     * @param email the email address to unsubscribe
+     * @return HTTP 200 with a success message if unsubscribed,
+     *         or HTTP 404 if the email is not found among subscribers
      */
     @GetMapping("/unsubscribe")
     public ResponseEntity<Map<String, String>> unsubscribe(@RequestParam String email) {

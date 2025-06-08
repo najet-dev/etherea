@@ -15,6 +15,7 @@ import { TipListComponent } from './tip-list/tip-list.component';
 import { AddTipComponent } from './add-tip/add-tip.component';
 import { UpdateTipComponent } from './update-tip/update-tip.component';
 import { AdminGuard } from 'src/app/guards/admin.guard';
+import { NewsletterAdminComponent } from './newsletter-admin/newsletter-admin.component';
 
 const routes: Routes = [
   {
@@ -50,6 +51,10 @@ const routes: Routes = [
       { path: 'admin-tips', component: TipListComponent },
       { path: 'add-tip', component: AddTipComponent },
       { path: 'update-tip', component: UpdateTipComponent },
+      {
+        path: 'admin-news-letter',
+        component: NewsletterAdminComponent,
+      },
     ],
   },
 ];

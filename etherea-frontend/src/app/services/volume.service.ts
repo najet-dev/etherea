@@ -1,8 +1,4 @@
-import {
-  HttpClient,
-  HttpErrorResponse,
-  HttpHeaders,
-} from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -15,23 +11,22 @@ import { StorageService } from './storage.service';
 export class VolumeService {
   apiUrl = environment.apiUrl;
 
-  constructor(
-    private httpClient: HttpClient,
-    private storageService: StorageService
-  ) {}
+  constructor(private httpClient: HttpClient) {}
 
   getAllVolumes(
-    page: number = 0,
-    size: number = 5
+    page: number,
+    size: number
   ): Observable<{
     content: Volume[];
     totalElements: number;
     totalPages: number;
   }> {
     return this.httpClient
-      .get<{ content: Volume[]; totalElements: number; totalPages: number }>(
-        `${this.apiUrl}/volumes?page=${page}&size=${size}`
-      )
+      .get<{
+        content: Volume[];
+        totalElements: number;
+        totalPages: number;
+      }>(`${this.apiUrl}/volumes?page=${page}&size=${size}`)
       .pipe(
         tap((response) => console.log('API Response:', response)),
         catchError((error) => {
@@ -43,47 +38,31 @@ export class VolumeService {
       );
   }
 
-  addVolume(productName: string, volume: Volume): Observable<Volume> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
-    });
-
+  addVolume(volume: Volume): Observable<Volume> {
     return this.httpClient
-      .post<Volume>(`${this.apiUrl}/volumes/products/${productName}`, volume, {
-        headers,
-      })
+      .post<Volume>(`${this.apiUrl}/volumes/add`, volume)
       .pipe(
         catchError((error) => {
-          console.error('Error adding volume:', error);
+          console.error('Erreur lors de l’ajout du volume:', error);
           return throwError(() => error);
         })
       );
   }
+
   updatedVolume(volumeId: number, volume: Volume): Observable<Volume> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
-    });
-
     return this.httpClient
-      .put<Volume>(`${this.apiUrl}/volumes/${volumeId}`, volume, { headers })
+      .put<Volume>(`${this.apiUrl}/volumes/${volumeId}`, volume)
       .pipe(
         catchError((error) => {
-          console.error('Error updating volume:', error);
+          console.error('Erreur lors de la mise à jour du volume:', error);
           return throwError(() => error);
         })
       );
   }
+
   deleteVolume(volumeId: number): Observable<void> {
-    const token = this.storageService.getToken(); // Récupérer le token JWT
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
-    });
-
     return this.httpClient
-      .delete<void>(`${this.apiUrl}/volumes/${volumeId}`, { headers })
+      .delete<void>(`${this.apiUrl}/volumes/${volumeId}`)
       .pipe(
         catchError((error: HttpErrorResponse) => {
           console.error('Erreur lors de la suppression du volume:', error);

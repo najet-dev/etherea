@@ -6,10 +6,8 @@ import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.VolumeNotFoundException;
 import com.etherea.models.Product;
 import com.etherea.models.Volume;
-import com.etherea.repositories.ProductRepository;
-import com.etherea.repositories.VolumeRepository;
+import com.etherea.repositories.*;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,16 +15,33 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 @Service
 public class VolumeService {
-    @Autowired
-    private VolumeRepository volumeRepository;
+    private final ProductRepository productRepository;
+    private final VolumeRepository volumeRepository;
+    public VolumeService(ProductRepository productRepository, VolumeRepository volumeRepository) {
+        this.productRepository = productRepository;
+        this.volumeRepository = volumeRepository;
+    }
 
-    @Autowired
-    private ProductRepository productRepository;
-
+    /**
+     * Retrieves a paginated list of volumes.
+     *
+     * @param page the page number to retrieve (0-based)
+     * @param size the number of items per page
+     * @return a page of VolumeDTOs converted from Volume entities
+     */
     public Page<VolumeDTO> getAllVolumes(int page, int size) {
         Page<Volume> volumePage = volumeRepository.findAll(PageRequest.of(page, size));
         return volumePage.map(VolumeDTO::fromVolume); // Utilisation du helper fromVolume
     }
+
+    /**
+     * Adds a new volume associated with a product of type HAIR.
+     *
+     * @param volumeDTO the DTO containing the volume information to add
+     * @return the created and saved VolumeDTO
+     * @throws ProductNotFoundException if the associated product does not exist
+     * @throws VolumeNotFoundException if the product is not of type HAIR (only HAIR products can have volumes)
+     */
     @Transactional
     public VolumeDTO addVolume(VolumeDTO volumeDTO) {
         Long productId = volumeDTO.getProductId();
@@ -46,6 +61,14 @@ public class VolumeService {
         return VolumeDTO.fromVolume(volume);
     }
 
+    /**
+     * Updates an existing volume.
+     *
+     * @param volumeId the ID of the volume to update
+     * @param volumeDTO the DTO containing the updated volume information
+     * @return the updated VolumeDTO
+     * @throws VolumeNotFoundException if no volume with the given ID exists
+     */
     @Transactional
     public VolumeDTO updateVolume(Long volumeId, VolumeDTO volumeDTO) {
         Volume existingVolume = volumeRepository.findById(volumeId)
@@ -63,6 +86,12 @@ public class VolumeService {
         return VolumeDTO.fromVolume(existingVolume);
     }
 
+    /**
+     * Deletes a volume by its ID.
+     *
+     * @param id the ID of the volume to delete
+     * @return true if the volume was found and deleted, false otherwise
+     */
     public boolean deleteVolume(Long id) {
         if (volumeRepository.existsById(id)) {
             volumeRepository.deleteById(id);

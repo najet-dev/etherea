@@ -7,7 +7,6 @@ import com.etherea.repositories.TipRepository;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -18,20 +17,20 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Service
 public class TipService {
-    @Autowired
-    private TipRepository tipRepository;
-
+    private final TipRepository tipRepository;
     private static final Logger logger = LoggerFactory.getLogger(TipService.class);
     private static final String UPLOAD_DIR = "assets"; // Folder for storing images
 
     /**
      * Récupérer tous les conseils avec pagination et tri
     private static final String UPLOAD_DIR = "assets"; // Directory to store uploaded images
+    public TipService(TipRepository tipRepository) {
+        this.tipRepository = tipRepository;
+    }
 
     /**
      * Retrieves all tips with pagination.

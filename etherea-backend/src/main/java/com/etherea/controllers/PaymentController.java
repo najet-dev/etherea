@@ -8,7 +8,6 @@ import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +20,19 @@ import java.util.Map;
 @RequestMapping("/payments")
 public class PaymentController {
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
-    @Autowired
-    private PaymentService paymentService;
+    private final PaymentService paymentService;
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    /**
+     * Creates a new Stripe payment intent based on the payment request details and user ID.
+     *
+     * @param paymentRequestDTO the payment request data including amount and currency
+     * @param userId the ID of the user initiating the payment
+     * @return a ResponseEntity containing the payment response with status and client secret if successful,
+     *         or an error response if the creation fails
+     */
     @PostMapping("/createPayment")
     public ResponseEntity<PaymentResponseDTO> createPaymentIntent(@RequestBody @Valid PaymentRequestDTO paymentRequestDTO, Long userId) {
         try {
@@ -34,6 +44,13 @@ public class PaymentController {
                     .body(new PaymentResponseDTO(PaymentStatus.FAILED, e.getMessage(), null));
         }
     }
+    /**
+     * Confirms a Stripe payment intent using the provided payment intent ID and payment method ID.
+     *
+     * @param request a map containing the paymentIntentId and paymentMethodId
+     * @return a ResponseEntity containing the payment response with status if successful,
+     *         or an error response if confirmation fails
+     */
     @PostMapping("/confirm")
     public ResponseEntity<PaymentResponseDTO> confirmPayment(@RequestBody Map<String, String> request) {
         try {

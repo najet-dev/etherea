@@ -53,9 +53,6 @@ export class CartComponent implements OnInit {
   }
 
   loadCartItems() {
-    // Vérifier si userId est défini
-    console.log('UserId dans loadCartItems:', this.userId);
-
     if (!this.userId) {
       console.error(
         "L'ID utilisateur n'est pas défini. Impossible de charger les éléments du panier."
@@ -159,7 +156,6 @@ export class CartComponent implements OnInit {
         .updateCartItem(this.userId, item.productId, item.quantity, volumeId)
         .subscribe({
           next: (updatedItem) => {
-            console.log('Article du panier mis à jour avec succès');
             const index = this.cartItems.findIndex(
               (cartItem) => cartItem.productId === updatedItem.productId
             );
@@ -186,9 +182,8 @@ export class CartComponent implements OnInit {
   }
 
   deleteItem(): void {
-    this.appFacade.cartService.deleteCartItem(this.itemIdToDelete).subscribe({
+    this.appFacade.deleteCartItem(this.itemIdToDelete).subscribe({
       next: () => {
-        console.log('Product deleted from cart successfully');
         this.showConfirmDelete = false;
         this.loadCartItems(); // Recharger le panier après suppression
       },

@@ -1,18 +1,15 @@
 package com.etherea.jwt;
 
-import com.etherea.models.User;
-import com.etherea.services.UserDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 
-
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,35 +20,24 @@ public class JwtUtils {
     @Value("${etherea.app.jwtExpirationMs}")
     private long jwtExpirationMs;
     private SecretKey secretKey;
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
     @PostConstruct
     public void init() {
         this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
     public String generateJwtToken(String username, Set<String> roles) {
+        Set<String> formattedRoles = roles.stream()
+                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role.toUpperCase())
+                .collect(Collectors.toSet());
+
         return Jwts.builder()
                 .setSubject(username)
-                .claim("roles", roles)
+                .claim("roles", formattedRoles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(secretKey)
                 .compact();
     }
-    public String generateJwtToken(User user, long customExpirationMs) {
-        Set<String> roles = user.getRoles().stream()
-                .map(role -> role.getName().name())
-                .collect(Collectors.toSet());
-
-        long expirationTime = customExpirationMs > 0 ? customExpirationMs : jwtExpirationMs;
-
-        return Jwts.builder()
-                .setSubject(user.getUsername())
-                .claim("roles", roles)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(secretKey)
-                .compact();
-    }
-
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -68,15 +54,15 @@ public class JwtUtils {
                     .parseClaimsJws(authToken);
             return !claims.getBody().getExpiration().before(new Date());
         } catch (ExpiredJwtException e) {
-            System.err.println("Token expiré: " + e.getMessage());
+            logger.warn("JWT expired");
         } catch (UnsupportedJwtException e) {
-            System.err.println("Token non supporté: " + e.getMessage());
+            logger.warn("JWT not supported");
         } catch (MalformedJwtException e) {
-            System.err.println("Token mal formé: " + e.getMessage());
-        } catch (JwtException e) {  // Replacing SignatureException with JwtException
-            System.err.println("Erreur JWT: " + e.getMessage());
+            logger.warn("JWT poorly trained");
+        } catch (JwtException e) {
+            logger.warn("Generic JWT error");
         } catch (IllegalArgumentException e) {
-            System.err.println("Token vide ou invalide: " + e.getMessage());
+            logger.warn("JWT vide ou null");
         }
         return false;
     }

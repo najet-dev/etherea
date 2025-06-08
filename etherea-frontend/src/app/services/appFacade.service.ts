@@ -36,6 +36,8 @@ import { Tip } from '../components/models/tip.model';
 import { TipService } from './tip.service';
 import { DeliveryAddress } from '../components/models/deliveryAddress.model';
 import { CommandItem } from '../components/models/commandItem.model';
+import { NewsletterService } from './newsletter.service';
+import { NewsletterSend } from '../components/models/newsletterSend.model';
 
 @Injectable({
   providedIn: 'root',
@@ -53,7 +55,8 @@ export class AppFacade {
     private cookieConsentService: CookieConsentService,
     private passwordResetService: PasswordResetService,
     private volumeService: VolumeService,
-    private tipService: TipService
+    private tipService: TipService,
+    private newsletterService: NewsletterService
   ) {}
 
   // cartItem
@@ -131,6 +134,7 @@ export class AppFacade {
   getProductById(id: number): Observable<Product> {
     return this.productService.getProductById(id);
   }
+
   getNewProducts(
     page: number = 0,
     size: number = 5
@@ -141,12 +145,15 @@ export class AppFacade {
   }> {
     return this.productService.getNewProducts(page, size);
   }
+
   searchProductsByName(name: string): Observable<Product[]> {
     return this.productService.searchProductsByName(name);
   }
+
   addProduct(product: Product, image: File): Observable<Product> {
     return this.productService.addProduct(product, image);
   }
+
   updateProduct(
     updateProduct: Partial<Product>,
     image?: File
@@ -189,6 +196,18 @@ export class AppFacade {
     );
   }
 
+  setDefaultAddress(userId: number, addressId: number) {
+    return this.deliveryAddressService.setDefaultAddress(userId, addressId);
+  }
+
+  setDefaultAddressState(address: DeliveryAddress) {
+    return this.deliveryAddressService.setDefaultAddressState(address);
+  }
+
+  deleteAddress(userId: number, addressId: number): Observable<void> {
+    return this.deliveryAddressService.deleteAddress(userId, addressId);
+  }
+
   // User
   getAllUsers(
     page: number,
@@ -214,24 +233,34 @@ export class AppFacade {
   updateEmail(updateEmailRequest: UpdateEmailRequest): Observable<string> {
     return this.userService.updateEmail(updateEmailRequest);
   }
+
   updatePassword(
     updatePasswordRequest: UpdatePasswordRequest
   ): Observable<string> {
     return this.userService.updatePassword(updatePasswordRequest);
   }
+
+  // Newsletter
   subscribeToNewsletter(
     newsletter: Newsletter
   ): Observable<{ message: string }> {
-    return this.userService.subscribeToNewsletter(newsletter);
+    return this.newsletterService.subscribeToNewsletter(newsletter);
   }
 
+  sendNewsletter(
+    newsletterSend: NewsletterSend
+  ): Observable<{ message: string }> {
+    return this.newsletterService.sendNewsletter(newsletterSend);
+  }
   //Method
   getDeliveryTypes(userId: number): Observable<DeliveryType[]> {
     return this.deliveryMethodService.getDeliveryTypes(userId);
   }
+
   getUserDeliveryMethods(userId: number): Observable<DeliveryMethod[]> {
     return this.deliveryMethodService.getUserDeliveryMethods(userId);
   }
+
   updateDeliveryMethod(
     deliveryMethodId: number,
     request: UpdateDeliveryMethodRequest
@@ -241,10 +270,12 @@ export class AppFacade {
       request
     );
   }
+
   //cart
   getCartId(userId: number): Observable<number> {
     return this.cartService.getCartId(userId);
   }
+
   //order
   getAllOrders(
     page: number,
@@ -277,46 +308,56 @@ export class AppFacade {
   ): Observable<CommandStatus> {
     return this.orderService.updateOrderStatus(orderId, newStatus);
   }
+
   //payment
   createPayment(paymentRequest: PaymentRequest): Observable<PaymentResponse> {
     return this.paymentService.createPayment(paymentRequest);
   }
+
   confirmPayment(
     paymentIntentId: string,
     paymentMethodId: string
   ): Observable<PaymentResponse> {
     return this.paymentService.confirmPayment(paymentIntentId, paymentMethodId);
   }
+
   //cookie-consent
   getSessionId(): Observable<string> {
     return this.cookieConsentService.getSessionId();
   }
+
   acceptAllCookies(sessionId: string): Observable<CookieConsent | null> {
     return this.cookieConsentService.acceptAllCookies(sessionId);
   }
+
   rejectAllCookies(sessionId: string): Observable<CookieConsent | null> {
     return this.cookieConsentService.rejectAllCookies(sessionId);
   }
+
   customizeCookies(
     sessionId: string,
     cookieChoices: CookieChoice[]
   ): Observable<CookieConsent | null> {
     return this.cookieConsentService.customizeCookies(sessionId, cookieChoices);
   }
+
   getCookiesList(): Observable<CookieChoice[]> {
     return this.cookieConsentService.getCookiesList();
   }
+
   //password
   sendResetLink(
     request: ForgotPasswordRequest
   ): Observable<ForgotPasswordResponse> {
     return this.passwordResetService.sendResetLink(request);
   }
+
   resetPassword(
     request: ResetPasswordRequest
   ): Observable<ResetPasswordResponse> {
     return this.passwordResetService.resetPassword(request);
   }
+
   //volume
   getAllVolumes(
     page: number,
@@ -342,5 +383,21 @@ export class AppFacade {
     totalPages: number;
   }> {
     return this.tipService.getAlltips(page, size);
+  }
+
+  getTipById(id: number): Observable<Tip> {
+    return this.tipService.getTipById(id);
+  }
+
+  addTip(tip: Tip, image: File): Observable<Tip> {
+    return this.tipService.addTip(tip, image);
+  }
+
+  updateTip(updateTip: Partial<Tip>, image?: File): Observable<Tip> {
+    return this.tipService.updateTip(updateTip);
+  }
+
+  deleteTip(tipId: number): Observable<void> {
+    return this.tipService.deleteTip(tipId);
   }
 }

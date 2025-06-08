@@ -4,16 +4,18 @@ import com.etherea.enums.CommandStatus;
 import com.etherea.models.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 public class CommandRequestDTO {
     private LocalDateTime commandDate = LocalDateTime.now();
     private String referenceCode;
     private CommandStatus status = CommandStatus.PENDING;
+
+    // IDs required for creation (associations)
     @NotNull @Positive
-    private Long deliveryAddressId;
+    private Long deliveryAddressId; // used only for snapshot
     @NotNull @Positive
     private Long paymentMethodId;
     @NotNull @Positive
@@ -24,7 +26,8 @@ public class CommandRequestDTO {
     private Long userId;
     private BigDecimal total = BigDecimal.ZERO;
     public CommandRequestDTO() {}
-    public CommandRequestDTO(String referenceCode, Long deliveryAddressId, Long paymentMethodId, Long deliveryMethodId, Long cartId, Long userId) {
+    public CommandRequestDTO(String referenceCode, Long deliveryAddressId, Long paymentMethodId,
+                             Long deliveryMethodId, Long cartId, Long userId) {
         this.referenceCode = referenceCode;
         this.deliveryAddressId = deliveryAddressId;
         this.paymentMethodId = paymentMethodId;
@@ -35,6 +38,7 @@ public class CommandRequestDTO {
     public LocalDateTime getCommandDate() {
         return commandDate;
     }
+
     public void setCommandDate(LocalDateTime commandDate) {
         this.commandDate = commandDate;
     }
@@ -86,29 +90,30 @@ public class CommandRequestDTO {
     public void setTotal(BigDecimal total) {
         this.total = total;
     }
+    public Command toEntity(DeliveryAddress deliveryAddress,
+                            PaymentMethod paymentMethod,
+                            DeliveryMethod deliveryMethod,
+                            User user,
+                            Cart cart) {
 
-    // Convert Entity to DTO
-    public static CommandRequestDTO fromEntity(Command command) {
-        return new CommandRequestDTO(
-                command.getReferenceCode(),
-                Optional.ofNullable(command.getDeliveryAddress()).map(DeliveryAddress::getId).orElse(null),
-                Optional.ofNullable(command.getPaymentMethod()).map(PaymentMethod::getId).orElse(null),
-                Optional.ofNullable(command.getDeliveryMethod()).map(DeliveryMethod::getId).orElse(null),
-                Optional.ofNullable(command.getCart()).map(Cart::getId).orElse(null),
-                Optional.ofNullable(command.getUser()).map(User::getId).orElse(null)
-        );
-    }
-    public Command toEntity(DeliveryAddress deliveryAddress, PaymentMethod paymentMethod, DeliveryMethod deliveryMethod, User user, Cart cart) {
         Command command = new Command();
         command.setCommandDate(this.commandDate);
         command.setReferenceCode(this.referenceCode);
         command.setStatus(this.status);
-        command.setDeliveryAddress(deliveryAddress);
         command.setPaymentMethod(paymentMethod);
         command.setDeliveryMethod(deliveryMethod);
         command.setUser(user);
         command.setCart(cart);
         command.setTotal(this.total);
+
+        // Snapshot of delivery address
+        if (deliveryAddress != null) {
+            command.setAddress(deliveryAddress.getAddress());
+            command.setZipCode(deliveryAddress.getZipCode());
+            command.setCity(deliveryAddress.getCity());
+            command.setCountry(deliveryAddress.getCountry());
+            command.setPhoneNumber(deliveryAddress.getPhoneNumber());
+        }
         return command;
     }
 }

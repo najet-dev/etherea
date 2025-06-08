@@ -11,27 +11,26 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   templateUrl: './signin.component.html',
   styleUrls: ['./signin.component.css'],
 })
-export class SigninComponent implements OnInit {
+export class SigninComponent {
   errorMessage: string = '';
   loginForm!: FormGroup;
   submitted = false;
   private destroyRef = inject(DestroyRef);
 
+  // Custom error messages used in the form template
   public errorMessages = {
     username: [
-      { type: 'required', message: 'Email requis' },
-      { type: 'email', message: 'Email doit être valide' },
+      {
+        type: 'email',
+        message:
+          'Veuillez saisir une adresse e-mail valide sans espace (ex. : prenom.nom@domaine.com).',
+      },
     ],
     password: [
       {
         type: 'minlength',
-        message: 'Le mot de passe doit contenir au minimum 8 caractères',
-      },
-      { type: 'required', message: 'Le mot de passe est requis' },
-      {
-        type: 'pattern',
         message:
-          'Le mot de passe doit contenir une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial au minimum',
+          'Veuillez saisir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial.',
       },
     ],
   };
@@ -42,6 +41,7 @@ export class SigninComponent implements OnInit {
     private formBuilder: FormBuilder
   ) {}
 
+  // Getters to access form fields easily in the template
   get username() {
     return this.loginForm.get('username');
   }
@@ -51,6 +51,7 @@ export class SigninComponent implements OnInit {
   }
 
   ngOnInit() {
+    // Redirect if user is already authenticated
     this.authService.AuthenticatedUser$.pipe(
       tap((user) => {
         if (user) {
@@ -60,6 +61,7 @@ export class SigninComponent implements OnInit {
       takeUntilDestroyed(this.destroyRef)
     ).subscribe();
 
+    // Initialize login form with validation rules
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.email]],
       password: [
@@ -82,23 +84,24 @@ export class SigninComponent implements OnInit {
       return;
     }
 
+    // Attempt login with form data
     this.authService
       .signin(this.loginForm.value)
       .pipe(
         tap({
           next: (user) => {
-            // Si l'utilisateur est un admin, rediriger vers l'admin dashboard
+            // Redirect based on user role
             if (this.authService.isAdmin()) {
               this.router.navigate(['/admin/admin-dashboard']);
             } else {
-              // Sinon, rediriger vers la page d'accueil
               this.router.navigate(['/']);
             }
             this.loginForm.reset();
           },
           error: (err) => {
+            // Display error based on server response
             if (err.status === 401) {
-              this.errorMessage = "L'email ou le mot de passe est invalide.";
+              this.errorMessage = err.message;
             } else {
               this.errorMessage =
                 'Une erreur est survenue. Veuillez réessayer plus tard.';

@@ -1,7 +1,6 @@
 package com.etherea.dtos;
 
 import com.etherea.enums.PaymentStatus;
-
 public class PaymentResponseDTO {
     private PaymentStatus paymentStatus;
     private String transactionId;

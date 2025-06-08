@@ -71,25 +71,24 @@ public class Cart {
         this.command = command;
     }
 
-    // Calcul du total des articles
+    // Calculation of total items
     public BigDecimal calculateTotalAmount() {
         return items.stream()
                 .map(CartItem::calculateSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-    // Vérifie si la livraison est gratuite
+    // Check if delivery is free
     public boolean isFreeShipping() {
         return FreeShippingChecker.isFreeShipping(calculateTotalAmount());
     }
 
-    // Calcul du coût de la livraison
+    // Calculation of delivery costs
     public BigDecimal calculateDeliveryCost() {
         return (deliveryType == null || isFreeShipping()) ? BigDecimal.ZERO : deliveryType.getCost();
     }
 
-    // Calcul du total final avec livraison
+    // Calculation of final total with delivery
     public BigDecimal calculateFinalTotal() {
         return calculateTotalAmount().add(calculateDeliveryCost());
     }
-
 }

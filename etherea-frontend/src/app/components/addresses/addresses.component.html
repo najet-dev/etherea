@@ -1,55 +1,95 @@
-<section>
-  <div class="container-fluid">
-    <div class="row">
-      <button
-        class="btn btnMenu d-md-none my-3"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#mobileSidebar"
-      >
-        Menu
-      </button>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Mobile menu button -->
+    <button
+      class="btn btnMenu d-md-none my-3"
+      type="button"
+      data-bs-toggle="offcanvas"
+      data-bs-target="#mobileSidebar"
+    >
+      Menu
+    </button>
 
-      <div class="offcanvas offcanvas-start d-md-none" id="mobileSidebar">
-        <div class="offcanvas-header">
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="offcanvas"
-          ></button>
-        </div>
-        <div class="offcanvas-body">
-          <app-sidebar></app-sidebar>
-        </div>
+    <!-- Mobile sidebar -->
+    <div class="offcanvas offcanvas-start d-md-none" id="mobileSidebar">
+      <div class="offcanvas-header">
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="offcanvas"
+        ></button>
       </div>
-
-      <div class="col-md-4 col-lg-3 d-none d-md-block">
+      <div class="offcanvas-body">
         <app-sidebar></app-sidebar>
       </div>
+    </div>
 
-      <div class="col-md-8 col-lg-9">
-        <h2 class="title-Adress">1. Adresse de livraison</h2>
-        <div *ngIf="!isLoading">
-          <!-- Affiche toutes les adresses -->
-          <div *ngFor="let address of deliveryAddresses" class="card mb-4">
-            <div class="card-body">
-              <ng-container *ngIf="address">
-                <p>{{ address.user.firstName }} {{ address.user.lastName }}</p>
-                <p>{{ address.address }}</p>
-                <p>{{ address.zipCode }} {{ address.city }}</p>
-                <p>{{ address.country }}</p>
-                <p class="d-flex align-items-center custom-phone">
-                  <span>{{ address.phoneNumber }}</span>
-                  <button class="btn btn-link ms-auto">Modifier</button>
-                </p>
-              </ng-container>
+    <!-- Desktop sidebar -->
+    <div class="col-lg-3 d-none d-md-block">
+      <app-sidebar></app-sidebar>
+    </div>
+
+    <!-- Main content -->
+    <div class="col-lg-9">
+      <div class="px-4 px-lg-5 mt-5">
+        <div class="text-center mb-4">
+          <h2>Mes adresses</h2>
+        </div>
+
+        <div *ngIf="successMessage" class="alert alert-success floating-alert">
+          {{ successMessage }}
+        </div>
+
+        <div class="row">
+          <div class="col-12 col-md-11 col-lg-10">
+            <div *ngIf="deliveryAddresses.length > 0">
+              <div
+                class="address-line mb-3"
+                *ngFor="let address of deliveryAddresses"
+              >
+                <div class="address-info">
+                  <div class="info-row">
+                    {{ address.user.firstName }} {{ address.user.lastName }}
+                  </div>
+                  <div class="info-row">{{ address.address }}</div>
+                  <div class="info-row">
+                    {{ address.zipCode }} {{ address.city }},
+                    {{ address.country }}
+                  </div>
+                  <div class="info-row">{{ address.phoneNumber }}</div>
+                  <div class="d-flex flex-wrap justify-content-end gap-2 mt-2">
+                    <button
+                      *ngIf="!address.default"
+                      class="btn btn-sm"
+                      (click)="deleteAddress(userId, address.id)"
+                    >
+                      Supprimer
+                    </button>
+                    <button class="btn btn-sm" (click)="editAddress(address)">
+                      Modifier
+                    </button>
+                    <button
+                      *ngIf="!address.default"
+                      class="btn btn-sm"
+                      (click)="setAsDefault(address.id)"
+                    >
+                      Définir par défaut
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <button class="btn btn-primary mb-3" (click)="openAddAddressDialog()">
-          Ajouter une adresse
-        </button>
+
+        <div class="row mt-4">
+          <div class="col-12 col-md-11 col-lg-10">
+            <button class="btn-primary" (click)="addNewAddress()">
+              Ajouter une adresse
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-</section>
+</div>

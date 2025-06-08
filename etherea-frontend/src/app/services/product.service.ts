@@ -120,7 +120,6 @@ export class ProductService {
       return of([]); // Ne pas envoyer de requête si la recherche est vide
     }
 
-    console.log('Envoi de la requête de recherche avec:', name);
     const params = new HttpParams().set('name', name.trim());
 
     return this.httpClient
@@ -148,7 +147,7 @@ export class ProductService {
     });
 
     return this.httpClient
-      .post<Product>(`${this.apiUrl}/products/add`, formData, { headers })
+      .post<Product>(`${this.apiUrl}/products/add`, formData)
       .pipe(
         catchError((error) => {
           console.error('Error adding product:', error);
@@ -177,16 +176,8 @@ export class ProductService {
     // Ajout du produit en JSON
     formData.append('product', JSON.stringify(filteredProduct));
 
-    const token = this.storageService.getToken(); // Récupérer le token JWT
-
-    const headers = new HttpHeaders({
-      Authorization: `Bearer ${token}`, // Ajout du token JWT
-    });
-
     return this.httpClient
-      .put<Product>(`${this.apiUrl}/products/update`, formData, {
-        headers,
-      })
+      .put<Product>(`${this.apiUrl}/products/update`, formData)
       .pipe(
         catchError((error) => {
           console.error('Erreur lors de la mise à jour du produit:', error);
@@ -203,7 +194,7 @@ export class ProductService {
     });
 
     return this.httpClient
-      .delete<void>(`${this.apiUrl}/products/${productId}`, { headers })
+      .delete<void>(`${this.apiUrl}/products/${productId}`)
       .pipe(
         catchError((error: HttpErrorResponse) => {
           console.error('Erreur lors de la suppression du produit:', error);

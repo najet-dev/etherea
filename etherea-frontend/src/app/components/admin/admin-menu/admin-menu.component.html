@@ -3,14 +3,18 @@
     <img class="logo" src="/assets/logo.png" alt="logo" />
   </a>
 
-  <!-- Le bouton hamburger, qui se transforme en croix -->
-  <div class="menu-toggle" (click)="toggleMenu()" [class.active]="isMenuActive">
+  <div
+    class="menu-toggle"
+    (click)="toggleMenu()"
+    [class.active]="isMenuActive"
+    role="button"
+    aria-label="Toggle menu"
+  >
     <span></span>
     <span></span>
     <span></span>
   </div>
 
-  <!-- Menu qui s'affiche lorsque isMenuActive est true -->
   <ul class="menu" [class.active]="isMenuActive">
     <li>
       <a routerLink="/admin/admin-users" routerLinkActive="active"
@@ -32,6 +36,14 @@
     </li>
     <li>
       <a routerLink="/admin/admin-tips" routerLinkActive="active">Conseils</a>
+    </li>
+    <li>
+      <a routerLink="/admin/admin-news-letter" routerLinkActive="active"
+        >Newsletter</a
+      >
+    </li>
+    <li class="go-to-site">
+      <button (click)="goToSite()">Retour au site</button>
     </li>
   </ul>
 </nav>

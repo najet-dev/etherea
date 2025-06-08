@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "cookie_consent", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"userId", "sessionId"}) // Contrainte composite
+        @UniqueConstraint(columnNames = {"userId", "sessionId"}) // Composite constraint
 })
 public class CookieConsent {
     @Id
@@ -30,14 +30,14 @@ public class CookieConsent {
     private final List<CookieChoice> cookies = new ArrayList<>();
     public CookieConsent() {}
 
-    // Pour les utilisateurs connectés
+    // For logged-in users
     public CookieConsent(Long userId, CookiePolicyVersion cookiePolicyVersion, List<CookieChoice> cookies) {
         this.userId = userId;
         this.cookiePolicyVersion = cookiePolicyVersion;
         this.consentDate = LocalDateTime.now();
         setCookies(cookies);
     }
-    // Pour les utilisateurs anonymes
+    // For anonymous users
     public CookieConsent(String sessionId, CookiePolicyVersion cookiePolicyVersion, List<CookieChoice> cookies) {
         this.sessionId = sessionId;
         this.cookiePolicyVersion = cookiePolicyVersion;

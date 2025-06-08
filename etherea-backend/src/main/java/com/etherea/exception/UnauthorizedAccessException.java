@@ -2,22 +2,22 @@ package com.etherea.exception;
 
 public class UnauthorizedAccessException extends RuntimeException {
 
-    // Constructeur par défaut
+    // Default constructor
     public UnauthorizedAccessException() {
         super("Accès non autorisé.");
     }
 
-    // Constructeur avec message personnalisé
+    // Constructor with personalized message
     public UnauthorizedAccessException(String message) {
         super(message);
     }
 
-    // Constructeur avec message et cause
+    // Constructor with message and cause
     public UnauthorizedAccessException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    // Constructeur avec cause seulement
+    // Constructor with cause only
     public UnauthorizedAccessException(Throwable cause) {
         super(cause);
     }

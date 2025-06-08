@@ -16,13 +16,17 @@ public class Command {
     private String referenceCode;
     @Enumerated(EnumType.STRING)
     private CommandStatus status;
-    @OneToOne( fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "delivery_address_id")
-    private DeliveryAddress deliveryAddress;
-    @ManyToOne( fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+
+    // Snapshot of address (copied at time of order)
+    private String address;
+    private int zipCode;
+    private String city;
+    private String country;
+    private String phoneNumber;
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
-    @ManyToOne( fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "delivery_method_id")
     private DeliveryMethod deliveryMethod;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,14 +39,13 @@ public class Command {
     private List<CommandItem> commandItems = new ArrayList<>();
     private BigDecimal total;
     public Command() {}
-    public Command(LocalDateTime commandDate, String referenceCode, CommandStatus status, DeliveryAddress deliveryAddress, DeliveryMethod deliveryMethod, Cart cart) {
+    public Command(LocalDateTime commandDate, String referenceCode, CommandStatus status, DeliveryMethod deliveryMethod, Cart cart) {
         this.commandDate = commandDate;
         this.referenceCode = referenceCode;
         this.status = status;
-        this.deliveryAddress = deliveryAddress;
         this.deliveryMethod = deliveryMethod;
         this.cart = cart;
-        this.total = cart.calculateFinalTotal(); // Initialize total from shopping cart
+        this.total = cart.calculateFinalTotal(); // Initialise le total
     }
     public Long getId() {
         return id;
@@ -65,14 +68,38 @@ public class Command {
     public CommandStatus getStatus() {
         return status;
     }
+    public String getAddress() {
+        return address;
+    }
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    public int getZipCode() {
+        return zipCode;
+    }
+    public void setZipCode(int zipCode) {
+        this.zipCode = zipCode;
+    }
+    public String getCity() {
+        return city;
+    }
+    public void setCity(String city) {
+        this.city = city;
+    }
+    public String getCountry() {
+        return country;
+    }
+    public void setCountry(String country) {
+        this.country = country;
+    }
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
     public void setStatus(CommandStatus status) {
         this.status = status;
-    }
-    public DeliveryAddress getDeliveryAddress() {
-        return deliveryAddress;
-    }
-    public void setDeliveryAddress(DeliveryAddress deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
     }
     public PaymentMethod getPaymentMethod() {
         return paymentMethod;

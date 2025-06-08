@@ -78,7 +78,7 @@ public class CartItem {
         this.subTotal = subTotal;
     }
 
-    // Calcul du sous-total (prix unitaire * quantité)
+    // Subtotal calculation (unit price * quantity)
     public BigDecimal calculateSubtotal() {
         if (product.getType() == ProductType.FACE) {
             return product.getBasePrice().multiply(BigDecimal.valueOf(quantity));
@@ -88,7 +88,7 @@ public class CartItem {
         return BigDecimal.ZERO;
     }
 
-    // Calcul du prix total du panier
+    // Calculate total basket price
     public static BigDecimal calculateTotalPrice(List<CartItem> items) {
         return items.stream()
                 .map(CartItem::calculateSubtotal)

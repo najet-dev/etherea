@@ -16,9 +16,18 @@ import java.util.Map;
 @RequestMapping("/volumes")
 @CrossOrigin
 public class VolumeController {
-    @Autowired
-    private VolumeService volumeService;
+    private final VolumeService volumeService;
+    public VolumeController(VolumeService volumeService) {
+        this.volumeService = volumeService;
+    }
 
+    /**
+     * Retrieves a paginated list of all available volumes.
+     *
+     * @param page the page number to retrieve (default is 0)
+     * @param size the number of volumes per page (default is 10)
+     * @return a paginated list of VolumeDTO objects, or HTTP 204 if no volumes are found
+     */
     @GetMapping
     public ResponseEntity<Page<VolumeDTO>> getAllVolumes(
             @RequestParam(defaultValue = "0") int page,
@@ -32,8 +41,17 @@ public class VolumeController {
         return ResponseEntity.ok(volumes);
     }
 
-    // Nouveau POST sans utiliser productName
+    /**
+     * Adds a new volume to the system. Only accessible by admins.
+     *
+     * @param volumeDTO the volume data to be added
+     * @return the created VolumeDTO with HTTP 201 status if successful,
+     *         HTTP 404 if related product not found,
+     *         HTTP 400 if invalid input,
+     *         HTTP 500 if an internal error occurs
+     */
     @PostMapping("/add")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VolumeDTO> addVolume(@RequestBody VolumeDTO volumeDTO) {
         try {
             VolumeDTO createdVolume = volumeService.addVolume(volumeDTO);
@@ -47,7 +65,18 @@ public class VolumeController {
         }
     }
 
+    /**
+     * Updates an existing volume by its ID. Only accessible by admins.
+     *
+     * @param volumeId the ID of the volume to update
+     * @param volumeDTO the updated volume data
+     * @return the updated VolumeDTO with HTTP 200 status if successful,
+     *         HTTP 404 if the volume is not found,
+     *         HTTP 400 for invalid input,
+     *         HTTP 500 if an internal error occurs
+     */
     @PutMapping("/{volumeId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<VolumeDTO> updateVolume(@PathVariable Long volumeId, @RequestBody VolumeDTO volumeDTO) {
         try {
             VolumeDTO updatedVolume = volumeService.updateVolume(volumeId, volumeDTO);
@@ -61,7 +90,15 @@ public class VolumeController {
         }
     }
 
+    /**
+     * Deletes a volume by its ID. Only accessible by admins.
+     *
+     * @param id the ID of the volume to delete
+     * @return a success message if the volume is deleted,
+     *         or a not found message if the volume does not exist
+     */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> deleteVolume(@PathVariable Long id) {
         Map<String, String> response = new HashMap<>();
 

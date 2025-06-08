@@ -2,7 +2,6 @@ package com.etherea.dtos;
 
 import com.etherea.models.CartItem;
 import com.etherea.models.Product;
-import com.etherea.models.Volume;
 import java.math.BigDecimal;
 public class CartItemDTO {
     private Long id;

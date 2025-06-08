@@ -12,33 +12,28 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-
 @Service
 public class DeliveryMethodService {
     private final UserRepository userRepository;
     private final DeliveryTypeRepository deliveryTypeRepository;
     private final CartRepository cartRepository;
-    private final DeliveryAddressRepository deliveryAddressRepository;
     private final DeliveryAddressService deliveryAddressService;
     private final DeliveryMethodRepository deliveryMethodRepository;
-    private final PickupPointDetailsRepository pickupPointDetailsRepository;
-
     private static final Logger logger = LoggerFactory.getLogger(DeliveryMethodService.class);
-
     public DeliveryMethodService(UserRepository userRepository, DeliveryTypeRepository deliveryTypeRepository,
-                                 CartRepository cartRepository, DeliveryAddressRepository deliveryAddressRepository,
-                                 DeliveryAddressService deliveryAddressService, DeliveryMethodRepository deliveryMethodRepository,
-                                 PickupPointDetailsRepository pickupPointDetailsRepository) {
+                                 CartRepository cartRepository, DeliveryAddressService deliveryAddressService, DeliveryMethodRepository deliveryMethodRepository) {
         this.userRepository = userRepository;
         this.deliveryTypeRepository = deliveryTypeRepository;
         this.cartRepository = cartRepository;
-        this.deliveryAddressRepository = deliveryAddressRepository;
         this.deliveryAddressService = deliveryAddressService;
         this.deliveryMethodRepository = deliveryMethodRepository;
-        this.pickupPointDetailsRepository = pickupPointDetailsRepository;
     }
-
+    /**
+     * Retrieves available delivery options for a user based on their default address and cart total.
+     *
+     * @param userId the ID of the user
+     * @return a list of available {@link DeliveryTypeDTO} options
+     */
     public List<DeliveryTypeDTO> getDeliveryOptions(Long userId) {
         DeliveryAddressDTO defaultAddress = getDefaultAddress(userId);
         BigDecimal cartTotal = getCartTotal(userId);
@@ -49,12 +44,25 @@ public class DeliveryMethodService {
                 .map(deliveryType -> createDeliveryTypeDTO(deliveryType, currentDate, isFreeDelivery, defaultAddress))
                 .toList();
     }
+    /**
+     * Retrieves all delivery methods previously chosen by the user.
+     *
+     * @param userId the ID of the user
+     * @return a list of {@link DeliveryMethodDTO} records
+     */
     public List<DeliveryMethodDTO> getUserDeliveryMethods(Long userId) {
         return deliveryMethodRepository.findByUserId(userId)
                 .stream()
                 .map(DeliveryMethodDTO::fromEntity)
                 .toList();
     }
+    /**
+     * Returns the user's default delivery address.
+     *
+     * @param userId the ID of the user
+     * @return the default {@link DeliveryAddressDTO}
+     * @throws UserNotFoundException if no default address is found
+     */
     private DeliveryAddressDTO getDefaultAddress(Long userId) {
         return deliveryAddressService.getAllDeliveryAddresses(userId)
                 .stream()
@@ -62,6 +70,16 @@ public class DeliveryMethodService {
                 .findFirst()
                 .orElseThrow(() -> new UserNotFoundException("No default address was found for the user."));
     }
+
+    /**
+     * Creates a {@link DeliveryTypeDTO} with estimated delivery date and final cost.
+     *
+     * @param deliveryType     the delivery type entity
+     * @param currentDate      the current date
+     * @param isFreeDelivery   whether delivery is free based on cart total
+     * @param deliveryAddress  the user's delivery address
+     * @return the constructed {@link DeliveryTypeDTO}
+     */
     private DeliveryTypeDTO createDeliveryTypeDTO(DeliveryType deliveryType, LocalDate currentDate, boolean isFreeDelivery, DeliveryAddressDTO deliveryAddress) {
         LocalDate estimatedDeliveryDate = currentDate.plusDays(deliveryType.getDeliveryDays());
         BigDecimal finalCost = isFreeDelivery ? BigDecimal.ZERO : deliveryType.getCost();
@@ -74,6 +92,15 @@ public class DeliveryMethodService {
                 estimatedDeliveryDate
         );
     }
+
+    /**
+     * Calculates the cart total including delivery cost for a user and delivery option.
+     *
+     * @param userId               the ID of the user
+     * @param selectedDeliveryName the chosen delivery method
+     * @return a {@link CartWithDeliveryDTO} containing the cart, delivery, and total amounts
+     * @throws DeliveryTypeNotFoundException if the delivery type is invalid
+     */
     public CartWithDeliveryDTO getCartWithDeliveryTotal(Long userId, DeliveryName selectedDeliveryName) {
         logger.info("Calculation of shopping cart total with delivery for user {}", userId);
         DeliveryType deliveryType = deliveryTypeRepository.findByDeliveryName(selectedDeliveryName)
@@ -84,11 +111,29 @@ public class DeliveryMethodService {
 
         return new CartWithDeliveryDTO(cartTotal, deliveryCost, cartTotal.add(deliveryCost));
     }
+
+    /**
+     * Retrieves the total cost of the active shopping cart for the given user.
+     *
+     * @param userId the ID of the user
+     * @return the total amount of the active cart
+     * @throws CartNotFoundException if no active cart is found
+     */
     public BigDecimal getCartTotal(Long userId) {
         return cartRepository.findActiveCartByUser(userId)
                 .map(Cart::calculateTotalAmount)
                 .orElseThrow(() -> new CartNotFoundException("No active shopping cart found for user."));
     }
+
+    /**
+     * Adds a new delivery method to the user's account and updates the cart accordingly.
+     *
+     * @param request the delivery method creation request data
+     * @return the saved {@link DeliveryMethodDTO}
+     * @throws UserNotFoundException if the user does not exist
+     * @throws DeliveryTypeNotFoundException if the delivery type does not exist
+     * @throws CartNotFoundException if the cart is not found
+     */
     @Transactional
     public DeliveryMethodDTO addDeliveryMethod(AddDeliveryMethodRequestDTO request) {
         logger.info("Add delivery mode for user ID: {}", request.getUserId());
@@ -99,34 +144,7 @@ public class DeliveryMethodService {
         DeliveryType deliveryType = deliveryTypeRepository.findById(request.getDeliveryTypeId())
                 .orElseThrow(() -> new DeliveryTypeNotFoundException("Delivery type not found with ID: " + request.getDeliveryTypeId()));
 
-        BigDecimal finalDeliveryCost = request.getOrderAmount().compareTo(new BigDecimal("50.0")) >= 0
-                ? BigDecimal.ZERO
-                : deliveryType.getCost();
-
-        DeliveryMethod deliveryMethod = new DeliveryMethod();
-        deliveryMethod.setUser(user);
-        deliveryMethod.setDeliveryType(deliveryType);
-
-        if (DeliveryName.PICKUP_POINT.equals(deliveryType.getDeliveryName())) {
-            if (request.getPickupPointName() == null || request.getPickupPointAddress() == null) {
-                throw new DeliveryAddressNotFoundException("The name and address of the collection point are required.");
-            }
-            PickupPointDetails pickupPoint = new PickupPointDetails(
-                    request.getPickupPointName(),
-                    request.getPickupPointAddress(),
-                    request.getPickupPointLatitude(),
-                    request.getPickupPointLongitude()
-            );
-
-            pickupPoint = pickupPointDetailsRepository.save(pickupPoint);
-            deliveryMethod.setPickupPointDetails(pickupPoint);
-        } else if (request.getAddressId() != null) {
-            DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.getAddressId())
-                    .orElseThrow(() -> new DeliveryAddressNotFoundException("Delivery address not found with ID: " + request.getAddressId()));
-            deliveryMethod.setDeliveryAddress(deliveryAddress);
-        } else {
-            throw new DeliveryAddressNotFoundException("A delivery address or collection point must be specified.");
-        }
+        DeliveryMethod deliveryMethod = new DeliveryMethod(deliveryType, user);
 
         DeliveryMethod savedDeliveryMethod = deliveryMethodRepository.save(deliveryMethod);
 
@@ -139,35 +157,30 @@ public class DeliveryMethodService {
 
         return DeliveryMethodDTO.fromEntity(savedDeliveryMethod);
     }
+
+    /**
+     * Updates the delivery method for a given ID and updates the associated cart.
+     *
+     * @param deliveryMethodId the ID of the delivery method to update
+     * @param request the request containing the new delivery type and user ID
+     * @return the updated {@link DeliveryMethodDTO}
+     * @throws DeliveryMethodNotFoundException if the delivery method does not exist
+     * @throws DeliveryTypeNotFoundException if the new delivery type is invalid
+     * @throws CartNotFoundException if no active cart is associated with the user
+     */
     @Transactional
     public DeliveryMethodDTO updateDeliveryMethod(Long deliveryMethodId, UpdateDeliveryMethodRequestDTO request) {
         logger.info("Update delivery mode with ID: {}", deliveryMethodId);
 
-        DeliveryMethod existingDeliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
+        DeliveryMethod deliveryMethod = deliveryMethodRepository.findById(deliveryMethodId)
                 .orElseThrow(() -> new DeliveryMethodNotFoundException("Delivery mode with ID " + deliveryMethodId + " not found."));
 
         DeliveryType deliveryType = deliveryTypeRepository.findById(request.getDeliveryTypeId())
                 .orElseThrow(() -> new DeliveryTypeNotFoundException("Delivery type with ID " + request.getDeliveryTypeId() + " not found."));
 
-        existingDeliveryMethod.setDeliveryType(deliveryType);
+        deliveryMethod.setDeliveryType(deliveryType);
 
-        if (DeliveryName.PICKUP_POINT.equals(deliveryType.getDeliveryName())) {
-            PickupPointDetails pickupPoint = new PickupPointDetails(
-                    request.getPickupPointName(),
-                    request.getPickupPointAddress(),
-                    request.getPickupPointLatitude(),
-                    request.getPickupPointLongitude()
-            );
-            existingDeliveryMethod.setPickupPointDetails(pickupPoint);
-            existingDeliveryMethod.setDeliveryAddress(null);
-        } else if (request.getAddressId() != null) {
-            DeliveryAddress deliveryAddress = deliveryAddressRepository.findById(request.getAddressId())
-                    .orElseThrow(() -> new DeliveryAddressNotFoundException("Delivery address not found with ID: " + request.getAddressId()));
-            existingDeliveryMethod.setDeliveryAddress(deliveryAddress);
-            existingDeliveryMethod.setPickupPointDetails(null);
-        }
-
-        DeliveryMethod updatedDeliveryMethod = deliveryMethodRepository.save(existingDeliveryMethod);
+        DeliveryMethod updatedDeliveryMethod = deliveryMethodRepository.save(deliveryMethod);
 
         Cart cart = cartRepository.findActiveCartByUser(request.getUserId())
                 .orElseThrow(() -> new CartNotFoundException("No active cart found."));
