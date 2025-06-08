@@ -34,19 +34,6 @@ public class CommandController {
         return ResponseEntity.ok(commandsPage);
     }
 
-    @GetMapping
-    public ResponseEntity<Page<CommandResponseDTO>> getAllCommands(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<CommandResponseDTO> commandsPage = commandService.getAllCommands(page, size);
-
-        if (commandsPage.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-
-        return ResponseEntity.ok(commandsPage);
-    }
-
     /**
      * Retrieves all commands from a user.
      *
