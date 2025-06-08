@@ -2,7 +2,6 @@ package com.etherea.controllers;
 
 import com.etherea.dtos.CommandItemDTO;
 import com.etherea.dtos.CommandResponseDTO;
-import com.etherea.dtos.UserDTO;
 import com.etherea.enums.CommandStatus;
 import com.etherea.services.CommandService;
 import org.springframework.data.domain.Page;
@@ -17,11 +16,18 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 public class CommandController {
     private final CommandService commandService;
-
     public CommandController(CommandService commandService) {
         this.commandService = commandService;
     }
-    @GetMapping
+
+    /**
+     * Retrieves a paginated list of all commands.
+     *
+     * @param page the page number to retrieve (default is 0)
+     * @param size the number of items per page (default is 10)
+     * @return a {@link ResponseEntity} containing a {@link Page} of {@link CommandResponseDTO}
+     *         if commands are found, or a 204 No Content status if the list is empty
+     */@GetMapping
     public ResponseEntity<Page<CommandResponseDTO>> getAllCommands(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -62,6 +68,14 @@ public class CommandController {
         return commandDTO.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(404).body(null));
     }
+
+    /**
+     * Retrieves all items associated with a specific command.
+     *
+     * @param commandId the ID of the command for which to retrieve items
+     * @return a {@link ResponseEntity} containing a list of {@link CommandItemDTO}
+     *         representing the items of the specified command
+     */
     @GetMapping("/{commandId}/items")
     public ResponseEntity<List<CommandItemDTO>> getCommandItems(@PathVariable Long commandId) {
         List<CommandItemDTO> commandItems = commandService.getCommandItems(commandId);
@@ -90,6 +104,7 @@ public class CommandController {
             return ResponseEntity.status(500).body(response);
         }
     }
+
     /**
      * Cancels an order.
      *

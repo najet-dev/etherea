@@ -6,10 +6,8 @@ import com.etherea.exception.ProductNotFoundException;
 import com.etherea.exception.UserNotFoundException;
 import com.etherea.exception.VolumeNotFoundException;
 import com.etherea.services.CartItemService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +20,11 @@ import java.util.Map;
 @RequestMapping("/cartItem")
 @CrossOrigin
 public class CartItemController {
-
-    @Autowired
-    private CartItemService cartItemService;
+    private final CartItemService cartItemService;
     private static final Logger logger = LoggerFactory.getLogger(CartItemController.class);
+    public CartItemController(CartItemService cartItemService) {
+        this.cartItemService = cartItemService;
+    }
 
     /**
      * Get all items in a user's cart.
