@@ -1,7 +1,6 @@
 package com.etherea.controllers;
 
 import com.etherea.dtos.ProductDTO;
-import com.etherea.dtos.UpdateProductDTO;
 import com.etherea.enums.ProductType;
 import com.etherea.exception.ProductNotFoundException;
 import com.etherea.services.ProductService;
@@ -82,7 +81,6 @@ public class ProductController {
 
         return ResponseEntity.ok(productsPage);
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
         try {

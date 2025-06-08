@@ -51,6 +51,7 @@ public class JwtUtils {
                 .signWith(secretKey)
                 .compact();
     }
+
     public String getUserNameFromJwtToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
@@ -77,9 +78,6 @@ public class JwtUtils {
         } catch (IllegalArgumentException e) {
             System.err.println("Token vide ou invalide: " + e.getMessage());
         }
-        return false;
-    }
-}
         return false;
     }
 }

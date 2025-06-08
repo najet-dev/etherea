@@ -1,7 +1,5 @@
 package com.etherea.services;
 
-import com.etherea.dtos.UpdateProductDTO;
-import com.etherea.dtos.UserDTO;
 import com.etherea.dtos.VolumeDTO;
 import com.etherea.enums.ProductType;
 import com.etherea.exception.ProductNotFoundException;
@@ -38,6 +36,15 @@ public class ProductService {
     private final ModelMapper modelMapper = new ModelMapper();
 
     public Page<ProductDTO> getProducts(int page, int size) {
+        // Récupérer une page de produits avec pagination et tri
+        Page<Product> productsPage = productRepository.findByTypeIn(
+                List.of(ProductType.FACE, ProductType.HAIR),
+                PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"))
+        );
+
+        // Convertir Page<Product> en Page<ProductDTO>
+        return productsPage.map(ProductDTO::fromProduct);
+    }
         // Retrieve a product page with pagination and sorting
         Page<Product> productsPage = productRepository.findByTypeIn(
                 List.of(ProductType.FACE, ProductType.HAIR),
@@ -94,7 +101,6 @@ public class ProductService {
             }
         }
         Product product = convertToProduct(productDTO);
-        product.setNewProduct(productDTO.isNewProduct());
         productRepository.save(product);
     }
     @Transactional
