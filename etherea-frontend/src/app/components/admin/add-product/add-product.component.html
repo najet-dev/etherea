@@ -104,6 +104,18 @@
             placeholder="Prix"
           />
         </div>
+        <div class="mb-3">
+          <label for="newProduct" class="form-label">Nouveau produit</label>
+          <input
+            type="number"
+            id="newProduct"
+            class="form-control"
+            [(ngModel)]="product.basePrice"
+            name="newProduct"
+            required
+            step="0.01"
+          />
+        </div>
 
         <div class="mb-3">
           <textarea

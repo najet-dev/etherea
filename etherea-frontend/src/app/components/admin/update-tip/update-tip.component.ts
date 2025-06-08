@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { TipService } from 'src/app/services/tip.service'; // Assure-toi d'importer ton service
+import { TipService } from 'src/app/services/tip.service';
 import { Tip } from '../../models/tip.model';
 
 @Component({
@@ -13,8 +13,8 @@ export class UpdateTipComponent {
     title: '',
     description: '',
     content: '',
-    image: '', // image peut être une chaîne vide si aucune image n'est ajoutée
-    dateCreation: '', // Assurez-vous que la date est gérée correctement
+    image: '',
+    dateCreation: '',
   };
   successMessage = '';
   errorMessage = '';

@@ -10,7 +10,7 @@ import { Volume } from '../../models/volume.model';
 export class UpdateVolumeComponent {
   updateVolume: Volume = {
     id: 0,
-    productName: '',
+    productId: 0,
     volume: 0,
     price: 0,
   };
@@ -40,7 +40,7 @@ export class UpdateVolumeComponent {
   resetForm(): void {
     this.updateVolume = {
       id: 0,
-      productName: '',
+      productId: 0,
       volume: 0,
       price: 0,
     };

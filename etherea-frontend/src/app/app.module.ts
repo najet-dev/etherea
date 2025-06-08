@@ -1,9 +1,4 @@
-import {
-  CUSTOM_ELEMENTS_SCHEMA,
-  NgModule,
-  LOCALE_ID,
-  APP_INITIALIZER,
-} from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, LOCALE_ID } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';

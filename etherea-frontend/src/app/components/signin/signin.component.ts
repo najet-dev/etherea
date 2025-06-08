@@ -5,7 +5,6 @@ import { AuthService } from 'src/app/services/auth.service';
 import { tap } from 'rxjs/operators';
 import { DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Role } from '../models/role.enum';
 
 @Component({
   selector: 'app-signin',

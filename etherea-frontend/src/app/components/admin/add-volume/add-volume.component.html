@@ -13,13 +13,13 @@
 
       <form (ngSubmit)="onSubmit()">
         <div class="mb-3">
-          <label for="productName" class="form-label">Nom du produit</label>
+          <label for="id" class="form-label">ID du produit</label>
           <input
             type="text"
-            id="productName"
+            id="id"
             class="form-control"
-            [(ngModel)]="volume.productName"
-            name="productName"
+            [(ngModel)]="volume.productId"
+            name="id"
             required
           />
         </div>

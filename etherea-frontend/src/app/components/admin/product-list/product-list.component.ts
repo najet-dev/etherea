@@ -12,6 +12,7 @@ import {
 import { ProductService } from 'src/app/services/product.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
+import { AppFacade } from 'src/app/services/appFacade.service';
 
 @Component({
   selector: 'app-product-list',
@@ -28,7 +29,7 @@ export class ProductListComponent {
 
   private destroyRef = inject(DestroyRef);
 
-  constructor(private productService: ProductService) {}
+  constructor(private appFacade: AppFacade) {}
 
   ngOnInit(): void {
     this.loadProducts();
@@ -45,7 +46,7 @@ export class ProductListComponent {
   }
 
   loadProducts(): void {
-    this.productService
+    this.appFacade
       .getAllProducts(this.currentPage, this.pageSize)
       .pipe(
         tap((response) => {
@@ -64,7 +65,7 @@ export class ProductListComponent {
 
   searchProducts(): void {
     if (this.searchQuery.trim().length > 1) {
-      this.productService.searchProductsByName(this.searchQuery).subscribe(
+      this.appFacade.searchProductsByName(this.searchQuery).subscribe(
         (results) => {
           this.products = results;
         },
@@ -79,11 +80,11 @@ export class ProductListComponent {
   }
 
   deleteProduct(productId: number): void {
-    this.productService
+    this.appFacade
       .deleteProduct(productId)
       .pipe(
         switchMap(() =>
-          this.productService.getAllProducts(this.currentPage, this.pageSize)
+          this.appFacade.getAllProducts(this.currentPage, this.pageSize)
         ),
         catchError((error) => {
           console.error('Erreur lors de la suppression du produit:', error);

@@ -1,6 +1,6 @@
 export interface Volume {
   id: number;
-  productName: string;
+  productId: number;
   volume: number;
   price: number;
 }

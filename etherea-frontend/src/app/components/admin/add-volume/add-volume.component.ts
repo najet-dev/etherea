@@ -10,17 +10,16 @@ import { VolumeService } from 'src/app/services/volume.service';
 export class AddVolumeComponent {
   volume: Volume = {
     id: 0,
-    productName: '',
+    productId: 0,
     volume: 0,
     price: 0,
   };
   successMessage = '';
 
   constructor(private volumeService: VolumeService) {}
-
   onSubmit(): void {
     if (
-      this.volume.productName &&
+      this.volume.productId &&
       this.volume.volume > 0 &&
       this.volume.price > 0
     ) {
@@ -45,10 +44,11 @@ export class AddVolumeComponent {
       );
     }
   }
+
   resetForm(): void {
     this.volume = {
       id: 0,
-      productName: '',
+      productId: 0,
       volume: 0,
       price: 0,
     };

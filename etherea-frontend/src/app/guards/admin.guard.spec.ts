@@ -3,7 +3,7 @@ import { CanActivateFn } from '@angular/router';
 
 import { AdminGuard } from './admin.guard';
 
-describe('AdminGuard', () => {
+describe('adminGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
     TestBed.runInInjectionContext(() => AdminGuard(...guardParameters));
 

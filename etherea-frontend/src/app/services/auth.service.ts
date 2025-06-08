@@ -104,26 +104,18 @@ export class AuthService {
     const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
 
     return this.httpClient
-      .post<void>(
-        `${this.apiUrl}/api/auth/logout`,
-        {},
-        {
-          headers: new HttpHeaders().set(
-            'Authorization',
-            `Bearer ${this.storageService.getToken()}`
-          ),
-        }
-      )
+      .post<void>(`${this.apiUrl}/api/auth/logout`, {}, { headers })
       .pipe(
         tap(() => {
           this.storageService.removeToken();
           this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
         }),
-        catchError(() => {
+        catchError((error) => {
           this.storageService.clean();
+          this.AuthenticatedUser$.next(null);
           this.router.navigate(['/signin']);
-          return of();
+          return throwError(() => error);
         })
       );
   }

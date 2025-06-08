@@ -38,7 +38,7 @@ export class DeliveryAddressService {
   ): Observable<DeliveryAddress> {
     return this.httpClient
       .get<DeliveryAddress>(
-        `${this.apiUrl}/deliveryAddresses/${userId}/${addressId}` // Pas de changement ici
+        `${this.apiUrl}/deliveryAddresses/${userId}/${addressId}`
       )
       .pipe(
         tap((address) => console.log('Adresse récupérée :', address)),
@@ -58,7 +58,7 @@ export class DeliveryAddressService {
   ): Observable<DeliveryAddress> {
     return this.httpClient
       .post<DeliveryAddress>(
-        `${this.apiUrl}/deliveryAddresses/${userId}`, // Path modifié : juste userId, pas d'ID d'adresse
+        `${this.apiUrl}/deliveryAddresses/${userId}`,
         deliveryAddress
       )
       .pipe(
