@@ -23,10 +23,11 @@ public class NewsletterController {
     }
 
     /**
-     * Endpoint pour s'abonner à la newsletter.
+     * Subscribes a user to the newsletter.
      *
-     * @param newsletterDTO DTO contenant l'email.
-     * @return Réponse avec message de succès ou d'échec.
+     * @param newsletterDTO the email address to subscribe
+     * @return HTTP 200 with a success message if subscribed successfully,
+     *         or HTTP 409 if the email is already subscribed
      */
     @PostMapping("/subscribe")
     public ResponseEntity<Map<String, String>> subscribe(@RequestBody NewsletterDTO newsletterDTO) {
@@ -43,10 +44,13 @@ public class NewsletterController {
     }
 
     /**
-     * Endpoint pour envoyer la newsletter à tous les abonnés.
+     * Sends a newsletter email to all subscribers.
+     * Only accessible to users with the ADMIN role.
      *
-     * @param newsletterSendDTO Objet contenant le sujet et le contenu de la newsletter.
-     * @return Réponse indiquant le succès ou l'échec de l'envoi.
+     * @param newsletterSendDTO the subject and content of the newsletter to send
+     * @return HTTP 200 with a success message if sent successfully,
+     *         HTTP 400 if subject or content is missing,
+     *         HTTP 500 if an error occurs during sending
      */
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/send")
@@ -70,10 +74,11 @@ public class NewsletterController {
     }
 
     /**
-     * Endpoint pour se désinscrire de la newsletter via un email.
+     * Unsubscribes a user from the newsletter.
      *
-     * @param email L'email de l'utilisateur à désinscrire.
-     * @return Réponse indiquant le succès ou l'échec de la désinscription.
+     * @param email the email address to unsubscribe
+     * @return HTTP 200 with a success message if unsubscribed,
+     *         or HTTP 404 if the email is not found among subscribers
      */
     @GetMapping("/unsubscribe")
     public ResponseEntity<Map<String, String>> unsubscribe(@RequestParam String email) {

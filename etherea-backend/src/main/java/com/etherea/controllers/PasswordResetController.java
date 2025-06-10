@@ -4,7 +4,6 @@ import com.etherea.dtos.ForgotPasswordRequestDTO;
 import com.etherea.dtos.ResetPasswordRequestDTO;
 import com.etherea.repositories.ResetTokenRepository;
 import com.etherea.services.PasswordResetService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +14,19 @@ import java.util.Map;
 @RequestMapping("/resetToken")
 @CrossOrigin(origins = "*")
 public class PasswordResetController {
-    @Autowired
-    private PasswordResetService passwordResetService;
-    @Autowired
-    private ResetTokenRepository resetTokenRepository;
+    private final PasswordResetService passwordResetService;
+    public final ResetTokenRepository resetTokenRepository;
+    public PasswordResetController (PasswordResetService passwordResetService, ResetTokenRepository resetTokenRepository) {
+        this.passwordResetService = passwordResetService;
+        this.resetTokenRepository = resetTokenRepository;
+    }
+    /**
+     * Sends a password reset link to the user's email address.
+     *
+     * @param request the request object containing the user's email
+     * @return a ResponseEntity with a success message if the email was sent,
+     *         or an error message if an exception occurred
+     */
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@Validated @RequestBody ForgotPasswordRequestDTO request) {
         try {
@@ -32,6 +40,13 @@ public class PasswordResetController {
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
+    /**
+     * Resets the user's password using the provided reset token and new password.
+     *
+     * @param request the request object containing the reset token and new password
+     * @return a ResponseEntity with a success message if the password was reset,
+     *         or an error message if the token is invalid or expired
+     */
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String, String>> resetPassword(@Validated @RequestBody ResetPasswordRequestDTO request) {
         try {

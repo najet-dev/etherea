@@ -4,6 +4,8 @@ import com.etherea.dtos.*;
 import com.etherea.enums.DeliveryName;
 import com.etherea.exception.*;
 import com.etherea.models.DeliveryType;
+import com.etherea.services.DefaultAddressService;
+import com.etherea.services.DeliveryAddressService;
 import com.etherea.services.DeliveryMethodService;
 import com.etherea.services.PickupPointService;
 import jakarta.validation.Valid;
@@ -24,11 +26,13 @@ import java.util.List;
 @RequestMapping("/deliveryMethods")
 @CrossOrigin(origins = "*")
 public class DeliveryMethodController {
-    @Autowired
-    private DeliveryMethodService deliveryMethodService;
-    @Autowired
-    private PickupPointService pickupPointService;
+    private final DeliveryMethodService deliveryMethodService;
+    private final PickupPointService pickupPointService;
     private static final Logger logger = LoggerFactory.getLogger(DeliveryMethodController.class);
+    public DeliveryMethodController( DeliveryMethodService deliveryMethodService, PickupPointService pickupPointService) {
+        this.deliveryMethodService = deliveryMethodService;
+        this.pickupPointService = pickupPointService;
+    }
 
     /**
      * Retrieves available delivery options for a given user.

@@ -1,6 +1,7 @@
 package com.etherea.controllers;
 
 import com.etherea.dtos.FavoriteDTO;
+import com.etherea.services.CartItemService;
 import com.etherea.services.FavoriteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,8 +15,17 @@ import java.util.Map;
 @RestController
 @RequestMapping("/favorites")
 public class FavoriteController {
-    @Autowired
-    private FavoriteService favoriteService;
+    private final FavoriteService favoriteService;
+    public FavoriteController( FavoriteService favoriteService) {
+        this.favoriteService = favoriteService;
+    }
+
+    /**
+     * Retrieves the list of favorite products for a given user.
+     *
+     * @param userId the ID of the user
+     * @return a ResponseEntity containing the list of favorites or an error message
+     */
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserFavorites(@PathVariable Long userId) {
         try {
@@ -27,6 +37,14 @@ public class FavoriteController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
+
+    /**
+     * Adds a product to the user's favorites.
+     *
+     * @param userId    the ID of the user
+     * @param productId the ID of the product to add
+     * @return a ResponseEntity with a success message or an error message
+     */
     @PostMapping("/{userId}/{productId}")
     public ResponseEntity<?> addFavorite(@PathVariable Long userId, @PathVariable Long productId) {
         try {
@@ -44,6 +62,13 @@ public class FavoriteController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
+    /**
+     * Updates the user's list of favorite products.
+     *
+     * @param userId            the ID of the user
+     * @param updatedProductIds the updated list of product IDs to set as favorites
+     * @return a ResponseEntity with a success message or an error message
+     */
     @PutMapping("/{userId}")
     public ResponseEntity<?> updateFavorites(@PathVariable Long userId, @RequestBody List<Long> updatedProductIds) {
         try {
@@ -57,6 +82,13 @@ public class FavoriteController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
+    /**
+     * Removes a product from the user's favorites.
+     *
+     * @param userId    the ID of the user
+     * @param productId the ID of the product to remove
+     * @return a ResponseEntity with a success message or an error message
+     */
     @DeleteMapping("/{userId}/{productId}")
     public ResponseEntity<?> removeFavorite(@PathVariable Long userId, @PathVariable Long productId) {
         try {

@@ -3,6 +3,7 @@ package com.etherea.controllers;
 import com.etherea.dtos.DeliveryAddressDTO;
 import com.etherea.exception.DeliveryAddressNotFoundException;
 import com.etherea.exception.UserNotFoundException;
+import com.etherea.services.CommandService;
 import com.etherea.services.DefaultAddressService;
 import com.etherea.services.DeliveryAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,11 +19,12 @@ import java.util.Map;
 @RequestMapping("/deliveryAddresses")
 @CrossOrigin
 public class DeliveryAddressController {
-    @Autowired
-    private DeliveryAddressService deliveryAddressService;
-    @Autowired
-    private DefaultAddressService defaultAddressService;
-
+    private final DeliveryAddressService deliveryAddressService;
+    private final DefaultAddressService defaultAddressService;
+    public DeliveryAddressController(DeliveryAddressService deliveryAddressService, DefaultAddressService defaultAddressService) {
+        this.deliveryAddressService = deliveryAddressService;
+        this.defaultAddressService = defaultAddressService;
+    }
 
     /**
      * Retrieves all delivery addresses for a given user.
@@ -89,6 +91,16 @@ public class DeliveryAddressController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+    /**
+     * Sets a specific delivery address as the default address for a given user.
+     *
+     * @param userId the ID of the user whose default address is to be set
+     * @param addressId the ID of the delivery address to set as default
+     * @return a {@link ResponseEntity} with status 200 OK if successful,
+     *         404 NOT FOUND if the user or address is not found,
+     *         or 400 BAD REQUEST for other errors
+     *
+     */
     @PutMapping("/{userId}/{addressId}/set-default")
     public ResponseEntity<Void> setDefaultAddress(@PathVariable Long userId, @PathVariable Long addressId) {
         try {
@@ -124,5 +136,4 @@ public class DeliveryAddressController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
-
 }
