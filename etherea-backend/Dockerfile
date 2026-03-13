@@ -1,5 +1,5 @@
 # compilation + exécution dans Java 17
-FROM openjdk:17
+FROM openjdk:21
 
 # Installer Maven
 RUN apt-get update && \
