@@ -17,6 +17,7 @@ public class CorsConfig {
         config.setAllowedOriginPatterns(List.of(
                 "http://localhost:4200",
                 "http://localhost:*",
+                "https://etherea.najet-ramoul.com",
                 "https://etherea.bloomviadigital.com"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

@@ -1,11 +1,10 @@
-# compilation + exécution dans Java 17
-FROM adoptopenjdk:17-jdk-hotspot
-# Installer Maven
+# compilation + exécution dans Java 21
+FROM openjdk:17-jdk-slim
+
 RUN apt-get update && \
     apt-get install -y maven && \
     apt-get clean
 
-# Définir le répertoire de travail
 WORKDIR /app
 
 # Copier tous les fichiers nécessaires au build
