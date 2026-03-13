@@ -1,6 +1,5 @@
 # compilation + exécution dans Java 17
-FROM openjdk:21
-
+FROM adoptopenjdk:17-jdk-hotspot
 # Installer Maven
 RUN apt-get update && \
     apt-get install -y maven && \
