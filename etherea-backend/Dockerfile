@@ -1,5 +1,5 @@
 # compilation + exécution dans Java 17
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:21-jdk
 
 RUN apt-get update && \
     apt-get install -y maven && \
