@@ -7,6 +7,7 @@
   color: white;
   text-align: center;
   padding: 15px;
+  z-index: 9999;
 }
 .text {
   text-align: justify;
@@ -50,13 +51,12 @@
 }
 /* Modal pour personnalisation des cookies */
 .modal {
-  display: block !important;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 20px;
-  z-index: 10000 !important;
+  z-index: 10000;
   width: 90%;
   max-width: 600px;
   height: auto;
@@ -65,9 +65,7 @@
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
 }
-
 .modal-content {
   padding: 20px;
 }

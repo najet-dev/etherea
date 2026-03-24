@@ -7,6 +7,7 @@ import { AppFacade } from 'src/app/services/appFacade.service';
 import { ProductTypeService } from 'src/app/services/product-type.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Product } from '../models/product.model';
+import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-home',
@@ -17,22 +18,30 @@ export class HomeComponent {
   products$: Observable<Product[]> = of([]);
   userId: number | null = null;
   private destroyRef = inject(DestroyRef);
-
   constructor(
     private authService: AuthService,
     private appFacade: AppFacade,
     private router: Router,
-    public productTypeService: ProductTypeService
+    public productTypeService: ProductTypeService,
+    private meta: Meta,
+    private title: Title,
   ) {}
 
   ngOnInit(): void {
+    this.title.setTitle('Soins naturels visage et cheveux | ETHEREA');
+
+    this.meta.updateTag({
+      name: 'description',
+      content:
+        'Soins naturels pour le visage et les cheveux avec ETHEREA. Produits authentiques pour une beauté saine et durable.',
+    });
     this.loadProducts();
 
     this.authService
       .getCurrentUser()
       .pipe(
         tap((user) => (this.userId = user ? user.id : null)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }
@@ -43,13 +52,13 @@ export class HomeComponent {
       switchMap((products) =>
         this.userId !== null
           ? this.appFacade.productsFavorites(products)
-          : of(products)
+          : of(products),
       ),
       catchError((error) => {
         console.error('Erreur lors du chargement des produits :', error);
         return of([]);
       }),
-      takeUntilDestroyed(this.destroyRef)
+      takeUntilDestroyed(this.destroyRef),
     );
   }
 
